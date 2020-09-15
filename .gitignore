@@ -1,0 +1,15 @@
+/**/target
+/**/node_modules
+/**/build
+/**/.idea
+/**/*.iml
+/**/*log.*
+/**/*.log
+/**/*_log
+/**/_dev
+/**/*_dev.*
+/**/temp
+/**/.vscode
+/**/report.json
+/**/output-test.png
+/**/test_picture.png
