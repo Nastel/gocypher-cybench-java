@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018-2020 K2N.IO. All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of
+  ~ K2N.IO. ("Confidential Information").  You shall not disclose
+  ~ such Confidential Information and shall use it only in accordance with
+  ~ the terms of the license agreement you entered into with K2N.IO.
+  ~
+  ~ K2N.IO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+  ~ THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+  ~ PURPOSE, OR NON-INFRINGEMENT. K2N.IO SHALL NOT BE LIABLE FOR ANY DAMAGES
+  ~ SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+  ~ THIS SOFTWARE OR ITS DERIVATIVES.
+  ~
+  ~ CopyrightVersion 1.0
+  -->
+
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.gocypher.benchmarks.client</groupId>
+    <artifactId>gocypher-benchmarks-client</artifactId>
+    <version>1.0.0</version>
+
+    <name>gocypher-benchmarks-client</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>1.25</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.27</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+    <packaging>pom</packaging>
+
+    <properties>
+        <skip.assembly.pack>true</skip.assembly.pack>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jmh.version>1.25</jmh.version>
+        <jackson.version>2.11.2</jackson.version>
+        <javac.target>1.8</javac.target>
+        <uberjar.name>gocypher-benchmarks-client</uberjar.name>
+        <!--  Benchmarks versions for manifest file  -->
+        <benchmark-jvm>1.0.1</benchmark-jvm>
+        <benchmark-cache>1.0.1</benchmark-cache>
+        <license-name>LICENSE_2.0*</license-name>
+
+    </properties>
+
+    <modules>
+        <module>gocypher-benchmarks-integration-test</module>
+        <module>gocypher-benchmarks-runner</module>
+        <module>gocypher-benchmarks-core</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>pack-build</id>
+            <modules>
+                <module>gocypher-benchmarks-shadow</module>
+                <module>gocypher-benchmarks-distribution</module>
+            </modules>
+            <properties>
+                <skip.assembly.pack>false</skip.assembly.pack>
+            </properties>
+        </profile>
+        <profile>
+            <id>benchmark-jvm</id>
+            <modules>
+                <module>gocypher-benchmarks-jvm</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>benchmark-cache</id>
+            <modules>
+                <module>gocypher-benchmarks-cache</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>../</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>${license-name}</include>
+                </includes>
+            </resource>
+        </resources>
+        <defaultGoal>clean package</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <inherited>true</inherited>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018-2020 K2N.IO. All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of
+  ~ K2N.IO. ("Confidential Information").  You shall not disclose
+  ~ such Confidential Information and shall use it only in accordance with
+  ~ the terms of the license agreement you entered into with K2N.IO.
+  ~
+  ~ K2N.IO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+  ~ THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+  ~ PURPOSE, OR NON-INFRINGEMENT. K2N.IO SHALL NOT BE LIABLE FOR ANY DAMAGES
+  ~ SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+  ~ THIS SOFTWARE OR ITS DERIVATIVES.
+  ~
+  ~ CopyrightVersion 1.0
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.gocypher.benchmarks.client</groupId>
+        <artifactId>gocypher-benchmarks-client</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>gocypher-benchmarks-shadow</artifactId>
+    <version>${project.parent.version}</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <release.deploy.name>${project.parent.artifactId}</release.deploy.name>
+        <release.deploy.dir>../target</release.deploy.dir>
+        <build.assemblies.attach>false</build.assemblies.attach>
+        <uberjar.name>gocypher-benchmarks-shadowed</uberjar.name>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>../</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>${license-name}</include>
+                </includes>
+            </resource>
+<!--            <resource>-->
+<!--                <directory>../</directory>-->
+<!--                <targetPath>META-INF/ThirdPartyLicenses</targetPath>-->
+<!--                <includes>-->
+<!--                    <include>gocypher-benchmarks-shadow/target/ThirdPartyLicenses/*</include>-->
+<!--                </includes>-->
+<!--            </resource>-->
+        </resources>
+        <defaultGoal>clean package</defaultGoal>
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <com-gocypher-benchmarks-jvm-client-tests-version>${benchmark-jvm}
+                            </com-gocypher-benchmarks-jvm-client-tests-version>
+                            <com-gocypher-benchmarks-cache-client-tests-version>${benchmark-cache}
+                            </com-gocypher-benchmarks-cache-client-tests-version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>license-maven-plugin</artifactId>-->
+<!--                <version>2.0.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>download-licenses</id>-->
+<!--                        <goals>-->
+<!--                            <goal>download-licenses</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <licensesOutputDirectory>target/ThirdPartyLicenses</licensesOutputDirectory>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${uberjar.name}</finalName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.gocypher.benchmarks.runner.BenchmarkRunner</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/NOTICE*</exclude>
+                                        <exclude>META-INF/DEPENDENCIES*</exclude>
+<!--                                        <exclude>META-INF/AL2.0*</exclude>-->
+<!--                                        <exclude>META-INF/LGPL2.1*</exclude>-->
+                                        <exclude>LICENSE*</exclude>
+                                        <exclude>NOTICE*</exclude>
+                                        <exclude>THIRD-PARTY*</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <profiles>
+        <profile>
+            <id>shadow-runtime-jvm</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.gocypher.benchmarks.client</groupId>
+                    <artifactId>gocypher-benchmarks-jvm</artifactId>
+                    <version>${benchmark-jvm}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>shadow-runtime-cache</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.gocypher.benchmarks.client</groupId>
+                    <artifactId>gocypher-benchmarks-cache</artifactId>
+                    <version>${benchmark-cache}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+    <!-- Just to make sure distribution assemblies are made after all modules have been built -->
+    <!-- It is enough to have dependency to single (mandatory) module to have modules correctly ordered by Maven -->
+    <dependencies>
+        <dependency>
+            <groupId>com.gocypher.benchmarks.client</groupId>
+            <artifactId>gocypher-benchmarks-runner</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <!--  if getting any method not found or class not found, manage dependency version manually (like jPowerShell)   -->
+                <exclusion>
+                    <artifactId>jna</artifactId>
+                    <groupId>net.java.dev.jna</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jPowerShell</artifactId>
+                    <groupId>com.profesorfalken</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <artifactId>jna</artifactId>
+            <groupId>net.java.dev.jna</groupId>
+            <version>5.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.profesorfalken</groupId>
+            <artifactId>jPowerShell</artifactId>
+            <version>1.5</version>
+        </dependency>
+    </dependencies>
+</project>

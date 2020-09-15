@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component xmlns="http://maven.apache.org/ASSEMBLY-COMPONENT/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY-COMPONENT/2.0.0 http://maven.apache.org/xsd/assembly-component-2.0.0.xsd">
+    <files>
+        <file>
+            <source> ${project.basedir}/../gocypher-benchmarks-runner/src/main/resources/benchmark_run.bat</source>
+            <lineEnding>crlf</lineEnding>
+        </file>
+        <file>
+            <source> ${project.basedir}/../gocypher-benchmarks-runner/src/main/resources/benchmark_run.sh</source>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0777</fileMode>
+        </file>
+        <file>
+            <source> ${project.basedir}/../gocypher-benchmarks-runner/src/main/resources/gocypher-benchmark-client-configuration.properties</source>
+            <outputDirectory>conf</outputDirectory>
+        </file>
+        <file>
+            <source> ${project.build.directory}/../../gocypher-benchmarks-shadow/target/gocypher-benchmarks-shadowed.jar</source>
+            <destName>${project.parent.artifactId}.jar</destName>
+        </file>
+    </files>
+    <fileSets>
+        <fileSet>
+            <directory>../</directory>
+            <includes>
+                <include>LICENSE*</include>
+            </includes>
+            <outputDirectory></outputDirectory>
+        </fileSet>
+    </fileSets>
+</component>

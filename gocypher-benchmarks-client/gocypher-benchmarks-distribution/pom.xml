@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018-2020 K2N.IO. All Rights Reserved.
+  ~
+  ~ This software is the confidential and proprietary information of
+  ~ K2N.IO. ("Confidential Information").  You shall not disclose
+  ~ such Confidential Information and shall use it only in accordance with
+  ~ the terms of the license agreement you entered into with K2N.IO.
+  ~
+  ~ K2N.IO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
+  ~ THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+  ~ THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+  ~ PURPOSE, OR NON-INFRINGEMENT. K2N.IO SHALL NOT BE LIABLE FOR ANY DAMAGES
+  ~ SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
+  ~ THIS SOFTWARE OR ITS DERIVATIVES.
+  ~
+  ~ CopyrightVersion 1.0
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.gocypher.benchmarks.client</groupId>
+        <artifactId>gocypher-benchmarks-client</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>gocypher-benchmarks-distribution</artifactId>
+    <version>${project.parent.version}</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <release.deploy.name>${project.artifactId}</release.deploy.name>
+        <release.deploy.dir>../deploy</release.deploy.dir>
+        <release.deploy.finalName>${release.deploy.name}-${project.version}</release.deploy.finalName>
+        <release.deploy.zip.assembly>src/assembly/zipDeployAssembly.xml</release.deploy.zip.assembly>
+        <release.deploy.gz.assembly>src/assembly/gzDeployAssembly.xml</release.deploy.gz.assembly>
+        <release.deploy.dir.assembly>src/assembly/dirDeployAssembly.xml</release.deploy.dir.assembly>
+        <build.assemblies.attach>false</build.assemblies.attach>
+
+        <assembly.line.endings>unix</assembly.line.endings>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>win-ln</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <assembly.line.endings>crlf</assembly.line.endings>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <defaultGoal>clean install</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${release.deploy.dir}</directory>
+                            <includes>
+                                <include>${release.deploy.finalName}/</include>
+                                <include>${release.deploy.finalName}.*</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <skipAssembly>${skip.assembly.pack}</skipAssembly>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-deploy-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>${release.deploy.zip.assembly}</descriptor>
+                                <descriptor>${release.deploy.gz.assembly}</descriptor>
+                                <descriptor>${release.deploy.dir.assembly}</descriptor>
+                            </descriptors>
+                            <outputDirectory>${release.deploy.dir}</outputDirectory>
+                            <attach>${build.assemblies.attach}</attach>
+                            <finalName>${release.deploy.finalName}</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Just to make sure distribution assemblies are made after all modules have been built -->
+    <!-- It is enough to have dependency to single (mandatory) module to have modules correctly ordered by Maven -->
+    <dependencies>
+        <dependency>
+            <groupId>com.gocypher.benchmarks.client</groupId>
+                <artifactId>gocypher-benchmarks-shadow</artifactId>
+                <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
+</project>
