@@ -283,14 +283,26 @@ public class CollectSystemInformation {
 
     }
     /**
-     * Get OS properties using OSHI
+     * Get OS properties using OSHI or JHardware if Windows operating system
      */
     private static void getOSProperties(SystemInfo sysProps) throws Exception {
         LOG.info("Looking for OS properties OSHI...");
         Properties properties = System.getProperties();
         OperatingSystem osSystemProps = sysProps.getOperatingSystem();
-        hardwareProp.setHwOsName(osSystemProps.getManufacturer() + " " + osSystemProps.getFamily());
-        hardwareProp.setHwOsBuildNumber(osSystemProps.getVersionInfo().toString());
+        String osName = System.getProperty("os.name");
+        if(osName.toLowerCase().contains("windows")) {
+            OSInfo osInfo = HardwareInfo.getOSInfo();
+            hardwareProp.setHwOsName(osInfo.getName());
+            Map<String, String> fullOsInfo = osInfo.getFullInfo();
+            for (String key : fullOsInfo.keySet()) {
+                if ("BuildNumber".equals(key)) {
+                    hardwareProp.setHwOsBuildNumber(fullOsInfo.get(key));
+                }
+            }
+        }else {
+            hardwareProp.setHwOsName(osSystemProps.getManufacturer() + " " + osSystemProps.getFamily());
+            hardwareProp.setHwOsBuildNumber(osSystemProps.getVersionInfo().toString());
+        }
         hardwareProp.setHwOsLocalDateTime(properties.getProperty("user.timezone"));
     }
     /* Using JHardware to take some of system environments properties */

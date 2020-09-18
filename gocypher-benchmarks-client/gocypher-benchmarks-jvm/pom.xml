@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>gocypher-benchmarks-jvm</artifactId>
-    <version>${benchmark-jvm}</version>
+    <version>${benchmark-jvm.version}</version>
     <packaging>jar</packaging>
 
     <name>gocypher-benchmarks-jvm</name>
@@ -39,11 +39,6 @@
     -->
 
     <dependencies>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
-            <version>${jmh.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
@@ -109,7 +104,6 @@
                         </goals>
                         <configuration>
                             <finalName>${uberjar.name}</finalName>
-
                         </configuration>
                     </execution>
                 </executions>
@@ -148,10 +142,6 @@
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>2.2.1</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.17</version>
                 </plugin>
             </plugins>
         </pluginManagement>

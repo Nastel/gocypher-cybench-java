@@ -114,8 +114,8 @@
     <dependencies>
         <dependency>
             <groupId>com.gocypher.benchmarks.client</groupId>
-                <artifactId>gocypher-benchmarks-shadow</artifactId>
-                <version>${project.parent.version}</version>
+            <artifactId>gocypher-benchmarks-shade</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 </project>

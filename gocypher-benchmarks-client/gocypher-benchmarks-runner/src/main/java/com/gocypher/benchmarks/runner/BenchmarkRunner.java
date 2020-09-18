@@ -30,6 +30,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 public class BenchmarkRunner {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
@@ -73,12 +74,26 @@ public class BenchmarkRunner {
         OptionsBuilder optBuild = new OptionsBuilder();
         LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
         String tempBenchmark = null;
-        for(Class<? extends Object> classObj : allClasses){
-            if(!classObj.getSimpleName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
-                LOG.info(classObj.getSimpleName());
-                optBuild.include(classObj.getSimpleName());
-                tempBenchmark = classObj.getName();
-                securityBuilder.generateSecurityHashForClasses(classObj);
+        if(cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES) != null && !cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES).equals("")){
+            List<String> benchmarkNames = Arrays.stream( cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES).split(",")).map(String::trim).collect(Collectors.toList());
+            for (Class<? extends Object> classObj : allClasses) {
+                if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
+                    if(substringExistsInList(classObj.getName(),benchmarkNames)) {
+                        LOG.info(classObj.getName());
+                        optBuild.include(classObj.getName());
+                        tempBenchmark = classObj.getName();
+                        securityBuilder.generateSecurityHashForClasses(classObj);
+                    }
+                }
+            }
+        }else {
+            for (Class<? extends Object> classObj : allClasses) {
+                if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
+                    LOG.info(classObj.getName());
+                    optBuild.include(classObj.getName());
+                    tempBenchmark = classObj.getName();
+                    securityBuilder.generateSecurityHashForClasses(classObj);
+                }
             }
         }
         //LOG.info("Situation of class signatures:{}",securityBuilder.getMapOfHashedParts()) ;
@@ -102,6 +117,7 @@ public class BenchmarkRunner {
                 .threads(threads)
                 .shouldDoGC(true)
                 .addProfiler(GCProfiler.class)
+                .detectJvmArgs()
                 //.addProfiler(StackProfiler.class)
                 //.addProfiler(HotspotMemoryProfiler.class)
                 //.addProfiler(HotspotRuntimeProfiler.class)
@@ -152,6 +168,9 @@ public class BenchmarkRunner {
         LOG.info ("-----------------------------------------------------------------------------------------") ;
         LOG.info ("                                 Finished benchmarking                                     ") ;
         LOG.info ("-----------------------------------------------------------------------------------------") ;
+    }
+    private static boolean substringExistsInList(String inputStr, List<String> items) {
+        return items.stream().parallel().anyMatch(inputStr::contains);
     }
     private static void identifyPropertiesFromArguments(String [] args){
         String configurationFilePath = "";

@@ -17,7 +17,6 @@
   ~ CopyrightVersion 1.0
   -->
 
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -45,30 +44,30 @@
     <packaging>pom</packaging>
 
     <properties>
-        <skip.assembly.pack>true</skip.assembly.pack>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <javac.target>1.8</javac.target>
+        <skip.assembly.pack>true</skip.assembly.pack>
+
+        <license-name>CYBENCH_LICENSE*</license-name>
+        <uberjar.name>gocypher-benchmarks-client</uberjar.name>
+
         <jmh.version>1.25</jmh.version>
         <jackson.version>2.11.2</jackson.version>
-        <javac.target>1.8</javac.target>
-        <uberjar.name>gocypher-benchmarks-client</uberjar.name>
         <!--  Benchmarks versions for manifest file  -->
-        <benchmark-jvm>1.0.1</benchmark-jvm>
-        <benchmark-cache>1.0.1</benchmark-cache>
-        <license-name>LICENSE_2.0*</license-name>
-
+        <benchmark-jvm.version>1.0.1</benchmark-jvm.version>
+        <benchmark-cache.version>1.0.1</benchmark-cache.version>
     </properties>
 
     <modules>
-        <module>gocypher-benchmarks-integration-test</module>
         <module>gocypher-benchmarks-runner</module>
         <module>gocypher-benchmarks-core</module>
     </modules>
 
     <profiles>
         <profile>
-            <id>pack-build</id>
+            <id>pack-bin</id>
             <modules>
-                <module>gocypher-benchmarks-shadow</module>
+                <module>gocypher-benchmarks-shade</module>
                 <module>gocypher-benchmarks-distribution</module>
             </modules>
             <properties>
@@ -76,20 +75,33 @@
             </properties>
         </profile>
         <profile>
-            <id>benchmark-jvm</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>build-jvm</id>
             <modules>
                 <module>gocypher-benchmarks-jvm</module>
             </modules>
         </profile>
         <profile>
-            <id>benchmark-cache</id>
+            <id>build-cache</id>
             <modules>
                 <module>gocypher-benchmarks-cache</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>integration-dev</id>
+            <modules>
+                <module>gocypher-benchmarks-jvm</module>
+                <module>gocypher-benchmarks-cache</module>
+                <module>gocypher-benchmarks-integration-test</module>
             </modules>
         </profile>
     </profiles>
 
     <build>
+        <defaultGoal>clean package</defaultGoal>
+
         <resources>
             <resource>
                 <directory>../</directory>
@@ -99,7 +111,6 @@
                 </includes>
             </resource>
         </resources>
-        <defaultGoal>clean package</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

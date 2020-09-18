@@ -42,7 +42,6 @@ public class ReportingService {
             if (item.getPrimaryResult() != null) {
                 report.setScore(item.getPrimaryResult().getScore());
                 report.setUnits(item.getPrimaryResult().getScoreUnit());
-
                 if (item.getPrimaryResult().getStatistics() != null){
                     report.setN(item.getPrimaryResult().getStatistics().getN());
                     report.setMeanScore(item.getPrimaryResult().getStatistics().getMean());
@@ -87,7 +86,9 @@ public class ReportingService {
             //System.out.println("Report class name:"+report.getReportClassName());
 
             report.setCategory(resolveCategory(report.getReportClassName()));
-
+            if ("IO".equalsIgnoreCase(report.getCategory())){
+                report.recalculateScoresToMBPerS();
+            }
             overviewReport.addToBenchmarks(report);
         }
 

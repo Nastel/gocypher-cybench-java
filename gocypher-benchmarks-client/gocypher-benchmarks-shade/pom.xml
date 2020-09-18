@@ -28,7 +28,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>gocypher-benchmarks-shadow</artifactId>
+    <artifactId>gocypher-benchmarks-shade</artifactId>
     <version>${project.parent.version}</version>
     <packaging>jar</packaging>
 
@@ -36,7 +36,7 @@
         <release.deploy.name>${project.parent.artifactId}</release.deploy.name>
         <release.deploy.dir>../target</release.deploy.dir>
         <build.assemblies.attach>false</build.assemblies.attach>
-        <uberjar.name>gocypher-benchmarks-shadowed</uberjar.name>
+        <uberjar.name>gocypher-benchmarks-all</uberjar.name>
     </properties>
 
     <build>
@@ -48,13 +48,13 @@
                     <include>${license-name}</include>
                 </includes>
             </resource>
-<!--            <resource>-->
-<!--                <directory>../</directory>-->
-<!--                <targetPath>META-INF/ThirdPartyLicenses</targetPath>-->
-<!--                <includes>-->
-<!--                    <include>gocypher-benchmarks-shadow/target/ThirdPartyLicenses/*</include>-->
-<!--                </includes>-->
-<!--            </resource>-->
+            <!--            <resource>-->
+            <!--                <directory>../</directory>-->
+            <!--                <targetPath>META-INF/ThirdPartyLicenses</targetPath>-->
+            <!--                <includes>-->
+            <!--                    <include>gocypher-benchmarks-shade/target/ThirdPartyLicenses/*</include>-->
+            <!--                </includes>-->
+            <!--            </resource>-->
         </resources>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
@@ -68,30 +68,14 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <com-gocypher-benchmarks-jvm-client-tests-version>${benchmark-jvm}
+                            <com-gocypher-benchmarks-jvm-client-tests-version>${benchmark-jvm.version}
                             </com-gocypher-benchmarks-jvm-client-tests-version>
-                            <com-gocypher-benchmarks-cache-client-tests-version>${benchmark-cache}
+                            <com-gocypher-benchmarks-cache-client-tests-version>${benchmark-cache.version}
                             </com-gocypher-benchmarks-cache-client-tests-version>
                         </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>license-maven-plugin</artifactId>-->
-<!--                <version>2.0.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>download-licenses</id>-->
-<!--                        <goals>-->
-<!--                            <goal>download-licenses</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <licensesOutputDirectory>target/ThirdPartyLicenses</licensesOutputDirectory>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -105,7 +89,7 @@
                         <configuration>
                             <finalName>${uberjar.name}</finalName>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -118,11 +102,11 @@
                                     <excludes>
                                         <exclude>META-INF/NOTICE*</exclude>
                                         <exclude>META-INF/DEPENDENCIES*</exclude>
-<!--                                        <exclude>META-INF/AL2.0*</exclude>-->
-<!--                                        <exclude>META-INF/LGPL2.1*</exclude>-->
                                         <exclude>LICENSE*</exclude>
                                         <exclude>NOTICE*</exclude>
                                         <exclude>THIRD-PARTY*</exclude>
+                                        <!-- <exclude>META-INF/AL2.0*</exclude> -->
+                                        <!-- <exclude>META-INF/LGPL2.1*</exclude> -->
                                     </excludes>
                                 </filter>
                             </filters>
@@ -133,25 +117,24 @@
         </plugins>
     </build>
 
-
     <profiles>
         <profile>
-            <id>shadow-runtime-jvm</id>
+            <id>build-jvm</id>
             <dependencies>
                 <dependency>
                     <groupId>com.gocypher.benchmarks.client</groupId>
                     <artifactId>gocypher-benchmarks-jvm</artifactId>
-                    <version>${benchmark-jvm}</version>
+                    <version>${benchmark-jvm.version}</version>
                 </dependency>
             </dependencies>
         </profile>
         <profile>
-            <id>shadow-runtime-cache</id>
+            <id>build-cache</id>
             <dependencies>
                 <dependency>
                     <groupId>com.gocypher.benchmarks.client</groupId>
                     <artifactId>gocypher-benchmarks-cache</artifactId>
-                    <version>${benchmark-cache}</version>
+                    <version>${benchmark-cache.version}</version>
                 </dependency>
             </dependencies>
         </profile>

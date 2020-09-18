@@ -1,10 +1,18 @@
 package com.gocypher.benchmarks.runner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gocypher.benchmarks.core.model.BaseScoreConverter;
+import com.gocypher.benchmarks.core.utils.IOUtils;
+import com.gocypher.benchmarks.runner.utils.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
 public class BenchmarkReport implements Serializable {
+
+    private static Logger LOG = LoggerFactory.getLogger(BenchmarkReport.class) ;
+
     private String name ;
     private Double score;
     private String units ;
@@ -31,6 +39,28 @@ public class BenchmarkReport implements Serializable {
         }
         return null ;
     }
+    @JsonIgnore
+    public void recalculateScoresToMBPerS (){
+        if ("ss".equalsIgnoreCase(mode) && "ms/op".equalsIgnoreCase(units)){
+            //FIXME seek and r/w conversion to MB/s differs, fix it.
+            if (Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name) != null){
+                try{
+                    //LOG.info("Custom scores computation for class found:{}",this.name);
+                    Class clazz = Class.forName(Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name)) ;
+                    BaseScoreConverter converter = (BaseScoreConverter)clazz.newInstance() ;
+                    this.score = converter.convertScore(this.score) ;
+                    this.meanScore = converter.convertScore(this.meanScore) ;
+                    this.minScore = converter.convertScore(this.minScore) ;
+                    this.maxScore = converter.convertScore(this.maxScore) ;
+                    this.units = converter.getUnits() ;
+                }catch(Exception e){
+
+                }
+            }
+
+        }
+    }
+
     public String getName() {
         return name;
     }

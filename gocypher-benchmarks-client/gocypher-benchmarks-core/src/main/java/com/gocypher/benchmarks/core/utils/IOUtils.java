@@ -6,28 +6,32 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.security.SecureRandom;
+import java.util.Random;
 
 public class IOUtils {
     private static Logger LOG = LoggerFactory.getLogger(IOUtils.class);
+    private static int randomFileChunkSize = 65536 ;
+    private static long fileSizeMultiplierPerChunkSize = 16384 ;
+    //private static long fileSizeMultiplierPerChunkSize = 1024 ;
+    private static String FILE_NAME_AS_SRC = "binary.txt";
+    private static String FILE_NAME_AS_DST = "output-binary-test.txt";
 
     public static File createOutputFileForTests (){
-        return createFile("output-test.png") ;
+        return createFile(FILE_NAME_AS_DST) ;
     }
 
     public static File createFile (String name){
         return new File (name) ;
     }
 
-    public static File openInputPictureForTests () throws Exception{
-        return openFile("test_picture.png") ;
-    }
     public static File generateBinaryFileForTests () throws Exception{
-        //return new File("c:/development/benchmark_tests/binary.txt") ;
-        createRandomBinaryFile("binary.txt",300000);
-        return new File ("binary.txt") ;
+        createRandomBinaryFile(FILE_NAME_AS_SRC,fileSizeMultiplierPerChunkSize);
+        File f = new File (FILE_NAME_AS_SRC) ;
+        return f;
     }
 
-    public static File openFile (String fileName) throws Exception{
+
+    /*public static File openFile (String fileName) throws Exception{
         File srcFile = createFile(fileName);
         InputStream is = openFileAsInputStream(fileName) ;
         try {
@@ -37,7 +41,7 @@ public class IOUtils {
         }
         return srcFile ;
     }
-
+*/
     private static InputStream openFileAsInputStream(String fileName){
         ClassLoader CLDR = IOUtils.class.getClassLoader() ;
         InputStream in = CLDR.getResourceAsStream(fileName);
@@ -54,17 +58,16 @@ public class IOUtils {
         }
     }
 
-    public static long copyFileUsingBufferedStreams(File srcFile, File targetFile, int bufferSize) throws IOException {
-        //if (LOGGER.isDebugEnabled())
-        //    LOGGER.debug("copyFileUsingBufferedStreams " + srcFile + " -> " + targetFile + ", bufferSize=" + bufferSize);
+    public static long copyFileUsingFileStreams(File srcFile, File targetFile, int bufferSize) throws IOException {
         long bytesCopied = 0L;
         byte[] buffer = new byte[bufferSize];
 
-        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(srcFile))) {
-            try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
+        try (InputStream in = new FileInputStream(srcFile)) {
+            try (OutputStream out = new FileOutputStream(targetFile)) {
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
+                    out.flush();
                     bytesCopied += bytesRead;
                 }
             }
@@ -74,12 +77,10 @@ public class IOUtils {
     }
 
     private static long copyFileUsingBufferedStreams(InputStream inputStream, File targetFile, int bufferSize) throws IOException {
-        //if (LOGGER.isDebugEnabled())
-        //    LOGGER.debug("copyFileUsingBufferedStreams " + srcFile + " -> " + targetFile + ", bufferSize=" + bufferSize);
         long bytesCopied = 0L;
         byte[] buffer = new byte[bufferSize];
 
-            try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
@@ -111,17 +112,56 @@ public class IOUtils {
             }
         }
     }
-    private static void createRandomBinaryFile (String name, long sizePer4KB){
+    private static void createRandomBinaryFile (String name, long sizePer65KB){
         File file = new File (name) ;
         try (FileOutputStream out = new FileOutputStream(file)) {
-            for (int i = 0; i < sizePer4KB;i++) {
-                byte[] bytes = new byte[4096];
+            for (int i = 0; i < sizePer65KB;i++) {
+                byte[] bytes = new byte[randomFileChunkSize];
                 new SecureRandom().nextBytes(bytes);
                 out.write(bytes);
             }
+            out.flush();
         }catch (Exception e){
             LOG.error("Error during generation of tmp file",e);
         }
+    }
+    public static long getRandomBinaryFileSizeInBytes (){
+        return randomFileChunkSize*fileSizeMultiplierPerChunkSize ;
+    }
+
+    public static int seekAndReadFile (RandomAccessFile file , long fileSize, int pageSize) throws Exception{
+        //int pageSize = 4096 ;
+        //int pageSize = 1048576 ;
+        long position = getRandomNumberUsingIntegers (0,fileSize-pageSize-10) ;
+        byte [] pageBytes = new byte[pageSize] ;
+        int offset = 0 ;
+        file.seek(position);
+        int bytesRead = file.read(pageBytes, offset, pageSize);
+        file.seek(0);
+        return bytesRead ;
+    }
+    public static int seekAndReadFile (RandomAccessFile file , long fileSize, int pageSize ,long position) throws Exception{
+        //int pageSize = 4096 ;
+        //int pageSize = 1048576 ;
+        //long position = getRandomNumberUsingIntegers (0,fileSize-pageSize-10) ;
+        byte [] pageBytes = new byte[pageSize] ;
+        int offset = 0 ;
+        file.seek(position);
+        int bytesRead = file.read(pageBytes, offset, pageSize);
+        file.seek(0);
+        return bytesRead ;
+    }
+
+    public static long getRandomNumberUsingIntegers(long min, long max) {
+        Random random = new Random();
+        return random.longs(min, max)
+                .findFirst()
+                .getAsLong();
+    }
+    public static long[] getArrayOfRandomNumberUsingLongs(long min, long max, int amount) {
+        Random random = new Random();
+        return random.longs(min, max)
+                .limit(amount).toArray();
     }
 
 

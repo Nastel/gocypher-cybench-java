@@ -45,3 +45,4 @@ IF NOT ["%JAVA_PATH%"] EQU ["java"] (
 	echo EXECUTE: "%JAVA_PATH%" %JVM_PROPERTIES% -jar ./gocypher-benchmarks-client.jar cfg=%CONFIGURATION_PATH%
 	"%JAVA_PATH%" %JVM_PROPERTIES% -jar ./gocypher-benchmarks-client.jar cfg=%CONFIGURATION_PATH%
 )
+cmd /k

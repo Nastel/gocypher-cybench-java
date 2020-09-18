@@ -35,11 +35,6 @@
     <dependencies>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
-            <version>${jmh.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>${jmh.version}</version>
             <scope>provided</scope>
@@ -83,12 +78,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.gocypher.benchmarks.client</groupId>
-            <artifactId>gocypher-benchmarks-cache</artifactId>
-            <version>1.0.1</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>com.gocypher.benchmarks.client</groupId>
@@ -97,24 +86,18 @@
         </dependency>
         <dependency>
             <groupId>com.gocypher.benchmarks.client</groupId>
-            <artifactId>gocypher-benchmarks-jvm</artifactId>
-            <version>${benchmark-jvm}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gocypher.benchmarks.client</groupId>
             <artifactId>gocypher-benchmarks-runner</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.gocypher.benchmarks.client</groupId>
-            <artifactId>gocypher-benchmarks-cache</artifactId>
-            <version>${benchmark-cache}</version>
+            <artifactId>gocypher-benchmarks-jvm</artifactId>
+            <version>${benchmark-jvm.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.27</version>
-            <scope>compile</scope>
+            <groupId>com.gocypher.benchmarks.client</groupId>
+            <artifactId>gocypher-benchmarks-cache</artifactId>
+            <version>${benchmark-cache.version}</version>
         </dependency>
     </dependencies>
 
@@ -180,10 +163,6 @@
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>2.2.1</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.17</version>
                 </plugin>
             </plugins>
         </pluginManagement>
