@@ -51,7 +51,7 @@ public class BenchmarkRunner {
         // Number of separate full executions of a benchmark (warm up+measurement), this is returned still as one primary score item
         int forks = 1 ;
         //Number of measurements per benchmark operation, this is returned still as one primary score item
-        int measurementIterations = 1 ;
+        int measurementIterations = 5 ;
         // number of iterations executed for warm up
         int warmUpIterations = 1 ;
         // number of seconds dedicated for each warm up iteration

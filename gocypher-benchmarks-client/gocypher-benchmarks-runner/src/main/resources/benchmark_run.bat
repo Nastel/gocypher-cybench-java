@@ -30,7 +30,7 @@ IF ["%CONFIGURATION_PATH%"] EQU [""] set CONFIGURATION_PATH=conf/gocypher-benchm
 :: Read properties file to set JVM properties for .jar run
 echo -
 for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
-	Echo."%%A" | findstr /C:"JVM">nul && (
+	Echo."%%A" | findstr /C:"javaOptions">nul && (
 	  set JVM_PROPERTIES=!JVM_PROPERTIES!%%B
 		set JVM_PROPERTIES=!JVM_PROPERTIES!
 	)

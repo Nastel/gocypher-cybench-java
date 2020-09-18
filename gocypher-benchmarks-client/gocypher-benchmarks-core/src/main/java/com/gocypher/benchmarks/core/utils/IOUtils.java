@@ -151,6 +151,11 @@ public class IOUtils {
         file.seek(0);
         return bytesRead ;
     }
+    public static void seekAndWriteFile (RandomAccessFile file, long position, byte[]data) throws Exception{
+        file.seek(position);
+        file.write(data);
+        file.seek(0);
+    }
 
     public static long getRandomNumberUsingIntegers(long min, long max) {
         Random random = new Random();
@@ -163,6 +168,11 @@ public class IOUtils {
         return random.longs(min, max)
                 .limit(amount).toArray();
     }
-
+    public static byte[] getArrayOfRandomBytes( int amount) {
+        Random random = new Random();
+        byte [] arr = new byte[amount] ;
+        random.nextBytes(arr) ;
+        return arr ;
+    }
 
 }

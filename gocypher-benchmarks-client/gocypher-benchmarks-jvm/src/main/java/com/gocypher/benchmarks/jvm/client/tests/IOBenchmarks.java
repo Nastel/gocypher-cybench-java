@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
@@ -37,6 +38,8 @@ public class IOBenchmarks extends BaseBenchmark {
     public static int hugeSeekChunk = 16_777_216 ;
     public static int hugeSeekIterationsCount = 64 ;
 
+    private byte [] dataForSeekAndWriteSmallChunks ;
+    private byte [] dataForSeekAndWriteHugeChunks ;
 
 
     @Setup
@@ -47,12 +50,17 @@ public class IOBenchmarks extends BaseBenchmark {
         LOG.info("\n-->Generated file for processing ,size(B):{}",fileSize);
         targetFile = IOUtils.createOutputFileForTests();
 
-        seekSrc = new RandomAccessFile(srcFile,"r") ;
+        seekSrc = new RandomAccessFile(srcFile,"rw") ;
         seekDst = new RandomAccessFile(targetFile,"rw") ;
 
         LOG.info("Will generate an array of random numbers for file positions") ;
         this.arrayOfRandomNumbersForSmallChunks = IOUtils.getArrayOfRandomNumberUsingLongs(0,fileSize-smallSeekChunk-10,smallSeekIterationsCount) ;
         this.arrayOfRandomNumbersForHugeChunks = IOUtils.getArrayOfRandomNumberUsingLongs(0,fileSize-hugeSeekChunk-10,hugeSeekIterationsCount) ;
+
+        this.dataForSeekAndWriteSmallChunks = IOUtils.getArrayOfRandomBytes(smallSeekChunk) ;
+        this.dataForSeekAndWriteHugeChunks = IOUtils.getArrayOfRandomBytes(hugeSeekChunk) ;
+        LOG.info ("Generated all prerequisites!") ;
+
 
     }
 
@@ -79,9 +87,10 @@ public class IOBenchmarks extends BaseBenchmark {
         for (long position:arrayOfRandomNumbersForSmallChunks) {
             bytesRead += IOUtils.seekAndReadFile(seekSrc, (int) fileSize, smallSeekChunk, position);
         }
-        LOG.info("Read bytes:{}",bytesRead);
+        //LOG.info("Read bytes:{}",bytesRead);
         return bytesRead;
     }
+
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -90,9 +99,30 @@ public class IOBenchmarks extends BaseBenchmark {
         for (long position:arrayOfRandomNumbersForHugeChunks) {
             bytesRead+= IOUtils.seekAndReadFile(seekSrc, (int) fileSize, hugeSeekChunk, position);
         }
-        LOG.info("Read bytes:{}",bytesRead);
+        //LOG.info("Read bytes:{}",bytesRead);
         return bytesRead;
     }
+
+    @Benchmark
+    @BenchmarkMode(Mode.SingleShotTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    public void seekAndWriteFileSmallChunks () throws Exception{
+        for (long position:this.arrayOfRandomNumbersForSmallChunks) {
+            IOUtils.seekAndWriteFile(seekSrc, position, dataForSeekAndWriteSmallChunks);
+        }
+
+    }
+
+   @Benchmark
+    @BenchmarkMode(Mode.SingleShotTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    public void seekAndWriteFileHugeChunks () throws Exception{
+        for (long position:this.arrayOfRandomNumbersForHugeChunks) {
+            IOUtils.seekAndWriteFile(seekSrc, position, dataForSeekAndWriteHugeChunks);
+        }
+    }
+
+
 
     @TearDown
     public void cleanUpEnvironment (){
