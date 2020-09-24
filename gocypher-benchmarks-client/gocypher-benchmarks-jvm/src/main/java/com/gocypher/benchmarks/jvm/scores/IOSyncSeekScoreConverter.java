@@ -1,20 +1,16 @@
 package com.gocypher.benchmarks.jvm.scores;
 
 import com.gocypher.benchmarks.core.model.BaseScoreConverter;
-import com.gocypher.benchmarks.core.utils.IOUtils;
 
-public class IOReadWriteScoreConverter extends BaseScoreConverter {
+public class IOSyncSeekScoreConverter extends BaseScoreConverter {
     @Override
     public Double convertScore(Double score) {
         if (score != null){
+            double nominatorInMB = 128 ;
             Double oldScore = new Double((double)score.doubleValue()/1000) ;
-            long mb = 1_048_576 ;
-            double benchmarkFileSize = (double)IOUtils.getHugeRandomBinaryFileSizeInBytes()/mb ;
-            double newScore = benchmarkFileSize/oldScore ;
-            return new Double(newScore) ;
+            return nominatorInMB/oldScore ;
         }
-
-        return score ;
+        return score;
     }
 
     @Override

@@ -22,7 +22,7 @@ echo -
 :: Read user input to set the path to java to execute and if there is a need a path to user configurations file for JVM properties and benchmarks functionality
 IF NOT ["%JAVA_HOME%"] EQU [""] set /p JAVA_PATH= Enter the path of java to test or leave default ([%JAVA_HOME%\bin\java.exe])?:
 IF ["%JAVA_HOME%"] EQU [""] set /p JAVA_PATH= Enter the path of java to test or leave default ([%JAVA_HOME%\bin\java.exe])?:
-IF ["%JAVA_PATH%"] EQU [""] set JAVA_PATH=java
+
 echo -
 set /p CONFIGURATION_PATH= Provide full path to configuration file or use default ([conf\gocypher-benchmark-client-configuration.properties])?:
 IF ["%CONFIGURATION_PATH%"] EQU [""] set CONFIGURATION_PATH=conf/gocypher-benchmark-client-configuration.properties
@@ -35,7 +35,16 @@ for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
 		set JVM_PROPERTIES=!JVM_PROPERTIES!
 	)
 )
+:: If no java path input during runtime provided try to take it from configuration
+for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
+	Echo."%%A" | findstr /C:"javaToUsePath">nul && (
+	    IF ["%JAVA_PATH%"] EQU [""] (
+	        set JAVA_PATH=%%B
+	    )
+	)
+)
 
+IF ["%JAVA_PATH%"] EQU [""] set JAVA_PATH=java
 :: Execute the benchmarks with set default or user defined properties
 IF ["%JAVA_PATH%"] EQU ["java"] (
 	echo EXECUTE: java %JVM_PROPERTIES% -jar ./gocypher-benchmarks-client.jar cfg=%CONFIGURATION_PATH%

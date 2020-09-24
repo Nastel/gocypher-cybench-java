@@ -8,7 +8,6 @@ import com.gocypher.benchmarks.runner.report.DeliveryService;
 import com.gocypher.benchmarks.runner.report.ReportingService;
 import com.gocypher.benchmarks.runner.services.ConfigurationHandler;
 import com.gocypher.benchmarks.runner.utils.Constants;
-import com.gocypher.benchmarks.core.utils.IOUtils;
 import com.gocypher.benchmarks.runner.utils.JSONUtils;
 import com.gocypher.benchmarks.runner.utils.SecurityBuilder;
 import org.openjdk.jmh.profile.GCProfiler;
@@ -138,8 +137,8 @@ public class BenchmarkRunner {
             reportJSON = JSONUtils.marshalToPrettyJson(report);
 
 
-            IOUtils.storeResultsToFile("report.json",reportJSON);
-            IOUtils.storeResultsToFile("report.cyb",reportEncrypted);
+//            IOUtils.storeResultsToFile("report.json",reportJSON);
+//            IOUtils.storeResultsToFile("report.cyb",reportEncrypted);
 
 
         }catch (Exception e){

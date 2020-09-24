@@ -1,8 +1,11 @@
 package com.gocypher.benchmarks.runner.utils;
 
+import com.gocypher.benchmarks.runner.model.BenchmarkReport;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.List;
 
 public class ComputationUtils {
     private static final int SCALE = 18;
@@ -47,5 +50,32 @@ public class ComputationUtils {
         //Round the number to the correct number of decimal places.
         ans = ans.round(new MathContext(ans.precision() - ans.scale() + SCALE, RoundingMode.HALF_EVEN));
         return ans;
+    }
+    public static Double computeCategoryScore (List<BenchmarkReport> categoryReports){
+        int magicNumberOfClusterSize = 7 ;
+        int magicNumberScoreDecimalDenominator = 100 ;
+        Double score = 0.0 ;
+        int n = categoryReports.size() ;
+        int countOfClusters = 0 ;
+
+        if (n <= magicNumberOfClusterSize){
+            countOfClusters = 1 ;
+        }
+        else {
+            countOfClusters = (int)Math.ceil((double)n/magicNumberOfClusterSize) ;
+        }
+        for (int k = 0;k<countOfClusters;k++){
+            Double productOfClusterScores = 1.0 ;
+            for (int i = k*magicNumberOfClusterSize;i<k*magicNumberOfClusterSize+magicNumberOfClusterSize;i++){
+                if (i < n) {
+                    if (categoryReports.get(i) != null && categoryReports.get(i).getScore() != null) {
+                        Double localScore = categoryReports.get(i).getScore() / magicNumberScoreDecimalDenominator;
+                        productOfClusterScores *= localScore;
+                    }
+                }
+            }
+            score += Math.sqrt(productOfClusterScores) ;
+        }
+        return score ;
     }
 }

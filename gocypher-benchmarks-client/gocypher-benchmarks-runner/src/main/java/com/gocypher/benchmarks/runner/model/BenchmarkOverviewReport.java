@@ -13,6 +13,7 @@ public class BenchmarkOverviewReport implements Serializable {
     private long timestampUTC ;
     private String reportURL ;
     private BigDecimal totalScore ;
+    private String uploadStatus ;
     private Map<String,Map<String,Object>>categoriesOverview ;
     private Map<String,Object> environmentSettings  ;
     private Map<String,Object> benchmarkSettings  ;
@@ -29,15 +30,15 @@ public class BenchmarkOverviewReport implements Serializable {
         this.benchmarks.get(report.getCategory()).add(report) ;
     }
     public void computeScores (){
-        BigDecimal productOfTotals = BigDecimal.ONE ;
+        Double sumOfCategoryScores = 0.0 ;
         for (String category : this.benchmarks.keySet()) {
             Map<String, Object> categoryOverviewMap = new HashMap<>();
             List<BenchmarkReport> categoryReports = this.benchmarks.get(category);
-            BigDecimal productOfCategoryScores = BigDecimal.ONE;
+            //BigDecimal productOfCategoryScores = BigDecimal.ONE;
             long gcCallsCount = 0;
             long gcTime = 0;
             for (BenchmarkReport item : categoryReports) {
-                productOfCategoryScores = productOfCategoryScores.multiply(BigDecimal.valueOf(item.getScore()));
+                //productOfCategoryScores = productOfCategoryScores.multiply(BigDecimal.valueOf(item.getScore()));
                 if (item.getGcCalls() != null) {
                     gcCallsCount += item.getGcCalls().longValue();
                 }
@@ -46,16 +47,21 @@ public class BenchmarkOverviewReport implements Serializable {
                 }
             }
 
-            BigDecimal categoryScore = ComputationUtils.log10(productOfCategoryScores.multiply(BigDecimal.valueOf(10000)));
+            //BigDecimal categoryScore = ComputationUtils.log10(productOfCategoryScores.multiply(BigDecimal.valueOf(10000)));
+            Double categoryScore = ComputationUtils.computeCategoryScore(categoryReports);
+            sumOfCategoryScores += categoryScore ;
+
             categoryOverviewMap.put("score", categoryScore);
             categoryOverviewMap.put("gcCallsCount", BigDecimal.valueOf(gcCallsCount));
             categoryOverviewMap.put("gcTime", BigDecimal.valueOf(gcTime));
 
             categoriesOverview.put(category, categoryOverviewMap);
-            productOfTotals = productOfTotals.multiply(categoryScore);
+            //productOfTotals = productOfTotals.multiply(categoryScore);
         }
-        this.totalScore = ComputationUtils.log10(productOfTotals).multiply(BigDecimal.valueOf(10000)) ;
+        //this.totalScore = ComputationUtils.log10(productOfTotals).multiply(BigDecimal.valueOf(10000)) ;
+        this.totalScore = BigDecimal.valueOf(sumOfCategoryScores) ;
     }
+
 
     @JsonIgnore
     public boolean isEligibleForStoringExternally (){
@@ -130,6 +136,14 @@ public class BenchmarkOverviewReport implements Serializable {
 
     public void setReportURL(String reportURL) {
         this.reportURL = reportURL;
+    }
+
+    public String getUploadStatus() {
+        return uploadStatus;
+    }
+
+    public void setUploadStatus(String uploadStatus) {
+        this.uploadStatus = uploadStatus;
     }
 
     @Override

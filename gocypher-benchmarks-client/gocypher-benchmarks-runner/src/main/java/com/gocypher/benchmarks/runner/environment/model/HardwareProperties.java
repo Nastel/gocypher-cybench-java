@@ -47,6 +47,8 @@ public class HardwareProperties {
     private Double hwLaunchDiskFreeMemoryGB;
 
     private String hwNetworkMACAddress;
+    private String hwNetworkClientIPAddress;
+
 
     public String getHwProcName() {
         return hwProcName;
@@ -275,6 +277,18 @@ public class HardwareProperties {
         this.hwLaunchDiskType = hwLaunchDiskType;
     }
 
+    public Boolean getHwBiosPrimaryBios() {
+        return hwBiosPrimaryBios;
+    }
+
+    public String getHwNetworkClientIPAddress() {
+        return hwNetworkClientIPAddress;
+    }
+
+    public void setHwNetworkClientIPAddress(String hwNetworkClientIPAddress) {
+        this.hwNetworkClientIPAddress = hwNetworkClientIPAddress;
+    }
+
     @Override
     public String toString() {
         return "HardwareProperties{" + System.getProperty("line.separator") +
@@ -313,6 +327,7 @@ public class HardwareProperties {
                 " hwLaunchDiskFreeMemoryGB : " + formatString(hwLaunchDiskFreeMemoryGB,4) + "," + System.getProperty("line.separator") +
 
                 " hwNetworkMACAddress : " + hwNetworkMACAddress + System.getProperty("line.separator") +
+                " hwNetworkClientIPAddress : " + hwNetworkClientIPAddress + System.getProperty("line.separator") +
                 '}';
     }
 

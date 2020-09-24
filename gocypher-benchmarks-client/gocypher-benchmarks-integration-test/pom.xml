@@ -34,34 +34,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <version>${jmh.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->
-        <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
             <version>5.2.5</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.10</version>
-        </dependency>
-
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
@@ -73,12 +49,11 @@
             <version>0.8.6</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>slf4j-simple</artifactId>
-                    <groupId>org.slf4j</groupId>
+                    <artifactId>jna</artifactId>
+                    <groupId>net.java.dev.jna</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.gocypher.benchmarks.client</groupId>
             <artifactId>gocypher-benchmarks-core</artifactId>

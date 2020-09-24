@@ -34,28 +34,22 @@
             <version>1.25</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.27</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
+
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javac.target>1.8</javac.target>
         <skip.assembly.pack>true</skip.assembly.pack>
-
         <license-name>CYBENCH_LICENSE*</license-name>
         <uberjar.name>gocypher-benchmarks-client</uberjar.name>
-
         <jmh.version>1.25</jmh.version>
         <jackson.version>2.11.2</jackson.version>
-        <!--  Benchmarks versions for manifest file  -->
         <benchmark-jvm.version>1.0.1</benchmark-jvm.version>
         <benchmark-cache.version>1.0.1</benchmark-cache.version>
+        <log4j.version>1.2.17</log4j.version>
+        <org.slf4j.version>1.7.30</org.slf4j.version>
     </properties>
 
     <modules>

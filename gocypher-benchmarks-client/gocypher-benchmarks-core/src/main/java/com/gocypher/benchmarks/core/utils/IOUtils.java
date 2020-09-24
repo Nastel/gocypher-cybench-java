@@ -3,8 +3,11 @@ package com.gocypher.benchmarks.core.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.Cleaner;
 
 import java.io.*;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -12,12 +15,18 @@ public class IOUtils {
     private static Logger LOG = LoggerFactory.getLogger(IOUtils.class);
     private static int randomFileChunkSize = 65536 ;
     private static long fileSizeMultiplierPerChunkSize = 16384 ;
+    private static long fileSizeSmallMultiplierPerChunkSize = 2048 ;
     //private static long fileSizeMultiplierPerChunkSize = 1024 ;
     private static String FILE_NAME_AS_SRC = "binary.txt";
+    private static String FILE_NAME_AS_SRC_FOR_SMALL_CASES = "small_binary.txt";
     private static String FILE_NAME_AS_DST = "output-binary-test.txt";
+    private static String FILE_NAME_AS_DST_FOR_SMALL_CASES = "output_small_binary_test.txt";
 
     public static File createOutputFileForTests (){
         return createFile(FILE_NAME_AS_DST) ;
+    }
+    public static File createSmallOutputFileForTests (){
+        return createFile(FILE_NAME_AS_DST_FOR_SMALL_CASES) ;
     }
 
     public static File createFile (String name){
@@ -25,12 +34,16 @@ public class IOUtils {
     }
 
     public static File generateBinaryFileForTests () throws Exception{
-        createRandomBinaryFile(FILE_NAME_AS_SRC,fileSizeMultiplierPerChunkSize);
+        createRandomBinaryFileIfNotExists(FILE_NAME_AS_SRC,fileSizeMultiplierPerChunkSize,randomFileChunkSize*fileSizeMultiplierPerChunkSize);
         File f = new File (FILE_NAME_AS_SRC) ;
         return f;
     }
 
-
+    public static File generateSmallBinaryFileForTests () throws Exception{
+        createRandomBinaryFileIfNotExists(FILE_NAME_AS_SRC_FOR_SMALL_CASES,fileSizeSmallMultiplierPerChunkSize,randomFileChunkSize*fileSizeSmallMultiplierPerChunkSize);
+        File f = new File (FILE_NAME_AS_SRC_FOR_SMALL_CASES) ;
+        return f;
+    }
     /*public static File openFile (String fileName) throws Exception{
         File srcFile = createFile(fileName);
         InputStream is = openFileAsInputStream(fileName) ;
@@ -42,6 +55,13 @@ public class IOUtils {
         return srcFile ;
     }
 */
+    public static void removeTestDataFiles (){
+
+       removeFile(new File (FILE_NAME_AS_SRC));
+       removeFile(new File (FILE_NAME_AS_DST));
+       removeFile(new File (FILE_NAME_AS_SRC_FOR_SMALL_CASES));
+       removeFile(new File (FILE_NAME_AS_DST_FOR_SMALL_CASES));
+    }
     private static InputStream openFileAsInputStream(String fileName){
         ClassLoader CLDR = IOUtils.class.getClassLoader() ;
         InputStream in = CLDR.getResourceAsStream(fileName);
@@ -49,16 +69,17 @@ public class IOUtils {
     }
     public static void removeFile (File file){
         try {
+
             if (file != null && file.exists()) {
+                //LOG.info("Will delete file:{}",file.getAbsolutePath());
                 file.delete();
             }
         }catch (Exception e){
-            e.printStackTrace();
             LOG.error ("Error on removing file",e) ;
         }
     }
 
-    public static long copyFileUsingFileStreams(File srcFile, File targetFile, int bufferSize) throws IOException {
+    public static long copyFileUsingFileStreams(File srcFile, File targetFile, int bufferSize, boolean isSyncWrite) throws IOException {
         long bytesCopied = 0L;
         byte[] buffer = new byte[bufferSize];
 
@@ -67,7 +88,47 @@ public class IOUtils {
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
-                    out.flush();
+                    if (isSyncWrite) {
+                        out.flush();
+                    }
+                    bytesCopied += bytesRead;
+                }
+            }
+        }
+
+        return bytesCopied;
+    }
+    public static long copyFileUsingBufferedStreams(File srcFile, File targetFile, int bufferSize, boolean isSyncWrite) throws IOException {
+        long bytesCopied = 0L;
+        byte[] buffer = new byte[bufferSize];
+
+        try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile))) {
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                    if (isSyncWrite) {
+                        out.flush();
+                    }
+                    bytesCopied += bytesRead;
+                }
+            }
+        }
+
+        return bytesCopied;
+    }
+    public static long copyFileUsingDirectBufferedStreams(File srcFile, File targetFile, int bufferSize, boolean isSyncWrite) throws IOException {
+        long bytesCopied = 0L;
+        byte[] buffer = new byte[bufferSize];
+
+        try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile),bufferSize*2)) {
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile),bufferSize*2)) {
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                    if (isSyncWrite) {
+                        out.flush();
+                    }
                     bytesCopied += bytesRead;
                 }
             }
@@ -112,21 +173,29 @@ public class IOUtils {
             }
         }
     }
-    private static void createRandomBinaryFile (String name, long sizePer65KB){
+    private static void createRandomBinaryFileIfNotExists (String name, long sizePer65KB, long preferredFileSize){
         File file = new File (name) ;
-        try (FileOutputStream out = new FileOutputStream(file)) {
-            for (int i = 0; i < sizePer65KB;i++) {
-                byte[] bytes = new byte[randomFileChunkSize];
-                new SecureRandom().nextBytes(bytes);
-                out.write(bytes);
+        if (!file.exists() || (file.exists() && file.length()< preferredFileSize)) {
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                for (int i = 0; i < sizePer65KB; i++) {
+                    byte[] bytes = new byte[randomFileChunkSize];
+                    new SecureRandom().nextBytes(bytes);
+                    out.write(bytes);
+                }
+                out.flush();
+            } catch (Exception e) {
+                LOG.error("Error during generation of tmp file", e);
             }
-            out.flush();
-        }catch (Exception e){
-            LOG.error("Error during generation of tmp file",e);
+        }
+        else {
+            LOG.info("Data file for tests exists, a new one will not be created") ;
         }
     }
-    public static long getRandomBinaryFileSizeInBytes (){
+    public static long getHugeRandomBinaryFileSizeInBytes (){
         return randomFileChunkSize*fileSizeMultiplierPerChunkSize ;
+    }
+    public static long getSmallRandomBinaryFileSizeInBytes (){
+        return randomFileChunkSize*fileSizeSmallMultiplierPerChunkSize ;
     }
 
     public static int seekAndReadFile (RandomAccessFile file , long fileSize, int pageSize) throws Exception{
@@ -151,6 +220,14 @@ public class IOUtils {
         file.seek(0);
         return bytesRead ;
     }
+    public static byte[] seekAndReadFile (RandomAccessFile file,int pageSize ,long position)throws Exception{
+        byte [] pageBytes = new byte[pageSize] ;
+        int offset = 0 ;
+        file.seek(position);
+        int bytesRead = file.read(pageBytes, offset, pageSize);
+        file.seek(0);
+        return pageBytes ;
+    }
     public static void seekAndWriteFile (RandomAccessFile file, long position, byte[]data) throws Exception{
         file.seek(position);
         file.write(data);
@@ -173,6 +250,35 @@ public class IOUtils {
         byte [] arr = new byte[amount] ;
         random.nextBytes(arr) ;
         return arr ;
+    }
+    public static  void rwFileUsingMappedByteBuffer(FileChannel readFileChannel, FileChannel writeFileChannel, boolean isSyncWrite) throws Exception {
+
+        MappedByteBuffer mappedByteBufferSrc = readFileChannel
+                .map(FileChannel.MapMode.READ_ONLY, 0, readFileChannel.size());
+
+        if (mappedByteBufferSrc != null) {
+            byte[] rs = new byte[mappedByteBufferSrc.remaining()];
+
+            mappedByteBufferSrc.get(rs);
+
+            MappedByteBuffer mappedByteBufferDst = writeFileChannel
+                    .map(FileChannel.MapMode.READ_WRITE, 0, rs.length);
+
+            mappedByteBufferDst.put(rs);
+            if (isSyncWrite) {
+                mappedByteBufferDst.force();
+            }
+
+            cleanMappedByteBuffer(mappedByteBufferSrc) ;
+            cleanMappedByteBuffer(mappedByteBufferDst) ;
+
+        }
+    }
+    private static void cleanMappedByteBuffer (MappedByteBuffer byteBuffer){
+        Cleaner cleaner = ((sun.nio.ch.DirectBuffer) byteBuffer).cleaner();
+        if (cleaner != null) {
+            cleaner.clean();
+        }
     }
 
 }

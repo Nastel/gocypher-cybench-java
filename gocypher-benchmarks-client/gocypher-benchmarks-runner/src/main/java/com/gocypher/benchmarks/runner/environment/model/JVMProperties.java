@@ -20,7 +20,6 @@ public class JVMProperties {
     private String jvmUserBootLibraryPath;
     private String jvmUserJavaHome;
     private String jvmUserLanguage;
-    private String jvmUserName;
 
     private String jvmJavaClassVersion;
     private String jvmJavaVersion;
@@ -158,14 +157,6 @@ public class JVMProperties {
         this.jvmOtherManagementCompiler = jvmOtherManagementCompiler;
     }
 
-    public String getJvmUserName() {
-        return jvmUserName;
-    }
-
-    public void setJvmUserName(String jvmUserName) {
-        this.jvmUserName = jvmUserName;
-    }
-
     public String getJvmJavaClassVersion() {
         return jvmJavaClassVersion;
     }
@@ -205,7 +196,6 @@ public class JVMProperties {
                     "   jvmMemoryCommittedMB : " + jvmMemoryCommittedMB + ","+System.getProperty("line.separator") +
                     "   jvmUserJavaHome : " + jvmUserJavaHome + ","+System.getProperty("line.separator") +
                     "   jvmUserLanguage : " + jvmUserLanguage + ","+System.getProperty("line.separator") +
-                    "   jvmUserName : " + jvmUserName + ","+System.getProperty("line.separator") +
                     "   jvmUserBootLibraryPath : " + jvmUserBootLibraryPath + ","+System.getProperty("line.separator") +
                     "   jvmVmVersion : " + jvmVmVersion + ","+System.getProperty("line.separator") +
                     "   jvmVmInfo : " + jvmVmInfo + ","+System.getProperty("line.separator") +

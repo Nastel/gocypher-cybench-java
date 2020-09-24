@@ -46,8 +46,19 @@ fi
 # Read properties file to set JVM properties for .jar run
 JVM_PROPERTIES=""
 while IFS='=' read -r key value; do
-    if [ ${key} == "JVM"* ]; then
+    if [ ${key} == "javaOptions"* ]; then
         JVM_PROPERTIES+="${value} ";
+    fi
+done < ${CONFIGURATION_PATH}
+
+# Read properties file to try to set JAVA_PATH from confgiuration file if not provided during runtime.
+JVM_PROPERTIES=""
+while IFS='=' read -r key value; do
+    if [ ${key} == "javaToUsePath"* ]; then
+        if [ "$JAVA_PATH" = "" ];
+        then
+        JAVA_PATH="${value} ";
+        fi
     fi
 done < ${CONFIGURATION_PATH}
 

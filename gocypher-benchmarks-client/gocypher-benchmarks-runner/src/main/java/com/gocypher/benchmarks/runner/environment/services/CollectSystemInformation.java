@@ -69,9 +69,6 @@ public class CollectSystemInformation {
                 case "user.language":
                     jvmProperties.setJvmUserLanguage(properties.getProperty("user.language"));
                     break;
-                case "user.name":
-                    jvmProperties.setJvmUserName(properties.getProperty("user.name"));
-                    break;
                 case "java.vm.info":
                     jvmProperties.setJvmVmInfo(properties.getProperty("java.vm.info"));
                     break;
@@ -110,14 +107,16 @@ public class CollectSystemInformation {
         Map<String, Object> unclassifiedProperties = new HashMap<>();
         List<String> inputArguments = new ArrayList<>(ManagementFactory.getRuntimeMXBean().getInputArguments());
         inputArguments.removeIf(inputArgument -> inputArgument.contains("-javaagent"));
-        unclassifiedProperties.put("argumentsJvmRun", inputArguments);
+        unclassifiedProperties.put("performanceJvmRuntimeParameters", inputArguments);
 
         List<GarbageCollectorMXBean> garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans();
-        Map<String, Object> garbageCollectorsMap = new HashMap<>();
+        List<String> garbageCollectorsOutput = new ArrayList<>();
+//        Map<String, Object> garbageCollectorsMap = new HashMap<>();
         for (GarbageCollectorMXBean garbageCollector : garbageCollectors){
-            garbageCollectorsMap.put(garbageCollector.getName(), garbageCollector.getName()) ;
+//            garbageCollectorsMap.put(garbageCollector.getName(), garbageCollector.getName()) ;
+            garbageCollectorsOutput.add(garbageCollector.getName());
         }
-        unclassifiedProperties.put("garbageCollectors", garbageCollectorsMap);
+        unclassifiedProperties.put("performanceGarbageCollectors", garbageCollectorsOutput);
         return unclassifiedProperties;
     }
     /**
@@ -153,7 +152,7 @@ public class CollectSystemInformation {
     private static void getProcessorProperties(HardwareAbstractionLayer hwProps) throws Exception{
         LOG.info("Looking for Processor info OSHI...");
         CentralProcessor cpu = hwProps.getProcessor();
-        String procSpeedInGHz = cpu.getProcessorIdentifier().getVendorFreq()/Math.pow(10,6) + " MHz";
+        String procSpeedInGHz = (double) cpu.getProcessorIdentifier().getVendorFreq()/1000000 + " MHz";
         hardwareProp.setHwProcName(cpu.getProcessorIdentifier().getName());
         hardwareProp.setHwProcManufacturer(cpu.getProcessorIdentifier().getVendor());
         hardwareProp.setHwProcSpeed(procSpeedInGHz);
@@ -272,6 +271,7 @@ public class CollectSystemInformation {
             }
         }
         if(ip != null) {
+            hardwareProp.setHwNetworkClientIPAddress(ip.toString().substring(1));
             NetworkInterface network = NetworkInterface.getByInetAddress(ip);
             byte[] mac = network.getHardwareAddress();
             StringBuilder sb = new StringBuilder();

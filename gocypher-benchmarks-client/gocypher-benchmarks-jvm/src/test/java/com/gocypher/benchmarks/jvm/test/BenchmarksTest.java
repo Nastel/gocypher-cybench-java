@@ -1,9 +1,9 @@
 package com.gocypher.benchmarks.jvm.test;
 
-import com.gocypher.benchmarks.jvm.client.tests.IOBenchmarks;
-import com.gocypher.benchmarks.jvm.client.tests.NumberBenchmarks;
-import com.gocypher.benchmarks.jvm.client.tests.StringBenchmarks;
-import org.openjdk.jmh.profile.GCProfiler;
+import com.gocypher.benchmarks.core.utils.IOUtils;
+import com.gocypher.benchmarks.jvm.client.tests.IOAsyncAPIComparisonBenchmarks;
+import com.gocypher.benchmarks.jvm.client.tests.IOSyncAPIComparisonBenchmarks;
+import com.gocypher.benchmarks.jvm.client.tests.IOSyncFileSeekBenchmarks;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
@@ -34,7 +34,7 @@ public class BenchmarksTest {
         OptionsBuilder optBuild = new OptionsBuilder();
 
         //optBuild.include(StringBenchmarks.class.getSimpleName());
-        optBuild.include(IOBenchmarks.class.getSimpleName());
+        optBuild.include(IOSyncFileSeekBenchmarks.class.getSimpleName());
         //optBuild.include(NumberBenchmarks.class.getSimpleName());
 
         Options opt = optBuild
@@ -56,6 +56,10 @@ public class BenchmarksTest {
         Collection<RunResult> results = runner.run() ;
 
         LOG.info ("Tests finished, executed tests count:{}",results.size()) ;
+        IOUtils.removeTestDataFiles() ;
+        LOG.info("Test data files removed!!!");
+
+
 
     }
 }
