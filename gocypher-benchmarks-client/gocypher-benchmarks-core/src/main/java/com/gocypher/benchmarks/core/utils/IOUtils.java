@@ -275,10 +275,12 @@ public class IOUtils {
         }
     }
     private static void cleanMappedByteBuffer (MappedByteBuffer byteBuffer){
-        Cleaner cleaner = ((sun.nio.ch.DirectBuffer) byteBuffer).cleaner();
+        /*Cleaner cleaner = ((sun.nio.ch.DirectBuffer) byteBuffer).cleaner();
         if (cleaner != null) {
             cleaner.clean();
         }
+        */
+        byteBuffer.clear() ;
     }
 
 }

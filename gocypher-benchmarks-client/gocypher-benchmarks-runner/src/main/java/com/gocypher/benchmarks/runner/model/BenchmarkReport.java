@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BenchmarkReport implements Serializable {
 
@@ -40,25 +42,25 @@ public class BenchmarkReport implements Serializable {
         return null ;
     }
     @JsonIgnore
-    public void recalculateScoresToMBPerS (){
-        if ("ss".equalsIgnoreCase(mode) && "ms/op".equalsIgnoreCase(units)){
+    public void recalculateScoresToMatchNewUnits (){
+
             //FIXME seek and r/w conversion to MB/s differs, fix it.
             if (Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name) != null){
                 try{
                     //LOG.info("Custom scores computation for class found:{}",this.name);
                     Class clazz = Class.forName(Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name)) ;
                     BaseScoreConverter converter = (BaseScoreConverter)clazz.newInstance() ;
-                    this.score = converter.convertScore(this.score) ;
-                    this.meanScore = converter.convertScore(this.meanScore) ;
-                    this.minScore = converter.convertScore(this.minScore) ;
-                    this.maxScore = converter.convertScore(this.maxScore) ;
+                    Map<String,Object>metaData = new HashMap<>() ;
+                    this.score = converter.convertScore(this.score,metaData) ;
+                    this.meanScore = converter.convertScore(this.meanScore,metaData) ;
+                    this.minScore = converter.convertScore(this.minScore,metaData) ;
+                    this.maxScore = converter.convertScore(this.maxScore,metaData) ;
                     this.units = converter.getUnits() ;
                 }catch(Exception e){
 
                 }
             }
 
-        }
     }
 
     public String getName() {

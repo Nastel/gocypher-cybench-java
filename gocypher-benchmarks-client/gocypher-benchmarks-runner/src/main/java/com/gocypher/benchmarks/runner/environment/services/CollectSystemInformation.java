@@ -152,14 +152,17 @@ public class CollectSystemInformation {
     private static void getProcessorProperties(HardwareAbstractionLayer hwProps) throws Exception{
         LOG.info("Looking for Processor info OSHI...");
         CentralProcessor cpu = hwProps.getProcessor();
-        String procSpeedInGHz = (double) cpu.getProcessorIdentifier().getVendorFreq()/1000000 + " MHz";
+        String procSpeedInGHz = (double) cpu.getProcessorIdentifier().getVendorFreq()/1000000.0 + " MHz";
         hardwareProp.setHwProcName(cpu.getProcessorIdentifier().getName());
         hardwareProp.setHwProcManufacturer(cpu.getProcessorIdentifier().getVendor());
         hardwareProp.setHwProcSpeed(procSpeedInGHz);
         hardwareProp.setHwProcMicroArchitecture(cpu.getProcessorIdentifier().getMicroarchitecture());
         hardwareProp.setHwProcCoresCount(cpu.getPhysicalProcessorCount());
-        hardwareProp.setHwProcLogicalThreadsCount(cpu.getLogicalProcessorCount());
-        hardwareProp.setHwProcLogicalThreadsCount(cpu.getLogicalProcessorCount());
+        if(cpu.getLogicalProcessorCount()/cpu.getPhysicalProcessorCount() != 2) {
+            hardwareProp.setHwProcLogicalThreadsCount(cpu.getPhysicalProcessorCount()*2);
+        }else {
+            hardwareProp.setHwProcLogicalThreadsCount(cpu.getLogicalProcessorCount());
+        }
     }
     /**
      * Get Memory properties using OSHI

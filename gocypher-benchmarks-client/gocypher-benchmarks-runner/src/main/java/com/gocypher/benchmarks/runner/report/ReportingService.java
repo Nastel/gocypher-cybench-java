@@ -86,9 +86,8 @@ public class ReportingService {
             //System.out.println("Report class name:"+report.getReportClassName());
 
             report.setCategory(resolveCategory(report.getReportClassName()));
-            if ("IO".equalsIgnoreCase(report.getCategory())){
-                report.recalculateScoresToMBPerS();
-            }
+            report.recalculateScoresToMatchNewUnits();
+
             overviewReport.addToBenchmarks(report);
         }
 

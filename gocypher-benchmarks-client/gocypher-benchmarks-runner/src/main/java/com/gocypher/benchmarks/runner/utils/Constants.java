@@ -56,8 +56,21 @@ public class Constants {
 		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.IOSyncAPIComparisonBenchmarks.copyFileUsingBufferedStreamAndHugeChunks","com.gocypher.benchmarks.jvm.scores.IOSyncReadWriteScoreConverter") ;
 		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.IOSyncAPIComparisonBenchmarks.copyFileUsingDirectBufferedStreamAndSmallChunks","com.gocypher.benchmarks.jvm.scores.IOSyncReadWriteScoreConverter") ;
 		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.IOSyncAPIComparisonBenchmarks.copyFileUsingDirectBufferedStreamAndHugeChunks","com.gocypher.benchmarks.jvm.scores.IOSyncReadWriteScoreConverter") ;
+//---------------------Score converter for String operations--------------------------------------------------------------
 
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.StringBenchmarks.stringConcatMultiChars","com.gocypher.benchmarks.jvm.scores.StringBufferScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.StringBenchmarks.stringBufferConcatMultiChars","com.gocypher.benchmarks.jvm.scores.StringBufferScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.StringBenchmarks.stringReplaceAll","com.gocypher.benchmarks.jvm.scores.StringBufferScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.StringBenchmarks.stringBufferReplaceAll","com.gocypher.benchmarks.jvm.scores.StringBufferScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.StringBenchmarks.findRegexCompiled","com.gocypher.benchmarks.jvm.scores.StringBufferScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.StringBenchmarks.findRegexUnCompiled","com.gocypher.benchmarks.jvm.scores.StringBufferScoreConverter") ;
 
+//---------------------Score converter for Number operations--------------------------------------------------------------
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.NumberBenchmarks.generateAndAddDoubleNumbers","com.gocypher.benchmarks.jvm.scores.NumbersScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.NumberBenchmarks.generateAndAddAtomicNumbers","com.gocypher.benchmarks.jvm.scores.NumbersScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.NumberBenchmarks.generateAndAddBigDecimalNumbers","com.gocypher.benchmarks.jvm.scores.NumbersScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.NumberBenchmarks.generateAndLogarithmDoubleNumbers","com.gocypher.benchmarks.jvm.scores.NumbersScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.benchmarks.jvm.client.tests.NumberBenchmarks.generateAndPowerDoubleNumbers","com.gocypher.benchmarks.jvm.scores.NumbersScoreConverter") ;
 	}
 
 }
