@@ -46,25 +46,23 @@ fi
 # Read properties file to set JVM properties for .jar run
 JVM_PROPERTIES=""
 while IFS='=' read -r key value; do
-    if [ ${key} == "javaOptions"* ]; then
+    if [[ ${key} == "javaOptions"* ]]; then
         JVM_PROPERTIES+="${value} ";
     fi
 done < ${CONFIGURATION_PATH}
 
 # Read properties file to try to set JAVA_PATH from confgiuration file if not provided during runtime.
-JVM_PROPERTIES=""
+JAVA_PATH=""
 while IFS='=' read -r key value; do
-    if [ ${key} == "javaToUsePath"* ]; then
-        if [ "$JAVA_PATH" = "" ];
-        then
-        JAVA_PATH="${value} ";
+    if [[ ${key} == "javaToUsePath"* ]]; then
+        if [[ -z "${JAVA_PATH}" ]];then
+        JAVA_PATH="${value}";
         fi
     fi
 done < ${CONFIGURATION_PATH}
 
 # Execute the benchmarks with set default or user defined properties
-if [ "$JAVA_PATH" = "" ]
-then
+if [[ -z "${JAVA_PATH}" ]];then
     echo java ${JVM_PROPERTIES} -jar ./gocypher-benchmarks-client.jar "$CONFIGURATION_PATH"
     java ${JVM_PROPERTIES} -jar ./gocypher-benchmarks-client.jar "$CONFIGURATION_PATH"
 else

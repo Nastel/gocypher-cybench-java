@@ -108,27 +108,29 @@ public class ReportingService {
     private String resolveCategory (String fullClassName){
         try {
             Class clazz = Class.forName(fullClassName);
-            BaseBenchmark obj = (BaseBenchmark)clazz.newInstance() ;
-            return obj.getCategory() ;
-
+            Object obj = clazz.newInstance() ;
+            if (obj instanceof BaseBenchmark) {
+                return ((BaseBenchmark)obj).getCategory() ;
+            }
         }catch (Exception e){
             e.printStackTrace();
             LOG.error ("Error on resolving category",e) ;
         }
-        return null ;
+        return "Custom" ;
     }
 
     private String resolveContext (String fullClassName){
         try {
             Class clazz = Class.forName(fullClassName);
-            BaseBenchmark obj = (BaseBenchmark)clazz.newInstance() ;
-            return obj.getContext() ;
-
+            Object obj = clazz.newInstance() ;
+            if (obj instanceof BaseBenchmark) {
+                return ((BaseBenchmark)obj).getContext() ;
+            }
         }catch (Exception e){
             e.printStackTrace();
             LOG.error ("Error on resolving category",e) ;
         }
-        return null ;
+        return "Other" ;
     }
 
     private String getVersion(String fullClassName) {

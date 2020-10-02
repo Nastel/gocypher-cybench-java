@@ -19,6 +19,6 @@ public class StringBufferScoreConverter extends BaseScoreConverter {
 
     @Override
     public String getUnits() {
-        return "K Ops/s";
+        return "k ops/s";
     }
 }

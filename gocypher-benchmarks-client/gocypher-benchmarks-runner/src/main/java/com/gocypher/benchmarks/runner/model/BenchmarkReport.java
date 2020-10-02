@@ -52,9 +52,26 @@ public class BenchmarkReport implements Serializable {
                     BaseScoreConverter converter = (BaseScoreConverter)clazz.newInstance() ;
                     Map<String,Object>metaData = new HashMap<>() ;
                     this.score = converter.convertScore(this.score,metaData) ;
+
+                    Double tmpMin = converter.convertScore(this.minScore,metaData) ;
+                    Double tmpMax = converter.convertScore(this.maxScore,metaData) ;
+
+                    if (tmpMin != null && tmpMax != null){
+                        if (tmpMin>tmpMax){
+                            this.minScore = tmpMax ;
+                            this.maxScore = tmpMin ;
+                        }
+                        else {
+                            this.minScore = tmpMin ;
+                            this.maxScore = tmpMax ;
+                        }
+                    }
+                    else {
+                        this.minScore =null ;
+                        this.maxScore = null;
+                    }
                     this.meanScore = converter.convertScore(this.meanScore,metaData) ;
-                    this.minScore = converter.convertScore(this.minScore,metaData) ;
-                    this.maxScore = converter.convertScore(this.maxScore,metaData) ;
+
                     this.units = converter.getUnits() ;
                 }catch(Exception e){
 

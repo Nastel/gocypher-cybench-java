@@ -20,6 +20,6 @@ public class NumbersScoreConverter extends BaseScoreConverter {
 
     @Override
     public String getUnits() {
-        return "10K Ops/s";
+        return "10k ops/s";
     }
 }

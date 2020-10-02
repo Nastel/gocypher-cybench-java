@@ -44,14 +44,22 @@ for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
 	)
 )
 
+for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
+	Echo."%%A" | findstr /C:"customBenchmarks">nul && (
+	    set CUSTOM_LIBS=%%B
+
+	)
+)
+
 IF ["%JAVA_PATH%"] EQU [""] set JAVA_PATH=java
 :: Execute the benchmarks with set default or user defined properties
 IF ["%JAVA_PATH%"] EQU ["java"] (
-	echo EXECUTE: java %JVM_PROPERTIES% -jar ./gocypher-benchmarks-client.jar cfg=%CONFIGURATION_PATH%
-	java %JVM_PROPERTIES% -jar ./gocypher-benchmarks-client.jar cfg=%CONFIGURATION_PATH%
+	echo EXECUTE: java %JVM_PROPERTIES% -cp gocypher-benchmarks-client.jar;%CUSTOM_LIBS% com.gocypher.benchmarks.runner.BenchmarkRunner cfg=%CONFIGURATION_PATH%
+	java %JVM_PROPERTIES% -cp gocypher-benchmarks-client.jar;%CUSTOM_LIBS% com.gocypher.benchmarks.runner.BenchmarkRunner cfg=%CONFIGURATION_PATH%
+
 )
 IF NOT ["%JAVA_PATH%"] EQU ["java"] (
-	echo EXECUTE: "%JAVA_PATH%" %JVM_PROPERTIES% -jar ./gocypher-benchmarks-client.jar cfg=%CONFIGURATION_PATH%
-	"%JAVA_PATH%" %JVM_PROPERTIES% -jar ./gocypher-benchmarks-client.jar cfg=%CONFIGURATION_PATH%
+	echo EXECUTE: "%JAVA_PATH%" %JVM_PROPERTIES% -cp gocypher-benchmarks-client.jar;%CUSTOM_LIBS% com.gocypher.benchmarks.runner.BenchmarkRunner cfg=%CONFIGURATION_PATH%
+	"%JAVA_PATH%" %JVM_PROPERTIES% -cp gocypher-benchmarks-client.jar;%CUSTOM_LIBS% com.gocypher.benchmarks.runner.BenchmarkRunner cfg=%CONFIGURATION_PATH%
 )
 cmd /k

@@ -67,6 +67,7 @@ public class BenchmarkRunner {
         if(checkIfConfigurationPropertyIsSet(cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES))){
             List<String> benchmarkNames = Arrays.stream( cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES).split(",")).map(String::trim).collect(Collectors.toList());
             for (Class<? extends Object> classObj : allClasses) {
+                //LOG.info("Classes in classpath:{}",classObj.getName()) ;
                 if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
                     if(substringExistsInList(classObj.getName(),benchmarkNames)) {
                         LOG.info(classObj.getName());
