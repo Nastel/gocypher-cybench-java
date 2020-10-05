@@ -9,23 +9,23 @@ Download and run CyBench [here](https://www.gocypher.com/cybench/downloads).
 
 ## Run custom benchmarks using CyBench
 
-### CyBench Runner
+### CyBench Launcher
 
-The runner contains  a default set of tests suggested by CyBench which are executed by default every time. Also execution results by default are submitted to CyBench repository. Once it is there it is possible to see its details using CyBench portal. 
+The launcher contains  a default set of tests suggested by CyBench which are executed by default every time. Also execution results by default are submitted to CyBench repository. Once it is there it is possible to see its details using CyBench portal. 
 It is possible to skip default tests and report delivery via configuration.
 
-#### CyBench runner configuration
+#### CyBench launcher configuration
 
 Configuration located in file `<CyBench home folder>/conf/gocypher-benchmark-client-configuration.properties`
 
 TBD.
 
-#### Add custom benchmark to CyBench runner
+#### Add custom benchmark to CyBench launcher
 
-Attachment and run of custom  benchmarks using CyBench runner is a simple process which consists of a few steps:
+Attachment and run of custom  benchmarks using CyBench launcher is a simple process which consists of a few steps:
  * build  `jar` file with tests which contains `jmh` compiled classes
  * place `jar` file in any folder (preferred the same one where where `gocypher-benchmarks-client.jar` resides)
- * configure CyBench runner to execute your tests and correctly build the execution results report.  
+ * configure CyBench launcher to execute your tests and correctly build the execution results report.  
 
 
 #### Requirements for custom benchmarks
@@ -36,7 +36,7 @@ Attachment and run of custom  benchmarks using CyBench runner is a simple proces
 
 #### Adding custom benchmarks for execution
 
-Update CyBench runner configuration located in `<CyBench runner folder>/conf/gocypher-benchmark-client-configuration.properties`:
+Update CyBench launcher configuration located in `<CyBench launcher home folder>/conf/gocypher-benchmark-client-configuration.properties`:
 
 
 * __required__: add or update property `customBenchmarks`, set path to jar file which contains your custom benchmark, this path will be added to the `CLASSPATH` of the JVM. Values must be semicolon separated!  
