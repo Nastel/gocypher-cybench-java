@@ -11,7 +11,7 @@ public class SecurityBuilder {
     public SecurityBuilder(){
         mapOfHashedParts = new HashMap<>() ;
     }
-    public void generateSecurityHashForClasses (Class clazz){
+    public void generateSecurityHashForClasses (Class<?> clazz){
         if (clazz != null) {
             String hash = SecurityUtils.computeClassHash(clazz);
             if (hash != null) {

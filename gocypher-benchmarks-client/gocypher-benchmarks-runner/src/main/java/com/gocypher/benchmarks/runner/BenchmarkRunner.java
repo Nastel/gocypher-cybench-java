@@ -31,13 +31,14 @@ import java.util.stream.Collectors;
 public class BenchmarkRunner {
 	public static final String CYB_REPORT_JSON_FILE = "report.json";
 	public static final String CYB_REPORT_CYB_FILE = "report.cyb";
+	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url", "https://www.gocypher.com/cybench/upload");
 	
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
     static Properties cfg = new Properties();
 
     public static void main (String [] args)throws Exception{
         LOG.info ("-----------------------------------------------------------------------------------------") ;
-        LOG.info ("                                 Starting benchmarking                                     ") ;
+        LOG.info ("                                 Starting CyBench benchmarks                             ") ;
         LOG.info ("-----------------------------------------------------------------------------------------") ;
         identifyPropertiesFromArguments(args);
 
@@ -118,7 +119,7 @@ public class BenchmarkRunner {
         Runner runner = new Runner(opt);
         Collection<RunResult> results = runner.run() ;
 
-        LOG.info ("Benchmark finished, executed tests count:{}",results.size()) ;
+        LOG.info ("Benchmark finished, executed tests count:{}", results.size()) ;
 
         BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results) ;
         report.getEnvironmentSettings().put("environment",hwProperties) ;
@@ -129,28 +130,29 @@ public class BenchmarkRunner {
         getReportUploadStatus(report);
         try {
             String reportJSON = JSONUtils.marshalToPrettyJson(report);
-            LOG.info("Tests report:{}",reportJSON);
+            LOG.info("Benchmark test report: {}", reportJSON);
             LOG.info ("Saving test results to file...") ;
             String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder,report) ;
 
             String responseWithUrl;
             if (report.isEligibleForStoringExternally() && (cfg.getProperty(Constants.SHOULD_SEND_REPORT_TO_JKOOL) == null || Boolean.parseBoolean(cfg.getProperty(Constants.SHOULD_SEND_REPORT_TO_JKOOL)))) {
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
-                //LOG.info ("responseWithUrl... {}", responseWithUrl) ;
                 report.setReportURL(responseWithUrl);
+            } else {
+                LOG.info("You may submit your report {} manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);            	
             }
             reportJSON = JSONUtils.marshalToPrettyJson(report);
             LOG.info ("Saving test results to {}", CYB_REPORT_JSON_FILE) ;
             IOUtils.storeResultsToFile(CYB_REPORT_JSON_FILE, reportJSON);
-            LOG.info ("Saving test results to {}", CYB_REPORT_CYB_FILE) ;
+            LOG.info ("Saving test results to {} (encrypted)", CYB_REPORT_CYB_FILE) ;
             IOUtils.storeResultsToFile(CYB_REPORT_CYB_FILE, reportEncrypted);
 
             LOG.info("Removing all temporary auto-generated data files....") ;
             IOUtils.removeTestDataFiles() ;
             LOG.info ("Removed all temporary auto-generated data files!!!") ;
         } catch (Exception e){
-            e.printStackTrace();
             LOG.error("Failed to store test results", e);
+            LOG.info("You may submit your report {} manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
         }
 
         /*for (RunResult result :results){
