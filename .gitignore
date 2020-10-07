@@ -14,3 +14,7 @@
 /**/output-test.png
 /**/test_picture.png
 /**/gocypher-benchmarks-client/deploy
+*.prefs
+**/.classpath
+**/.project
+

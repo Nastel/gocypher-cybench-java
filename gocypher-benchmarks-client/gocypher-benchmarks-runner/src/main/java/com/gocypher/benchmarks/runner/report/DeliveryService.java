@@ -34,7 +34,7 @@ public class DeliveryService {
 
     public String sendReportForStoring (String reportJSON){
         try {
-            LOG.info("-->Will send report to storage...");
+            LOG.info("-->Sending report to URL {}", serviceUrl);
             HttpPost request = new HttpPost(serviceUrl);
             //request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             request.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
@@ -49,11 +49,11 @@ public class DeliveryService {
 
             //LOG.info("Storing result: {}",result);
             result = JSONUtils.parseJsonIntoMap(result).get(Constants.URL_LINK_TO_GOCYPHER_REPORT).toString();
-            LOG.info("Report sent successfully for external storing.");
-            LOG.info("Check report online in a few minutes via URL {}", result);
+            LOG.info("Report submitted successfully to {}", Constants.URL_LINK_TO_GOCYPHER_REPORT);
+            LOG.info("Report may take a few minutes to appear, your link is {}", result);
             return result;
         }catch (Exception e){
-            LOG.error("Report was not sent for storing because of",e.getMessage());
+            LOG.error("Failed to submit report: URL {}", serviceUrl, e);
         }
         return "";
     }

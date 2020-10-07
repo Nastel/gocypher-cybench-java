@@ -29,6 +29,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class BenchmarkRunner {
+	public static final String CYB_REPORT_JSON_FILE = "report.json";
+	public static final String CYB_REPORT_CYB_FILE = "report.cyb";
+	
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
     static Properties cfg = new Properties();
 
@@ -38,11 +41,11 @@ public class BenchmarkRunner {
         LOG.info ("-----------------------------------------------------------------------------------------") ;
         identifyPropertiesFromArguments(args);
 
-        LOG.info ("Will collect hardware, software information...") ;
+        LOG.info ("Collecting hardware, software information...") ;
         HardwareProperties hwProperties = CollectSystemInformation.getEnvironmentProperties() ;
-        LOG.info("Will collect JVM properties...") ;
+        LOG.info("Collecting JVM properties...") ;
         JVMProperties jvmProperties = CollectSystemInformation.getJavaVirtualMachineProperties() ;
-        LOG.info ("Will execute benchmarks...") ;
+        LOG.info ("Executing benchmarks...") ;
         //printSystemInformation();
 
         // Number of separate full executions of a benchmark (warm up+measurement), this is returned still as one primary score item
@@ -115,7 +118,7 @@ public class BenchmarkRunner {
         Runner runner = new Runner(opt);
         Collection<RunResult> results = runner.run() ;
 
-        LOG.info ("Tests finished, executed tests count:{}",results.size()) ;
+        LOG.info ("Benchmark finished, executed tests count:{}",results.size()) ;
 
         BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results) ;
         report.getEnvironmentSettings().put("environment",hwProperties) ;
@@ -127,7 +130,7 @@ public class BenchmarkRunner {
         try {
             String reportJSON = JSONUtils.marshalToPrettyJson(report);
             LOG.info("Tests report:{}",reportJSON);
-            LOG.info ("Will store results to file...") ;
+            LOG.info ("Saving test results to file...") ;
             String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder,report) ;
 
             String responseWithUrl;
@@ -137,16 +140,17 @@ public class BenchmarkRunner {
                 report.setReportURL(responseWithUrl);
             }
             reportJSON = JSONUtils.marshalToPrettyJson(report);
-            IOUtils.storeResultsToFile("report.json",reportJSON);
-            IOUtils.storeResultsToFile("report.cyb",reportEncrypted);
+            LOG.info ("Saving test results to {}", CYB_REPORT_JSON_FILE) ;
+            IOUtils.storeResultsToFile(CYB_REPORT_JSON_FILE, reportJSON);
+            LOG.info ("Saving test results to {}", CYB_REPORT_CYB_FILE) ;
+            IOUtils.storeResultsToFile(CYB_REPORT_CYB_FILE, reportEncrypted);
 
-            LOG.info("Will remove generated test data files....") ;
+            LOG.info("Removing all temporary auto-generated data files....") ;
             IOUtils.removeTestDataFiles() ;
-            LOG.info ("Generated test data files were removed!!!") ;
-
-        }catch (Exception e){
+            LOG.info ("Removed all temporary auto-generated data files!!!") ;
+        } catch (Exception e){
             e.printStackTrace();
-            LOG.error("Error during storing results to file",e);
+            LOG.error("Failed to store test results", e);
         }
 
         /*for (RunResult result :results){
@@ -206,7 +210,7 @@ public class BenchmarkRunner {
                     LOG.info("Incorrect format, configuration path syntax: cfg|config|configuration='full-file-path'");
                 }
             } else {
-                LOG.info("Using default configuration file");
+                LOG.info("Using default configuration file {}", configurationFilePath);
             }
         }
         cfg = ConfigurationHandler.loadConfiguration(configurationFilePath) ;
