@@ -12,11 +12,11 @@ Download and run CyBench [here](https://www.gocypher.com/cybench/downloads).
 ## CyBench Launcher
 
 The CyBench Launcher contains a set of performance tests developed by the CyBench team to benchmark Java Core services. These tests are are executed by default every time CyBench benchmark is executed via `benchmark_run` script and results are automatically submitted to a public [CyBench Repository](https://www.gocypher.com/cybench/).
-Default benchmark execution and automated reporting can be configured via `<cybench-home>/conf/gocypher-benchmark-client-configuration.properties`
+Default benchmark execution and automated reporting can be configured via `<cybench-home>/conf/cybench-launcher.properties`
 
 ### CyBench launcher configuration
 
-Configuration located in file `<cybench-home>/conf/gocypher-benchmark-client-configuration.properties`
+Configuration located in file `<cybench-home>/conf/cybench-launcher.properties`
 
 TBD.
 
