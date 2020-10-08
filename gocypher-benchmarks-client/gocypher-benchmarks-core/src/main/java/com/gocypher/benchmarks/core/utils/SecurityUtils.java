@@ -40,7 +40,7 @@ public class SecurityUtils {
         }
         return null ;
     }
-    public static String computeClassHash (Class clazz){
+    public static String computeClassHash (Class<?> clazz){
         if (clazz != null){
             String name = clazz.getName();
             //String fileName = "/" + name.replaceAll("\\.", "/") + ".class";

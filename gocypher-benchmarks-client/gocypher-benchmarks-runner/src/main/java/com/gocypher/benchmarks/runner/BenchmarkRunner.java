@@ -1,18 +1,19 @@
 package com.gocypher.benchmarks.runner;
 
-import com.gocypher.benchmarks.runner.environment.model.HardwareProperties;
-import com.gocypher.benchmarks.runner.environment.model.JVMProperties;
-import com.gocypher.benchmarks.runner.environment.services.CollectSystemInformation;
-import com.gocypher.benchmarks.runner.model.BenchmarkOverviewReport;
-import com.gocypher.benchmarks.runner.report.DeliveryService;
-import com.gocypher.benchmarks.runner.report.ReportingService;
-import com.gocypher.benchmarks.runner.services.ConfigurationHandler;
-import com.gocypher.benchmarks.runner.utils.Constants;
-import com.gocypher.benchmarks.core.utils.IOUtils;
-import com.gocypher.benchmarks.runner.utils.JSONUtils;
-import com.gocypher.benchmarks.runner.utils.SecurityBuilder;
+import java.io.File;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.openjdk.jmh.profile.GCProfiler;
-import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
@@ -23,11 +24,17 @@ import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.lang.management.GarbageCollectorMXBean;
-import java.lang.management.ManagementFactory;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.gocypher.benchmarks.core.utils.IOUtils;
+import com.gocypher.benchmarks.runner.environment.model.HardwareProperties;
+import com.gocypher.benchmarks.runner.environment.model.JVMProperties;
+import com.gocypher.benchmarks.runner.environment.services.CollectSystemInformation;
+import com.gocypher.benchmarks.runner.model.BenchmarkOverviewReport;
+import com.gocypher.benchmarks.runner.report.DeliveryService;
+import com.gocypher.benchmarks.runner.report.ReportingService;
+import com.gocypher.benchmarks.runner.services.ConfigurationHandler;
+import com.gocypher.benchmarks.runner.utils.Constants;
+import com.gocypher.benchmarks.runner.utils.JSONUtils;
+import com.gocypher.benchmarks.runner.utils.SecurityBuilder;
 
 public class BenchmarkRunner {
 
@@ -151,7 +158,7 @@ public class BenchmarkRunner {
                 .build();
 
         Runner runner = new Runner(opt);
-        Collection<RunResult> results = Collections.EMPTY_LIST;
+        Collection<RunResult> results = Collections.emptyList();
         if (includedClassesForCustomRun > 0) {
             results = runner.run();
         }
