@@ -111,6 +111,7 @@ public class StringBenchmarks extends BaseBenchmark {
         }
         return flag ;
     }
+
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)

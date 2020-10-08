@@ -40,7 +40,7 @@ prompt_token 'CONFIGURATION_PATH'          '               Configuration file'
 
 if [ "$CONFIGURATION_PATH" = "" ]
 then
-    CONFIGURATION_PATH="conf/gocypher-benchmark-client-configuration.properties"
+    CONFIGURATION_PATH="conf/cybench-launcher.properties"
 fi
 
 # Read properties file to set JVM properties for .jar run
@@ -52,7 +52,6 @@ while IFS='=' read -r key value; do
 done < ${CONFIGURATION_PATH}
 
 # Read properties file to try to set JAVA_PATH from confgiuration file if not provided during runtime.
-JAVA_PATH=""
 while IFS='=' read -r key value; do
     if [[ ${key} == "javaToUsePath"* ]]; then
         if [[ -z "${JAVA_PATH}" ]];then
@@ -61,11 +60,19 @@ while IFS='=' read -r key value; do
     fi
 done < ${CONFIGURATION_PATH}
 
+# Read properties file to set JVM properties for .jar run
+CUSTOM_LIBS=""
+while IFS='=' read -r key value; do
+    if [[ ${key} == "customBenchmarks"* ]]; then
+        CUSTOM_LIBS+="${value} ";
+    fi
+done < ${CONFIGURATION_PATH}
+
 # Execute the benchmarks with set default or user defined properties
 if [[ -z "${JAVA_PATH}" ]];then
-    echo java ${JVM_PROPERTIES} -jar ./gocypher-benchmarks-client.jar "$CONFIGURATION_PATH"
-    java ${JVM_PROPERTIES} -jar ./gocypher-benchmarks-client.jar "$CONFIGURATION_PATH"
+	echo EXECUTE: java ${JVM_PROPERTIES}  -cp ./gocypher-benchmarks-client.jar;${CUSTOM_LIBS} com.gocypher.benchmarks.runner.BenchmarkRunner cfg=${CONFIGURATION_PATH}
+    java ${JVM_PROPERTIES} -cp ./gocypher-benchmarks-client.jar:${CUSTOM_LIBS} com.gocypher.benchmarks.runner.BenchmarkRunner cfg=${CONFIGURATION_PATH}
 else
-    echo "$JAVA_PATH" ${JVM_PROPERTIES} -jar ./gocypher-benchmarks-client.jar "$CONFIGURATION_PATH"
-    "$JAVA_PATH" ${JVM_PROPERTIES} -jar ./gocypher-benchmarks-client.jar "$CONFIGURATION_PATH"
+	echo EXECUTE: "${JAVA_PATH}" ${JVM_PROPERTIES} -cp ./gocypher-benchmarks-client.jar;${CUSTOM_LIBS} com.gocypher.benchmarks.runner.BenchmarkRunner cfg=${CONFIGURATION_PATH}
+    "${JAVA_PATH}" ${JVM_PROPERTIES} -cp ./gocypher-benchmarks-client.jar:${CUSTOM_LIBS} com.gocypher.benchmarks.runner.BenchmarkRunner cfg=${CONFIGURATION_PATH}
 fi

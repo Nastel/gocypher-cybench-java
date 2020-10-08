@@ -24,8 +24,8 @@ IF NOT ["%JAVA_HOME%"] EQU [""] set /p JAVA_PATH= Enter the path of java to test
 IF ["%JAVA_HOME%"] EQU [""] set /p JAVA_PATH= Enter the path of java to test or leave default ([%JAVA_HOME%\bin\java.exe])?:
 
 echo -
-set /p CONFIGURATION_PATH= Provide full path to configuration file or use default ([conf\gocypher-benchmark-client-configuration.properties])?:
-IF ["%CONFIGURATION_PATH%"] EQU [""] set CONFIGURATION_PATH=conf/gocypher-benchmark-client-configuration.properties
+set /p CONFIGURATION_PATH= Provide full path to configuration file or use default ([conf\cybench-launcher.properties])?:
+IF ["%CONFIGURATION_PATH%"] EQU [""] set CONFIGURATION_PATH=conf/cybench-launcher.properties
 
 :: Read properties file to set JVM properties for .jar run
 echo -
@@ -63,3 +63,4 @@ IF NOT ["%JAVA_PATH%"] EQU ["java"] (
 	"%JAVA_PATH%" %JVM_PROPERTIES% -cp gocypher-benchmarks-client.jar;%CUSTOM_LIBS% com.gocypher.benchmarks.runner.BenchmarkRunner cfg=%CONFIGURATION_PATH%
 )
 cmd /k
+@endlocal

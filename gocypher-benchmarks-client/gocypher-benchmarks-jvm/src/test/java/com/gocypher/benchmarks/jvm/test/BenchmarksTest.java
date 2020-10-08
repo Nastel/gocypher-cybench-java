@@ -4,7 +4,10 @@ import com.gocypher.benchmarks.core.utils.IOUtils;
 import com.gocypher.benchmarks.jvm.client.tests.*;
 import com.gocypher.benchmarks.jvm.scores.NumbersScoreConverter;
 import com.gocypher.benchmarks.jvm.scores.StringBufferScoreConverter;
-import org.openjdk.jmh.profile.GCProfiler;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.profile.*;
+import org.openjdk.jmh.results.Result;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
@@ -13,8 +16,7 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 public class BenchmarksTest {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarksTest.class) ;
@@ -24,7 +26,7 @@ public class BenchmarksTest {
         // Number of separate full executions of a benchmark (warm up+measurement), this is returned still as one primary score item
         int forks = 1 ;
         //Number of measurements per benchmark operation, this is returned still as one primary score item
-        int measurementIterations = 1 ;
+        int measurementIterations = 3 ;
         // number of iterations executed for warm up
         int warmUpIterations = 1 ;
         // number of seconds dedicated for each warm up iteration
@@ -48,15 +50,26 @@ public class BenchmarksTest {
                 .warmupTime(TimeValue.seconds(warmUpSeconds))
                 .threads(threads)
                 .shouldDoGC(true)
-                .addProfiler(GCProfiler.class)
-                //.addProfiler(StackProfiler.class)
+                //.addProfiler(GCProfiler.class)
+                .addProfiler(StackProfiler.class) //produces zeros
                 //.addProfiler(HotspotMemoryProfiler.class)
                 //.addProfiler(HotspotRuntimeProfiler.class)
-                //.addProfiler(JavaFlightRecorderProfiler.class)
+                //.addProfiler(HotspotClassloadingProfiler.class)
+                //.addProfiler(HotspotCompilationProfiler.class)
+                //.addProfiler(HotspotThreadProfiler.class)
+                //.addProfiler(JavaFlightRecorderProfiler.class) //throws errors, requires -XX:+UnlockCommercialFeatures, deprecated in java 13
+                //.addProfiler(AsyncProfiler.class) //Unable to load async-profiler. Ensure asyncProfiler library is on LD_LIBRARY_PATH, -Djava.library.path or libPath=
+                //.addProfiler(ClassloaderProfiler.class)
+                //.addProfiler(CompilerProfiler.class)
+                //.addProfiler(DTraceAsmProfiler.class)//Cannot run program "sudo": CreateProcess error=2, The system cannot find the file specified
+                //.addProfiler(PausesProfiler.class)
+                //.addProfiler(SafepointsProfiler.class)
+                //.addProfiler(StackProfiler.class)
+                //.addProfiler(WinPerfAsmProfiler.class)
 
                 .build();
 
-        Runner runner = new Runner(opt);
+        /*Runner runner = new Runner(opt);
         Collection<RunResult> results = runner.run() ;
 
         LOG.info ("Tests finished, executed tests count:{}",results.size()) ;
@@ -95,8 +108,13 @@ public class BenchmarksTest {
 
             System.out.println(result.getPrimaryResult().getLabel() + ":"+score);
 
-        }
+            System.out.println("Extra results for test:");
+            for (Result secondaryResult:result.getSecondaryResults().values()){
+                System.out.println(secondaryResult.getLabel().replaceAll("·","")+" Score:"+secondaryResult.getScore()+" Units:"+secondaryResult.getScoreUnit()+" Extr:"+secondaryResult.extendedInfo());
+            }
 
+        }
+        */
         /*String label1 = "for a real test, make this big and this big,for a real test, make this big and this big,for a real test, make this big and this big";
         String label2 = "so that we can see GC effects,so that we can see GC effects,so that we can see GC effects" ;
 
@@ -111,5 +129,19 @@ public class BenchmarksTest {
         long t2 = System.currentTimeMillis() ;
         System.out.println((t2-t1)+" " +stringBuffer.length());
         */
+        //scanForBenchmarks() ;
     }
+    /*private static void scanForBenchmarks () throws  Exception{
+        Reflections reflections = new Reflections("", new SubTypesScanner(false));
+        Set<Class<? extends Object>> allClasses = reflections.getSubTypesOf(Object.class);
+        for (Class classObj :allClasses){
+                if (classObj.isAnnotationPresent(State.class) && !classObj.getName().contains("jmh_generated")) {
+                    System.out.println(classObj.getName() + "=>" + classObj.isAnnotationPresent(State.class) + ";");
+                }
+
+        }
+
+
+    }
+    */
 }

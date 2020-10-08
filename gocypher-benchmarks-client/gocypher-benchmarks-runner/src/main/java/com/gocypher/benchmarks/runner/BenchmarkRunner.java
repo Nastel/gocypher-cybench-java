@@ -12,6 +12,7 @@ import com.gocypher.benchmarks.core.utils.IOUtils;
 import com.gocypher.benchmarks.runner.utils.JSONUtils;
 import com.gocypher.benchmarks.runner.utils.SecurityBuilder;
 import org.openjdk.jmh.profile.GCProfiler;
+import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
@@ -29,10 +30,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class BenchmarkRunner {
-	public static final String CYB_REPORT_JSON_FILE = "report.json";
-	public static final String CYB_REPORT_CYB_FILE = "report.cyb";
-	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url", "https://www.gocypher.com/cybench/upload");
-	
+
+    public static final String CYB_REPORT_JSON_FILE = "report.json";
+    public static final String CYB_REPORT_CYB_FILE = "report.cyb";
+    public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url", "https://www.gocypher.com/cybench/upload");
+
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
     static Properties cfg = new Properties();
 
@@ -60,17 +62,41 @@ public class BenchmarkRunner {
         // number of threads for benchmark test execution
         int threads = setExecutionProperty(cfg.getProperty(Constants.BENCHMARK_RUN_THREAD_COUNT),1);
 
+        Map<String,Map<String,String>>customBenchmarksMetadata = parseCustomBenchmarkMetadata(cfg.getProperty(Constants.CUSTOM_BENCHMARK_METADATA));
+
         LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
         OptionsBuilder optBuild = new OptionsBuilder();
         String tempBenchmark = null;
         SecurityBuilder securityBuilder = new SecurityBuilder() ;
-        Reflections reflections = new Reflections("com.gocypher.benchmarks", new SubTypesScanner(false));
+
         Map<String, Object> benchmarkSetting =  new HashMap<>();
-        Set<Class<? extends Object>> allClasses = reflections.getSubTypesOf(Object.class);
+
+        int includedClassesForCustomRun = 0 ;
 
         if(checkIfConfigurationPropertyIsSet(cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES))){
+            LOG.info ("Execute custom benchmarks found in configuration {}",cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES)) ;
             List<String> benchmarkNames = Arrays.stream( cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES).split(",")).map(String::trim).collect(Collectors.toList());
-            for (Class<? extends Object> classObj : allClasses) {
+            //FIXME implement that if smth is registered under BENCHMARK_RUN_CLASSES then only this is executed without defaults if smth is not found
+
+            for (String benchmarkClass : benchmarkNames){
+                try {
+                    Class classObj =  Class.forName(benchmarkClass) ;
+                    if (!classObj.getName().isEmpty() ){
+                        optBuild.include(classObj.getName());
+                        includedClassesForCustomRun ++ ;
+                        if (classObj.getName().startsWith("com.gocypher.benchmarks.")){
+                            tempBenchmark = classObj.getName();
+                            securityBuilder.generateSecurityHashForClasses(classObj);
+                        }
+
+                    }
+                }catch (ClassNotFoundException exc){
+                    LOG.error("Class not found in the classpath for execution",exc);
+                }
+            }
+            LOG.info ("Custom classes found and registered for execution: {}",includedClassesForCustomRun) ;
+
+            /*for (Class<? extends Object> classObj : allClasses) {
                 //LOG.info("Classes in classpath:{}",classObj.getName()) ;
                 if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
                     if(substringExistsInList(classObj.getName(),benchmarkNames)) {
@@ -81,11 +107,19 @@ public class BenchmarkRunner {
                     }
                 }
             }
+            */
+
+
         }else {
-            for (Class<? extends Object> classObj : allClasses) {
+            LOG.info ("Execute all benchmarks found on the classpath and configure default ones....") ;
+            Reflections reflections = new Reflections("com.gocypher.benchmarks.", new SubTypesScanner(false));
+            Set<Class<? extends Object>> allDefaultClasses = reflections.getSubTypesOf(Object.class);
+            includedClassesForCustomRun++ ;
+            for (Class<? extends Object> classObj : allDefaultClasses) {
                 if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
-                    LOG.info(classObj.getName());
-                    optBuild.include(classObj.getName());
+                    //LOG.info("==>Default found:{}",classObj.getName());
+                    //We do not include any class, because then JMH will discover all benchmarks automatically including custom ones.
+                    //optBuild.include(classObj.getName());
                     tempBenchmark = classObj.getName();
                     securityBuilder.generateSecurityHashForClasses(classObj);
                 }
@@ -93,7 +127,7 @@ public class BenchmarkRunner {
         }
         //LOG.info("Situation of class signatures:{}",securityBuilder.getMapOfHashedParts()) ;
         if(tempBenchmark != null) {
-            benchmarkSetting = ReportingService.getInstance().prepareBenchmarkProperties(tempBenchmark);
+            benchmarkSetting = ReportingService.getInstance().prepareBenchmarkProperties(tempBenchmark,customBenchmarksMetadata);
             benchmarkSetting.put("benchThreadCount", threads);
             if (cfg.getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
                 benchmarkSetting.put("benchReportName", cfg.getProperty(Constants.BENCHMARK_REPORT_NAME));
@@ -117,11 +151,14 @@ public class BenchmarkRunner {
                 .build();
 
         Runner runner = new Runner(opt);
-        Collection<RunResult> results = runner.run() ;
+        Collection<RunResult> results = Collections.EMPTY_LIST;
+        if (includedClassesForCustomRun > 0) {
+            results = runner.run();
+        }
 
-        LOG.info ("Benchmark finished, executed tests count:{}", results.size()) ;
+        LOG.info ("Benchmark finished, executed tests count:{}",results.size()) ;
 
-        BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results) ;
+        BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results,customBenchmarksMetadata) ;
         report.getEnvironmentSettings().put("environment",hwProperties) ;
         report.getEnvironmentSettings().put("jvmEnvironment",jvmProperties) ;
         report.getEnvironmentSettings().put("unclassifiedProperties",CollectSystemInformation.getUnclassifiedProperties());
@@ -130,16 +167,17 @@ public class BenchmarkRunner {
         getReportUploadStatus(report);
         try {
             String reportJSON = JSONUtils.marshalToPrettyJson(report);
-            LOG.info("Benchmark test report: {}", reportJSON);
+            LOG.info ("Benchmark test report: {}", reportJSON);
             LOG.info ("Saving test results to file...") ;
             String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder,report) ;
 
             String responseWithUrl;
             if (report.isEligibleForStoringExternally() && (cfg.getProperty(Constants.SHOULD_SEND_REPORT_TO_JKOOL) == null || Boolean.parseBoolean(cfg.getProperty(Constants.SHOULD_SEND_REPORT_TO_JKOOL)))) {
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
+                //LOG.info ("responseWithUrl... {}", responseWithUrl) ;
                 report.setReportURL(responseWithUrl);
             } else {
-                LOG.info("You may submit your report {} manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);            	
+                LOG.info("You may submit your report {} manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
             }
             reportJSON = JSONUtils.marshalToPrettyJson(report);
             LOG.info ("Saving test results to {}", CYB_REPORT_JSON_FILE) ;
@@ -150,7 +188,8 @@ public class BenchmarkRunner {
             LOG.info("Removing all temporary auto-generated data files....") ;
             IOUtils.removeTestDataFiles() ;
             LOG.info ("Removed all temporary auto-generated data files!!!") ;
-        } catch (Exception e){
+
+        }catch (Exception e){
             LOG.error("Failed to store test results", e);
             LOG.info("You may submit your report {} manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
         }
@@ -296,6 +335,30 @@ public class BenchmarkRunner {
                 + totalGarbageCollections);
         System.out.println("Total Garbage Collection Time (ms): "
                 + garbageCollectionTime);
+    }
+    private static Map<String,Map<String,String>>parseCustomBenchmarkMetadata (String configuration){
+        Map<String,Map<String,String>>benchConfiguration = new HashMap<>() ;
+        if (configuration != null) {
+            for (String item : configuration.split(";")) {
+                String[] testCfg = item.split("=");
+                if (testCfg != null && testCfg.length == 2) {
+                    String name = testCfg[0];
+                    if (benchConfiguration.get(name) == null) {
+                        benchConfiguration.put(name, new HashMap<>());
+                    }
+                    String value = testCfg[1];
+                    for (String cfgItem : value.split(",")) {
+                        String[] values = cfgItem.split(":");
+                        if (values != null && values.length == 2) {
+                            String key = values[0];
+                            String val = values[1];
+                            benchConfiguration.get(name).put(key, val);
+                        }
+                    }
+                }
+            }
+        }
+        return benchConfiguration ;
     }
 
 }

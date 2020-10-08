@@ -29,9 +29,10 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 public class BenchmarkRunner {
-    private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(com.gocypher.benchmarks.runner.BenchmarkRunner.class);
     static Properties cfg = new Properties();
 
     public static void main (String [] args)throws Exception{
@@ -46,52 +47,59 @@ public class BenchmarkRunner {
         JVMProperties jvmProperties = CollectSystemInformation.getJavaVirtualMachineProperties() ;
         LOG.info ("Will execute benchmarks...") ;
         //printSystemInformation();
-        // Number of separate full executions of a benchmark (warm up+measurement), this is returned still as one primary score item
-        int forks = 1 ;
-        //Number of measurements per benchmark operation, this is returned still as one primary score item
-        int measurementIterations = 1 ;
-        // number of iterations executed for warm up
-        int warmUpIterations = 1 ;
-        // number of seconds dedicated for each warm up iteration
-        int warmUpSeconds = 5 ;
-        // number of threads for benchmark test execution
-        int threads = 1 ;
 
-        /*ClassLoader CLDR = BenchmarkRunner.class.getClassLoader() ;
-        URL url = CLDR.getResource("test_picture.png") ;
-        System.out.println("URL:"+url);
-        File srcFile = new File(url.toURI());
-        System.out.println("File for I/O:"+srcFile.exists()+";"+srcFile.length());
-        */
+        // Number of separate full executions of a benchmark (warm up+measurement), this is returned still as one primary score item
+        int forks = setExecutionProperty(cfg.getProperty(Constants.NUMBER_OF_FORKS),1);
+        //Number of measurements per benchmark operation, this is returned still as one primary score item
+        int measurementIterations = setExecutionProperty(cfg.getProperty(Constants.MEASUREMENT_ITERATIONS),5);
+        // number of iterations executed for warm up
+        int warmUpIterations = setExecutionProperty(cfg.getProperty(Constants.WARM_UP_ITERATIONS),1);
+        // number of seconds dedicated for each warm up iteration
+        int warmUpSeconds = setExecutionProperty(cfg.getProperty(Constants.WARM_UP_SECONDS),5);
+        // number of threads for benchmark test execution
+        int threads = setExecutionProperty(cfg.getProperty(Constants.BENCHMARK_RUN_THREAD_COUNT),1);
+
+        Map<String,Map<String,String>>customBenchmarksMetadata = parseCustomBenchmarkMetadata(cfg.getProperty(Constants.CUSTOM_BENCHMARK_METADATA));
+
+        LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
+        OptionsBuilder optBuild = new OptionsBuilder();
+        String tempBenchmark = null;
         SecurityBuilder securityBuilder = new SecurityBuilder() ;
         Reflections reflections = new Reflections("com.gocypher.benchmarks", new SubTypesScanner(false));
-//        Reflections reflections = new Reflections("com.gocypher.benchmarks");
         Map<String, Object> benchmarkSetting =  new HashMap<>();
         Set<Class<? extends Object>> allClasses = reflections.getSubTypesOf(Object.class);
 
-        OptionsBuilder optBuild = new OptionsBuilder();
-        LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
-        String tempBenchmark = null;
-        for(Class<? extends Object> classObj : allClasses){
-            if(!classObj.getSimpleName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
-                LOG.info(classObj.getSimpleName());
-                optBuild.include(classObj.getSimpleName());
-                tempBenchmark = classObj.getName();
-                securityBuilder.generateSecurityHashForClasses(classObj);
+        if(checkIfConfigurationPropertyIsSet(cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES))){
+            List<String> benchmarkNames = Arrays.stream( cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES).split(",")).map(String::trim).collect(Collectors.toList());
+            for (Class<? extends Object> classObj : allClasses) {
+                //LOG.info("Classes in classpath:{}",classObj.getName()) ;
+                if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
+                    if(substringExistsInList(classObj.getName(),benchmarkNames)) {
+                        LOG.info(classObj.getName());
+                        optBuild.include(classObj.getName());
+                        tempBenchmark = classObj.getName();
+                        securityBuilder.generateSecurityHashForClasses(classObj);
+                    }
+                }
+            }
+        }else {
+            for (Class<? extends Object> classObj : allClasses) {
+                if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks") && !classObj.getSimpleName().contains("_")) {
+                    LOG.info(classObj.getName());
+                    optBuild.include(classObj.getName());
+                    tempBenchmark = classObj.getName();
+                    securityBuilder.generateSecurityHashForClasses(classObj);
+                }
             }
         }
-        LOG.info("Situation of class signatures:{}",securityBuilder.getMapOfHashedParts()) ;
+        //LOG.info("Situation of class signatures:{}",securityBuilder.getMapOfHashedParts()) ;
         if(tempBenchmark != null) {
-            benchmarkSetting = ReportingService.getInstance().prepareBenchmarkProperties(tempBenchmark);
+            benchmarkSetting = ReportingService.getInstance().prepareBenchmarkProperties(tempBenchmark,customBenchmarksMetadata);
             benchmarkSetting.put("benchThreadCount", threads);
             if (cfg.getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
                 benchmarkSetting.put("benchReportName", cfg.getProperty(Constants.BENCHMARK_REPORT_NAME));
             }
         }
-//       optBuild.include(StringBenchmarks.class.getSimpleName());
-//        optBuild.include(IOBenchmarks.class.getSimpleName());
-//        optBuild.include(NumberBenchmarks.class.getSimpleName());
-
 
         Options opt = optBuild
                 .forks(forks)
@@ -101,6 +109,7 @@ public class BenchmarkRunner {
                 .threads(threads)
                 .shouldDoGC(true)
                 .addProfiler(GCProfiler.class)
+                .detectJvmArgs()
                 //.addProfiler(StackProfiler.class)
                 //.addProfiler(HotspotMemoryProfiler.class)
                 //.addProfiler(HotspotRuntimeProfiler.class)
@@ -113,33 +122,32 @@ public class BenchmarkRunner {
 
         LOG.info ("Tests finished, executed tests count:{}",results.size()) ;
 
-        BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results) ;
+        BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results,customBenchmarksMetadata) ;
         report.getEnvironmentSettings().put("environment",hwProperties) ;
         report.getEnvironmentSettings().put("jvmEnvironment",jvmProperties) ;
         report.getEnvironmentSettings().put("unclassifiedProperties",CollectSystemInformation.getUnclassifiedProperties());
+        report.getEnvironmentSettings().put("userDefinedProperties",customUserDefinedProperties());
         report.setBenchmarkSettings(benchmarkSetting);
-
+        getReportUploadStatus(report);
         try {
             String reportJSON = JSONUtils.marshalToPrettyJson(report);
             LOG.info("Tests report:{}",reportJSON);
-            String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder,report) ;
             LOG.info ("Will store results to file...") ;
-
-
+            String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder,report) ;
 
             String responseWithUrl;
             if (report.isEligibleForStoringExternally() && (cfg.getProperty(Constants.SHOULD_SEND_REPORT_TO_JKOOL) == null || Boolean.parseBoolean(cfg.getProperty(Constants.SHOULD_SEND_REPORT_TO_JKOOL)))) {
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
-
                 //LOG.info ("responseWithUrl... {}", responseWithUrl) ;
                 report.setReportURL(responseWithUrl);
             }
             reportJSON = JSONUtils.marshalToPrettyJson(report);
+            IOUtils.storeResultsToFile("report.json",reportJSON);
+            IOUtils.storeResultsToFile("report.cyb",reportEncrypted);
 
-
-//            IOUtils.storeResultsToFile("report.json",reportJSON);
-//            IOUtils.storeResultsToFile("report.cyb",reportEncrypted);
-
+            LOG.info("Will remove generated test data files....") ;
+            IOUtils.removeTestDataFiles() ;
+            LOG.info ("Generated test data files were removed!!!") ;
 
         }catch (Exception e){
             e.printStackTrace();
@@ -157,6 +165,40 @@ public class BenchmarkRunner {
         LOG.info ("-----------------------------------------------------------------------------------------") ;
         LOG.info ("                                 Finished benchmarking                                     ") ;
         LOG.info ("-----------------------------------------------------------------------------------------") ;
+    }
+    private static void getReportUploadStatus(BenchmarkOverviewReport report){
+        String reportUploadStatus= cfg.getProperty(Constants.REPORT_UPLOAD_STATUS);
+        if(reportUploadStatus.equals("public")) {
+            report.setUploadStatus(reportUploadStatus);
+        }else if(reportUploadStatus.equals("private")){
+            report.setUploadStatus(reportUploadStatus);
+        }else{
+            report.setUploadStatus("public");
+        }
+    }
+    private static Map<String, Object> customUserDefinedProperties(){
+        Map<String, Object> customUserProperties = new HashMap<>();
+        Set<String> keys = cfg.stringPropertyNames();
+        for (String key : keys) {
+            if(key.contains("customProp")){
+                customUserProperties.put(key, cfg.getProperty(key));
+            }
+        }
+        return customUserProperties;
+    }
+
+    private static int setExecutionProperty(String property, int value){
+        if(checkIfConfigurationPropertyIsSet(property)){
+            return Integer.parseInt(property);
+        }else{
+            return value;
+        }
+    }
+    private static  boolean checkIfConfigurationPropertyIsSet(String property){
+        return property != null && !property.equals("");
+    }
+    private static boolean substringExistsInList(String inputStr, List<String> items) {
+        return items.stream().parallel().anyMatch(inputStr::contains);
     }
     private static void identifyPropertiesFromArguments(String [] args){
         String configurationFilePath = "";
@@ -254,5 +296,28 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collection Time (ms): "
                 + garbageCollectionTime);
     }
-
+    private static Map<String,Map<String,String>>parseCustomBenchmarkMetadata (String configuration){
+        Map<String,Map<String,String>>benchConfiguration = new HashMap<>() ;
+        if (configuration != null) {
+            for (String item : configuration.split(";")) {
+                String[] testCfg = item.split("=");
+                if (testCfg != null && testCfg.length == 2) {
+                    String name = testCfg[0];
+                    if (benchConfiguration.get(name) == null) {
+                        benchConfiguration.put(name, new HashMap<>());
+                    }
+                    String value = testCfg[1];
+                    for (String cfgItem : value.split(",")) {
+                        String[] values = cfgItem.split(":");
+                        if (values != null && values.length == 2) {
+                            String key = values[0];
+                            String val = values[1];
+                            benchConfiguration.get(name).put(key, val);
+                        }
+                    }
+                }
+            }
+        }
+        return benchConfiguration ;
+    }
 }

@@ -34,7 +34,7 @@ public class ReportingService {
         return instance ;
     }
 
-    public BenchmarkOverviewReport createBenchmarkReport (Collection<RunResult> jmhResults){
+    public BenchmarkOverviewReport createBenchmarkReport (Collection<RunResult> jmhResults,Map<String,Map<String,String>>customBenchmarksMetadata){
         BenchmarkOverviewReport overviewReport = new BenchmarkOverviewReport() ;
 
         for (RunResult item :jmhResults){
@@ -69,11 +69,24 @@ public class ReportingService {
                     report.setGcTime(item.getSecondaryResults().get("·gc.time").getScore());
                 }
                 if (item.getSecondaryResults().get("·gc.alloc.rate") != null) {
-                    //report.setGcTime(item.getSecondaryResults().get("·gc.time").getScore());
+                    report.setGcAllocationRate(item.getSecondaryResults().get("·gc.alloc.rate").getScore());
                 }
                 if (item.getSecondaryResults().get("·gc.alloc.rate.norm") != null) {
-
+                    report.setGcAllocationRateNorm(item.getSecondaryResults().get("·gc.alloc.rate.norm").getScore());
                 }
+                if (item.getSecondaryResults().get("·gc.churn.PS_Eden_Space") != null) {
+                    report.setGcChurnPsEdenSpace(item.getSecondaryResults().get("·gc.churn.PS_Eden_Space").getScore());
+                }
+                if (item.getSecondaryResults().get("·gc.churn.PS_Eden_Space.norm") != null) {
+                    report.setGcChurnPsEdenSpaceNorm(item.getSecondaryResults().get("·gc.churn.PS_Eden_Space.norm").getScore());
+                }
+                if (item.getSecondaryResults().get("·gc.churn.PS_Survivor_Space") != null) {
+                    report.setGcChurnPsSurvivorSpace(item.getSecondaryResults().get("·gc.churn.PS_Survivor_Space").getScore());
+                }
+                if (item.getSecondaryResults().get("·gc.churn.PS_Survivor_Space.norm") != null) {
+                    report.setGcChurnPsSurvivorSpaceNorm(item.getSecondaryResults().get("·gc.churn.PS_Survivor_Space.norm").getScore());
+                }
+
             }
             /*System.out.println("Score:"+result.getPrimaryResult().getScore());
             System.out.println("Stats:"+result.getPrimaryResult().getStatistics());
@@ -85,7 +98,7 @@ public class ReportingService {
 
             //System.out.println("Report class name:"+report.getReportClassName());
 
-            report.setCategory(resolveCategory(report.getReportClassName()));
+            report.setCategory(resolveCategory(report.getReportClassName(),customBenchmarksMetadata));
             report.recalculateScoresToMatchNewUnits();
 
             overviewReport.addToBenchmarks(report);
@@ -98,19 +111,30 @@ public class ReportingService {
         return overviewReport ;
     }
 
-    public Map<String, Object> prepareBenchmarkProperties(String className){
+    public Map<String, Object> prepareBenchmarkProperties(String className,Map<String,Map<String,String>>customBenchmarksMetadata){
         Map<String, Object> benchmarkProperties = new HashMap<>();
-        benchmarkProperties.put("benchVersion", getVersion(className));
-        benchmarkProperties.put("benchContext", resolveContext(className));
+        if (benchmarkProperties.get("benchVersion") == null) {
+            benchmarkProperties.put("benchVersion", getVersion(className));
+        }
+        if (benchmarkProperties.get("benchContext") == null) {
+            benchmarkProperties.put("benchContext", resolveContext(className, customBenchmarksMetadata));
+        }
         return benchmarkProperties;
     }
 
-    private String resolveCategory (String fullClassName){
+    private String resolveCategory (String fullClassName, Map<String,Map<String,String>>customBenchmarksMetadata){
         try {
             Class clazz = Class.forName(fullClassName);
             Object obj = clazz.newInstance() ;
             if (obj instanceof BaseBenchmark) {
                 return ((BaseBenchmark)obj).getCategory() ;
+            }
+            else {
+                if (customBenchmarksMetadata.get(fullClassName)!= null){
+                    if (customBenchmarksMetadata.get(fullClassName).get("category") != null) {
+                        return customBenchmarksMetadata.get(fullClassName).get("category") ;
+                    }
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -119,13 +143,20 @@ public class ReportingService {
         return "Custom" ;
     }
 
-    private String resolveContext (String fullClassName){
+    private String resolveContext (String fullClassName, Map<String,Map<String,String>>customBenchmarksMetadata){
         try {
             Class clazz = Class.forName(fullClassName);
             Object obj = clazz.newInstance() ;
             if (obj instanceof BaseBenchmark) {
                 return ((BaseBenchmark)obj).getContext() ;
             }
+            /*else {
+                if (customBenchmarksMetadata.get(fullClassName)!= null){
+                    if (customBenchmarksMetadata.get(fullClassName).get("context") != null) {
+                        return customBenchmarksMetadata.get(fullClassName).get("context") ;
+                    }
+                }
+            }*/
         }catch (Exception e){
             e.printStackTrace();
             LOG.error ("Error on resolving category",e) ;
@@ -176,4 +207,5 @@ public class ReportingService {
 
         return securedReport ;
     }
+
 }

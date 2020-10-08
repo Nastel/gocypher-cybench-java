@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 @State(Scope.Benchmark)
 public class NumberBenchmarks extends BaseBenchmark {
 
-    @Param({"1000000"})
-    public int listSize;
+    //@Param({"1000000"})
+    //public int listSize;
 
     public List<Integer> testList;
 
@@ -48,10 +48,10 @@ public class NumberBenchmarks extends BaseBenchmark {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     public void generateAndAddAtomicNumbers (Blackhole blackHole){
-        int num = (int)(rangeMin + (int) (new Random().nextFloat() * (rangeMax - rangeMin)));
+        int num = (int)(rangeMin + (int) (this.randomGenerator.nextFloat() * (rangeMax - rangeMin)));
         AtomicLong atomicLong = new AtomicLong() ;
         atomicLong.addAndGet(Long.valueOf(num));
-        int num2 = (int)(rangeMin + (int) (new Random().nextFloat() * (rangeMax - rangeMin)));
+        int num2 = (int)(rangeMin + (int) this.randomGenerator.nextFloat() * (rangeMax - rangeMin));
         atomicLong.addAndGet(Long.valueOf(num2));
         Long result = atomicLong.get() ;
         blackHole.consume(result);
@@ -61,10 +61,10 @@ public class NumberBenchmarks extends BaseBenchmark {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     public void generateAndAddBigDecimalNumbers (Blackhole blackHole){
-        int num = (int)(rangeMin + (int) (new Random().nextFloat() * (rangeMax - rangeMin)));
+        int num = (int)(rangeMin + (int) (this.randomGenerator.nextFloat() * (rangeMax - rangeMin)));
         BigDecimal sum = BigDecimal.ZERO ;
         sum = sum.add(BigDecimal.valueOf(num)) ;
-        int num2 = (int)(rangeMin + (int) (new Random().nextFloat() * (rangeMax - rangeMin)));
+        int num2 = (int)(rangeMin + (int) (this.randomGenerator.nextFloat() * (rangeMax - rangeMin)));
         sum = sum.add(BigDecimal.valueOf(num2)) ;
         blackHole.consume(sum);
     }

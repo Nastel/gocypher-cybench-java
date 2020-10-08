@@ -33,7 +33,7 @@ public class ConfigurationHandler {
 		String confFilePath;
 		try {
 			if(filePath.isEmpty()) {
-				confFilePath = new File("").getAbsolutePath()+"/conf/gocypher-benchmark-client-configuration.properties";
+				confFilePath = new File("").getAbsolutePath()+"/conf/cybench-launcher.properties";
 			}else{
 				confFilePath = filePath;
 			}
@@ -43,7 +43,7 @@ public class ConfigurationHandler {
 		} catch (Exception e) {
 			LOG.error("Configuration file provided not found, will try to use default configuration file.");
 			try{
-				confFilePath = new File("").getAbsolutePath()+"/conf/gocypher-benchmark-client-configuration.properties";
+				confFilePath = new File("").getAbsolutePath()+"/conf/cybench-launcher.properties";
 				prop.load(new FileInputStream( confFilePath));
 				return prop;
 			}catch (Exception err){

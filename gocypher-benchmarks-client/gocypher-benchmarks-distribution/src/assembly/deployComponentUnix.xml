@@ -12,7 +12,7 @@
             <fileMode>0777</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../gocypher-benchmarks-runner/src/main/resources/gocypher-benchmark-client-configuration.properties
+            <source>${project.basedir}/../gocypher-benchmarks-runner/src/main/resources/cybench-launcher.properties
             </source>
             <outputDirectory>conf</outputDirectory>
         </file>

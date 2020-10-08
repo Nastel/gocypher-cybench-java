@@ -28,6 +28,12 @@ public class BenchmarkReport implements Serializable {
     private Long n ;
     private Double gcCalls ;
     private Double gcTime ;
+    private Double gcAllocationRate ;
+    private Double gcAllocationRateNorm ;
+    private Double gcChurnPsEdenSpace ;
+    private Double gcChurnPsEdenSpaceNorm ;
+    private Double gcChurnPsSurvivorSpace ;
+    private Double gcChurnPsSurvivorSpaceNorm ;
 
 
     public BenchmarkReport(){
@@ -176,6 +182,54 @@ public class BenchmarkReport implements Serializable {
         this.gcTime = gcTime;
     }
 
+    public Double getGcAllocationRate() {
+        return gcAllocationRate;
+    }
+
+    public void setGcAllocationRate(Double gcAllocationRate) {
+        this.gcAllocationRate = gcAllocationRate;
+    }
+
+    public Double getGcAllocationRateNorm() {
+        return gcAllocationRateNorm;
+    }
+
+    public void setGcAllocationRateNorm(Double gcAllocationRateNorm) {
+        this.gcAllocationRateNorm = gcAllocationRateNorm;
+    }
+
+    public Double getGcChurnPsEdenSpace() {
+        return gcChurnPsEdenSpace;
+    }
+
+    public void setGcChurnPsEdenSpace(Double gcChurnPsEdenSpace) {
+        this.gcChurnPsEdenSpace = gcChurnPsEdenSpace;
+    }
+
+    public Double getGcChurnPsEdenSpaceNorm() {
+        return gcChurnPsEdenSpaceNorm;
+    }
+
+    public void setGcChurnPsEdenSpaceNorm(Double gcChurnPsEdenSpaceNorm) {
+        this.gcChurnPsEdenSpaceNorm = gcChurnPsEdenSpaceNorm;
+    }
+
+    public Double getGcChurnPsSurvivorSpace() {
+        return gcChurnPsSurvivorSpace;
+    }
+
+    public void setGcChurnPsSurvivorSpace(Double gcChurnPsSurvivorSpace) {
+        this.gcChurnPsSurvivorSpace = gcChurnPsSurvivorSpace;
+    }
+
+    public Double getGcChurnPsSurvivorSpaceNorm() {
+        return gcChurnPsSurvivorSpaceNorm;
+    }
+
+    public void setGcChurnPsSurvivorSpaceNorm(Double gcChurnPsSurvivorSpaceNorm) {
+        this.gcChurnPsSurvivorSpaceNorm = gcChurnPsSurvivorSpaceNorm;
+    }
+
     @Override
     public String toString() {
         return "BenchmarkReport{" +
@@ -189,6 +243,14 @@ public class BenchmarkReport implements Serializable {
                 ", maxScore=" + maxScore +
                 ", stdDevScore=" + stdDevScore +
                 ", n=" + n +
+                ", gcCalls=" + gcCalls +
+                ", gcTime=" + gcTime +
+                ", gcAllocationRate=" + gcAllocationRate +
+                ", gcAllocationRateNorm=" + gcAllocationRateNorm +
+                ", gcChurnPsEdenSpace=" + gcChurnPsEdenSpace +
+                ", gcChurnPsEdenSpaceNorm=" + gcChurnPsEdenSpaceNorm +
+                ", gcChurnPsSurvivorSpace=" + gcChurnPsSurvivorSpace +
+                ", gcChurnPsSurvivorSpaceNorm=" + gcChurnPsSurvivorSpaceNorm +
                 '}';
     }
 }
