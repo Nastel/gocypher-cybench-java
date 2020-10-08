@@ -19,26 +19,14 @@
 
 package com.gocypher.benchmarks.jvm.test;
 
-import com.gocypher.benchmarks.core.utils.IOUtils;
-import com.gocypher.benchmarks.jvm.client.tests.*;
-import com.gocypher.benchmarks.jvm.scores.NumbersScoreConverter;
-import com.gocypher.benchmarks.jvm.scores.StringBufferScoreConverter;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.profile.*;
-import org.openjdk.jmh.results.Result;
-import org.openjdk.jmh.results.RunResult;
-import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import com.gocypher.benchmarks.jvm.client.tests.StringBenchmarks;
 
 public class BenchmarksTest {
-    private static final Logger LOG = LoggerFactory.getLogger(BenchmarksTest.class) ;
 
     public static void main (String []args)throws Exception{
 

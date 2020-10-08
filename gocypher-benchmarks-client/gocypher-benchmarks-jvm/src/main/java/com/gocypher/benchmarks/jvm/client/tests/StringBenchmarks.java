@@ -19,13 +19,21 @@
 
 package com.gocypher.benchmarks.jvm.client.tests;
 
-import com.gocypher.benchmarks.core.model.BaseBenchmark;
-import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
-
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Level;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
+
+import com.gocypher.benchmarks.core.model.BaseBenchmark;
 
 @State(Scope.Benchmark)
 public class StringBenchmarks extends BaseBenchmark {
@@ -49,20 +57,13 @@ public class StringBenchmarks extends BaseBenchmark {
 
     public static int numberOfIterations = 100_000;
 
-    private String buffer = "" ;
-    private StringBuffer stringBuffer ;
     private int count = 0 ;
-    private int regexMatchesCount = 0 ;
     private Matcher matcher ;
 
     @Setup(Level.Iteration)
     public void setUp(){
-        buffer = "" ;
         this.count = 0 ;
-        this.regexMatchesCount = 0 ;
-        this.stringBuffer = new StringBuffer() ;
         matcher = Pattern.compile(REGEX).matcher("");
-
     }
 //FIXME Correct tests uncomment and use them
 
@@ -125,10 +126,7 @@ public class StringBenchmarks extends BaseBenchmark {
     @OutputTimeUnit(TimeUnit.SECONDS)
     public boolean findRegexCompiled (){
         boolean flag = matcher.reset(labelForReplacement).matches() ;
-        if (flag){
-            this.regexMatchesCount++ ;
-        }
-        return flag ;
+        return flag;
     }
 
     @Benchmark
@@ -136,9 +134,6 @@ public class StringBenchmarks extends BaseBenchmark {
     @OutputTimeUnit(TimeUnit.SECONDS)
     public boolean findRegexUnCompiled (){
         boolean flag = labelForReplacement.matches(REGEX) ;
-        if (flag){
-            this.regexMatchesCount++ ;
-        }
         return flag ;
     }
 
