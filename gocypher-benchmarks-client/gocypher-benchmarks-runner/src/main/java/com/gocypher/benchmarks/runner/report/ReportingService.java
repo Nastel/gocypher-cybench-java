@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2020, K2N.IO.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ */
+
 package com.gocypher.benchmarks.runner.report;
 
 import com.gocypher.benchmarks.core.model.BaseBenchmark;
@@ -59,35 +78,33 @@ public class ReportingService {
                 //System.out.println("id:"+item.getParams().id());
                 //System.out.println("Mode"+item.getParams().getMode().longLabel());
             }
-            if (item.getSecondaryResults() != null){
-                //gc.alloc.rate=12.430 MB/sec, ·gc.alloc.rate.norm=20849.130 B/op, ·gc.churn.PS_Eden_Space=12.221 MB/sec, ·gc.churn.PS_Eden_Space.norm=20497.921 B/op, ·gc.count=2.000 counts, gc.time=10.000 ms, ·stack=<delayed till summary>
-                //System.out.println("GC:"+item.getSecondaryResults().keySet());
-                if (item.getSecondaryResults().get("·gc.count") != null) {
-                    report.setGcCalls(item.getSecondaryResults().get("·gc.count").getScore());
-                }
-                if (item.getSecondaryResults().get("·gc.time") != null) {
-                    report.setGcTime(item.getSecondaryResults().get("·gc.time").getScore());
-                }
-                if (item.getSecondaryResults().get("·gc.alloc.rate") != null) {
-                    report.setGcAllocationRate(item.getSecondaryResults().get("·gc.alloc.rate").getScore());
-                }
-                if (item.getSecondaryResults().get("·gc.alloc.rate.norm") != null) {
-                    report.setGcAllocationRateNorm(item.getSecondaryResults().get("·gc.alloc.rate.norm").getScore());
-                }
-                if (item.getSecondaryResults().get("·gc.churn.PS_Eden_Space") != null) {
-                    report.setGcChurnPsEdenSpace(item.getSecondaryResults().get("·gc.churn.PS_Eden_Space").getScore());
-                }
-                if (item.getSecondaryResults().get("·gc.churn.PS_Eden_Space.norm") != null) {
-                    report.setGcChurnPsEdenSpaceNorm(item.getSecondaryResults().get("·gc.churn.PS_Eden_Space.norm").getScore());
-                }
-                if (item.getSecondaryResults().get("·gc.churn.PS_Survivor_Space") != null) {
-                    report.setGcChurnPsSurvivorSpace(item.getSecondaryResults().get("·gc.churn.PS_Survivor_Space").getScore());
-                }
-                if (item.getSecondaryResults().get("·gc.churn.PS_Survivor_Space.norm") != null) {
-                    report.setGcChurnPsSurvivorSpaceNorm(item.getSecondaryResults().get("·gc.churn.PS_Survivor_Space.norm").getScore());
-                }
 
-            }
+            report.setGcCalls(getScoreFromJMHSecondaryResult(item,"·gc.count"));
+            report.setGcTime(getScoreFromJMHSecondaryResult(item,"·gc.time"));
+            report.setGcAllocationRate(getScoreFromJMHSecondaryResult(item,"·gc.alloc.rate"));
+            report.setGcAllocationRateNorm(getScoreFromJMHSecondaryResult(item,"·gc.alloc.rate.norm"));
+            report.setGcChurnPsEdenSpace(getScoreFromJMHSecondaryResult(item,"·gc.churn.PS_Eden_Space"));
+            report.setGcChurnPsEdenSpaceNorm(getScoreFromJMHSecondaryResult(item,"·gc.churn.PS_Eden_Space.norm"));
+            report.setGcChurnPsSurvivorSpace(getScoreFromJMHSecondaryResult(item,"·gc.churn.PS_Survivor_Space"));
+            report.setGcChurnPsSurvivorSpaceNorm(getScoreFromJMHSecondaryResult(item,"·gc.churn.PS_Survivor_Space.norm"));
+
+            report.setThreadsAliveCount(getScoreFromJMHSecondaryResult(item,"·threads.alive"));
+            report.setThreadsDaemonCount(getScoreFromJMHSecondaryResult(item,"·threads.daemon"));
+            report.setThreadsStartedCount(getScoreFromJMHSecondaryResult(item,"·threads.started"));
+
+            report.setThreadsSafePointSyncTime(getScoreFromJMHSecondaryResult(item,"·rt.safepointSyncTime"));
+            report.setThreadsSafePointTime(getScoreFromJMHSecondaryResult(item,"·rt.safepointTime"));
+            report.setThreadsSafePointsCount(getScoreFromJMHSecondaryResult(item,"·rt.safepoints"));
+
+            report.setThreadsSyncContendedLockAttemptsCount(getScoreFromJMHSecondaryResult(item,"·rt.sync.contendedLockAttempts"));
+            report.setThreadsSyncMonitorFatMonitorsCount(getScoreFromJMHSecondaryResult(item,"·rt.sync.fatMonitors"));
+            report.setThreadsSyncMonitorFutileWakeupsCount(getScoreFromJMHSecondaryResult(item,"·rt.sync.futileWakeups"));
+            report.setThreadsSyncMonitorDeflations(getScoreFromJMHSecondaryResult(item,"·rt.sync.monitorDeflations"));
+            report.setThreadsSyncMonitorInflations(getScoreFromJMHSecondaryResult(item,"·rt.sync.monitorInflations"));
+            report.setThreadsSyncNotificationsCount(getScoreFromJMHSecondaryResult(item,"·rt.sync.notifications"));
+
+            report.setThreadsSyncParksCount(getScoreFromJMHSecondaryResult(item,"·rt.sync.parks"));
+
             /*System.out.println("Score:"+result.getPrimaryResult().getScore());
             System.out.println("Stats:"+result.getPrimaryResult().getStatistics());
             System.out.println("getBenchmarkResults:"+result.getBenchmarkResults().size());
@@ -206,6 +223,14 @@ public class ReportingService {
         */
 
         return securedReport ;
+    }
+    private Double getScoreFromJMHSecondaryResult (RunResult result,String key){
+        if (result != null && result.getSecondaryResults() != null){
+            if (result.getSecondaryResults().get(key)!= null){
+                return result.getSecondaryResults().get(key).getScore() ;
+            }
+        }
+        return null ;
     }
 
 }

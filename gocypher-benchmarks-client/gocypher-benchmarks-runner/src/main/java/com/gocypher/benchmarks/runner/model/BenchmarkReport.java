@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2020, K2N.IO.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ */
+
 package com.gocypher.benchmarks.runner.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,6 +54,23 @@ public class BenchmarkReport implements Serializable {
     private Double gcChurnPsSurvivorSpace ;
     private Double gcChurnPsSurvivorSpaceNorm ;
 
+    private Double threadsAliveCount ;
+    private Double threadsDaemonCount ;
+    private Double threadsStartedCount ;
+
+    /*A safepoint is a moment in time when a  thread's data, its internal state and representation in the JVM are, well,safe for observation by other threads in the JVM.*/
+    private Double threadsSafePointsCount ;
+    private Double threadsSafePointTime ;
+    private Double threadsSafePointSyncTime ;
+    private Double threadsSyncContendedLockAttemptsCount ;
+    private Double threadsSyncMonitorDeflations ;
+    private Double threadsSyncMonitorInflations ;
+    private Double threadsSyncMonitorFatMonitorsCount ;
+    private Double threadsSyncMonitorFutileWakeupsCount ;
+    private Double threadsSyncNotificationsCount ;
+
+    /*parked threads are suspended until they are given a permit.*/
+    private Double threadsSyncParksCount ;
 
     public BenchmarkReport(){
 
@@ -228,6 +264,110 @@ public class BenchmarkReport implements Serializable {
 
     public void setGcChurnPsSurvivorSpaceNorm(Double gcChurnPsSurvivorSpaceNorm) {
         this.gcChurnPsSurvivorSpaceNorm = gcChurnPsSurvivorSpaceNorm;
+    }
+
+    public Double getThreadsAliveCount() {
+        return threadsAliveCount;
+    }
+
+    public void setThreadsAliveCount(Double threadsAliveCount) {
+        this.threadsAliveCount = threadsAliveCount;
+    }
+
+    public Double getThreadsDaemonCount() {
+        return threadsDaemonCount;
+    }
+
+    public void setThreadsDaemonCount(Double threadsDaemonCount) {
+        this.threadsDaemonCount = threadsDaemonCount;
+    }
+
+    public Double getThreadsStartedCount() {
+        return threadsStartedCount;
+    }
+
+    public void setThreadsStartedCount(Double threadsStartedCount) {
+        this.threadsStartedCount = threadsStartedCount;
+    }
+
+    public Double getThreadsSafePointsCount() {
+        return threadsSafePointsCount;
+    }
+
+    public void setThreadsSafePointsCount(Double threadsSafePointsCount) {
+        this.threadsSafePointsCount = threadsSafePointsCount;
+    }
+
+    public Double getThreadsSafePointTime() {
+        return threadsSafePointTime;
+    }
+
+    public void setThreadsSafePointTime(Double threadsSafePointTime) {
+        this.threadsSafePointTime = threadsSafePointTime;
+    }
+
+    public Double getThreadsSafePointSyncTime() {
+        return threadsSafePointSyncTime;
+    }
+
+    public void setThreadsSafePointSyncTime(Double threadsSafePointSyncTime) {
+        this.threadsSafePointSyncTime = threadsSafePointSyncTime;
+    }
+
+    public Double getThreadsSyncContendedLockAttemptsCount() {
+        return threadsSyncContendedLockAttemptsCount;
+    }
+
+    public void setThreadsSyncContendedLockAttemptsCount(Double threadsSyncContendedLockAttemptsCount) {
+        this.threadsSyncContendedLockAttemptsCount = threadsSyncContendedLockAttemptsCount;
+    }
+
+    public Double getThreadsSyncMonitorDeflations() {
+        return threadsSyncMonitorDeflations;
+    }
+
+    public void setThreadsSyncMonitorDeflations(Double threadsSyncMonitorDeflations) {
+        this.threadsSyncMonitorDeflations = threadsSyncMonitorDeflations;
+    }
+
+    public Double getThreadsSyncMonitorInflations() {
+        return threadsSyncMonitorInflations;
+    }
+
+    public void setThreadsSyncMonitorInflations(Double threadsSyncMonitorInflations) {
+        this.threadsSyncMonitorInflations = threadsSyncMonitorInflations;
+    }
+
+    public Double getThreadsSyncMonitorFatMonitorsCount() {
+        return threadsSyncMonitorFatMonitorsCount;
+    }
+
+    public void setThreadsSyncMonitorFatMonitorsCount(Double threadsSyncMonitorFatMonitorsCount) {
+        this.threadsSyncMonitorFatMonitorsCount = threadsSyncMonitorFatMonitorsCount;
+    }
+
+    public Double getThreadsSyncMonitorFutileWakeupsCount() {
+        return threadsSyncMonitorFutileWakeupsCount;
+    }
+
+    public void setThreadsSyncMonitorFutileWakeupsCount(Double threadsSyncMonitorFutileWakeupsCount) {
+        this.threadsSyncMonitorFutileWakeupsCount = threadsSyncMonitorFutileWakeupsCount;
+    }
+
+    public Double getThreadsSyncNotificationsCount() {
+        return threadsSyncNotificationsCount;
+    }
+
+    public void setThreadsSyncNotificationsCount(Double threadsSyncNotificationsCount) {
+        this.threadsSyncNotificationsCount = threadsSyncNotificationsCount;
+    }
+
+    public Double getThreadsSyncParksCount() {
+        return threadsSyncParksCount;
+    }
+
+    public void setThreadsSyncParksCount(Double threadsSyncParksCount) {
+        this.threadsSyncParksCount = threadsSyncParksCount;
     }
 
     @Override
