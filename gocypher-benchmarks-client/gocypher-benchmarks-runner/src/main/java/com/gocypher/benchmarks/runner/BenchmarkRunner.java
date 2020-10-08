@@ -108,7 +108,7 @@ public class BenchmarkRunner {
 
             for (String benchmarkClass : benchmarkNames){
                 try {
-                    Class classObj =  Class.forName(benchmarkClass) ;
+                    Class<?> classObj =  Class.forName(benchmarkClass) ;
                     if (!classObj.getName().isEmpty() ){
                         optBuild.include(classObj.getName());
                         includedClassesForCustomRun ++ ;
@@ -116,9 +116,8 @@ public class BenchmarkRunner {
                             tempBenchmark = classObj.getName();
                             securityBuilder.generateSecurityHashForClasses(classObj);
                         }
-
                     }
-                }catch (ClassNotFoundException exc){
+                } catch (ClassNotFoundException exc){
                     LOG.error("Class not found in the classpath for execution",exc);
                 }
             }
@@ -267,9 +266,8 @@ public class BenchmarkRunner {
     private static  boolean checkIfConfigurationPropertyIsSet(String property){
         return property != null && !property.equals("");
     }
-    private static boolean substringExistsInList(String inputStr, List<String> items) {
-        return items.stream().parallel().anyMatch(inputStr::contains);
-    }
+    
+    
     private static void identifyPropertiesFromArguments(String [] args){
         String configurationFilePath = "";
         for (String property : args) {
@@ -286,7 +284,8 @@ public class BenchmarkRunner {
         }
         cfg = ConfigurationHandler.loadConfiguration(configurationFilePath) ;
     }
-    private static void printSystemInformation (){
+ 
+    static void printSystemInformation (){
         long kilobytes = 1024;
         long megabytes = kilobytes * 1024;
         long gigabytes = megabytes * 1024;
@@ -339,6 +338,7 @@ public class BenchmarkRunner {
         System.getProperties().list(System.out);
 
     }
+    
     public static void printGCStats() {
         long totalGarbageCollections = 0;
         long garbageCollectionTime = 0;
@@ -366,6 +366,7 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collection Time (ms): "
                 + garbageCollectionTime);
     }
+    
     private static Map<String,Map<String,String>>parseCustomBenchmarkMetadata (String configuration){
         Map<String,Map<String,String>>benchConfiguration = new HashMap<>() ;
         if (configuration != null) {

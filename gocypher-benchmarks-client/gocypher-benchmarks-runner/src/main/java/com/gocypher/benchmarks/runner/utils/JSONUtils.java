@@ -32,7 +32,7 @@ public class JSONUtils {
     private static Logger LOG = LoggerFactory.getLogger(JSONUtils.class);
     private static ObjectMapper mapper = new ObjectMapper();
 
-    public static Map<String, Object> parseJsonIntoMap(String jsonString) {
+    public static Map<?, ?> parseJsonIntoMap(String jsonString) {
         try {
             return mapper.readValue(jsonString, HashMap.class);
         } catch (Exception e) {
@@ -40,7 +40,7 @@ public class JSONUtils {
             return new HashMap<>();
         }
     }
-    public static List<Object> parseJsonIntoList(String jsonString) {
+    public static List<?> parseJsonIntoList(String jsonString) {
         try {
             return mapper.readValue(jsonString, ArrayList.class);
         } catch (Exception e) {

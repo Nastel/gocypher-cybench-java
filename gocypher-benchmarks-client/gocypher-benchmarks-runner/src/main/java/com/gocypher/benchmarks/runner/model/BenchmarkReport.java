@@ -19,20 +19,15 @@
 
 package com.gocypher.benchmarks.runner.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gocypher.benchmarks.core.model.BaseScoreConverter;
-import com.gocypher.benchmarks.core.utils.IOUtils;
-import com.gocypher.benchmarks.runner.utils.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BenchmarkReport implements Serializable {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gocypher.benchmarks.core.model.BaseScoreConverter;
+import com.gocypher.benchmarks.runner.utils.Constants;
 
-    private static Logger LOG = LoggerFactory.getLogger(BenchmarkReport.class) ;
+public class BenchmarkReport implements Serializable {
 
     private String name ;
     private Double score;

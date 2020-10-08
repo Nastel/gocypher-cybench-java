@@ -19,6 +19,17 @@
 
 package com.gocypher.benchmarks.runner.report;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.Manifest;
+
+import org.openjdk.jmh.results.RunResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gocypher.benchmarks.core.model.BaseBenchmark;
 import com.gocypher.benchmarks.core.utils.SecurityUtils;
 import com.gocypher.benchmarks.runner.model.BenchmarkOverviewReport;
@@ -26,18 +37,6 @@ import com.gocypher.benchmarks.runner.model.BenchmarkReport;
 import com.gocypher.benchmarks.runner.model.SecuredReport;
 import com.gocypher.benchmarks.runner.utils.JSONUtils;
 import com.gocypher.benchmarks.runner.utils.SecurityBuilder;
-import org.openjdk.jmh.results.RunResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.Manifest;
 
 public class ReportingService {
     private static final Logger LOG = LoggerFactory.getLogger(ReportingService.class);

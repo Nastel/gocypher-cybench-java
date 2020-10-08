@@ -19,13 +19,15 @@
 
 package com.gocypher.benchmarks.runner.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gocypher.benchmarks.core.model.BaseBenchmark;
-import com.gocypher.benchmarks.runner.utils.ComputationUtils;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gocypher.benchmarks.runner.utils.ComputationUtils;
 
 public class BenchmarkOverviewReport implements Serializable {
     private long timestamp ;
