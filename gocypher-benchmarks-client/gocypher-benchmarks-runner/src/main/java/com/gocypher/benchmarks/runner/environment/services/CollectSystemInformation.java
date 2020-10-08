@@ -260,14 +260,40 @@ public class CollectSystemInformation {
     /**
      * Get network properties using OSHI and filtering to get the correct mac address for different operating machines. Excluding virtual machines macs
      */
-    private static void getNetworkProperties() throws Exception {
+    private static void getNetworkProperties() throws Exception {;
+
         InetAddress ip = null;
-        LOG.info ("Looking for Network properties...") ;
-        Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("google.com", 80));
-        ip = socket.getLocalAddress();
-        socket.close();
-//        LOG.info(String.valueOf(ip));
+        Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+        for( NetworkInterface netw : Collections.list(nets)){
+            // Filter names for UNIX to take "eth0" , "en0"
+            // Filter names for WINDOWS to not take "Virtual", "Hyper-V"
+            String tempName = netw.toString().toLowerCase();
+            if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
+                if (tempName.contains("eth0") || Pattern.compile("(eth(\\w)*0(\\w)*)|(en(\\w)*0(\\w*))").matcher(tempName).find()) {
+                    Enumeration<InetAddress> addresses = netw.getInetAddresses();
+                    for (InetAddress addr : Collections.list(addresses)) {
+                        if (addr instanceof Inet4Address) {
+                            ip = addr;
+                        }
+                    }
+                }
+            }
+            else {
+                if(!stringContainsItemFromList(tempName,excludeWindowsMACs)){
+                    Enumeration<InetAddress> addresses = netw.getInetAddresses();
+                    for( InetAddress addr : Collections.list(addresses)){
+                        if (addr instanceof Inet4Address) {
+                            if(!addr.toString().equals("/127.0.0.1")) {
+                                ip = addr;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(ip != null) {
+           ip = InetAddress.getLocalHost();
+        }
         if(ip != null) {
             hardwareProp.setHwNetworkClientIPAddress(ip.toString().substring(1));
             NetworkInterface network = NetworkInterface.getByInetAddress(ip);
