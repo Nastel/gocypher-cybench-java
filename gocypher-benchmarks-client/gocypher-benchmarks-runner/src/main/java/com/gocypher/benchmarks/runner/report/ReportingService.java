@@ -140,7 +140,7 @@ public class ReportingService {
 
     private String resolveCategory (String fullClassName, Map<String,Map<String,String>>customBenchmarksMetadata){
         try {
-            Class clazz = Class.forName(fullClassName);
+            Class<?> clazz = Class.forName(fullClassName);
             Object obj = clazz.newInstance() ;
             if (obj instanceof BaseBenchmark) {
                 return ((BaseBenchmark)obj).getCategory() ;
@@ -161,7 +161,7 @@ public class ReportingService {
 
     private String resolveContext (String fullClassName, Map<String,Map<String,String>>customBenchmarksMetadata){
         try {
-            Class clazz = Class.forName(fullClassName);
+            Class<?> clazz = Class.forName(fullClassName);
             Object obj = clazz.newInstance() ;
             if (obj instanceof BaseBenchmark) {
                 return ((BaseBenchmark)obj).getContext() ;
@@ -182,7 +182,7 @@ public class ReportingService {
 
     private String getVersion(String fullClassName) {
         try {
-            Class clazz = Class.forName(fullClassName);
+            Class<?> clazz = Class.forName(fullClassName);
             //URLClassLoader cl = (URLClassLoader) ReportingService.class.getClassLoader();
             //URL url = cl.findResource("META-INF/MANIFEST.MF");
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -205,8 +205,6 @@ public class ReportingService {
 
         String plainReport = JSONUtils.marshalToJson(securedReport) ;
         return SecurityUtils.encryptReport(plainReport) ;
-
-
     }
     private SecuredReport createSecuredReport (BenchmarkOverviewReport report){
         SecuredReport securedReport = new SecuredReport() ;
