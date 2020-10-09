@@ -53,7 +53,11 @@ public class BenchmarkReport implements Serializable {
     private Double threadsDaemonCount ;
     private Double threadsStartedCount ;
 
-    /*A safepoint is a moment in time when a  thread's data, its internal state and representation in the JVM are, well,safe for observation by other threads in the JVM.*/
+    /*A safepoint is a moment in time when a  thread's data, its internal state and representation in the JVM are, well,safe for observation by other threads in the JVM.
+    All JVM's use safepoints to bring all of the application threads to a known state so the JVM can perform certain operations. Safepoints are used during Garbage Collection, during JIT compilation, for Thread Dumps, and many other operations. When a safepoint call is issued all of the application threads should "come to safepoint" as fast as possible. Threads that have come to safepoint block until the JVM releases them. Once all of the threads are at safepoint, the JVM performs the operation -- GC, compile, thread dump, etc. -- and then releases all the threads to run again. But when one or more application threads take a long time to come to safepoint, all of the other threads, which are now blocked, have to wait for the tardy thread(s).
+     Time To Safepoint (TTSP).
+     https://docs.azul.com/zing/19.02.1.0/Zing_AT_SafePointProfiler.htm
+    */
     private Double threadsSafePointsCount ;
     private Double threadsSafePointTime ;
     private Double threadsSafePointSyncTime ;
@@ -63,6 +67,15 @@ public class BenchmarkReport implements Serializable {
     private Double threadsSyncMonitorFatMonitorsCount ;
     private Double threadsSyncMonitorFutileWakeupsCount ;
     private Double threadsSyncNotificationsCount ;
+
+    private Double threadsSafePointsInterval ;
+    private Double threadsSafePointsPause;
+    private Double threadsSafePointsPauseAvg;
+    private Double threadsSafePointsPauseCount;
+    private Double threadsSafePointsPauseTTSP;
+    private Double threadsSafePointsPauseTTSPAvg;
+    private Double threadsSafePointsPauseTTSPCount;
+
 
     /*parked threads are suspended until they are given a permit.*/
     private Double threadsSyncParksCount ;
@@ -363,6 +376,62 @@ public class BenchmarkReport implements Serializable {
 
     public void setThreadsSyncParksCount(Double threadsSyncParksCount) {
         this.threadsSyncParksCount = threadsSyncParksCount;
+    }
+
+    public Double getThreadsSafePointsInterval() {
+        return threadsSafePointsInterval;
+    }
+
+    public void setThreadsSafePointsInterval(Double threadsSafePointsInterval) {
+        this.threadsSafePointsInterval = threadsSafePointsInterval;
+    }
+
+    public Double getThreadsSafePointsPause() {
+        return threadsSafePointsPause;
+    }
+
+    public void setThreadsSafePointsPause(Double threadsSafePointsPause) {
+        this.threadsSafePointsPause = threadsSafePointsPause;
+    }
+
+    public Double getThreadsSafePointsPauseAvg() {
+        return threadsSafePointsPauseAvg;
+    }
+
+    public void setThreadsSafePointsPauseAvg(Double threadsSafePointsPauseAvg) {
+        this.threadsSafePointsPauseAvg = threadsSafePointsPauseAvg;
+    }
+
+    public Double getThreadsSafePointsPauseCount() {
+        return threadsSafePointsPauseCount;
+    }
+
+    public void setThreadsSafePointsPauseCount(Double threadsSafePointsPauseCount) {
+        this.threadsSafePointsPauseCount = threadsSafePointsPauseCount;
+    }
+
+    public Double getThreadsSafePointsPauseTTSP() {
+        return threadsSafePointsPauseTTSP;
+    }
+
+    public void setThreadsSafePointsPauseTTSP(Double threadsSafePointsPauseTTSP) {
+        this.threadsSafePointsPauseTTSP = threadsSafePointsPauseTTSP;
+    }
+
+    public Double getThreadsSafePointsPauseTTSPAvg() {
+        return threadsSafePointsPauseTTSPAvg;
+    }
+
+    public void setThreadsSafePointsPauseTTSPAvg(Double threadsSafePointsPauseTTSPAvg) {
+        this.threadsSafePointsPauseTTSPAvg = threadsSafePointsPauseTTSPAvg;
+    }
+
+    public Double getThreadsSafePointsPauseTTSPCount() {
+        return threadsSafePointsPauseTTSPCount;
+    }
+
+    public void setThreadsSafePointsPauseTTSPCount(Double threadsSafePointsPauseTTSPCount) {
+        this.threadsSafePointsPauseTTSPCount = threadsSafePointsPauseTTSPCount;
     }
 
     @Override

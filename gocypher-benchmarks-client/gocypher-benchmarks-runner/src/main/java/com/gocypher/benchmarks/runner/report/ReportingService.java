@@ -104,6 +104,17 @@ public class ReportingService {
 
             report.setThreadsSyncParksCount(getScoreFromJMHSecondaryResult(item,"·rt.sync.parks"));
 
+
+            report.setThreadsSafePointsInterval(getScoreFromJMHSecondaryResult(item,"·safepoints.interval"));
+            report.setThreadsSafePointsPause(getScoreFromJMHSecondaryResult(item,"·safepoints.pause"));
+            report.setThreadsSafePointsPauseAvg(getScoreFromJMHSecondaryResult(item,"·safepoints.pause.avg"));
+            report.setThreadsSafePointsPauseCount(getScoreFromJMHSecondaryResult(item,"·safepoints.pause.count"));
+            report.setThreadsSafePointsPauseTTSP(getScoreFromJMHSecondaryResult(item,"·safepoints.ttsp"));
+            report.setThreadsSafePointsPauseTTSPAvg(getScoreFromJMHSecondaryResult(item,"·safepoints.ttsp.avg"));
+            report.setThreadsSafePointsPauseTTSPCount(getScoreFromJMHSecondaryResult(item,"·safepoints.ttsp.count"));
+
+
+
             /*System.out.println("Score:"+result.getPrimaryResult().getScore());
             System.out.println("Stats:"+result.getPrimaryResult().getStatistics());
             System.out.println("getBenchmarkResults:"+result.getBenchmarkResults().size());

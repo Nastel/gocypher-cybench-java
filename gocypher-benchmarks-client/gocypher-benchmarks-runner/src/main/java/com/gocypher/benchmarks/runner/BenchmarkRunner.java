@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.HotspotRuntimeProfiler;
 import org.openjdk.jmh.profile.HotspotThreadProfiler;
+import org.openjdk.jmh.profile.SafepointsProfiler;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
@@ -171,6 +172,7 @@ public class BenchmarkRunner {
                 .addProfiler(GCProfiler.class)
                 .addProfiler(HotspotThreadProfiler.class)
                 .addProfiler(HotspotRuntimeProfiler.class)
+                .addProfiler(SafepointsProfiler.class)
                 .detectJvmArgs()
                 //.addProfiler(StackProfiler.class)
                 //.addProfiler(HotspotMemoryProfiler.class)
