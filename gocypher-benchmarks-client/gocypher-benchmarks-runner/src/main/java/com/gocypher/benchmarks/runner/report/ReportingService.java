@@ -149,47 +149,37 @@ public class ReportingService {
         return benchmarkProperties;
     }
 
-    private String resolveCategory (String fullClassName, Map<String,Map<String,String>>customBenchmarksMetadata){
-        try {
-            Class<?> clazz = Class.forName(fullClassName);
-            Object obj = clazz.newInstance() ;
-            if (obj instanceof BaseBenchmark) {
-                return ((BaseBenchmark)obj).getCategory() ;
-            }
-            else {
-                if (customBenchmarksMetadata.get(fullClassName)!= null){
-                    if (customBenchmarksMetadata.get(fullClassName).get("category") != null) {
-                        return customBenchmarksMetadata.get(fullClassName).get("category") ;
-                    }
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            LOG.error ("Error on resolving category",e) ;
-        }
-        return "Custom" ;
-    }
+	private String resolveCategory(String fullClassName, Map<String, Map<String, String>> customBenchmarksMetadata) {
+		try {
+			Class<?> clazz = Class.forName(fullClassName);
+			Object obj = clazz.newInstance();
+			if (obj instanceof BaseBenchmark) {
+				return ((BaseBenchmark) obj).getCategory();
+			} else {
+				if (customBenchmarksMetadata.get(fullClassName) != null) {
+					if (customBenchmarksMetadata.get(fullClassName).get("category") != null) {
+						return customBenchmarksMetadata.get(fullClassName).get("category");
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOG.error("Error on resolving category: class={}", fullClassName, e);
+		}
+		return "Custom";
+	}
 
-    private String resolveContext (String fullClassName, Map<String,Map<String,String>>customBenchmarksMetadata){
-        try {
-            Class<?> clazz = Class.forName(fullClassName);
-            Object obj = clazz.newInstance() ;
-            if (obj instanceof BaseBenchmark) {
-                return ((BaseBenchmark)obj).getContext() ;
-            }
-            /*else {
-                if (customBenchmarksMetadata.get(fullClassName)!= null){
-                    if (customBenchmarksMetadata.get(fullClassName).get("context") != null) {
-                        return customBenchmarksMetadata.get(fullClassName).get("context") ;
-                    }
-                }
-            }*/
-        }catch (Exception e){
-            e.printStackTrace();
-            LOG.error ("Error on resolving category",e) ;
-        }
-        return "Other" ;
-    }
+	private String resolveContext(String fullClassName, Map<String, Map<String, String>> customBenchmarksMetadata) {
+		try {
+			Class<?> clazz = Class.forName(fullClassName);
+			Object obj = clazz.newInstance();
+			if (obj instanceof BaseBenchmark) {
+				return ((BaseBenchmark) obj).getContext();
+			}
+		} catch (Exception e) {
+			LOG.error("Error on resolving category: class={}", fullClassName, e);
+		}
+		return "Other";
+	}
 
     private String getVersion(String fullClassName) {
         try {
@@ -206,32 +196,26 @@ public class ReportingService {
         }
         return null;
     }
-    public String prepareReportForDelivery (SecurityBuilder securityBuilder,BenchmarkOverviewReport report){
-        LOG.info("Will encrypt and sign...") ;
-        SecuredReport securedReport = createSecuredReport(report) ;
 
-        securityBuilder.generateSecurityHashForReport(securedReport.getReport());
-        //LOG.info("Report for hashing:{}",securedReport.getReport());
-        securedReport.setSignatures(securityBuilder.buildSignatures());
+	public String prepareReportForDelivery(SecurityBuilder securityBuilder, BenchmarkOverviewReport report) {
+		try {
+			LOG.info("Preparing report: encrypt and sign...");
+			SecuredReport securedReport = createSecuredReport(report);
+			securityBuilder.generateSecurityHashForReport(securedReport.getReport());
+			securedReport.setSignatures(securityBuilder.buildSignatures());
+			String plainReport = JSONUtils.marshalToJson(securedReport);
+			return SecurityUtils.encryptReport(plainReport);
+		} finally {
+			LOG.info("Report prepared: encrypted and signed");
+		}
+	}
 
-        String plainReport = JSONUtils.marshalToJson(securedReport) ;
-        return SecurityUtils.encryptReport(plainReport) ;
-    }
     private SecuredReport createSecuredReport (BenchmarkOverviewReport report){
         SecuredReport securedReport = new SecuredReport() ;
         securedReport.setReport(JSONUtils.marshalToJson(report));
-        /*securedReport.setReportURL(report.getReportURL());
-        securedReport.setBenchmarkSettings(report.getBenchmarkSettings());
-        securedReport.setTimestamp(report.getTimestamp());
-        securedReport.setTimestampUTC(report.getTimestampUTC());
-        securedReport.setBenchmarks(report.getBenchmarks());
-        securedReport.setCategoriesOverview(report.getCategoriesOverview());
-        securedReport.setEnvironmentSettings(report.getEnvironmentSettings());
-        securedReport.setTotalScore(report.getTotalScore());
-        */
-
         return securedReport ;
     }
+    
     private Double getScoreFromJMHSecondaryResult (RunResult result,String key){
         if (result != null && result.getSecondaryResults() != null){
             if (result.getSecondaryResults().get(key)!= null){
@@ -240,5 +224,4 @@ public class ReportingService {
         }
         return null ;
     }
-
 }
