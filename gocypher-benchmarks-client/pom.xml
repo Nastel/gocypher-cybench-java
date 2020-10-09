@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
-            <version>1.25</version>
+            <version>1.26</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -45,7 +45,7 @@
         <skip.assembly.pack>true</skip.assembly.pack>
         <license-name>CYBENCH_LICENSE*</license-name>
         <uberjar.name>gocypher-benchmarks-client</uberjar.name>
-        <jmh.version>1.25</jmh.version>
+        <jmh.version>1.26</jmh.version>
         <jackson.version>2.11.2</jackson.version>
         <benchmark-jvm.version>1.0.1</benchmark-jvm.version>
         <benchmark-cache.version>1.0.1</benchmark-cache.version>
