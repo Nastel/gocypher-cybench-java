@@ -6,6 +6,10 @@ Share your results with the community, compare and choose the right libraries fo
 
 Download and run CyBench [here](https://www.gocypher.com/cybench/downloads).
 
+# Building CyBench Benchmark
+```sh
+mvn clean package -P build-jvm,pack-bin
+```
 
 # Running User-defined Benchmarks using CyBench
 
