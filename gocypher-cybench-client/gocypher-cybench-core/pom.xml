@@ -29,7 +29,6 @@
     </parent>
 
     <artifactId>gocypher-cybench-core</artifactId>
-    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>gocypher-cybench-core</name>

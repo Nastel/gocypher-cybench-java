@@ -30,7 +30,6 @@
     </parent>
 
     <artifactId>gocypher-cybench-distribution</artifactId>
-    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <properties>
