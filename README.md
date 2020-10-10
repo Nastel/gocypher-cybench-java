@@ -28,7 +28,7 @@ TBD.
 
 Attachment and execution of user-defined benchmarks using CyBench launcher:
  * Build a `jar` file with your benchmarks containing `jmh` compiled classes and dependecies
- * Copy benchmark `jar` file to `<cybench-home>` (where `gocypher-benchmarks-client.jar` resides)
+ * Copy benchmark `jar` file to `<cybench-home>` (where `gocypher-cybench-client.jar` resides)
  * Configure CyBench Launcher to execute your benchmarks
 
 **NOTE**:
@@ -38,7 +38,7 @@ Attachment and execution of user-defined benchmarks using CyBench launcher:
 
 ### Adding Custom Benchmarks for Execution
 
-Update CyBench Launcher configuration located in `<cybench-home>/conf/gocypher-benchmark-client-configuration.properties`:
+Update CyBench Launcher configuration located in `<cybench-home>/conf/cybench-launcher.properties`:
 
 * __required__: add or update property `customBenchmarks`, set path to jar file which contains your custom benchmark, this path will be added to the `CLASSPATH` of the JVM. Values must be semicolon separated!  
 
@@ -49,7 +49,7 @@ Update CyBench Launcher configuration located in `<cybench-home>/conf/gocypher-b
     
     Example:
     ```properties
-    customBenchmarks=gocypher-benchmarks-custom-1.0.0.jar;
+    customBenchmarks=gocypher-cybench-custom-1.0.0.jar;
     ```
 
 * __optional__: register categories for your tests in order to have correct tests classification and better readability and comparison in CyBench portal. If not set then default value (`Custom`) will be written and all custom tests will reside under this category. Values of different classes must be semicolon separated!
