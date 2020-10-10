@@ -13,8 +13,12 @@
 /**/report.json
 /**/output-test.png
 /**/test_picture.png
-/**/gocypher-benchmarks-client/deploy
+/**/gocypher-cybench-client/deploy
 *.prefs
 **/.classpath
 **/.project
 
+*.zip
+*.gz
+*.zip
+*.jar
