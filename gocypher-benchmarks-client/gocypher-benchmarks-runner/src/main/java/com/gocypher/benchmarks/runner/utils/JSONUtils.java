@@ -60,7 +60,6 @@ public class JSONUtils {
         try {
             return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(item);
         } catch (Exception e) {
-           e.printStackTrace();
            LOG.error ("Error on storing results",e) ;
            return "";
         }
