@@ -71,18 +71,16 @@ public class SecurityUtils {
 	public static String computeClassHash(Class<?> clazz) {
 		if (clazz != null) {
 			String name = clazz.getName();
-			// String fileName = "/" + name.replaceAll("\\.", "/") + ".class";
 			String fileName = "" + name.replaceAll("\\.", "/") + ".class";
-			LOG.info("Will access class bytes:{}", fileName);
-			// ClassLoader cldr = clazz.getClassLoader() ;
 			ClassLoader loader = Thread.currentThread().getContextClassLoader();
+			LOG.info("Computing hash for class {}, classloader {}", fileName, loader);
 			try (InputStream in = loader.getResourceAsStream(fileName)) {
 				byte[] classBytes = file2ByteArray(in);
 				String classMD5Hash = hashByteArray(classBytes);
-				in.close();
+				LOG.info("Computed hash {} for class {}, classloader {}", classMD5Hash, fileName, loader);
 				return classMD5Hash;
 			} catch (Exception e) {
-				LOG.error("Error on class hash computing: class={}", clazz, e);
+				LOG.error("Failed to compute hash for class {}", clazz, e);
 			}
 		}
 		return null;

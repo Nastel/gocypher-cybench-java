@@ -213,7 +213,7 @@ public class BenchmarkRunner {
 			LOG.info("You may submit your report '{}' manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
 		}
 		LOG.info("-----------------------------------------------------------------------------------------");
-		LOG.info("                                 Finished CyBench Benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
+		LOG.info("                                 Finished CyBench benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
 		LOG.info("-----------------------------------------------------------------------------------------");
 	}
 
