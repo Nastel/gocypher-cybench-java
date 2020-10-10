@@ -56,7 +56,7 @@ public class IOAsyncFileSeekBenchmarks extends BaseBenchmark{
         LOG.info("\n-->Will generate binary file for tests...");
         srcFile = IOUtils.generateBinaryFileForTests();
         fileSize = srcFile.length();
-        LOG.info("\n-->Generated file for processing ,size(B):{}", fileSize);
+        LOG.info("\n-->Generated file {} for processing, size(B):{}", srcFile, fileSize);
         seekSrc = new RandomAccessFile(srcFile, "rw");
 
         LOG.info("Will generate an array of random numbers for file positions") ;
@@ -66,8 +66,8 @@ public class IOAsyncFileSeekBenchmarks extends BaseBenchmark{
         this.dataForSeekAndWriteSmallChunks = IOUtils.getArrayOfRandomBytes(smallSeekChunk) ;
         this.dataForSeekAndWriteHugeChunks = IOUtils.getArrayOfRandomBytes(hugeSeekChunk) ;
         LOG.info ("Generated all prerequisites!") ;
-
     }
+    
     @Setup(Level.Iteration)
     public void setupForIteration() throws Exception{
         LOG.info("\n Will setup for iteration...");

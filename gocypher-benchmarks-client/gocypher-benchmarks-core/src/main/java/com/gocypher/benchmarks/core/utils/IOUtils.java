@@ -43,10 +43,10 @@ public class IOUtils {
 	private static long fileSizeMultiplierPerChunkSize = 16384;
 	private static long fileSizeSmallMultiplierPerChunkSize = 2048;
 	// private static long fileSizeMultiplierPerChunkSize = 1024 ;
-	private static String FILE_NAME_AS_SRC = "binary.txt";
-	private static String FILE_NAME_AS_SRC_FOR_SMALL_CASES = "small_binary.txt";
+	private static String FILE_NAME_AS_SRC = "binary.bin";
+	private static String FILE_NAME_AS_SRC_FOR_SMALL_CASES = "small_binary.bin";
 	private static String FILE_NAME_AS_DST = "output-binary-test.txt";
-	private static String FILE_NAME_AS_DST_FOR_SMALL_CASES = "output_small_binary_test.txt";
+	private static String FILE_NAME_AS_DST_FOR_SMALL_CASES = "output_small_binary_test.bin";
 
 	public static File createOutputFileForTests() {
 		return createFile(FILE_NAME_AS_DST);
@@ -209,9 +209,10 @@ public class IOUtils {
 		File file = new File(name);
 		if (!file.exists() || (file.exists() && file.length() < preferredFileSize)) {
 			try (FileOutputStream out = new FileOutputStream(file)) {
+				SecureRandom rnd = new SecureRandom();
 				for (int i = 0; i < sizePer65KB; i++) {
 					byte[] bytes = new byte[randomFileChunkSize];
-					new SecureRandom().nextBytes(bytes);
+					rnd.nextBytes(bytes);
 					out.write(bytes);
 				}
 				out.flush();
@@ -296,19 +297,14 @@ public class IOUtils {
 
 		if (mappedByteBufferSrc != null) {
 			byte[] rs = new byte[mappedByteBufferSrc.remaining()];
-
 			mappedByteBufferSrc.get(rs);
-
 			MappedByteBuffer mappedByteBufferDst = writeFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, rs.length);
-
 			mappedByteBufferDst.put(rs);
 			if (isSyncWrite) {
 				mappedByteBufferDst.force();
 			}
-
 			cleanMappedByteBuffer(mappedByteBufferSrc);
 			cleanMappedByteBuffer(mappedByteBufferDst);
-
 		}
 	}
 

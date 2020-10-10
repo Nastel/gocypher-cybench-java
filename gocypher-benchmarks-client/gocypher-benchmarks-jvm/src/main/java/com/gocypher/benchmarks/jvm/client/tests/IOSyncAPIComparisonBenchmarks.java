@@ -55,7 +55,7 @@ public class IOSyncAPIComparisonBenchmarks extends BaseBenchmark {
         LOG.info("\n-->Will generate binary file for tests...");
         srcFile = IOUtils.generateSmallBinaryFileForTests();
         fileSize = srcFile.length();
-        LOG.info("\n-->Generated file for processing ,size(B):{}", fileSize);
+        LOG.info("\n-->Generated file {} for processing, size(B):{}", srcFile, fileSize);
         readFileChannel = (FileChannel) Files.newByteChannel(srcFile.toPath(), EnumSet.of(StandardOpenOption.READ)) ;
 
     }
