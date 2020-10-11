@@ -19,16 +19,18 @@
 
 package com.gocypher.benchmarks.runner.integration;
 
-import com.gocypher.benchmarks.runner.environment.model.HardwareProperties;
-import com.gocypher.benchmarks.runner.environment.model.JVMProperties;
-import com.gocypher.benchmarks.runner.environment.services.CollectSystemInformation;
-import com.gocypher.benchmarks.runner.model.BenchmarkOverviewReport;
-import com.gocypher.benchmarks.runner.report.DeliveryService;
-import com.gocypher.benchmarks.runner.report.ReportingService;
-import com.gocypher.benchmarks.runner.services.ConfigurationHandler;
-import com.gocypher.benchmarks.runner.utils.Constants;
-import com.gocypher.benchmarks.runner.utils.JSONUtils;
-import com.gocypher.benchmarks.runner.utils.SecurityBuilder;
+import java.io.File;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
@@ -40,15 +42,17 @@ import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.lang.management.GarbageCollectorMXBean;
-import java.lang.management.ManagementFactory;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-import java.util.stream.Collectors;
+import com.gocypher.benchmarks.core.utils.IOUtils;
+import com.gocypher.benchmarks.runner.environment.model.HardwareProperties;
+import com.gocypher.benchmarks.runner.environment.model.JVMProperties;
+import com.gocypher.benchmarks.runner.environment.services.CollectSystemInformation;
+import com.gocypher.benchmarks.runner.model.BenchmarkOverviewReport;
+import com.gocypher.benchmarks.runner.report.DeliveryService;
+import com.gocypher.benchmarks.runner.report.ReportingService;
+import com.gocypher.benchmarks.runner.services.ConfigurationHandler;
+import com.gocypher.benchmarks.runner.utils.Constants;
+import com.gocypher.benchmarks.runner.utils.JSONUtils;
+import com.gocypher.benchmarks.runner.utils.SecurityBuilder;
 
 public class BenchmarkRunner {
     private static final Logger LOG = LoggerFactory.getLogger(com.gocypher.benchmarks.runner.BenchmarkRunner.class);
@@ -155,7 +159,8 @@ public class BenchmarkRunner {
             String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder,report) ;
 
             String responseWithUrl;
-            if (report.isEligibleForStoringExternally() && (cfg.getProperty(Constants.SHOULD_SEND_REPORT_TO_JKOOL) == null || Boolean.parseBoolean(cfg.getProperty(Constants.SHOULD_SEND_REPORT_TO_JKOOL)))) {
+            if (report.isEligibleForStoringExternally() 
+            		&& (cfg.getProperty(Constants.SHOULD_SEND_REPORT) == null || Boolean.parseBoolean(cfg.getProperty(Constants.SHOULD_SEND_REPORT)))) {
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
                 //LOG.info ("responseWithUrl... {}", responseWithUrl) ;
                 report.setReportURL(responseWithUrl);
@@ -235,7 +240,8 @@ public class BenchmarkRunner {
         }
         cfg = ConfigurationHandler.loadConfiguration(configurationFilePath) ;
     }
-    private static void printSystemInformation (){
+    
+    protected static void printSystemInformation (){
         long kilobytes = 1024;
         long megabytes = kilobytes * 1024;
         long gigabytes = megabytes * 1024;

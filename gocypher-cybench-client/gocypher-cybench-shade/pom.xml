@@ -30,7 +30,6 @@
     </parent>
 
     <artifactId>gocypher-cybench-shade</artifactId>
-    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <properties>
