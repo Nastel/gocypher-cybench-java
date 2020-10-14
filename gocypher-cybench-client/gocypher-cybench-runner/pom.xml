@@ -70,6 +70,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.jcabi</groupId>
+            <artifactId>jcabi-manifests</artifactId>
+            <version>1.1</version>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -182,7 +187,7 @@
                         <archive>
                             <manifest>
                                 <addClasspath>true</addClasspath>
-                                <mainClass>com\gocypher\benchmarks\runner\BenchmarkRunner</mainClass>
+                                <mainClass>com\gocypher\cybench\launcher\BenchmarkRunner</mainClass>
                             </manifest>
                         </archive>
                     </configuration>

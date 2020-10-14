@@ -17,9 +17,9 @@
  *
  */
 
-import com.gocypher.benchmarks.runner.environment.model.HardwareProperties;
-import com.gocypher.benchmarks.runner.environment.model.JVMProperties;
-import com.gocypher.benchmarks.runner.environment.services.CollectSystemInformation;
+import com.gocypher.cybench.launcher.environment.model.HardwareProperties;
+import com.gocypher.cybench.launcher.environment.model.JVMProperties;
+import com.gocypher.cybench.launcher.environment.services.CollectSystemInformation;
 import com.sun.management.GarbageCollectorMXBean;
 import com.sun.management.GcInfo;
 import org.slf4j.Logger;

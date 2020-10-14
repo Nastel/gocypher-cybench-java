@@ -42,6 +42,13 @@
     </files>
     <fileSets>
         <fileSet>
+            <directory>../../gocypher-cybench-jvm/target</directory>
+            <includes>
+                <include>gocypher-cybench-jvm.jar</include>
+            </includes>
+            <outputDirectory>customBenchmarks/</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>../</directory>
             <includes>
                 <include>CYBENCH_LICENSE*</include>

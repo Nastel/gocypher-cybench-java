@@ -39,8 +39,20 @@
             <source>${project.build.directory}/../../gocypher-cybench-shade/target/gocypher-cybench-all.jar</source>
             <destName>${project.parent.artifactId}.jar</destName>
         </file>
+        <file>
+            <source></source>
+            <destName>customBenchmarks/gocypher-cybench-jvm.jar</destName>
+            <filtered>true</filtered>
+        </file>
     </files>
     <fileSets>
+        <fileSet>
+            <directory>../../gocypher-cybench-jvm/target</directory>
+            <includes>
+                <include>gocypher-cybench-jvm.jar</include>
+            </includes>
+            <outputDirectory>customBenchmarks/</outputDirectory>
+        </fileSet>
         <fileSet>
             <directory>../</directory>
             <includes>

@@ -36,7 +36,7 @@
         <release.deploy.name>${project.parent.artifactId}</release.deploy.name>
         <release.deploy.dir>../target</release.deploy.dir>
         <build.assemblies.attach>false</build.assemblies.attach>
-        <uberjar.name>gocypher-cybench-all</uberjar.name>
+        <jvmJar.name>gocypher-cybench-all</jvmJar.name>
     </properties>
 
     <build>
@@ -58,16 +58,6 @@
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <com-gocypher-benchmarks-jvm-client-tests-version>${benchmark-jvm.version}
-                            </com-gocypher-benchmarks-jvm-client-tests-version>
-                            <com-gocypher-benchmarks-cache-client-tests-version>${benchmark-cache.version}
-                            </com-gocypher-benchmarks-cache-client-tests-version>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -80,13 +70,13 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>${uberjar.name}</finalName>
+                            <finalName>${jvmJar.name}</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.gocypher.benchmarks.runner.BenchmarkRunner</mainClass>
+                                    <mainClass>com.gocypher.cybench.launcher.BenchmarkRunner</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>
@@ -99,8 +89,6 @@
                                         <exclude>LICENSE*</exclude>
                                         <exclude>NOTICE*</exclude>
                                         <exclude>THIRD-PARTY*</exclude>
-                                        <!-- <exclude>META-INF/AL2.0*</exclude> -->
-                                        <!-- <exclude>META-INF/LGPL2.1*</exclude> -->
                                     </excludes>
                                 </filter>
                             </filters>
@@ -111,28 +99,6 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>build-jvm</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.gocypher.cybench.client</groupId>
-                    <artifactId>gocypher-cybench-jvm</artifactId>
-                    <version>${benchmark-jvm.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>build-cache</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.gocypher.cybench.client</groupId>
-                    <artifactId>gocypher-cybench-cache</artifactId>
-                    <version>${benchmark-cache.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
     <!-- Just to make sure distribution assemblies are made after all modules have been built -->
     <!-- It is enough to have dependency to single (mandatory) module to have modules correctly ordered by Maven -->
     <dependencies>

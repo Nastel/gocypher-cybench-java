@@ -47,8 +47,6 @@
         <uberjar.name>gocypher-cybench-client</uberjar.name>
         <jmh.version>1.26</jmh.version>
         <jackson.version>2.11.2</jackson.version>
-        <benchmark-jvm.version>1.0.0</benchmark-jvm.version>
-        <benchmark-cache.version>1.0.0</benchmark-cache.version>
         <log4j.version>1.2.17</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
     </properties>
@@ -68,29 +66,6 @@
             <properties>
                 <skip.assembly.pack>false</skip.assembly.pack>
             </properties>
-        </profile>
-        <profile>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <id>build-jvm</id>
-            <modules>
-                <module>gocypher-cybench-jvm</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>build-cache</id>
-            <modules>
-                <module>gocypher-cybench-cache</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>integration-dev</id>
-            <modules>
-                <module>gocypher-cybench-jvm</module>
-                <module>gocypher-cybench-cache</module>
-                <module>gocypher-cybench-integration-test</module>
-            </modules>
         </profile>
     </profiles>
 
