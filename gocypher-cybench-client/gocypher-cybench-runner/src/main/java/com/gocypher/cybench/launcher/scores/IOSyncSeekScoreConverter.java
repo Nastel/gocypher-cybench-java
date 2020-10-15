@@ -29,8 +29,8 @@ public class IOSyncSeekScoreConverter extends BaseScoreConverter {
     public Double convertScore(Double score , Map<String,Object> metaData) {
         if (score != null){
             double nominatorInMB = 128 ;
-            Double oldScore = Double.valueOf((double)score.doubleValue()/1000);
-            return nominatorInMB/oldScore ;
+            double oldScore = Double.valueOf((double)score.doubleValue()/1000);
+            return nominatorInMB/oldScore;
         }
         return score;
     }
