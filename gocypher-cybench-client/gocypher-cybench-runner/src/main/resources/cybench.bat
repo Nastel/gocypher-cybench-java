@@ -45,7 +45,7 @@ set resConfig=F
 	 echo 	USAGE: cybench.bat [-options]
 	 echo 	where options include:
 	 echo.
-	 echo 	"-c -conf -config <path to configuration file>		Lets you use custom configuration file from the provided directory"
+	 echo 	"-c -conf -config <path to configuration file>		CyBench launcher configuration file"
 	 echo.
 	 echo.
 	 goto :eof
@@ -73,15 +73,15 @@ set resConfig=F
 	)
 	:: Get and add custom benchmark jars defined in configuration file
 	for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
-		Echo."%%A" | findstr /C:"customBenchmarks">nul && (
-				set CUSTOM_LIBS=%%B
+		Echo."%%A" | findstr /C:"benchmarks">nul && (
+				set CYB_LIBS=%%B
 		)
 	)
-	:: REad the folder and add benchmark jars to execution
-	set MasterFolder=customBenchmarks
+	:: Read the folder and add benchmark jars to execution
+	set MasterFolder=benchmarks
 	for /f "delims=" %%f IN ('dir /b /s "%MasterFolder%\*"') do (
-			set CUSTOM_LIBS_FOLDER=!CUSTOM_LIBS_FOLDER!%%f;
-			set CUSTOM_LIBS_FOLDER=!CUSTOM_LIBS_FOLDER!
+			set CYB_LIBS_FOLDER=!CYB_LIBS_FOLDER!%%f;
+			set CYB_LIBS_FOLDER=!CYB_LIBS_FOLDER!
 	)
 	call :executeBaseRun
 
@@ -89,12 +89,12 @@ set resConfig=F
 	IF ["%JAVA_PATH%"] EQU [""] set JAVA_PATH=java
 	:: Execute the benchmarks with set default or user defined properties
 	IF ["%JAVA_PATH%"] EQU ["java"] (
-		echo EXECUTE: java %JVM_PROPERTIES% -cp gocypher-cybench-client.jar;%CUSTOM_LIBS%;%CUSTOM_LIBS_FOLDER% com.gocypher.cybench.launcher.BenchmarkRunner cfg=%CONFIGURATION_PATH%
-		java %JVM_PROPERTIES% -cp gocypher-cybench-client.jar;%CUSTOM_LIBS%;%CUSTOM_LIBS_FOLDER% com.gocypher.cybench.launcher.BenchmarkRunner cfg=%CONFIGURATION_PATH%
+		echo EXECUTE: java %JVM_PROPERTIES% -cp gocypher-cybench-client.jar;%CYB_LIBS%;%CYB_LIBS_FOLDER% com.gocypher.cybench.launcher.BenchmarkRunner cfg=%CONFIGURATION_PATH%
+		java %JVM_PROPERTIES% -cp gocypher-cybench-client.jar;%CYB_LIBS%;%CYB_LIBS_FOLDER% com.gocypher.cybench.launcher.BenchmarkRunner cfg=%CONFIGURATION_PATH%
 	)
 	IF NOT ["%JAVA_PATH%"] EQU ["java"] (
-		echo EXECUTE: "%JAVA_PATH%" %JVM_PROPERTIES% -cp gocypher-cybench-client.jar;%CUSTOM_LIBS%;%CUSTOM_LIBS_FOLDER% com.gocypher.cybench.launcher.BenchmarkRunner cfg=%CONFIGURATION_PATH%
-		"%JAVA_PATH%" %JVM_PROPERTIES% -cp gocypher-cybench-client.jar;%CUSTOM_LIBS%;%CUSTOM_LIBS_FOLDER% com.gocypher.cybench.launcher.BenchmarkRunner cfg=%CONFIGURATION_PATH%
+		echo EXECUTE: "%JAVA_PATH%" %JVM_PROPERTIES% -cp gocypher-cybench-client.jar;%CYB_LIBS%;%CYB_LIBS_FOLDER% com.gocypher.cybench.launcher.BenchmarkRunner cfg=%CONFIGURATION_PATH%
+		"%JAVA_PATH%" %JVM_PROPERTIES% -cp gocypher-cybench-client.jar;%CYB_LIBS%;%CYB_LIBS_FOLDER% com.gocypher.cybench.launcher.BenchmarkRunner cfg=%CONFIGURATION_PATH%
 	)
 @endlocal
 cmd /k
