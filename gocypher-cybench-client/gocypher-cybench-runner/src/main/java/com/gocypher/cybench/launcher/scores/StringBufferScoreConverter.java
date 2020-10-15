@@ -19,11 +19,9 @@
 
 package com.gocypher.cybench.launcher.scores;
 
-import com.gocypher.cybench.core.model.BaseScoreConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Map;
+
+import com.gocypher.cybench.core.model.BaseScoreConverter;
 
 public class StringBufferScoreConverter extends BaseScoreConverter {
 

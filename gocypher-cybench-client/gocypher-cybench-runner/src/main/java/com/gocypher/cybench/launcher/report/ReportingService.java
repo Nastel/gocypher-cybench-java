@@ -25,29 +25,28 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.Manifest;
-import java.util.regex.Pattern;
 
-import com.gocypher.cybench.launcher.model.BenchmarkOverviewReport;
-import com.gocypher.cybench.launcher.model.BenchmarkReport;
-import com.gocypher.cybench.launcher.model.SecuredReport;
-import com.gocypher.cybench.launcher.utils.ComputationUtils;
-import com.jcabi.manifests.Manifests;
 import org.openjdk.jmh.results.RunResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.core.utils.SecurityUtils;
+import com.gocypher.cybench.launcher.model.BenchmarkOverviewReport;
+import com.gocypher.cybench.launcher.model.BenchmarkReport;
+import com.gocypher.cybench.launcher.model.SecuredReport;
+import com.gocypher.cybench.launcher.utils.ComputationUtils;
 import com.gocypher.cybench.launcher.utils.JSONUtils;
 import com.gocypher.cybench.launcher.utils.SecurityBuilder;
+import com.jcabi.manifests.Manifests;
 
 public class ReportingService {
     private static final Logger LOG = LoggerFactory.getLogger(ReportingService.class);
     private static ReportingService instance ;
-    private static Pattern pattern = Pattern.compile(" ");
 
     private ReportingService (){
 
     }
+
     public static ReportingService getInstance (){
         if (instance == null ){
             instance = new ReportingService () ;
@@ -204,7 +203,8 @@ public class ReportingService {
         }
         return benchmarkProperties;
     }
-    private String getVersion(String fullClassName) {
+    
+    protected String getVersion(String fullClassName) {
         try {
             Class<?> clazz = Class.forName(fullClassName);
             ClassLoader loader = Thread.currentThread().getContextClassLoader();

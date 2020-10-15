@@ -27,13 +27,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gocypher.cybench.launcher.report.DeliveryService;
 import com.gocypher.cybench.launcher.utils.ComputationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BenchmarkOverviewReport implements Serializable {
-    private long timestamp ;
+	private static final long serialVersionUID = 4919010767589263480L;
+
+	private long timestamp ;
     private long timestampUTC ;
     private String reportURL ;
     private BigDecimal totalScore ;

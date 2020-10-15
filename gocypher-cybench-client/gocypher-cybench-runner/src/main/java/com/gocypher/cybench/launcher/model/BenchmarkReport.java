@@ -20,20 +20,20 @@
 package com.gocypher.cybench.launcher.model;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gocypher.cybench.core.model.BaseScoreConverter;
-import com.gocypher.cybench.launcher.BenchmarkRunner;
-import com.gocypher.cybench.launcher.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BenchmarkReport implements Serializable {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gocypher.cybench.core.model.BaseScoreConverter;
+import com.gocypher.cybench.launcher.utils.Constants;
 
-    private String name ;
+public class BenchmarkReport implements Serializable {
+	private static final long serialVersionUID = 2293390306981371292L;
+
+	private String name ;
     private Double score;
     private String units ;
     private String mode ;
@@ -97,45 +97,43 @@ public class BenchmarkReport implements Serializable {
         }
         return null ;
     }
-    @JsonIgnore
-    public void recalculateScoresToMatchNewUnits (){
 
-            //FIXME seek and r/w conversion to MB/s differs, fix it.
-            String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name);
-            if (className != null){
-                try{
-                    //LOG.info("Custom scores computation for class found:{}",this.name);
-                    Class<?> clazz = Class.forName(className) ;
-                    BaseScoreConverter converter = (BaseScoreConverter)clazz.newInstance() ;
-                    Map<String,Object>metaData = new HashMap<>() ;
-                    this.score = converter.convertScore(this.score,metaData) ;
+	@JsonIgnore
+	public void recalculateScoresToMatchNewUnits() {
 
-                    Double tmpMin = converter.convertScore(this.minScore,metaData) ;
-                    Double tmpMax = converter.convertScore(this.maxScore,metaData) ;
+		// FIXME seek and r/w conversion to MB/s differs, fix it.
+		String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name);
+		if (className != null) {
+			try {
+				// LOG.info("Custom scores computation for class found:{}",this.name);
+				Class<?> clazz = Class.forName(className);
+				BaseScoreConverter converter = (BaseScoreConverter) clazz.getDeclaredConstructor().newInstance();
+				Map<String, Object> metaData = new HashMap<>();
+				this.score = converter.convertScore(this.score, metaData);
 
-                    if (tmpMin != null && tmpMax != null){
-                        if (tmpMin>tmpMax){
-                            this.minScore = tmpMax ;
-                            this.maxScore = tmpMin ;
-                        }
-                        else {
-                            this.minScore = tmpMin ;
-                            this.maxScore = tmpMax ;
-                        }
-                    }
-                    else {
-                        this.minScore =null ;
-                        this.maxScore = null;
-                    }
-                    this.meanScore = converter.convertScore(this.meanScore,metaData) ;
+				Double tmpMin = converter.convertScore(this.minScore, metaData);
+				Double tmpMax = converter.convertScore(this.maxScore, metaData);
 
-                    this.units = converter.getUnits() ;
-                }catch(Exception e){
-                    LOG.error("Error on recalculating score={}", this.name, e);
-                }
-            }
+				if (tmpMin != null && tmpMax != null) {
+					if (tmpMin > tmpMax) {
+						this.minScore = tmpMax;
+						this.maxScore = tmpMin;
+					} else {
+						this.minScore = tmpMin;
+						this.maxScore = tmpMax;
+					}
+				} else {
+					this.minScore = null;
+					this.maxScore = null;
+				}
+				this.meanScore = converter.convertScore(this.meanScore, metaData);
 
-    }
+				this.units = converter.getUnits();
+			} catch (Exception e) {
+				LOG.error("Error on recalculating score={}", this.name, e);
+			}
+		}
+	}
 
     public String getName() {
         return name;
