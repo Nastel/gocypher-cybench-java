@@ -21,6 +21,7 @@ package com.gocypher.cybench.core.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -81,7 +82,6 @@ public class IOUtils {
 	 * finally { is.close(); } return srcFile ; }
 	 */
 	public static void removeTestDataFiles() {
-
 		removeFile(new File(FILE_NAME_AS_SRC));
 		removeFile(new File(FILE_NAME_AS_DST));
 		removeFile(new File(FILE_NAME_AS_SRC_FOR_SMALL_CASES));
@@ -96,9 +96,7 @@ public class IOUtils {
 
 	public static void removeFile(File file) {
 		try {
-
 			if (file != null && file.exists()) {
-				// LOG.info("Will delete file:{}",file.getAbsolutePath());
 				file.delete();
 			}
 		} catch (Exception e) {
@@ -144,7 +142,6 @@ public class IOUtils {
 				}
 			}
 		}
-
 		return bytesCopied;
 	}
 
@@ -165,7 +162,6 @@ public class IOUtils {
 				}
 			}
 		}
-
 		return bytesCopied;
 	}
 
@@ -189,22 +185,24 @@ public class IOUtils {
 		try {
 			file = new FileWriter(fileName);
 			file.write(content);
-
+			file.flush();
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOG.error("Error on storing results to file", e);
-
 		} finally {
-
-			try {
-				file.flush();
-				file.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			close(file);
 		}
 	}
 
+	public static void close(Closeable obj) {
+		try {
+			if (obj != null) {
+				obj.close();
+			}
+		} catch (Throwable e) {
+			LOG.error("Error on close: obj={}", obj,e);
+		}		
+	}
+	
 	private static void createRandomBinaryFileIfNotExists(String name, long sizePer65KB, long preferredFileSize) {
 		File file = new File(name);
 		if (!file.exists() || (file.exists() && file.length() < preferredFileSize)) {

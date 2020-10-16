@@ -62,13 +62,13 @@ import com.gocypher.cybench.launcher.environment.model.JVMProperties;
 import com.gocypher.cybench.launcher.environment.services.CollectSystemInformation;
 
 public class BenchmarkRunner {
+	private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
 
 	public static final String CYB_REPORT_JSON_FILE = "report.json";
 	public static final String CYB_REPORT_CYB_FILE = "report.cyb";
 	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",
 			"https://www.gocypher.com/cybench/upload");
 
-	private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
 	static Properties cfg = new Properties();
 
 	public static void main(String[] args) throws Exception {
