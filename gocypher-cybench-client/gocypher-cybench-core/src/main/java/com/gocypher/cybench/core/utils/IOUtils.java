@@ -100,7 +100,7 @@ public class IOUtils {
 				file.delete();
 			}
 		} catch (Exception e) {
-			LOG.error("Error on removing file", e);
+			LOG.error("Error on removing file={}", file, e);
 		}
 	}
 
@@ -121,7 +121,6 @@ public class IOUtils {
 				}
 			}
 		}
-
 		return bytesCopied;
 	}
 
@@ -183,11 +182,19 @@ public class IOUtils {
 	public static void storeResultsToFile(String fileName, String content) {
 		FileWriter file = null;
 		try {
+			File cFile = new File(fileName);
+			File pFile = cFile.getParentFile();
+			boolean exists = pFile.exists();
+			if (!exists) {
+				if (!pFile.mkdir()) {
+					throw new IOException("Coluld not create folder=" + pFile);
+				}
+			}
 			file = new FileWriter(fileName);
 			file.write(content);
 			file.flush();
 		} catch (Exception e) {
-			LOG.error("Error on storing results to file", e);
+			LOG.error("Error on saving to file={}", fileName, e);
 		} finally {
 			close(file);
 		}
