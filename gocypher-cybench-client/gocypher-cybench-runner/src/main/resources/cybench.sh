@@ -61,7 +61,7 @@ while IFS='=' read -r key value; do
 done < ${CONFIGURATION_PATH}
 
 # Read properties file to set JVM properties for .jar run
-CYB_LIBS=""
+CYB_LIBS="benchmarks/*"
 while IFS='=' read -r key value; do
     if [[ ${key} == "benchmarks"* ]]; then
         CYB_LIBS+="${value} ";
@@ -70,9 +70,9 @@ done < ${CONFIGURATION_PATH}
 
 # Execute the benchmarks with set default or user defined properties
 if [[ -z "${JAVA_PATH}" ]];then
-	echo EXECUTE: java ${JVM_PROPERTIES}  -cp ./gocypher-cybench-client.jar;${CYB_LIBS} com.gocypher.cybench.launcher.BenchmarkRunner cfg=${CONFIGURATION_PATH}
-    java ${JVM_PROPERTIES} -cp ./gocypher-cybench-client.jar:${CYB_LIBS} com.gocypher.cybench.launcher.BenchmarkRunner cfg=${CONFIGURATION_PATH}
+	echo EXECUTE: java ${JVM_PROPERTIES}  -cp ./gocypher-cybench-client.jar:${CYB_LIBS} com.gocypher.cybench.launcher.BenchmarkRunner cfg=${CONFIGURATION_PATH}
+	java ${JVM_PROPERTIES} -cp ./gocypher-cybench-client.jar:${CYB_LIBS} com.gocypher.cybench.launcher.BenchmarkRunner cfg=${CONFIGURATION_PATH}
 else
-	echo EXECUTE: "${JAVA_PATH}" ${JVM_PROPERTIES} -cp ./gocypher-cybench-client.jar;${CYB_LIBS} com.gocypher.cybench.launcher.BenchmarkRunner cfg=${CONFIGURATION_PATH}
-    "${JAVA_PATH}" ${JVM_PROPERTIES} -cp ./gocypher-cybench-client.jar:${CYB_LIBS} com.gocypher.cybench.launcher.BenchmarkRunner cfg=${CONFIGURATION_PATH}
+	echo EXECUTE: "${JAVA_PATH}" ${JVM_PROPERTIES} -cp ./gocypher-cybench-client.jar:${CYB_LIBS} com.gocypher.cybench.launcher.BenchmarkRunner cfg=${CONFIGURATION_PATH}
+	"${JAVA_PATH}" ${JVM_PROPERTIES} -cp ./gocypher-cybench-client.jar:${CYB_LIBS} com.gocypher.cybench.launcher.BenchmarkRunner cfg=${CONFIGURATION_PATH}
 fi
