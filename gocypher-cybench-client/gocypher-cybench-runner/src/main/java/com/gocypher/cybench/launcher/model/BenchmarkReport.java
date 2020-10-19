@@ -127,7 +127,9 @@ public class BenchmarkReport implements Serializable {
 					this.maxScore = null;
 				}
 				this.meanScore = converter.convertScore(this.meanScore, metaData);
-
+				if (this.stdDevScore != null){
+				    this.stdDevScore = (this.maxScore-this.minScore)/2 ;
+                }
 				this.units = converter.getUnits();
 			} catch (Exception e) {
 				LOG.error("Error on recalculating score={}", this.name, e);
