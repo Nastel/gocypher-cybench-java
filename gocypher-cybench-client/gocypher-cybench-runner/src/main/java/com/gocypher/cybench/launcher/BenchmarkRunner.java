@@ -155,7 +155,10 @@ public class BenchmarkRunner {
 		// LOG.info("Situation of class
 		// signatures:{}",securityBuilder.getMapOfHashedParts()) ;
 		if (tempBenchmark != null) {
-			String manifestData = Manifests.read("customBenchmarkMetadata");
+			String manifestData = null ;
+			if (Manifests.exists("customBenchmarkMetadata")) {
+				manifestData = Manifests.read("customBenchmarkMetadata");
+			}
 			Map<String,Map<String,String>> benchmarksMetadata =  ComputationUtils.parseCustomBenchmarkMetadata(manifestData);
 			Map<String, String> benchProps;
 			if(manifestData != null) {

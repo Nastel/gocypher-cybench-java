@@ -53,18 +53,17 @@ set resConfig=F
 	IF ["%resHelp%"] EQU ["F"] (
 		goto :setConfigurationProperties
 	)
-
 :setConfigurationProperties
 	:: Read properties file to set JVM properties for .jar run
   echo.
-	for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
+	for /f "eol=# delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
 		Echo."%%A" | findstr /C:"javaOptions">nul && (
 			set JVM_PROPERTIES=!JVM_PROPERTIES!%%B
 			set JVM_PROPERTIES=!JVM_PROPERTIES!
 		)
 	)
 	:: If no java path input during runtime provided try to take it from configuration
-	for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
+	for /f "eol=# delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
 		Echo."%%A" | findstr /C:"javaToUsePath">nul && (
 				IF ["%JAVA_PATH%"] EQU [""] (
 						set JAVA_PATH=%%B
@@ -72,14 +71,14 @@ set resConfig=F
 		)
 	)
 	:: Get and add custom benchmark jars defined in configuration file
-	for /f "delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
+	for /f "eol=# delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
 		Echo."%%A" | findstr /C:"benchmarks">nul && (
 				set CYB_LIBS=%%B
 		)
 	)
 	:: Read the folder and add benchmark jars to execution
 	set MasterFolder=benchmarks
-	for /f "delims=" %%f IN ('dir /b /s "%MasterFolder%\*"') do (
+	for /f "eol=# delims=" %%f IN ('dir /b /s "%MasterFolder%\*"') do (
 			set CYB_LIBS_FOLDER=!CYB_LIBS_FOLDER!%%f;
 			set CYB_LIBS_FOLDER=!CYB_LIBS_FOLDER!
 	)
