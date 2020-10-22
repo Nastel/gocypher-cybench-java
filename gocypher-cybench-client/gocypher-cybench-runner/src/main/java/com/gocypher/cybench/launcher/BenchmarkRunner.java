@@ -90,19 +90,19 @@ public class BenchmarkRunner {
 
 		// Number of separate full executions of a benchmark (warm up+measurement), this
 		// is returned still as one primary score item
-		int forks = setExecutionProperty(cfg.getProperty(Constants.NUMBER_OF_FORKS), 1);
+		int forks = setExecutionProperty(getProperty(Constants.NUMBER_OF_FORKS), 1);
 		// Number of measurements per benchmark operation, this is returned still as one
 		// primary score item
-		int measurementIterations = setExecutionProperty(cfg.getProperty(Constants.MEASUREMENT_ITERATIONS), 5);
+		int measurementIterations = setExecutionProperty(getProperty(Constants.MEASUREMENT_ITERATIONS), 5);
 		// number of iterations executed for warm up
-		int warmUpIterations = setExecutionProperty(cfg.getProperty(Constants.WARM_UP_ITERATIONS), 1);
+		int warmUpIterations = setExecutionProperty(getProperty(Constants.WARM_UP_ITERATIONS), 1);
 		// number of seconds dedicated for each warm up iteration
-		int warmUpSeconds = setExecutionProperty(cfg.getProperty(Constants.WARM_UP_SECONDS), 5);
+		int warmUpSeconds = setExecutionProperty(getProperty(Constants.WARM_UP_SECONDS), 5);
 		// number of threads for benchmark test execution
-		int threads = setExecutionProperty(cfg.getProperty(Constants.BENCHMARK_RUN_THREAD_COUNT), 1);
+		int threads = setExecutionProperty(getProperty(Constants.BENCHMARK_RUN_THREAD_COUNT), 1);
 
 		Map<String, Map<String, String>> customBenchmarksMetadata = ComputationUtils.parseCustomBenchmarkMetadata(
-				cfg.getProperty(Constants.CUSTOM_BENCHMARK_METADATA));
+                getProperty(Constants.CUSTOM_BENCHMARK_METADATA));
 
 		LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
 		OptionsBuilder optBuild = new OptionsBuilder();
@@ -113,10 +113,10 @@ public class BenchmarkRunner {
 
 		int includedClassesForCustomRun = 0;
 
-		if (checkIfConfigurationPropertyIsSet(cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
+		if (checkIfConfigurationPropertyIsSet(getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
 			LOG.info("Execute custom benchmarks found in configuration {}",
-					cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES));
-			List<String> benchmarkNames = Arrays.stream(cfg.getProperty(Constants.BENCHMARK_RUN_CLASSES).split(","))
+                    getProperty(Constants.BENCHMARK_RUN_CLASSES));
+			List<String> benchmarkNames = Arrays.stream(getProperty(Constants.BENCHMARK_RUN_CLASSES).split(","))
 					.map(String::trim).collect(Collectors.toList());
 			for (String benchmarkClass : benchmarkNames) {
 				try {
@@ -168,8 +168,8 @@ public class BenchmarkRunner {
 			}
 			benchmarkSetting.putAll(benchProps);
 			benchmarkSetting.put("benchThreadCount", threads);
-			if (cfg.getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
-				benchmarkSetting.put("benchReportName", cfg.getProperty(Constants.BENCHMARK_REPORT_NAME));
+			if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
+				benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
 			}
 		}
 
@@ -203,8 +203,8 @@ public class BenchmarkRunner {
 			String reportJSON;
 			String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder, report);
 			String responseWithUrl;
-			if (report.isEligibleForStoringExternally() && (cfg.getProperty(Constants.SHOULD_SEND_REPORT) == null
-					|| Boolean.parseBoolean(cfg.getProperty(Constants.SHOULD_SEND_REPORT)))) {
+			if (report.isEligibleForStoringExternally() && (getProperty(Constants.SHOULD_SEND_REPORT) == null
+					|| Boolean.parseBoolean(getProperty(Constants.SHOULD_SEND_REPORT)))) {
 				responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
 				report.setReportURL(responseWithUrl);
 			} else {
@@ -231,7 +231,11 @@ public class BenchmarkRunner {
 		LOG.info("-----------------------------------------------------------------------------------------");
 	}
 
-	private static String formatInterval(final long l) {
+    private static String getProperty(String key) {
+	    return System.getProperty(key,cfg.getProperty(key) );
+    }
+
+    private static String formatInterval(final long l) {
 		final long hr = TimeUnit.MILLISECONDS.toHours(l);
 		final long min = TimeUnit.MILLISECONDS.toMinutes(l - TimeUnit.HOURS.toMillis(hr));
 		final long sec = TimeUnit.MILLISECONDS.toSeconds(l - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
@@ -240,7 +244,7 @@ public class BenchmarkRunner {
 	}
 
     private static void getReportUploadStatus(BenchmarkOverviewReport report) {
-		String reportUploadStatus = cfg.getProperty(Constants.REPORT_UPLOAD_STATUS);
+		String reportUploadStatus = getProperty(Constants.REPORT_UPLOAD_STATUS);
 		if ("public".equals(reportUploadStatus)) {
 			report.setUploadStatus(reportUploadStatus);
 		} else if ("private".equals(reportUploadStatus)) {
@@ -255,7 +259,7 @@ public class BenchmarkRunner {
 		Set<String> keys = cfg.stringPropertyNames();
 		for (String key : keys) {
 			if (key.contains("customProp")) {
-				customUserProperties.put(key, cfg.getProperty(key));
+				customUserProperties.put(key, getProperty(key));
 			}
 		}
 		return customUserProperties;
