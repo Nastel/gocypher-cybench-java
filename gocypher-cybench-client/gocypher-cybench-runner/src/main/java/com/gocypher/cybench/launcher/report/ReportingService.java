@@ -123,7 +123,10 @@ public class ReportingService {
 
             //System.out.println("Report class name:"+report.getReportClassName());
             //String metaInfoData = report.getReportClassName()
-            String manifestData = Manifests.read("customBenchmarkMetadata");
+            String manifestData = null ;
+            if (Manifests.exists("customBenchmarkMetadata")) {
+                manifestData = Manifests.read("customBenchmarkMetadata");
+            }
             Map<String,Map<String,String>> benchmarksMetadata =  ComputationUtils.parseCustomBenchmarkMetadata(manifestData);
             Map<String, String> benchProps;
             if(manifestData != null) {
