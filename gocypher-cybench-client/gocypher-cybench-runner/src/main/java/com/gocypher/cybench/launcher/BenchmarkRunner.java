@@ -241,9 +241,9 @@ public class BenchmarkRunner {
 
     private static void getReportUploadStatus(BenchmarkOverviewReport report) {
 		String reportUploadStatus = cfg.getProperty(Constants.REPORT_UPLOAD_STATUS);
-		if (reportUploadStatus.equals("public")) {
+		if ("public".equals(reportUploadStatus)) {
 			report.setUploadStatus(reportUploadStatus);
-		} else if (reportUploadStatus.equals("private")) {
+		} else if ("private".equals(reportUploadStatus)) {
 			report.setUploadStatus(reportUploadStatus);
 		} else {
 			report.setUploadStatus("public");
