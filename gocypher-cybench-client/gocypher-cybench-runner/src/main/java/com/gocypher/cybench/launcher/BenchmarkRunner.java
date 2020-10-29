@@ -101,7 +101,7 @@ public class BenchmarkRunner {
 		// number of threads for benchmark test execution
 		int threads = setExecutionProperty(getProperty(Constants.BENCHMARK_RUN_THREAD_COUNT), 1);
 
-		Map<String, Map<String, String>> customBenchmarksMetadata = ComputationUtils.parseBenchmarkMetadata(getProperty(Constants.BENCHMARK_METADATA));
+		Map<String, Map<String, String>> defaultBenchmarksMetadata = ComputationUtils.parseBenchmarkMetadata(getProperty(Constants.BENCHMARK_METADATA));
 
 		LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
 		OptionsBuilder optBuild = new OptionsBuilder();
@@ -143,7 +143,7 @@ public class BenchmarkRunner {
 						&& !classObj.getSimpleName().contains("_")) {
 					// LOG.info("==>Default found:{}",classObj.getName());
 					// We do not include any class, because then JMH will discover all benchmarks
-					// automatically including custom ones.
+					// automatically including user defined
 					// optBuild.include(classObj.getName());
 					tempBenchmark = classObj.getName();
 					securityBuilder.generateSecurityHashForClasses(classObj);
@@ -162,7 +162,7 @@ public class BenchmarkRunner {
 			if(manifestData != null) {
 				benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, benchmarksMetadata);
 			}else{
-				benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, customBenchmarksMetadata);
+				benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, defaultBenchmarksMetadata);
 			}
 			benchmarkSetting.putAll(benchProps);
 			benchmarkSetting.put("benchThreadCount", threads);
@@ -189,7 +189,7 @@ public class BenchmarkRunner {
 
 		LOG.info("Benchmark finished, executed tests count:{}", results.size());
 
-		BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results, customBenchmarksMetadata);
+		BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results, defaultBenchmarksMetadata);
 		report.getEnvironmentSettings().put("environment", hwProperties);
 		report.getEnvironmentSettings().put("jvmEnvironment", jvmProperties);
 		report.getEnvironmentSettings().put("unclassifiedProperties", CollectSystemInformation.getUnclassifiedProperties());

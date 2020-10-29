@@ -56,7 +56,7 @@ public class ReportingService {
 	}
 
 	public BenchmarkOverviewReport createBenchmarkReport(Collection<RunResult> jmhResults,
-			Map<String, Map<String, String>> customBenchmarksMetadata) {
+			Map<String, Map<String, String>> defaultBenchmarksMetadata) {
 		BenchmarkOverviewReport overviewReport = new BenchmarkOverviewReport();
 		for (RunResult item : jmhResults) {
 			BenchmarkReport report = new BenchmarkReport();
@@ -139,7 +139,7 @@ public class ReportingService {
 			if (manifestData != null) {
 				benchProps = prepareBenchmarkProperties(report.getReportClassName(), benchmarksMetadata);
 			} else {
-				benchProps = prepareBenchmarkProperties(report.getReportClassName(), customBenchmarksMetadata);
+				benchProps = prepareBenchmarkProperties(report.getReportClassName(), defaultBenchmarksMetadata);
 			}
 			if (benchProps.get("benchCategory") != null) {
 //                LOG.info("benchCategory {}", benchProps.get("benchCategory"));

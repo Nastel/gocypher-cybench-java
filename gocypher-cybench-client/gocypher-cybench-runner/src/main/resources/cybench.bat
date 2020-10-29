@@ -70,7 +70,7 @@ set resConfig=F
 				)
 		)
 	)
-	:: Get and add custom benchmark jars defined in configuration file
+	:: Get and add all benchmark jars defined in configuration file
 	for /f "eol=# delims== tokens=1,2" %%A in (%CONFIGURATION_PATH%) do (
 		Echo."%%A" | findstr /C:"benchmarks">nul && (
 				set CYB_LIBS=%%B
