@@ -88,8 +88,7 @@ public class ReportingService {
 			report.setGcChurnPsEdenSpace(getScoreFromJMHSecondaryResult(item, "·gc.churn.PS_Eden_Space"));
 			report.setGcChurnPsEdenSpaceNorm(getScoreFromJMHSecondaryResult(item, "·gc.churn.PS_Eden_Space.norm"));
 			report.setGcChurnPsSurvivorSpace(getScoreFromJMHSecondaryResult(item, "·gc.churn.PS_Survivor_Space"));
-			report.setGcChurnPsSurvivorSpaceNorm(
-					getScoreFromJMHSecondaryResult(item, "·gc.churn.PS_Survivor_Space.norm"));
+			report.setGcChurnPsSurvivorSpaceNorm(getScoreFromJMHSecondaryResult(item, "·gc.churn.PS_Survivor_Space.norm"));
 
 			report.setThreadsAliveCount(getScoreFromJMHSecondaryResult(item, "·threads.alive"));
 			report.setThreadsDaemonCount(getScoreFromJMHSecondaryResult(item, "·threads.daemon"));
@@ -99,11 +98,9 @@ public class ReportingService {
 			report.setThreadsSafePointTime(getScoreFromJMHSecondaryResult(item, "·rt.safepointTime"));
 			report.setThreadsSafePointsCount(getScoreFromJMHSecondaryResult(item, "·rt.safepoints"));
 
-			report.setThreadsSyncContendedLockAttemptsCount(
-					getScoreFromJMHSecondaryResult(item, "·rt.sync.contendedLockAttempts"));
+			report.setThreadsSyncContendedLockAttemptsCount(getScoreFromJMHSecondaryResult(item, "·rt.sync.contendedLockAttempts"));
 			report.setThreadsSyncMonitorFatMonitorsCount(getScoreFromJMHSecondaryResult(item, "·rt.sync.fatMonitors"));
-			report.setThreadsSyncMonitorFutileWakeupsCount(
-					getScoreFromJMHSecondaryResult(item, "·rt.sync.futileWakeups"));
+			report.setThreadsSyncMonitorFutileWakeupsCount(getScoreFromJMHSecondaryResult(item, "·rt.sync.futileWakeups"));
 			report.setThreadsSyncMonitorDeflations(getScoreFromJMHSecondaryResult(item, "·rt.sync.monitorDeflations"));
 			report.setThreadsSyncMonitorInflations(getScoreFromJMHSecondaryResult(item, "·rt.sync.monitorInflations"));
 			report.setThreadsSyncNotificationsCount(getScoreFromJMHSecondaryResult(item, "·rt.sync.notifications"));
