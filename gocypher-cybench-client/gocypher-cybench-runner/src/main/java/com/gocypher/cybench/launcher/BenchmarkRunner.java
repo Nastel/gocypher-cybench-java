@@ -243,12 +243,12 @@ public class BenchmarkRunner {
 
     private static void getReportUploadStatus(BenchmarkOverviewReport report) {
 		String reportUploadStatus = getProperty(Constants.REPORT_UPLOAD_STATUS);
-		if ("public".equals(reportUploadStatus)) {
+		if (Constants.REPORT_PUBLIC.equals(reportUploadStatus)) {
 			report.setUploadStatus(reportUploadStatus);
-		} else if ("private".equals(reportUploadStatus)) {
+		} else if (Constants.REPORT_PRIVATE.equals(reportUploadStatus)) {
 			report.setUploadStatus(reportUploadStatus);
 		} else {
-			report.setUploadStatus("public");
+			report.setUploadStatus(Constants.REPORT_PUBLIC);
 		}
 	}
 
@@ -256,7 +256,7 @@ public class BenchmarkRunner {
 		Map<String, Object> userProperties = new HashMap<>();
 		Set<String> keys = cfg.stringPropertyNames();
 		for (String key : keys) {
-			if (key.contains("user.")) {
+			if (key.startsWith(Constants.USER_PROPERTY_PREFIX)) {
 				userProperties.put(key, getProperty(key));
 			}
 		}
@@ -364,7 +364,4 @@ public class BenchmarkRunner {
 		System.out.println("Total Garbage Collections: " + totalGarbageCollections);
 		System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
 	}
-
-
-
 }
