@@ -118,18 +118,6 @@ public class ReportingService {
 			report.setThreadsSafePointsPauseTTSPAvg(getScoreFromJMHSecondaryResult(item, "·safepoints.ttsp.avg"));
 			report.setThreadsSafePointsPauseTTSPCount(getScoreFromJMHSecondaryResult(item, "·safepoints.ttsp.count"));
 
-			/*
-			 * System.out.println("Score:"+result.getPrimaryResult().getScore());
-			 * System.out.println("Stats:"+result.getPrimaryResult().getStatistics());
-			 * System.out.println("getBenchmarkResults:"+result.getBenchmarkResults().size()
-			 * ); System.out.println("getAggregatedResult:"+result.getAggregatedResult().
-			 * getBenchmarkResults());
-			 * System.out.println("getSecondaryResults:"+result.getSecondaryResults());
-			 * System.out.println("\n\n");
-			 */
-
-			// System.out.println("Report class name:"+report.getReportClassName());
-			// String metaInfoData = report.getReportClassName()
 			String manifestData = null;
 			if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
 				manifestData = Manifests.read(Constants.BENCHMARK_METADATA);
@@ -142,19 +130,15 @@ public class ReportingService {
 				benchProps = prepareBenchmarkProperties(report.getReportClassName(), defaultBenchmarksMetadata);
 			}
 			if (benchProps.get("benchCategory") != null) {
-//                LOG.info("benchCategory {}", benchProps.get("benchCategory"));
 				report.setCategory(benchProps.get("benchCategory"));
 			}
 			if (benchProps.get("benchContext") != null) {
-//                LOG.info("benchContext {}", benchProps.get("benchContext"));
 				report.setContext(benchProps.get("benchContext"));
 			}
 			if (benchProps.get("benchVersion") != null) {
-//                LOG.info("benchVersion {}", benchProps.get("benchVersion"));
 				report.setVersion(benchProps.get("benchVersion"));
 			}
 			report.recalculateScoresToMatchNewUnits();
-//            LOG.info("RAPORT {}", report);
 			overviewReport.addToBenchmarks(report);
 		}
 
