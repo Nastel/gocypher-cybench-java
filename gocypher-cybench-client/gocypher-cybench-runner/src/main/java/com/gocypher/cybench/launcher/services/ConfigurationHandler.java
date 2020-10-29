@@ -28,27 +28,28 @@ import java.util.Properties;
 
 public class ConfigurationHandler {
 	private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHandler.class);
+	private static final String CONFIG_FILE = System.getProperty("cybench.config.file", "/conf/cybench-launcher.properties");
 
 	public static Properties loadConfiguration(String filePath) {
 		Properties prop = new Properties();
-		String confFilePath;
+		String confFilePath = filePath;
 		try {
-			if(filePath.isEmpty()) {
-				confFilePath = new File("").getAbsolutePath()+"/conf/cybench-launcher.properties";
-			}else{
+			if (filePath.isEmpty()) {
+				confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
+			} else {
 				confFilePath = filePath;
 			}
-			prop.load(new FileInputStream( confFilePath));
+			prop.load(new FileInputStream(confFilePath));
 			LOG.info("** Configuration loaded: {}", confFilePath);
 			return prop;
 		} catch (Exception e) {
-			LOG.error("Configuration file provided not found, will try to use default configuration file.");
-			try{
-				confFilePath = new File("").getAbsolutePath()+"/conf/cybench-launcher.properties";
-				prop.load(new FileInputStream( confFilePath));
+			LOG.error("Configuration file={} not found, will try to use default configuration", confFilePath, e);
+			try {
+				confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
+				prop.load(new FileInputStream(confFilePath));
 				return prop;
-			}catch (Exception err){
-				LOG.error("ALERT: Default configuration file is missing, try re-downloading the project or use our documentation to create your own configuration file");
+			} catch (Exception err) {
+				LOG.error("Default configuration file is missing, try re-downloading the project or use our documentation to create your own configuration file={}", confFilePath, err);
 			}
 		}
 		return new Properties();

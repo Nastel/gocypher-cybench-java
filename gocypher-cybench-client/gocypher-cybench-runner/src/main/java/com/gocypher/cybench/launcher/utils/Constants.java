@@ -36,7 +36,7 @@ public class Constants {
 	public static final String BENCHMARK_RUN_THREAD_COUNT = "runThreadCount";
 
 	public static final String REPORT_UPLOAD_STATUS = "reportUploadStatus";
-	public static final String CUSTOM_BENCHMARK_METADATA = "customBenchmarkMetadata";
+	public static final String BENCHMARK_METADATA = "benchmarkMetadata";
 
 
 	public static final Map<String,String> BENCHMARKS_SCORES_COMPUTATIONS_MAPPING = new HashMap<>() ;

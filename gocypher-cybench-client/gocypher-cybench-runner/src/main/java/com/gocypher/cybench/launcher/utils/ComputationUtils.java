@@ -100,7 +100,7 @@ public class ComputationUtils {
         return score ;
     }
 
-    public static Map<String, Map<String, String>> parseCustomBenchmarkMetadata(String configuration) {
+    public static Map<String, Map<String, String>> parseBenchmarkMetadata(String configuration) {
         Map<String, Map<String, String>> benchConfiguration = new HashMap<>();
         if (configuration != null) {
             for (String item : configuration.split(";")) {

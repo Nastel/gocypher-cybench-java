@@ -101,8 +101,7 @@ public class BenchmarkRunner {
 		// number of threads for benchmark test execution
 		int threads = setExecutionProperty(getProperty(Constants.BENCHMARK_RUN_THREAD_COUNT), 1);
 
-		Map<String, Map<String, String>> customBenchmarksMetadata = ComputationUtils.parseCustomBenchmarkMetadata(
-                getProperty(Constants.CUSTOM_BENCHMARK_METADATA));
+		Map<String, Map<String, String>> customBenchmarksMetadata = ComputationUtils.parseBenchmarkMetadata(getProperty(Constants.BENCHMARK_METADATA));
 
 		LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
 		OptionsBuilder optBuild = new OptionsBuilder();
@@ -114,8 +113,7 @@ public class BenchmarkRunner {
 		int includedClassesForCustomRun = 0;
 
 		if (checkIfConfigurationPropertyIsSet(getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
-			LOG.info("Execute custom benchmarks found in configuration {}",
-                    getProperty(Constants.BENCHMARK_RUN_CLASSES));
+			LOG.info("Execute benchmarks found in configuration {}", getProperty(Constants.BENCHMARK_RUN_CLASSES));
 			List<String> benchmarkNames = Arrays.stream(getProperty(Constants.BENCHMARK_RUN_CLASSES).split(","))
 					.map(String::trim).collect(Collectors.toList());
 			for (String benchmarkClass : benchmarkNames) {
@@ -156,10 +154,10 @@ public class BenchmarkRunner {
 		// signatures:{}",securityBuilder.getMapOfHashedParts()) ;
 		if (tempBenchmark != null) {
 			String manifestData = null ;
-			if (Manifests.exists("customBenchmarkMetadata")) {
-				manifestData = Manifests.read("customBenchmarkMetadata");
+			if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
+				manifestData = Manifests.read(Constants.BENCHMARK_METADATA);
 			}
-			Map<String,Map<String,String>> benchmarksMetadata =  ComputationUtils.parseCustomBenchmarkMetadata(manifestData);
+			Map<String,Map<String,String>> benchmarksMetadata =  ComputationUtils.parseBenchmarkMetadata(manifestData);
 			Map<String, String> benchProps;
 			if(manifestData != null) {
 				benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, benchmarksMetadata);
@@ -195,7 +193,7 @@ public class BenchmarkRunner {
 		report.getEnvironmentSettings().put("environment", hwProperties);
 		report.getEnvironmentSettings().put("jvmEnvironment", jvmProperties);
 		report.getEnvironmentSettings().put("unclassifiedProperties", CollectSystemInformation.getUnclassifiedProperties());
-		report.getEnvironmentSettings().put("userDefinedProperties", customUserDefinedProperties());
+		report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
 		report.setBenchmarkSettings(benchmarkSetting);
 		getReportUploadStatus(report);
 		try {
@@ -254,15 +252,15 @@ public class BenchmarkRunner {
 		}
 	}
 
-	private static Map<String, Object> customUserDefinedProperties() {
-		Map<String, Object> customUserProperties = new HashMap<>();
+	private static Map<String, Object> getUserDefinedProperties() {
+		Map<String, Object> userProperties = new HashMap<>();
 		Set<String> keys = cfg.stringPropertyNames();
 		for (String key : keys) {
-			if (key.contains("customProp")) {
-				customUserProperties.put(key, getProperty(key));
+			if (key.contains("user.")) {
+				userProperties.put(key, getProperty(key));
 			}
 		}
-		return customUserProperties;
+		return userProperties;
 	}
 
 	private static int setExecutionProperty(String property, int value) {
