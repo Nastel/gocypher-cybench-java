@@ -40,29 +40,29 @@ Attachment and execution of user-defined benchmarks using CyBench launcher:
 
 Update CyBench Launcher configuration located in `<cybench-home>/conf/cybench-launcher.properties`:
 
-* __required__: add or update property `customBenchmarks`, set path to jar file which contains your custom benchmark, this path will be added to the `CLASSPATH` of the JVM. Values must be semicolon separated!  
+* __required__: add or update property `benchmarks`, set path to jar file which contains your JMH benchmark, this path will be added to the `CLASSPATH` of the JVM. Values must be semicolon separated!  
 
     Rule:
     ```properties
-    customBenchmarks=<path to custom jar file1>;<path to custom jar file2>;
+    benchmarks=<path to custom jar file1>;<path to custom jar file2>;
     ```
     
     Example:
     ```properties
-    customBenchmarks=gocypher-cybench-custom-1.0.0.jar;
+    benchmarks=gocypher-cybench-custom-1.0.0.jar;
     ```
 
 * __optional__: register categories for your tests in order to have correct tests classification and better readability and comparison in CyBench portal. If not set then default value (`Custom`) will be written and all custom tests will reside under this category. Values of different classes must be semicolon separated!
 
     Rule:
     ```properties
-    customBenchmarkMetadata=<fully classified benchmark class name>=category:<category name>;\
+    benchmarkMetadata=<fully classified benchmark class name>=category:<category name>;\
       <fully classified benchmark class name>=category:<category name>;
     ```
        
     Example:
     ```properties
-    customBenchmarkMetadata=com.gocypher.benchmarks.client.CollectionsBenchmarks=category:Collections;
+    benchmarkMetadata=com.gocypher.benchmarks.client.CollectionsBenchmarks=category:Collections;
     ```
     
 ### Execute Only Custom Benchmarks
