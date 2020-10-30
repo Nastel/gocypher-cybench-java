@@ -67,8 +67,8 @@ public class DeliveryService {
             response.close();
 
             //LOG.info("Storing result: {}",result);
-            result = JSONUtils.parseJsonIntoMap(result).get(Constants.URL_LINK_TO_GOCYPHER_REPORT).toString();
-            LOG.info("Benchmark report submitted successfully to {}", Constants.URL_LINK_TO_GOCYPHER_REPORT);
+            result = JSONUtils.parseJsonIntoMap(result).get(Constants.REPORT_URL).toString();
+            LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
             LOG.info("Your report is available at {}", result);
             LOG.info("NOTE: It may take a few minutes for your report to appear online");
             return result;

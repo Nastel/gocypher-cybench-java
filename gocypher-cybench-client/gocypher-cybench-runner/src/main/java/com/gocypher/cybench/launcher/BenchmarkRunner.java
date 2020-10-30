@@ -99,7 +99,7 @@ public class BenchmarkRunner {
 		// number of seconds dedicated for each warm up iteration
 		int warmUpSeconds = setExecutionProperty(getProperty(Constants.WARM_UP_SECONDS), 5);
 		// number of threads for benchmark test execution
-		int threads = setExecutionProperty(getProperty(Constants.BENCHMARK_RUN_THREAD_COUNT), 1);
+		int threads = setExecutionProperty(getProperty(Constants.RUN_THREAD_COUNT), 1);
 
 		Map<String, Map<String, String>> defaultBenchmarksMetadata = ComputationUtils.parseBenchmarkMetadata(getProperty(Constants.BENCHMARK_METADATA));
 
@@ -201,8 +201,8 @@ public class BenchmarkRunner {
 			String reportJSON;
 			String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder, report);
 			String responseWithUrl;
-			if (report.isEligibleForStoringExternally() && (getProperty(Constants.SHOULD_SEND_REPORT) == null
-					|| Boolean.parseBoolean(getProperty(Constants.SHOULD_SEND_REPORT)))) {
+			if (report.isEligibleForStoringExternally() && (getProperty(Constants.SEND_REPORT) == null
+					|| Boolean.parseBoolean(getProperty(Constants.SEND_REPORT)))) {
 				responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
 				report.setReportURL(responseWithUrl);
 			} else {

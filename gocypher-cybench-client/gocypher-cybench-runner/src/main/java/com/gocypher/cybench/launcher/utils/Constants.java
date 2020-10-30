@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Constants {
-	public static final String SHOULD_SEND_REPORT = "sendReport";
-	public static final String URL_LINK_TO_GOCYPHER_REPORT = "reportUrl";
+	public static final String SEND_REPORT = "sendReport";
+	public static final String REPORT_URL = "reportUrl";
 	public static final String BENCHMARK_REPORT_NAME = "reportName";
 	public static final String BENCHMARK_RUN_CLASSES = "benchmarkClasses";
 	public static final String USER_PROPERTY_PREFIX = "user.";
@@ -34,7 +34,7 @@ public class Constants {
 	public static final String MEASUREMENT_ITERATIONS = "measurementIterations";
 	public static final String WARM_UP_ITERATIONS = "warmUpIterations";
 	public static final String WARM_UP_SECONDS = "warmUpSeconds";
-	public static final String BENCHMARK_RUN_THREAD_COUNT = "runThreadCount";
+	public static final String RUN_THREAD_COUNT = "runThreadCount";
 
 	public static final String REPORT_UPLOAD_STATUS = "reportUploadStatus";
 	public static final String BENCHMARK_METADATA = "benchmarkMetadata";
