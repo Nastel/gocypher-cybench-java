@@ -67,8 +67,8 @@ public class BenchmarkRunner {
 	private static final String CYB_REPORT_FOLDER = System.getProperty("cybench.report.folder", 
 			"." + File.separator + "reports" + File.separator);
 	
-	public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER + "report.json";
-	public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + "report.cyb";
+	public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_JSON_FILE, "report.json");
+	public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
 	
 	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",	"https://www.gocypher.com/cybench/upload");
 

@@ -40,7 +40,8 @@ public class Constants {
 	public static final String BENCHMARK_METADATA = "benchmarkMetadata";
 	public static final String REPORT_PRIVATE = "private";
 	public static final String REPORT_PUBLIC = "public";
-
+    public static final String CYB_REPORT_JSON_FILE = "report.json";
+    public static final String CYB_REPORT_CYB_FILE = "report.cyb";
 
 	public static final Map<String,String> BENCHMARKS_SCORES_COMPUTATIONS_MAPPING = new HashMap<>() ;
 	static {
