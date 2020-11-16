@@ -63,13 +63,13 @@ import com.gocypher.cybench.launcher.environment.services.CollectSystemInformati
 
 public class BenchmarkRunner {
 	private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
-	
-	private static final String CYB_REPORT_FOLDER = System.getProperty("cybench.report.folder", 
+
+	private static final String CYB_REPORT_FOLDER = System.getProperty("cybench.report.folder",
 			"." + File.separator + "reports" + File.separator);
-	
+
 	public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_JSON_FILE, "report.json");
 	public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
-	
+
 	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",	"https://www.gocypher.com/cybench/upload");
 
 	static Properties cfg = new Properties();
@@ -212,8 +212,9 @@ public class BenchmarkRunner {
 //			LOG.info("REPORT '{}'", report);
 //			LOG.info("-----------------------------------------------------------------------------------------");
 			reportJSON = JSONUtils.marshalToPrettyJson(report);
-			LOG.info("Saving test results to '{}'", CYB_REPORT_JSON_FILE);
-			IOUtils.storeResultsToFile(CYB_REPORT_JSON_FILE, reportJSON);
+            String cybReportJsonFile = getCybReportJsonFile(report);
+            LOG.info("Saving test results to '{}'", cybReportJsonFile);
+			IOUtils.storeResultsToFile(cybReportJsonFile, reportJSON);
 			LOG.info("Saving ecnrypted test results to '{}'", CYB_REPORT_CYB_FILE);
 			IOUtils.storeResultsToFile(CYB_REPORT_CYB_FILE, reportEncrypted);
 
@@ -228,6 +229,17 @@ public class BenchmarkRunner {
 		LOG.info("                                 Finished CyBench benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
 		LOG.info("-----------------------------------------------------------------------------------------");
 	}
+
+    private static String getCybReportJsonFile(BenchmarkOverviewReport report) {
+	    if (Boolean.parseBoolean(getProperty(Constants.APPEND_SCORE_TO_FNAME))) {
+            String start = CYB_REPORT_JSON_FILE.substring(0, CYB_REPORT_JSON_FILE.lastIndexOf('.'));
+            String end = CYB_REPORT_JSON_FILE.substring(CYB_REPORT_JSON_FILE.lastIndexOf('.'));
+            return start + "-" + com.gocypher.cybench.core.utils.JSONUtils.convertNumToStringByLength(String.valueOf(report.getTotalScore())) +end;
+        }else {
+            return CYB_REPORT_JSON_FILE;
+
+        }
+    }
 
     private static String getProperty(String key) {
 	    return System.getProperty(key,cfg.getProperty(key) );
