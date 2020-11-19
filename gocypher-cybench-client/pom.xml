@@ -42,7 +42,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javac.target>1.8</javac.target>
-        <skip.assembly.pack>true</skip.assembly.pack>
+        <assembly.skipAssembly>true</assembly.skipAssembly>
         <license-name>CYBENCH_LICENSE*</license-name>
         <uberjar.name>gocypher-cybench-client</uberjar.name>
         <jmh.version>1.26</jmh.version>
@@ -64,7 +64,7 @@
                 <module>gocypher-cybench-distribution</module>
             </modules>
             <properties>
-                <skip.assembly.pack>false</skip.assembly.pack>
+                <assembly.skipAssembly>false</assembly.skipAssembly>
             </properties>
         </profile>
     </profiles>

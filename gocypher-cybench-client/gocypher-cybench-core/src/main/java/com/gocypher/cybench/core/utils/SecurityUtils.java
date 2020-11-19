@@ -43,7 +43,7 @@ public class SecurityUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
 	private static final String CYB_PUBLIC_KEY_FILE = "cybench_key.pub";
 	private static final String CYB_PRIVATE_KEY_FILE = "cybench_key.key";
-
+	private static final String CYB_PUBLIC_KEY_RAW = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAw/23CncKAjXNKbj5unwTrxzr2R0AC3oIDlSjuKEEcEhylpXBsQGNEmRpDbB6krs9RC51f2yNO1Bk4ATcNZv+ac/qcTobF4YTWEhrE8CGSibktNQt6bNGj0eQfZ+Pd1rNynj1lALRIFnWUvc/BVRvMnRtlZCc3OiHZXlMBvE/rb+Qb2X6VxaT8cREjiKy5OXmaNCT9igzYjJG7g3e6KZT7V7McnrLxeYf8Ubw2NtTmmjePNdZQuKCAlGYg+Io30c7r8Q4i6dob3jfI3eNPQxs4BRKLddLvpDUm1ZJQKnUCcvh6LpJQLZZ2sfXW8ryFTAcDy4+NA5/F4QvVxsgEZ7m/u9l/iTr/JhaIzdpwYU9J94soRKtBZHZhtEvBuGHmGDLPxVMvAcLND/yiGeQyWnVCGxoFLkX4Pv7/67Y5LdUFwZZwXDjIsrS2943yEkmEud+04iuRfOn89F1mV4Pwuwm3OL/6oY2E/jN7/R0tseshTXEJJxOB8Wjydq5tAtbX+8Eee1ttciO62msDPp08UVmeJneR0m1uwQmyTlXAK97CiGvVmtOr64ICyG+SCEL2iR3oqB3Za5NuKrcAEU5xTKLeKb6tUILoMfFqdTVo/DUbXg9sVVKtQeYWPwqW9VmIqnQ0tYkTOfQpwh07OAMvW7wFZrodODuzhjCWoldJGSJDwECAwEAAQ==" ;
 	private static final String BEGIN_PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----";
 	private static final String END_PRIVATE_KEY = "-----END RSA PRIVATE KEY-----";
 
@@ -148,7 +148,13 @@ public class SecurityUtils {
 
 	public static RSAPublicKey loadPublicKey() {
 		try {
-			byte[] keyBytes = loadBase64EncodedKey(CYB_PUBLIC_KEY_FILE, true);
+			byte[] keyBytes = null ;
+			try {
+				keyBytes = loadBase64EncodedKey(CYB_PUBLIC_KEY_FILE, true);
+			}catch (Exception e){
+				keyBytes = decodeRawPublicKey() ;
+			}
+
 			X509EncodedKeySpec ks = new X509EncodedKeySpec(keyBytes);
 			KeyFactory kf = KeyFactory.getInstance("RSA");
 			RSAPublicKey pubKey = (RSAPublicKey) kf.generatePublic(ks);
@@ -231,6 +237,9 @@ public class SecurityUtils {
 		generator.init(128); // The AES key size in number of bits
 		SecretKey secKey = generator.generateKey();
 		return secKey;
+	}
+	private static byte [] decodeRawPublicKey () {
+		return Base64.getDecoder().decode(CYB_PUBLIC_KEY_RAW) ;
 	}
 
 }

@@ -52,6 +52,14 @@ public class BenchmarkOverviewReport implements Serializable {
         this.benchmarks.computeIfAbsent(report.getCategory(), k -> new ArrayList<>());
         this.benchmarks.get(report.getCategory()).add(report) ;
     }
+    public void updateUploadStatus (String uploadStatus){
+        if ("private".equalsIgnoreCase(uploadStatus)){
+            this.uploadStatus = uploadStatus;
+        }
+        else {
+            this.uploadStatus= "public";
+        }
+    }
     public void computeScores (){
         Double sumOfCategoryScores = 0.0 ;
         for (String category : this.benchmarks.keySet()) {
