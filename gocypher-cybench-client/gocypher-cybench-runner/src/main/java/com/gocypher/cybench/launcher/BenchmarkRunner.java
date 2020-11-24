@@ -201,8 +201,7 @@ public class BenchmarkRunner {
 			String reportJSON;
 			String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder, report);
 			String responseWithUrl;
-			if (report.isEligibleForStoringExternally() && (getProperty(Constants.SEND_REPORT) == null
-					|| Boolean.parseBoolean(getProperty(Constants.SEND_REPORT)))) {
+			if (shouldSendReport(report)) {
 				responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
 				report.setReportURL(responseWithUrl);
 			} else {
@@ -230,6 +229,12 @@ public class BenchmarkRunner {
 		LOG.info("-----------------------------------------------------------------------------------------");
 	}
 
+    private static boolean shouldSendReport(BenchmarkOverviewReport report) {
+	    if (report.getEnvironmentSettings().get("environment") instanceof HardwareProperties.EmptyHardwareProperties) return false;
+        return report.isEligibleForStoringExternally() && (getProperty(Constants.SEND_REPORT) == null
+                || Boolean.parseBoolean(getProperty(Constants.SEND_REPORT)));
+    }
+
     private static String getCybReportJsonFile(BenchmarkOverviewReport report) {
 	    if (Boolean.parseBoolean(getProperty(Constants.APPEND_SCORE_TO_FNAME))) {
             String start = CYB_REPORT_JSON_FILE.substring(0, CYB_REPORT_JSON_FILE.lastIndexOf('.'));
@@ -241,7 +246,7 @@ public class BenchmarkRunner {
         }
     }
 
-    private static String getProperty(String key) {
+    public static String getProperty(String key) {
 	    return System.getProperty(key,cfg.getProperty(key) );
     }
 

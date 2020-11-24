@@ -214,8 +214,8 @@ public class HardwareProperties {
         this.hwNetworkMACAddress = hwNetworkMACAddress;
     }
 
-    private String formatString(Double doubleValue, Integer floatingPoInteger){
-        return String.format ("%."+floatingPoInteger+"f", doubleValue);
+    private String formatString(Double doubleValue, Integer floatingPoInteger) {
+        return String.format("%." + floatingPoInteger + "f", doubleValue);
     }
 
     public Double getHwMemSpeed() {
@@ -242,12 +242,12 @@ public class HardwareProperties {
         this.hwMemTotalMemoryBytes = hwMemTotalMemoryBytes;
     }
 
-    public void setHwLaunchDiskModel(String hwLaunchDiskModel) {
-        this.hwLaunchDiskModel = hwLaunchDiskModel;
-    }
-
     public String getHwLaunchDiskModel() {
         return hwLaunchDiskModel;
+    }
+
+    public void setHwLaunchDiskModel(String hwLaunchDiskModel) {
+        this.hwLaunchDiskModel = hwLaunchDiskModel;
     }
 
     public Double getHwLaunchDiskTotalMemoryGB() {
@@ -257,6 +257,7 @@ public class HardwareProperties {
     public void setHwLaunchDiskTotalMemoryGB(Double hwLaunchDiskTotalMemoryGB) {
         this.hwLaunchDiskTotalMemoryGB = hwLaunchDiskTotalMemoryGB;
     }
+
     public String getHwMothManufacturer() {
         return hwMothManufacturer;
     }
@@ -264,6 +265,7 @@ public class HardwareProperties {
     public void setHwMothManufacturer(String hwMothManufacturer) {
         this.hwMothManufacturer = hwMothManufacturer;
     }
+
     public Double getHwLaunchDiskFreeMemoryGB() {
         return hwLaunchDiskFreeMemoryGB;
     }
@@ -284,10 +286,6 @@ public class HardwareProperties {
         return hwBiosPrimaryBios;
     }
 
-    public void setHwBiosPrimaryBios(Boolean hwBiosPrimaryBios) {
-        this.hwBiosPrimaryBios = hwBiosPrimaryBios;
-    }
-
     public String getHwLaunchDiskType() {
         return hwLaunchDiskType;
     }
@@ -298,6 +296,10 @@ public class HardwareProperties {
 
     public Boolean getHwBiosPrimaryBios() {
         return hwBiosPrimaryBios;
+    }
+
+    public void setHwBiosPrimaryBios(Boolean hwBiosPrimaryBios) {
+        this.hwBiosPrimaryBios = hwBiosPrimaryBios;
     }
 
     public String getHwNetworkClientIPAddress() {
@@ -319,9 +321,9 @@ public class HardwareProperties {
                 " hwProcLogicalThreadsCount : " + hwProcLogicalThreadsCount + "," + System.getProperty("line.separator") +
 
                 " hwMemPartNumber : " + hwMemPartNumber + "," + System.getProperty("line.separator") +
-                " hwMemSpeed : " + formatString(hwMemSpeed,0) + "," + System.getProperty("line.separator") +
-                " hwMemTotalMemoryBytes : " + formatString(hwMemTotalMemoryBytes,0) + "," + System.getProperty("line.separator") +
-                " hwMemAvailableMemoryBytes : " + formatString(hwMemAvailableMemoryBytes,0) + "," + System.getProperty("line.separator") +
+                " hwMemSpeed : " + formatString(hwMemSpeed, 0) + "," + System.getProperty("line.separator") +
+                " hwMemTotalMemoryBytes : " + formatString(hwMemTotalMemoryBytes, 0) + "," + System.getProperty("line.separator") +
+                " hwMemAvailableMemoryBytes : " + formatString(hwMemAvailableMemoryBytes, 0) + "," + System.getProperty("line.separator") +
                 " hwMemManufacturer : " + hwMemManufacturer + "," + System.getProperty("line.separator") +
 
                 " hwBiosPrimaryBios : " + hwBiosPrimaryBios + "," + System.getProperty("line.separator") +
@@ -342,12 +344,15 @@ public class HardwareProperties {
 
                 " hwLaunchDiskModel : " + hwLaunchDiskModel + "," + System.getProperty("line.separator") +
                 " hwLaunchDiskType : " + hwLaunchDiskType + "," + System.getProperty("line.separator") +
-                " hwLaunchDiskTotalMemoryGB : " + formatString(hwLaunchDiskTotalMemoryGB,4) + "," + System.getProperty("line.separator") +
-                " hwLaunchDiskFreeMemoryGB : " + formatString(hwLaunchDiskFreeMemoryGB,4) + "," + System.getProperty("line.separator") +
+                " hwLaunchDiskTotalMemoryGB : " + formatString(hwLaunchDiskTotalMemoryGB, 4) + "," + System.getProperty("line.separator") +
+                " hwLaunchDiskFreeMemoryGB : " + formatString(hwLaunchDiskFreeMemoryGB, 4) + "," + System.getProperty("line.separator") +
 
                 " hwNetworkMACAddress : " + hwNetworkMACAddress + System.getProperty("line.separator") +
                 " hwNetworkClientIPAddress : " + hwNetworkClientIPAddress + System.getProperty("line.separator") +
                 '}';
+    }
+
+    public static class EmptyHardwareProperties extends HardwareProperties {
     }
 
 }
