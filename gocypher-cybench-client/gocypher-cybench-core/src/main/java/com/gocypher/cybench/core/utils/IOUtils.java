@@ -320,5 +320,11 @@ public class IOUtils {
 		 */
 		byteBuffer.clear();
 	}
+	public static String getReportsPath(String reportsFolder, String reportFileName){
+		if (reportsFolder == null || reportsFolder.isEmpty()) {
+			return "." + File.separator + "reports" + File.separator+reportFileName;
+		}
+		return reportsFolder+reportFileName ;
+	}
 
 }
