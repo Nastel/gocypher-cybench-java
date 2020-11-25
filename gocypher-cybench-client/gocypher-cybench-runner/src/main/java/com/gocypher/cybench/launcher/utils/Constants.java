@@ -42,9 +42,12 @@ public class Constants {
 	public static final String REPORT_PUBLIC = "public";
     public static final String CYB_REPORT_JSON_FILE = "report.json";
     public static final String CYB_REPORT_CYB_FILE = "report.cyb";
+    public static final String CYB_REPORT_FILE_EXTENSION = ".cybench";
+    public static final String CYB_ENCRYPTED_REPORT_FILE_EXTENSION = ".cyb";
     public static final String APPEND_SCORE_TO_FNAME = "appendScore";
     public static final String COLLECT_HW = "collectHw";
 	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",	"https://www.gocypher.com/cybench/upload");
+	public static final String DEFAULT_REPORT_FILE_NAME_SUFFIX ="report";
 
 
     public static final Map<String,String> BENCHMARKS_SCORES_COMPUTATIONS_MAPPING = new HashMap<>() ;
