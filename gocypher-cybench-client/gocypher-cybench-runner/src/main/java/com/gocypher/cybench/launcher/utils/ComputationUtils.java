@@ -125,12 +125,34 @@ public class ComputationUtils {
         }
         return benchConfiguration;
     }
+    public static Map<String, Object> customUserDefinedProperties(String customPropertiesStr) {
+        Map<String, Object> customUserProperties = new HashMap<>();
+        if (customPropertiesStr != null && !customPropertiesStr.isEmpty()){
+            String [] pairs = customPropertiesStr.split(";") ;
+            for (String pair:pairs){
+                String [] kv = pair.split("=");
+                if (kv.length == 2){
+                    customUserProperties.put(kv[0],kv[1]) ;
+                }
+            }
+        }
 
+
+        return customUserProperties;
+    }
     public static String formatInterval(final long l) {
         final long hr = TimeUnit.MILLISECONDS.toHours(l);
         final long min = TimeUnit.MILLISECONDS.toMinutes(l - TimeUnit.HOURS.toMillis(hr));
         final long sec = TimeUnit.MILLISECONDS.toSeconds(l - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
         final long ms = TimeUnit.MILLISECONDS.toMillis(l - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
         return String.format("%02d:%02d:%02d.%03d", hr, min, sec, ms);
+    }
+
+
+    public static String createFileNameForReport (String reportName, long timestamp, BigDecimal totalScore, boolean isEncryptedFile){
+        if (reportName != null && !reportName.isEmpty() && totalScore != null) {
+            return reportName.replaceAll(" ", "_").toLowerCase()+"-"+timestamp + "-" + com.gocypher.cybench.core.utils.JSONUtils.convertNumToStringByLength(String.valueOf(totalScore)) + (isEncryptedFile?Constants.CYB_ENCRYPTED_REPORT_FILE_EXTENSION:Constants.CYB_REPORT_FILE_EXTENSION);
+        }
+        return Constants.DEFAULT_REPORT_FILE_NAME_SUFFIX+"-"+timestamp+(isEncryptedFile?Constants.CYB_ENCRYPTED_REPORT_FILE_EXTENSION:Constants.CYB_REPORT_FILE_EXTENSION);
     }
 }
