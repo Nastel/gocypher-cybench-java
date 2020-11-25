@@ -152,6 +152,7 @@ public class BenchmarkRunner {
 		}
 		// LOG.info("Situation of class
 		// signatures:{}",securityBuilder.getMapOfHashedParts()) ;
+
 		if (tempBenchmark != null) {
 			String manifestData = null ;
 			if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
@@ -166,10 +167,12 @@ public class BenchmarkRunner {
 			}
 			benchmarkSetting.putAll(benchProps);
 			benchmarkSetting.put("benchThreadCount", threads);
-			if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
-				benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
-			}
+
 		}
+
+        if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
+            benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
+        }
 
 		Options opt = optBuild.forks(forks).measurementIterations(measurementIterations)
 				.warmupIterations(warmUpIterations).warmupTime(TimeValue.seconds(warmUpSeconds)).threads(threads)
