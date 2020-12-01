@@ -1,9 +1,12 @@
 package com.gocypher.cybench.core.annotation;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.google.auto.service.AutoService;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.file.PathFileObject;
 import com.sun.tools.javac.util.Name;
+import org.openjdk.jmh.annotations.Benchmark;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes(
         "org.openjdk.jmh.annotations.Benchmark")
@@ -87,24 +91,23 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                 Filer filer = processingEnv.getFiler();
                 Symbol.ClassSymbol classSymbol = ((Symbol.MethodSymbol) element).enclClass();
                 JavaFileObject sourcefile = classSymbol.sourcefile;
-                if (sourcefile instanceof PathFileObject) {
-                    Path path = ((PathFileObject) sourcefile).getPath();
+                Path path = Paths.get(sourcefile.toUri());
 
-                    String fileContents = new String(Files.readAllBytes(path), "UTF-8");
+                String fileContents = new String(Files.readAllBytes(path), "UTF-8");
 
-                    String name = String.valueOf(classSymbol.getSimpleName());
-                    String replaced = getReplaced(fileContents, name, name);
+                String name = String.valueOf(classSymbol.getSimpleName());
+                String replaced = getReplaced(fileContents, name, name);
 
 
-                    Name pck = classSymbol.getQualifiedName().subName(0, classSymbol.getQualifiedName().lastIndexOf((byte) '.'));
-                    Name nm = classSymbol.getQualifiedName().subName(classSymbol.getQualifiedName().lastIndexOf((byte) '.') + 1, classSymbol.getQualifiedName().length());
-                    FileObject classFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, pck, nm + ".generated");
-                    try (PrintWriter wr = new PrintWriter(classFile.openWriter())) {
-                        wr.print(replaced);
-                    }
-                    return classFile;
-
+                Name pck = classSymbol.getQualifiedName().subName(0, classSymbol.getQualifiedName().lastIndexOf((byte) '.'));
+                Name nm = classSymbol.getQualifiedName().subName(classSymbol.getQualifiedName().lastIndexOf((byte) '.') + 1, classSymbol.getQualifiedName().length());
+                FileObject classFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, pck, nm + ".generated");
+                try (PrintWriter wr = new PrintWriter(classFile.openWriter())) {
+                    wr.print(replaced);
                 }
+                return classFile;
+
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -114,10 +117,20 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
     }
 
     private String getReplaced(String fileContents, String newName, String oldName) {
-        String replacement = " @Benchmark\n    @com.gocypher.cybench.core.annotation.BenchmarkTag(tag=\"" + UUID.randomUUID() + "\")";
-        String replaced = fileContents.replaceAll("\\s@Benchmark\\s", replacement);
-        replaced = replaced.replaceAll(Pattern.quote(oldName), newName);
-        return replaced;
+        CompilationUnit cu = StaticJavaParser.parse(fileContents);
+        List<MethodDeclaration> allMethods = cu.findAll(MethodDeclaration.class);
+        if (!cu.getImports().contains(StaticJavaParser.parseImport("import " + BenchmarkTag.class.getCanonicalName() + ";"))) {
+            cu.addImport(BenchmarkTag.class);
+        }
+
+        List<MethodDeclaration> methodsNeedTag = allMethods.stream().filter(
+                methodDeclaration -> !methodDeclaration.getAnnotationByClass(BenchmarkTag.class).isPresent() &&
+                        methodDeclaration.getAnnotationByClass(Benchmark.class).isPresent()
+        ).collect(Collectors.toList());
+
+        methodsNeedTag.stream().forEach(methodDeclaration -> methodDeclaration.addAnnotation(StaticJavaParser.parseAnnotation("@BenchmarkTag(tag=\"" + UUID.randomUUID() + "\")")));
+
+        return cu.toString();
     }
 
     private void checkTagAnnotation(Element element, Messager messager) {
