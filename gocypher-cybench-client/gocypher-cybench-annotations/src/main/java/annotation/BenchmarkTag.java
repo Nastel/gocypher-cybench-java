@@ -17,7 +17,7 @@
  * 02110-1301  USA
  */
 
-package com.gocypher.cybench.core.annotation;
+package annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
