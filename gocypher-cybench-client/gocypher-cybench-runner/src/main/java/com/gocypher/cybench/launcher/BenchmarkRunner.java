@@ -156,15 +156,20 @@ public class BenchmarkRunner {
 		if (tempBenchmark != null) {
 			String manifestData = null ;
 			if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
+			    LOG.info("--->Manifest found") ;
 				manifestData = Manifests.read(Constants.BENCHMARK_METADATA);
 			}
+			LOG.info("--->Manifest data:{}",manifestData);
 			Map<String,Map<String,String>> benchmarksMetadata =  ComputationUtils.parseBenchmarkMetadata(manifestData);
+            LOG.info("--->benchmarksMetadata:{}",benchmarksMetadata);
 			Map<String, String> benchProps;
 			if(manifestData != null) {
 				benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, benchmarksMetadata);
 			}else{
 				benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, defaultBenchmarksMetadata);
 			}
+
+
 			benchmarkSetting.putAll(benchProps);
 			benchmarkSetting.put("benchThreadCount", threads);
 
@@ -173,7 +178,7 @@ public class BenchmarkRunner {
         if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
             benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
         }
-
+        LOG.info("--->benchmarkSetting:{}",benchmarkSetting);
 		Options opt = optBuild.forks(forks).measurementIterations(measurementIterations)
 				.warmupIterations(warmUpIterations).warmupTime(TimeValue.seconds(warmUpSeconds)).threads(threads)
 				.shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)

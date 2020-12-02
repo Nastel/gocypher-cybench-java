@@ -100,7 +100,8 @@ public class ComputationUtils {
         }
         return score ;
     }
-
+//com.gocypher.cybench.jmh.jvm.client.tests.IOAsyncAP
+// IComparisonBenchmarks=category:IO,context:JVM,version:1.0.0;
     public static Map<String, Map<String, String>> parseBenchmarkMetadata(String configuration) {
         Map<String, Map<String, String>> benchConfiguration = new HashMap<>();
         if (configuration != null) {
