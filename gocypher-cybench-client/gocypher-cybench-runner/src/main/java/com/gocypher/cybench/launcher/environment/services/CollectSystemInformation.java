@@ -161,7 +161,9 @@ public class CollectSystemInformation {
      * properties.
      */
     public static HardwareProperties getEnvironmentProperties() {
-        if (!Boolean.parseBoolean(getProperty(Constants.COLLECT_HW))) return new HardwareProperties.EmptyHardwareProperties();
+        if (getProperty(Constants.COLLECT_HW)!= null && !Boolean.parseBoolean(getProperty(Constants.COLLECT_HW))) {
+            return new HardwareProperties.EmptyHardwareProperties();
+        }
         SystemInfo sysProps = new SystemInfo();
         HardwareAbstractionLayer hwProps = sysProps.getHardware();
         try {
@@ -186,6 +188,7 @@ public class CollectSystemInformation {
             ;
             setPropertiesForMacOS();
         }
+
         return hardwareProp;
     }
 
@@ -276,7 +279,7 @@ public class CollectSystemInformation {
                     hardwareProp.setHwLaunchDiskModel(disk.getModel());
                     if (osName.toLowerCase().contains("mac os")) {
                         String type = getDiskModelAndType(disk.getName(), "'Solid State:'");
-                        if (type.equals("Yes")) {
+                        if ("Yes".equals(type)) {
                             type = "SSD";
                         } else {
                             type = "HDD";
@@ -510,8 +513,6 @@ public class CollectSystemInformation {
             myWriter.close();
         } catch (IOException e) {
             LOG.error("An error occurred: ", e);
-            ;
-            e.printStackTrace();
         }
     }
 }
