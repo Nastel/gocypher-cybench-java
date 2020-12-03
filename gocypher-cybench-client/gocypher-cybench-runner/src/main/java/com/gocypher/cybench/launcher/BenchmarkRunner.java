@@ -71,6 +71,7 @@ public class BenchmarkRunner {
 	public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
 
 	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",	"https://www.gocypher.com/cybench/upload");
+	private static String benchSource = "CyBench Launcher";
 
 	static Properties cfg = new Properties();
 
@@ -173,12 +174,16 @@ public class BenchmarkRunner {
 
 
 			benchmarkSetting.putAll(benchProps);
-			benchmarkSetting.put("benchWarmUpIteration", warmUpIterations);
-			benchmarkSetting.put("benchWarmUpSeconds", warmUpSeconds);
-			benchmarkSetting.put("benchMeasurementIteration", measurementIterations);
-			benchmarkSetting.put("benchMeasurementSeconds", measurementSeconds);
-			benchmarkSetting.put("benchForkCount", forks);
-			benchmarkSetting.put("benchThreadCount", threads);
+			if(System.getProperty(Constants.REPORT_SOURCE) != null){
+				benchSource = System.getProperty(Constants.REPORT_SOURCE);
+			}
+			benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
+			benchmarkSetting.put(Constants.REPORT_WARM_UP_ITERATIONS_COUNT, warmUpIterations);
+			benchmarkSetting.put(Constants.REPORT_WARM_UP_TIME, warmUpSeconds);
+			benchmarkSetting.put(Constants.REPORT_MEASUREMENT_ITERATIONS_COUNT, measurementIterations);
+			benchmarkSetting.put(Constants.REPORT_MEASUREMENT_TIME, measurementSeconds);
+			benchmarkSetting.put(Constants.REPORT_FORK_COUNT, forks);
+			benchmarkSetting.put(Constants.REPORT_THREAD_COUNT, threads);
 
 
 		}
