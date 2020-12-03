@@ -32,6 +32,7 @@ public class Constants {
 	//--------------------------- Properties that configure the runner execution ------------------------------------------
 	public static final String NUMBER_OF_FORKS = "numberOfBenchmarkForks";
 	public static final String MEASUREMENT_ITERATIONS = "measurementIterations";
+	public static final String MEASUREMENT_SECONDS = "measurementSeconds";
 	public static final String WARM_UP_ITERATIONS = "warmUpIterations";
 	public static final String WARM_UP_SECONDS = "warmUpSeconds";
 	public static final String RUN_THREAD_COUNT = "runThreadCount";

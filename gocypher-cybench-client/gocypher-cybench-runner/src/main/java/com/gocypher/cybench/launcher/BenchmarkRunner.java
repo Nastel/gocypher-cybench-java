@@ -94,6 +94,8 @@ public class BenchmarkRunner {
 		// Number of measurements per benchmark operation, this is returned still as one
 		// primary score item
 		int measurementIterations = setExecutionProperty(getProperty(Constants.MEASUREMENT_ITERATIONS), 5);
+
+		int measurementSeconds= setExecutionProperty(getProperty(Constants.MEASUREMENT_SECONDS), 5);
 		// number of iterations executed for warm up
 		int warmUpIterations = setExecutionProperty(getProperty(Constants.WARM_UP_ITERATIONS), 1);
 		// number of seconds dedicated for each warm up iteration
@@ -171,7 +173,13 @@ public class BenchmarkRunner {
 
 
 			benchmarkSetting.putAll(benchProps);
+			benchmarkSetting.put("benchWarmUpIteration", warmUpIterations);
+			benchmarkSetting.put("benchWarmUpSeconds", warmUpSeconds);
+			benchmarkSetting.put("benchMeasurementIteration", measurementIterations);
+			benchmarkSetting.put("benchMeasurementSeconds", measurementSeconds);
+			benchmarkSetting.put("benchForkCount", forks);
 			benchmarkSetting.put("benchThreadCount", threads);
+
 
 		}
 
@@ -181,6 +189,7 @@ public class BenchmarkRunner {
         LOG.info("--->benchmarkSetting:{}",benchmarkSetting);
 		Options opt = optBuild.forks(forks).measurementIterations(measurementIterations)
 				.warmupIterations(warmUpIterations).warmupTime(TimeValue.seconds(warmUpSeconds)).threads(threads)
+				.measurementTime(TimeValue.seconds(measurementSeconds))
 				.shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
 				.addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs()
 				// .addProfiler(StackProfiler.class)
