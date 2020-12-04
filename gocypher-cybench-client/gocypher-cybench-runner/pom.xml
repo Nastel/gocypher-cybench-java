@@ -75,6 +75,17 @@
             <artifactId>jcabi-manifests</artifactId>
             <version>1.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.gocypher.cybench.client</groupId>
+            <artifactId>gocypher-cybench-annotations</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.bcel</groupId>
+            <artifactId>bcel</artifactId>
+            <version>6.5.0</version>
+        </dependency>
     </dependencies>
 
     <properties>

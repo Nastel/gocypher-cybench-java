@@ -41,6 +41,10 @@ public class BenchmarkReport implements Serializable {
     private String context ;
     private String version ;
 
+    private String generatedFingerprint;
+    private String manualFingerprint;
+    private String classFingerprint;
+
     private Double meanScore ;
     private Double minScore ;
     private Double maxScore ;
@@ -457,6 +461,31 @@ public class BenchmarkReport implements Serializable {
         this.threadsSafePointsPauseTTSPCount = threadsSafePointsPauseTTSPCount;
     }
 
+
+    public String getGeneratedFingerprint() {
+        return generatedFingerprint;
+    }
+
+    public void setGeneratedFingerprint(String generatedFingerprint) {
+        this.generatedFingerprint = generatedFingerprint;
+    }
+
+    public String getManualFingerprint() {
+        return manualFingerprint;
+    }
+
+    public void setManualFingerprint(String manualFingerprint) {
+        this.manualFingerprint = manualFingerprint;
+    }
+
+    public String getClassFingerprint() {
+        return classFingerprint;
+    }
+
+    public void setClassFingerprint(String classFingerprint) {
+        this.classFingerprint = classFingerprint;
+    }
+
     @Override
     public String toString() {
         return "BenchmarkReport{" +
@@ -470,6 +499,9 @@ public class BenchmarkReport implements Serializable {
                 ", maxScore=" + maxScore +
                 ", stdDevScore=" + stdDevScore +
                 ", n=" + n +
+                ", generatedFingerprint='" + generatedFingerprint + '\'' +
+                ", manualFingerprint='" + manualFingerprint + '\'' +
+                ", classFingerprint='" + classFingerprint + '\'' +
                 ", gcCalls=" + gcCalls +
                 ", gcTime=" + gcTime +
                 ", gcAllocationRate=" + gcAllocationRate +
