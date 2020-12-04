@@ -19,6 +19,7 @@
 
 package com.gocypher.cybench.core.utils;
 
+import com.gocypher.cybench.core.annotation.BenchmarkTag;
 import com.sun.org.apache.bcel.internal.Repository;
 import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 import com.sun.org.apache.bcel.internal.classfile.Method;
@@ -83,8 +84,8 @@ public class SecurityUtils {
         return null;
     }
 
-    public static Map<String, String> computeClassHashForMethods(Class<?> clazz) {
-        HashMap<String, String> results = new HashMap<>();
+    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints) {
+
         JavaClass javaClass = Repository.lookupClass(clazz);
 
         List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream().filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName()).collect(Collectors.toList());
@@ -93,7 +94,7 @@ public class SecurityUtils {
             try {
                 if (benchmarkMethods.contains(method.getName())) {
                     String hash = hashByteArray(concatArrays(method.getSignature().getBytes(),  method.getCode().getCode()));
-                    results.put(clazz.getName() + "." +method.getName(), hash);
+                    generatedFingerprints.put(clazz.getName() + "." +method.getName(), hash);
                 }
             } catch (Exception e) {
                 LOG.error("Failed to compute hash for method {} in class {}", method.getName(),clazz, e);
@@ -101,7 +102,6 @@ public class SecurityUtils {
         }
 
 
-        return results;
     }
 
     protected static byte[] concatArrays(byte[] bytes, byte[] code) {
@@ -266,4 +266,20 @@ public class SecurityUtils {
         return Base64.getDecoder().decode(CYB_PUBLIC_KEY_RAW);
     }
 
+    public static void generateMethodFingerprints(Class<?> benchmarkClass, Map<String, String> manualFingerprints, Map<String, String> classFingerprints) throws ClassNotFoundException {
+        LOG.info("benchmarkClass name {}", benchmarkClass.getSimpleName());
+        String classHash = computeClassHash(benchmarkClass);
+        java.lang.reflect.Method[] methods = benchmarkClass.getMethods();
+        for (java.lang.reflect.Method method : methods) {
+            if (method.getAnnotation(Benchmark.class) != null) {
+                BenchmarkTag annotation = method.getAnnotation(BenchmarkTag.class);
+                if (annotation != null) {
+                    String tag = annotation.tag();
+                    LOG.info("Found method {} with tag {}", method.getName(), tag);
+                    manualFingerprints.put(benchmarkClass.getName() + "." + method.getName(), tag);
+                    classFingerprints.put(benchmarkClass.getName() + "." + method.getName(), classHash);
+                }
+            }
+        }
+    }
 }

@@ -19,8 +19,8 @@
 
 package com.gocypher.cybench.launcher;
 
-import com.gocypher.cybench.core.annotation.BenchmarkTag;
 import com.gocypher.cybench.core.utils.IOUtils;
+import com.gocypher.cybench.core.utils.JMHUtils;
 import com.gocypher.cybench.core.utils.SecurityUtils;
 import com.gocypher.cybench.launcher.environment.model.HardwareProperties;
 import com.gocypher.cybench.launcher.environment.model.JVMProperties;
@@ -35,7 +35,6 @@ import com.gocypher.cybench.launcher.utils.Constants;
 import com.gocypher.cybench.launcher.utils.JSONUtils;
 import com.gocypher.cybench.launcher.utils.SecurityBuilder;
 import com.jcabi.manifests.Manifests;
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.HotspotRuntimeProfiler;
 import org.openjdk.jmh.profile.HotspotThreadProfiler;
@@ -53,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -65,10 +63,8 @@ public class BenchmarkRunner {
             "." + File.separator + "reports" + File.separator);
     public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_JSON_FILE, "report.json");
     public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
-
-	private static String benchSource = "CyBench Launcher";
-
     static Properties cfg = new Properties();
+    private static String benchSource = "CyBench Launcher";
 
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
@@ -91,7 +87,7 @@ public class BenchmarkRunner {
         // primary score item
         int measurementIterations = setExecutionProperty(getProperty(Constants.MEASUREMENT_ITERATIONS), 5);
 
-		int measurementSeconds= setExecutionProperty(getProperty(Constants.MEASUREMENT_SECONDS), 5);
+        int measurementSeconds = setExecutionProperty(getProperty(Constants.MEASUREMENT_SECONDS), 5);
         // number of iterations executed for warm up
         int warmUpIterations = setExecutionProperty(getProperty(Constants.WARM_UP_ITERATIONS), 1);
         // number of seconds dedicated for each warm up iteration
@@ -112,39 +108,27 @@ public class BenchmarkRunner {
         Map<String, String> manualFingerprints = new HashMap<>();
         Map<String, String> classFingerprints = new HashMap<>();
 
-        int includedClassesForCustomRun = 0;
+        boolean foundBenchmarks = false;
 
 
         if (checkIfConfigurationPropertyIsSet(getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
             LOG.info("Execute benchmarks found in configuration {}", getProperty(Constants.BENCHMARK_RUN_CLASSES));
             List<String> benchmarkNames = Arrays.stream(getProperty(Constants.BENCHMARK_RUN_CLASSES).split(","))
                     .map(String::trim).collect(Collectors.toList());
+
+            // *********************************************************
+
             for (String benchmarkClass : benchmarkNames) {
                 try {
-                    LOG.info("benchmarkClass name {}", benchmarkClass);
                     Class<?> classObj = Class.forName(benchmarkClass);
-                    String classHash = SecurityUtils.computeClassHash(classObj);
-                    Method[] methods = classObj.getMethods();
-                    for (Method method : methods) {
-                        if (method.getAnnotation(Benchmark.class) != null) {
-                            BenchmarkTag annotation = method.getAnnotation(BenchmarkTag.class);
-                            if (annotation != null) {
-                                String tag = annotation.tag();
-                                LOG.info("Found method {} with tag {}", method.getName(), tag);
-                                manualFingerprints.put(classObj.getName() + "." + method.getName(), tag);
-                                classFingerprints.put(classObj.getName() + "." + method.getName(), classHash);
-                            }
-                        }
-                    }
-
-                    generatedFingerprints.putAll(SecurityUtils.computeClassHashForMethods(classObj));
-
+                    SecurityUtils.generateMethodFingerprints(classObj, manualFingerprints, classFingerprints);
+                    SecurityUtils.computeClassHashForMethods(classObj, generatedFingerprints);
+                    tempBenchmark = classObj.getName();
 
                     if (!classObj.getName().isEmpty()) {
                         optBuild.include(classObj.getName());
-                        includedClassesForCustomRun++;
+                        foundBenchmarks = true;
                         if (classObj.getName().startsWith("com.gocypher.cybench.")) {
-                            tempBenchmark = classObj.getName();
                             securityBuilder.generateSecurityHashForClasses(classObj);
                         }
                     }
@@ -152,12 +136,28 @@ public class BenchmarkRunner {
                     LOG.error("Class not found in the classpath for execution", exc);
                 }
             }
-            LOG.info("Custom classes found and registered for execution: {}", includedClassesForCustomRun);
+
+            // *********************************************************
+
+            LOG.info("Custom classes found and registered for execution: {}", foundBenchmarks);
         } else {
             LOG.info("Execute all benchmarks found on the classpath and configure default ones....");
+            List<String> benchmarkClasses = JMHUtils.getAllBenchmarkClasses();
+
+            for (String benchmarkClass : benchmarkClasses) {
+                try {
+                    Class<?> classObj = Class.forName(benchmarkClass);
+                    SecurityUtils.generateMethodFingerprints(classObj, manualFingerprints, classFingerprints);
+                    SecurityUtils.computeClassHashForMethods(classObj, generatedFingerprints);
+
+                } catch (ClassNotFoundException exc) {
+                    LOG.error("Class not found in the classpath for execution", exc);
+                }
+            }
+
             Reflections reflections = new Reflections("com.gocypher.cybench.", new SubTypesScanner(false));
             Set<Class<? extends Object>> allDefaultClasses = reflections.getSubTypesOf(Object.class);
-            includedClassesForCustomRun++;
+            foundBenchmarks = true;
             for (Class<? extends Object> classObj : allDefaultClasses) {
                 if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks")
                         && !classObj.getSimpleName().contains("_")) {
@@ -173,7 +173,7 @@ public class BenchmarkRunner {
         // LOG.info("Situation of class
         // signatures:{}",securityBuilder.getMapOfHashedParts()) ;
 
-        if (tempBenchmark != null) {
+        if (foundBenchmarks) {
             String manifestData = null;
             if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
                 LOG.info("--->Manifest found");
@@ -191,16 +191,16 @@ public class BenchmarkRunner {
 
 
             benchmarkSetting.putAll(benchProps);
-			if(System.getProperty(Constants.REPORT_SOURCE) != null){
-				benchSource = System.getProperty(Constants.REPORT_SOURCE);
-			}
-			benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
-			benchmarkSetting.put(Constants.REPORT_WARM_UP_ITERATIONS_COUNT, warmUpIterations);
-			benchmarkSetting.put(Constants.REPORT_WARM_UP_TIME, warmUpSeconds);
-			benchmarkSetting.put(Constants.REPORT_MEASUREMENT_ITERATIONS_COUNT, measurementIterations);
-			benchmarkSetting.put(Constants.REPORT_MEASUREMENT_TIME, measurementSeconds);
-			benchmarkSetting.put(Constants.REPORT_FORK_COUNT, forks);
-			benchmarkSetting.put(Constants.REPORT_THREAD_COUNT, threads);
+            if (System.getProperty(Constants.REPORT_SOURCE) != null) {
+                benchSource = System.getProperty(Constants.REPORT_SOURCE);
+            }
+            benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
+            benchmarkSetting.put(Constants.REPORT_WARM_UP_ITERATIONS_COUNT, warmUpIterations);
+            benchmarkSetting.put(Constants.REPORT_WARM_UP_TIME, warmUpSeconds);
+            benchmarkSetting.put(Constants.REPORT_MEASUREMENT_ITERATIONS_COUNT, measurementIterations);
+            benchmarkSetting.put(Constants.REPORT_MEASUREMENT_TIME, measurementSeconds);
+            benchmarkSetting.put(Constants.REPORT_FORK_COUNT, forks);
+            benchmarkSetting.put(Constants.REPORT_THREAD_COUNT, threads);
 
 
         }
@@ -211,7 +211,7 @@ public class BenchmarkRunner {
         LOG.info("--->benchmarkSetting:{}", benchmarkSetting);
         Options opt = optBuild.forks(forks).measurementIterations(measurementIterations)
                 .warmupIterations(warmUpIterations).warmupTime(TimeValue.seconds(warmUpSeconds)).threads(threads)
-				.measurementTime(TimeValue.seconds(measurementSeconds))
+                .measurementTime(TimeValue.seconds(measurementSeconds))
                 .shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
                 .addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs()
                 // .addProfiler(StackProfiler.class)
@@ -222,7 +222,7 @@ public class BenchmarkRunner {
 
         Runner runner = new Runner(opt);
         Collection<RunResult> results = Collections.emptyList();
-        if (includedClassesForCustomRun > 0) {
+        if (foundBenchmarks) {
             results = runner.run();
         }
 
@@ -431,4 +431,5 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collections: " + totalGarbageCollections);
         System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
     }
+
 }
