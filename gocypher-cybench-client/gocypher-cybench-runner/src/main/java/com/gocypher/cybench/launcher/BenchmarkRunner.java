@@ -65,6 +65,10 @@ public class BenchmarkRunner {
             "." + File.separator + "reports" + File.separator);
     public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_JSON_FILE, "report.json");
     public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
+
+	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",	"https://www.gocypher.com/cybench/upload");
+	private static String benchSource = "CyBench Launcher";
+
     static Properties cfg = new Properties();
 
     public static void main(String[] args) throws Exception {
@@ -87,6 +91,8 @@ public class BenchmarkRunner {
         // Number of measurements per benchmark operation, this is returned still as one
         // primary score item
         int measurementIterations = setExecutionProperty(getProperty(Constants.MEASUREMENT_ITERATIONS), 5);
+
+		int measurementSeconds= setExecutionProperty(getProperty(Constants.MEASUREMENT_SECONDS), 5);
         // number of iterations executed for warm up
         int warmUpIterations = setExecutionProperty(getProperty(Constants.WARM_UP_ITERATIONS), 1);
         // number of seconds dedicated for each warm up iteration
@@ -186,7 +192,17 @@ public class BenchmarkRunner {
 
 
             benchmarkSetting.putAll(benchProps);
-            benchmarkSetting.put("benchThreadCount", threads);
+			if(System.getProperty(Constants.REPORT_SOURCE) != null){
+				benchSource = System.getProperty(Constants.REPORT_SOURCE);
+			}
+			benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
+			benchmarkSetting.put(Constants.REPORT_WARM_UP_ITERATIONS_COUNT, warmUpIterations);
+			benchmarkSetting.put(Constants.REPORT_WARM_UP_TIME, warmUpSeconds);
+			benchmarkSetting.put(Constants.REPORT_MEASUREMENT_ITERATIONS_COUNT, measurementIterations);
+			benchmarkSetting.put(Constants.REPORT_MEASUREMENT_TIME, measurementSeconds);
+			benchmarkSetting.put(Constants.REPORT_FORK_COUNT, forks);
+			benchmarkSetting.put(Constants.REPORT_THREAD_COUNT, threads);
+
 
         }
 
@@ -196,6 +212,7 @@ public class BenchmarkRunner {
         LOG.info("--->benchmarkSetting:{}", benchmarkSetting);
         Options opt = optBuild.forks(forks).measurementIterations(measurementIterations)
                 .warmupIterations(warmUpIterations).warmupTime(TimeValue.seconds(warmUpSeconds)).threads(threads)
+				.measurementTime(TimeValue.seconds(measurementSeconds))
                 .shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
                 .addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs()
                 // .addProfiler(StackProfiler.class)
