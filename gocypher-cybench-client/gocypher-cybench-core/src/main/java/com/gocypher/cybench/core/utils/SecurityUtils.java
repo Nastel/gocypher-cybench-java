@@ -277,9 +277,9 @@ public class SecurityUtils {
                     String tag = annotation.tag();
                     LOG.info("Found method {} with tag {}", method.getName(), tag);
                     manualFingerprints.put(benchmarkClass.getName() + "." + method.getName(), tag);
-                    classFingerprints.put(benchmarkClass.getName() + "." + method.getName(), classHash);
                 }
             }
+            classFingerprints.put(benchmarkClass.getName() + "." + method.getName(), classHash);
         }
     }
 }
