@@ -5,21 +5,18 @@ Speed-test Java classes, collections, modules, libraries and other application b
 Share your results with the community, compare and choose the right libraries for your application. 
 **CyBench** helps developers build better, faster Java code by benchmarking code performance.
 
+CyBench Launcher contains a set of default performance tests developed by the CyBench team to benchmark Java Core services. These tests are executed by default every time CyBench benchmarks are executed via `cybench` shell script and results are automatically submitted to a public [CyBench Repository](https://www.gocypher.com/cybench/).
+Default benchmark execution and automated reporting can be configured via `<cybench-home>/conf/cybench-launcher.properties`
+
 Download and run CyBench [here](https://github.com/K2NIO/gocypher-cybench-java/releases).  Visit our [page](https://www.gocypher.com/cybench/) to analyze your results.
 
 ## Building CyBench Benchmark From Source
 ```sh
 mvn clean package -P build-jvm,pack-bin
 ```
-
-# CyBench Launcher
-The CyBench Launcher contains a set of default performance tests developed by the CyBench team to benchmark Java Core services. These tests are executed by default every time CyBench benchmarks are executed via `cybench` shell script and results are automatically submitted to a public [CyBench Repository](https://www.gocypher.com/cybench/).
-Default benchmark execution and automated reporting can be configured via `<cybench-home>/conf/cybench-launcher.properties`
-
 ## Running Default Benchmarks using CyBench
 
 After downloading the `gocypher-cybench-java-1.0.0.zip` from the [release page](https://github.com/K2NIO/gocypher-cybench-java/releases) extract the files and run `cybench.bat` (on Windows) or `cybench.sh` (on Unix).
-
 
 ## CyBench launcher configuration
 
