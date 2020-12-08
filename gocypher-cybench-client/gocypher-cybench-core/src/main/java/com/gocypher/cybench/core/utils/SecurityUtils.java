@@ -93,7 +93,7 @@ public class SecurityUtils {
         for (Method method : javaClass.getMethods()) {
             try {
                 if (benchmarkMethods.contains(method.getName())) {
-                    String hash = hashByteArray(concatArrays(method.getSignature().getBytes(),  method.getCode().getCode()));
+                    String hash = hashByteArray(concatArrays(method.getName().getBytes(), method.getSignature().getBytes() ,  method.getCode().getCode()));
                     generatedFingerprints.put(clazz.getName() + "." +method.getName(), hash);
                 }
             } catch (Exception e) {
@@ -104,8 +104,9 @@ public class SecurityUtils {
 
     }
 
-    protected static byte[] concatArrays(byte[] bytes, byte[] code) {
-        return new String(bytes).concat(new String(code)).getBytes();
+    protected static byte[] concatArrays(byte[] ... bytes) {
+        String collect = Arrays.asList(bytes).stream().map(b -> new String(b)).collect(Collectors.joining());
+        return collect.getBytes();
     }
 
 

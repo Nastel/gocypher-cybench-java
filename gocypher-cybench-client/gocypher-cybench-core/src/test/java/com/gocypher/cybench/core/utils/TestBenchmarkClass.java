@@ -34,26 +34,8 @@ public class TestBenchmarkClass {
     @OutputTimeUnit(TimeUnit.SECONDS)
     @BenchmarkMode({ Mode.Throughput })
     @Benchmark
-    @BenchmarkTag(tag = "74d4fc4b-210e-4d41-b532-cc904a1edd7c")
-    public // )
-    void mainBenchmark(Blackhole bh) {
-        bh.consume(Runtime.getRuntime().availableProcessors());
-    }
-
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    @BenchmarkMode({ Mode.Throughput })
-    @Benchmark
-    @BenchmarkTag(tag = "b41b7a3c-79a0-4190-a8e6-85c4bdb504d6")
-    public void mainBenchmark2(Blackhole bh) {
-        bh.consume(System.getProperties().getProperty("ABS"));
-    }
-
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    @BenchmarkMode({ Mode.Throughput })
-    @Benchmark
     @BenchmarkTag(tag = "7fd319aa-29c3-4371-a0d6-f652b779faf2")
     public void mainBenchmark3(Blackhole bh) {
-        bh.consume(System.getProperties().getProperty("DEF"));
     }
 
     @Benchmark
@@ -63,5 +45,21 @@ public class TestBenchmarkClass {
     }
 
     public void notBenchmark(Blackhole bh) {
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @BenchmarkTag(tag = "a1ee9ef4-f3c6-4552-b971-aeec7cc77f43")
+    public void someLibraryMethodBenchmark(Blackhole bh) {
+        // TODO fill up benchmark method with logic
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @BenchmarkTag(tag = "6bf07a5b-86c0-4f2b-bc6b-23c6934810d3")
+    public void mainBenchmark(Blackhole bh) {
+        // TODO fill up benchmark method with logic
     }
 }
