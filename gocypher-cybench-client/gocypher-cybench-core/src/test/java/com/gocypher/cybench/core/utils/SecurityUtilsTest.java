@@ -16,9 +16,9 @@ public class SecurityUtilsTest  {
         System.out.println(methodHashes.toString().replaceAll("\\{", "").replaceAll(", ", "\n"));
 
         assertEquals(3, methodHashes.size());
-        assertEquals("6cf29d752fbaf588cfe9ad26579e4f52", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark"));
-        assertEquals("98f3e718cc2ffe41b02c44e88ef251", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.someLibraryMethodBenchmark"));
-        assertEquals("a3cb9cb15721a54e9d8e34f1c36e542",methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark3"));
+        assertEquals("dffd7e1b291878c3cde3fb22ab583", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark"));
+        assertEquals("a7494a7f19fa15e1c38812746d527f", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.someLibraryMethodBenchmark"));
+        assertEquals("ddaaa53cec636ee71b8d4baf9f9f29",methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark3"));
 
         assertNotNull(methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark"));
         assertNotNull(methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.someLibraryMethodBenchmark"));
