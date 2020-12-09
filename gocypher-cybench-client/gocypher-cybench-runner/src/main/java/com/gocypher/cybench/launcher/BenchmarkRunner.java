@@ -235,14 +235,18 @@ public class BenchmarkRunner {
         report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
         report.setBenchmarkSettings(benchmarkSetting);
 
-        List<BenchmarkReport> custom = report.getBenchmarks().get("CUSTOM").stream().collect(Collectors.toList());
-        custom.stream().forEach(benchmarkReport -> {
-            String name = benchmarkReport.getName();
-            benchmarkReport.setClassFingerprint(classFingerprints.get(name));
-            benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
-            benchmarkReport.setManualFingerprint(manualFingerprints.get(name));
+        Iterator<String>it = report.getBenchmarks().keySet().iterator() ;
 
-        });
+        while (it.hasNext()) {
+            List<BenchmarkReport> custom = report.getBenchmarks().get(it.next()).stream().collect(Collectors.toList());
+            custom.stream().forEach(benchmarkReport -> {
+                String name = benchmarkReport.getName();
+                benchmarkReport.setClassFingerprint(classFingerprints.get(name));
+                benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
+                benchmarkReport.setManualFingerprint(manualFingerprints.get(name));
+
+            });
+        }
 
 
         getReportUploadStatus(report);
