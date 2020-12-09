@@ -64,7 +64,10 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
             annotatedElements.stream().forEach(element -> {
                 checkTagAnnotation(element, processingEnv.getMessager());
                 if (element.getAnnotation(BenchmarkTag.class) == null) {
-                    createdFiles.add(createFile(element));
+                    FromSourceToGenerated file = createFile(element);
+                    if (file != null) {
+                        createdFiles.add(file);
+                    }
                 }
             });
 
@@ -75,7 +78,8 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getLocalizedMessage());
                 }
             });
-            if (createdFiles.size() > 0) return true;
+
+            if (createdFiles.size() >0 ) processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Annotations created and files are updated. You need to recompile.");
 
         }
 
@@ -94,14 +98,24 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                 String fileContents = new String(Files.readAllBytes(path), "UTF-8");
 
                 String name = String.valueOf(classSymbol.getSimpleName());
-                String replaced = getReplaced(fileContents, name, name);
 
 
                 Name pck = classSymbol.getQualifiedName().subName(0, classSymbol.getQualifiedName().lastIndexOf((byte) '.'));
                 Name nm = classSymbol.getQualifiedName().subName(classSymbol.getQualifiedName().lastIndexOf((byte) '.') + 1, classSymbol.getQualifiedName().length());
-                FileObject classFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, pck, nm + ".generated");
-                try (PrintWriter wr = new PrintWriter(classFile.openWriter())) {
-                    wr.print(replaced);
+                FileObject classFile = null;
+                try {
+                    classFile = filer.getResource(StandardLocation.SOURCE_OUTPUT, pck, nm + ".generated");
+                } catch (FilerException e) {
+                    // complaining about reopening/ do nothing
+                }
+                if (classFile != null && classFile.getLastModified()  == 0) {
+                    classFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, pck, nm + ".generated");
+                    try (PrintWriter wr = new PrintWriter(classFile.openWriter())) {
+                        String replaced = getReplaced(fileContents, name, name);
+                        wr.print(replaced);
+                    }
+                } else {
+                    return null;
                 }
 
                 FromSourceToGenerated fromSourceToGenerated = new FromSourceToGenerated(path, Paths.get(classFile.toUri()));
