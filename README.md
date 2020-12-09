@@ -1,24 +1,22 @@
-# What is CyBench
+# What is CyBench Launcher
 
-**CyBench** is a Java Benchmark based on [JMH](https://openjdk.java.net/projects/code-tools/jmh/), designed to help developers build high performance Java apps. 
+**CyBench Launcher** is a standalone Java application designed to execute [JMH](https://openjdk.java.net/projects/code-tools/jmh/) benchmarks. 
 Speed-test Java classes, collections, modules, libraries and other application building blocks under varying runtime conditions. 
-Share your results with the community, compare and choose the right libraries for your application. **CyBench** helps you be a better developer.
+Share your results with the community, compare and choose the right libraries for your application. 
+**CyBench** helps developers build better, faster Java code by benchmarking code performance.
 
+CyBench Launcher contains a set of default performance tests developed by the CyBench team to benchmark Java Core services. These tests are executed by default every time CyBench benchmarks are executed via `cybench` shell script and results are automatically submitted to a public [CyBench Repository](https://www.gocypher.com/cybench/).
+
+Default benchmark execution and automated reporting can be configured via `<cybench-home>/conf/cybench-launcher.properties`
 Download and run CyBench [here](https://github.com/K2NIO/gocypher-cybench-java/releases).  Visit our [page](https://www.gocypher.com/cybench/) to analyze your results.
 
 ## Building CyBench Benchmark From Source
 ```sh
 mvn clean package -P build-jvm,pack-bin
 ```
-
-# CyBench Launcher
-The CyBench Launcher contains a set of performance tests developed by the CyBench team to benchmark Java Core services. These tests are executed by default every time CyBench benchmark is executed via `benchmark_run` script and results are automatically submitted to a public [CyBench Repository](https://www.gocypher.com/cybench/).
-Default benchmark execution and automated reporting can be configured via `<cybench-home>/conf/cybench-launcher.properties`
-
 ## Running Default Benchmarks using CyBench
 
 After downloading the `gocypher-cybench-java-1.0.0.zip` from the [release page](https://github.com/K2NIO/gocypher-cybench-java/releases) extract the files and run `cybench.bat` (on Windows) or `cybench.sh` (on Unix).
-
 
 ## CyBench launcher configuration
 
