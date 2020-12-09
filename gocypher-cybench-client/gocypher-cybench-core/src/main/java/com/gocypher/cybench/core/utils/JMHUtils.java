@@ -43,7 +43,7 @@ public class JMHUtils {
         return all.stream().map(entry -> entry.getUserClassQName()).collect(Collectors.toList());
     }
 
-    private static class SilentOutputFormat implements OutputFormat {
+    public static class SilentOutputFormat implements OutputFormat {
         @Override
         public void iteration(BenchmarkParams benchParams, IterationParams params, int iteration) {
 

@@ -66,6 +66,19 @@ public class SecurityUtils {
         return null;
     }
 
+    public static byte[] getObjectBytes(Object obj){
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ObjectOutputStream out;
+            out = new ObjectOutputStream(bos);
+            out.writeObject(obj);
+            out.flush();
+            return bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return  new byte[]{};
+    }
+
     public static String computeClassHash(Class<?> clazz) {
         if (clazz != null) {
             String name = clazz.getName();
@@ -87,9 +100,7 @@ public class SecurityUtils {
     public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints) {
 
         JavaClass javaClass = Repository.lookupClass(clazz);
-
         List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream().filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName()).collect(Collectors.toList());
-
         for (Method method : javaClass.getMethods()) {
             try {
                 if (benchmarkMethods.contains(method.getName())) {
