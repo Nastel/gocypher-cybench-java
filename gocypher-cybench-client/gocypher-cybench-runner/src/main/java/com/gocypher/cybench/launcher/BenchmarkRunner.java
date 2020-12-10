@@ -195,12 +195,6 @@ public class BenchmarkRunner {
                 benchSource = System.getProperty(Constants.REPORT_SOURCE);
             }
             benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
-            benchmarkSetting.put(Constants.REPORT_WARM_UP_ITERATIONS_COUNT, warmUpIterations);
-            benchmarkSetting.put(Constants.REPORT_WARM_UP_TIME, warmUpSeconds);
-            benchmarkSetting.put(Constants.REPORT_MEASUREMENT_ITERATIONS_COUNT, measurementIterations);
-            benchmarkSetting.put(Constants.REPORT_MEASUREMENT_TIME, measurementSeconds);
-            benchmarkSetting.put(Constants.REPORT_FORK_COUNT, forks);
-            benchmarkSetting.put(Constants.REPORT_THREAD_COUNT, threads);
 
 
         }

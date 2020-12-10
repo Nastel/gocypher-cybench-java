@@ -29,12 +29,6 @@ public class Constants {
 	public static final String BENCHMARK_RUN_CLASSES = "benchmarkClasses";
 	public static final String USER_PROPERTY_PREFIX = "user.";
 	public static final String REPORT_SOURCE = "benchSource";
-	public static final String REPORT_THREAD_COUNT = "benchThreadCount";
-	public static final String REPORT_FORK_COUNT = "benchForkCount";
-	public static final String REPORT_WARM_UP_ITERATIONS_COUNT = "benchWarmUpIteration";
-	public static final String REPORT_WARM_UP_TIME = "benchWarmUpSeconds";
-	public static final String REPORT_MEASUREMENT_ITERATIONS_COUNT = "benchMeasurementIteration";
-	public static final String REPORT_MEASUREMENT_TIME = "benchMeasurementSeconds";
 
 	//--------------------------- Properties that configure the runner execution ------------------------------------------
 	public static final String NUMBER_OF_FORKS = "numberOfBenchmarkForks";

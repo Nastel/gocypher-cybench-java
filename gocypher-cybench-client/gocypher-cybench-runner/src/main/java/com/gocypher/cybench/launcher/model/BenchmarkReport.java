@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openjdk.jmh.runner.options.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,13 @@ public class BenchmarkReport implements Serializable {
     private String category ;
     private String context ;
     private String version ;
+
+    private int benchThreadCount;
+    private int benchForkCount;
+    private int benchMeasurementIteration;
+    private int benchMeasurementSeconds;
+    private int benchWarmUpIteration;
+    private int benchWarmUpSeconds;
 
     private String generatedFingerprint;
     private String manualFingerprint;
@@ -486,6 +494,54 @@ public class BenchmarkReport implements Serializable {
         this.classFingerprint = classFingerprint;
     }
 
+    public int getBenchThreadCount() {
+        return benchThreadCount;
+    }
+
+    public void setBenchThreadCount(int benchThreadCount) {
+        this.benchThreadCount = benchThreadCount;
+    }
+
+    public int getBenchForkCount() {
+        return benchForkCount;
+    }
+
+    public void setBenchForkCount(int benchForkCount) {
+        this.benchForkCount = benchForkCount;
+    }
+
+    public int getBenchMeasurementIteration() {
+        return benchMeasurementIteration;
+    }
+
+    public void setBenchMeasurementIteration(int benchMeasurementIteration) {
+        this.benchMeasurementIteration = benchMeasurementIteration;
+    }
+
+    public int getBenchMeasurementSeconds() {
+        return benchMeasurementSeconds;
+    }
+
+    public void setBenchMeasurementSeconds(int benchMeasurementSeconds) {
+        this.benchMeasurementSeconds = benchMeasurementSeconds;
+    }
+
+    public int getBenchWarmUpIteration() {
+        return benchWarmUpIteration;
+    }
+
+    public void setBenchWarmUpIteration(int benchWarmUpIteration) {
+        this.benchWarmUpIteration = benchWarmUpIteration;
+    }
+
+    public int getBenchWarmUpSeconds() {
+        return benchWarmUpSeconds;
+    }
+
+    public void setBenchWarmUpSeconds(int benchWarmUpSeconds) {
+        this.benchWarmUpSeconds = benchWarmUpSeconds;
+    }
+
     @Override
     public String toString() {
         return "BenchmarkReport{" +
@@ -494,14 +550,22 @@ public class BenchmarkReport implements Serializable {
                 ", units='" + units + '\'' +
                 ", mode='" + mode + '\'' +
                 ", category='" + category + '\'' +
+                ", context='" + context + '\'' +
+                ", version='" + version + '\'' +
+                ", benchThreadCount=" + benchThreadCount +
+                ", benchForkCount=" + benchForkCount +
+                ", benchMeasurementIteration=" + benchMeasurementIteration +
+                ", benchMeasurementSeconds=" + benchMeasurementSeconds +
+                ", benchWarmUpIteration=" + benchWarmUpIteration +
+                ", benchWarmUpSeconds=" + benchWarmUpSeconds +
+                ", generatedFingerprint='" + generatedFingerprint + '\'' +
+                ", manualFingerprint='" + manualFingerprint + '\'' +
+                ", classFingerprint='" + classFingerprint + '\'' +
                 ", meanScore=" + meanScore +
                 ", minScore=" + minScore +
                 ", maxScore=" + maxScore +
                 ", stdDevScore=" + stdDevScore +
                 ", n=" + n +
-                ", generatedFingerprint='" + generatedFingerprint + '\'' +
-                ", manualFingerprint='" + manualFingerprint + '\'' +
-                ", classFingerprint='" + classFingerprint + '\'' +
                 ", gcCalls=" + gcCalls +
                 ", gcTime=" + gcTime +
                 ", gcAllocationRate=" + gcAllocationRate +
@@ -510,6 +574,26 @@ public class BenchmarkReport implements Serializable {
                 ", gcChurnPsEdenSpaceNorm=" + gcChurnPsEdenSpaceNorm +
                 ", gcChurnPsSurvivorSpace=" + gcChurnPsSurvivorSpace +
                 ", gcChurnPsSurvivorSpaceNorm=" + gcChurnPsSurvivorSpaceNorm +
+                ", threadsAliveCount=" + threadsAliveCount +
+                ", threadsDaemonCount=" + threadsDaemonCount +
+                ", threadsStartedCount=" + threadsStartedCount +
+                ", threadsSafePointsCount=" + threadsSafePointsCount +
+                ", threadsSafePointTime=" + threadsSafePointTime +
+                ", threadsSafePointSyncTime=" + threadsSafePointSyncTime +
+                ", threadsSyncContendedLockAttemptsCount=" + threadsSyncContendedLockAttemptsCount +
+                ", threadsSyncMonitorDeflations=" + threadsSyncMonitorDeflations +
+                ", threadsSyncMonitorInflations=" + threadsSyncMonitorInflations +
+                ", threadsSyncMonitorFatMonitorsCount=" + threadsSyncMonitorFatMonitorsCount +
+                ", threadsSyncMonitorFutileWakeupsCount=" + threadsSyncMonitorFutileWakeupsCount +
+                ", threadsSyncNotificationsCount=" + threadsSyncNotificationsCount +
+                ", threadsSafePointsInterval=" + threadsSafePointsInterval +
+                ", threadsSafePointsPause=" + threadsSafePointsPause +
+                ", threadsSafePointsPauseAvg=" + threadsSafePointsPauseAvg +
+                ", threadsSafePointsPauseCount=" + threadsSafePointsPauseCount +
+                ", threadsSafePointsPauseTTSP=" + threadsSafePointsPauseTTSP +
+                ", threadsSafePointsPauseTTSPAvg=" + threadsSafePointsPauseTTSPAvg +
+                ", threadsSafePointsPauseTTSPCount=" + threadsSafePointsPauseTTSPCount +
+                ", threadsSyncParksCount=" + threadsSyncParksCount +
                 '}';
     }
 }

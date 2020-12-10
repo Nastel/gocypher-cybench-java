@@ -24,6 +24,8 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Manifest;
 
 import org.openjdk.jmh.results.RunResult;
@@ -80,6 +82,13 @@ public class ReportingService {
 				// System.out.println("id:"+item.getParams().id());
 				// System.out.println("Mode"+item.getParams().getMode().longLabel());
 			}
+
+			report.setBenchForkCount(Objects.requireNonNull(item.getParams()).getForks());
+			report.setBenchThreadCount(item.getParams().getThreads());
+			report.setBenchWarmUpIteration(item.getParams().getWarmup().getCount());
+			report.setBenchWarmUpSeconds((int) item.getParams().getWarmup().getTime().getTime());
+			report.setBenchMeasurementIteration(item.getParams().getMeasurement().getCount());
+			report.setBenchMeasurementSeconds((int) item.getParams().getMeasurement().getTime().getTime());
 
 			report.setGcCalls(getScoreFromJMHSecondaryResult(item, "·gc.count"));
 			report.setGcTime(getScoreFromJMHSecondaryResult(item, "·gc.time"));
