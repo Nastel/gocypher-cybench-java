@@ -259,11 +259,12 @@ public class BenchmarkRunner {
 //			LOG.info("REPORT '{}'", report);
 //			LOG.info("-----------------------------------------------------------------------------------------");
             reportJSON = JSONUtils.marshalToPrettyJson(report);
-            String cybReportJsonFile = getCybReportJsonFile(report);
+            String cybReportJsonFile = getCybReportFileName(report, CYB_REPORT_JSON_FILE);
+            String cybReportFile = getCybReportFileName(report,CYB_REPORT_CYB_FILE );
             LOG.info("Saving test results to '{}'", cybReportJsonFile);
             IOUtils.storeResultsToFile(cybReportJsonFile, reportJSON);
-            LOG.info("Saving ecnrypted test results to '{}'", CYB_REPORT_CYB_FILE);
-            IOUtils.storeResultsToFile(CYB_REPORT_CYB_FILE, reportEncrypted);
+            LOG.info("Saving ecnrypted test results to '{}'", cybReportFile);
+            IOUtils.storeResultsToFile(cybReportFile, reportEncrypted);
 
             LOG.info("Removing all temporary auto-generated files....");
             IOUtils.removeTestDataFiles();
@@ -283,13 +284,13 @@ public class BenchmarkRunner {
                 || Boolean.parseBoolean(getProperty(Constants.SEND_REPORT)));
     }
 
-    private static String getCybReportJsonFile(BenchmarkOverviewReport report) {
+    private static String getCybReportFileName(BenchmarkOverviewReport report, String nameTemplate) {
         if (Boolean.parseBoolean(getProperty(Constants.APPEND_SCORE_TO_FNAME))) {
-            String start = CYB_REPORT_JSON_FILE.substring(0, CYB_REPORT_JSON_FILE.lastIndexOf('.'));
-            String end = CYB_REPORT_JSON_FILE.substring(CYB_REPORT_JSON_FILE.lastIndexOf('.'));
+            String start = nameTemplate.substring(0, nameTemplate.lastIndexOf('.'));
+            String end = nameTemplate.substring(nameTemplate.lastIndexOf('.'));
             return start + "-" + com.gocypher.cybench.core.utils.JSONUtils.convertNumToStringByLength(String.valueOf(report.getTotalScore())) + end;
         } else {
-            return CYB_REPORT_JSON_FILE;
+            return nameTemplate;
 
         }
     }
