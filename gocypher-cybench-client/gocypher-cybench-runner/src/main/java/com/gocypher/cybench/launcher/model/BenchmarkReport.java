@@ -98,6 +98,11 @@ public class BenchmarkReport implements Serializable {
     /*parked threads are suspended until they are given a permit.*/
     private Double threadsSyncParksCount ;
 
+    private Double performanceProcessCpuLoad;
+    private Double performanceProcessHeapMemoryUsed  ;
+    private Double performanceProcessNonHeapMemoryUsed  ;
+    private Double performanceSystemCpuLoad ;
+
     public BenchmarkReport(){
 
     }
@@ -540,6 +545,38 @@ public class BenchmarkReport implements Serializable {
 
     public void setBenchWarmUpSeconds(int benchWarmUpSeconds) {
         this.benchWarmUpSeconds = benchWarmUpSeconds;
+    }
+
+    public Double getPerformanceProcessCpuLoad() {
+        return performanceProcessCpuLoad;
+    }
+
+    public void setPerformanceProcessCpuLoad(Double performanceProcessCpuLoad) {
+        this.performanceProcessCpuLoad = performanceProcessCpuLoad;
+    }
+
+    public Double getPerformanceProcessHeapMemoryUsed() {
+        return performanceProcessHeapMemoryUsed;
+    }
+
+    public void setPerformanceProcessHeapMemoryUsed(Double performanceProcessHeapMemoryUsed) {
+        this.performanceProcessHeapMemoryUsed = performanceProcessHeapMemoryUsed;
+    }
+
+    public Double getPerformanceProcessNonHeapMemoryUsed() {
+        return performanceProcessNonHeapMemoryUsed;
+    }
+
+    public void setPerformanceProcessNonHeapMemoryUsed(Double performanceProcessNonHeapMemoryUsed) {
+        this.performanceProcessNonHeapMemoryUsed = performanceProcessNonHeapMemoryUsed;
+    }
+
+    public Double getPerformanceSystemCpuLoad() {
+        return performanceSystemCpuLoad;
+    }
+
+    public void setPerformanceSystemCpuLoad(Double performanceSystemCpuLoad) {
+        this.performanceSystemCpuLoad = performanceSystemCpuLoad;
     }
 
     @Override
