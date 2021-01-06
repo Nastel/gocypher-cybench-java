@@ -19,6 +19,8 @@
 
 package com.gocypher.cybench.launcher;
 
+import com.gocypher.cybench.core.annotation.CyBenchMetadata;
+import com.gocypher.cybench.core.annotation.CyBenchMetadataList;
 import com.gocypher.cybench.core.utils.IOUtils;
 import com.gocypher.cybench.core.utils.JMHUtils;
 import com.gocypher.cybench.core.utils.SecurityUtils;
@@ -52,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -229,7 +232,7 @@ public class BenchmarkRunner {
         report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
         report.setBenchmarkSettings(benchmarkSetting);
 
-        Iterator<String>it = report.getBenchmarks().keySet().iterator() ;
+        Iterator<String> it = report.getBenchmarks().keySet().iterator();
 
         while (it.hasNext()) {
             List<BenchmarkReport> custom = report.getBenchmarks().get(it.next()).stream().collect(Collectors.toList());
@@ -238,6 +241,22 @@ public class BenchmarkRunner {
                 benchmarkReport.setClassFingerprint(classFingerprints.get(name));
                 benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
                 benchmarkReport.setManualFingerprint(manualFingerprints.get(name));
+
+
+                try {
+                    String clazz = name.substring(0, name.lastIndexOf('.'));
+                    String method = name.substring(name.lastIndexOf('.') + 1);
+                    LOG.info("Adding metadata for benchamrk: " + clazz + " test: " + method);
+                    Class<?> aClass = Class.forName(clazz);
+                    Optional<Method> benchmarkMethod = getBenchmarkMethod(method, aClass);
+                    appendMetadataFromMethod(benchmarkMethod, benchmarkReport);
+                    appendMetadataFromClass(aClass, benchmarkReport);
+
+
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
 
             });
         }
@@ -260,7 +279,7 @@ public class BenchmarkRunner {
 //			LOG.info("-----------------------------------------------------------------------------------------");
             reportJSON = JSONUtils.marshalToPrettyJson(report);
             String cybReportJsonFile = getCybReportFileName(report, CYB_REPORT_JSON_FILE);
-            String cybReportFile = getCybReportFileName(report,CYB_REPORT_CYB_FILE );
+            String cybReportFile = getCybReportFileName(report, CYB_REPORT_CYB_FILE);
             LOG.info("Saving test results to '{}'", cybReportJsonFile);
             IOUtils.storeResultsToFile(cybReportJsonFile, reportJSON);
             LOG.info("Saving ecnrypted test results to '{}'", cybReportFile);
@@ -276,6 +295,43 @@ public class BenchmarkRunner {
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Finished CyBench benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
         LOG.info("-----------------------------------------------------------------------------------------");
+    }
+
+    private static void appendMetadataFromClass(Class<?> aClass, BenchmarkReport benchmarkReport) {
+        CyBenchMetadataList annotation = aClass.getDeclaredAnnotation(CyBenchMetadataList.class);
+        if (annotation != null) {
+            Arrays.stream(annotation.value()).forEach(annot -> {
+                benchmarkReport.addMetadata(annot.key(), annot.value());
+                LOG.info("added metadata " + annot.key() + "=" + annot.value());
+            });
+        }
+        CyBenchMetadata singleAnnotation = aClass.getDeclaredAnnotation(CyBenchMetadata.class);
+        if (singleAnnotation != null) {
+            benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
+            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
+
+        }
+    }
+
+    private static void appendMetadataFromMethod(Optional<Method> benchmarkMethod, BenchmarkReport benchmarkReport) {
+        CyBenchMetadataList annotation = benchmarkMethod.get().getDeclaredAnnotation(CyBenchMetadataList.class);
+        if (annotation != null) {
+            Arrays.stream(annotation.value()).forEach(annot -> {
+                benchmarkReport.addMetadata(annot.key(), annot.value());
+                LOG.info("added metadata " + annot.key() + "=" + annot.value());
+            });
+        }
+        CyBenchMetadata singleAnnotation = benchmarkMethod.get().getDeclaredAnnotation(CyBenchMetadata.class);
+        if (singleAnnotation != null) {
+            benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
+            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
+
+        }
+
+    }
+
+    private static Optional<Method> getBenchmarkMethod(String method, Class<?> aClass) {
+        return Arrays.stream(aClass.getMethods()).filter(benchmarks -> benchmarks.getName().equals(method)).findFirst();
     }
 
     private static boolean shouldSendReport(BenchmarkOverviewReport report) {

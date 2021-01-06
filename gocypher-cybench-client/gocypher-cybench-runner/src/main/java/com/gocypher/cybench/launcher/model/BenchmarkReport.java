@@ -19,135 +19,130 @@
 
 package com.gocypher.cybench.launcher.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gocypher.cybench.core.model.BaseScoreConverter;
+import com.gocypher.cybench.launcher.utils.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openjdk.jmh.runner.options.TimeValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gocypher.cybench.core.model.BaseScoreConverter;
-import com.gocypher.cybench.launcher.utils.Constants;
-
 public class BenchmarkReport implements Serializable {
-	private static final long serialVersionUID = 2293390306981371292L;
-
-	private String name ;
+    private static final long serialVersionUID = 2293390306981371292L;
+    private static final Logger LOG = LoggerFactory.getLogger(BenchmarkReport.class);
+    private String name;
     private Double score;
-    private String units ;
-    private String mode ;
-    private String category ;
-    private String context ;
-    private String version ;
-
+    private String units;
+    private String mode;
+    private String category;
+    private String context;
+    private String version;
+    private Map<String, String> metadata;
     private int benchThreadCount;
     private int benchForkCount;
     private int benchMeasurementIteration;
     private int benchMeasurementSeconds;
     private int benchWarmUpIteration;
     private int benchWarmUpSeconds;
-
     private String generatedFingerprint;
     private String manualFingerprint;
     private String classFingerprint;
-
-    private Double meanScore ;
-    private Double minScore ;
-    private Double maxScore ;
-    private Double stdDevScore ;
-    private Long n ;
-    private Double gcCalls ;
-    private Double gcTime ;
-    private Double gcAllocationRate ;
-    private Double gcAllocationRateNorm ;
-    private Double gcChurnPsEdenSpace ;
-    private Double gcChurnPsEdenSpaceNorm ;
-    private Double gcChurnPsSurvivorSpace ;
-    private Double gcChurnPsSurvivorSpaceNorm ;
-
-    private Double threadsAliveCount ;
-    private Double threadsDaemonCount ;
-    private Double threadsStartedCount ;
-
+    private Double meanScore;
+    private Double minScore;
+    private Double maxScore;
+    private Double stdDevScore;
+    private Long n;
+    private Double gcCalls;
+    private Double gcTime;
+    private Double gcAllocationRate;
+    private Double gcAllocationRateNorm;
+    private Double gcChurnPsEdenSpace;
+    private Double gcChurnPsEdenSpaceNorm;
+    private Double gcChurnPsSurvivorSpace;
+    private Double gcChurnPsSurvivorSpaceNorm;
+    private Double threadsAliveCount;
+    private Double threadsDaemonCount;
+    private Double threadsStartedCount;
     /*A safepoint is a moment in time when a  thread's data, its internal state and representation in the JVM are, well,safe for observation by other threads in the JVM.
     All JVM's use safepoints to bring all of the application threads to a known state so the JVM can perform certain operations. Safepoints are used during Garbage Collection, during JIT compilation, for Thread Dumps, and many other operations. When a safepoint call is issued all of the application threads should "come to safepoint" as fast as possible. Threads that have come to safepoint block until the JVM releases them. Once all of the threads are at safepoint, the JVM performs the operation -- GC, compile, thread dump, etc. -- and then releases all the threads to run again. But when one or more application threads take a long time to come to safepoint, all of the other threads, which are now blocked, have to wait for the tardy thread(s).
      Time To Safepoint (TTSP).
      https://docs.azul.com/zing/19.02.1.0/Zing_AT_SafePointProfiler.htm
     */
-    private Double threadsSafePointsCount ;
-    private Double threadsSafePointTime ;
-    private Double threadsSafePointSyncTime ;
-    private Double threadsSyncContendedLockAttemptsCount ;
-    private Double threadsSyncMonitorDeflations ;
-    private Double threadsSyncMonitorInflations ;
-    private Double threadsSyncMonitorFatMonitorsCount ;
-    private Double threadsSyncMonitorFutileWakeupsCount ;
-    private Double threadsSyncNotificationsCount ;
-
-    private Double threadsSafePointsInterval ;
+    private Double threadsSafePointsCount;
+    private Double threadsSafePointTime;
+    private Double threadsSafePointSyncTime;
+    private Double threadsSyncContendedLockAttemptsCount;
+    private Double threadsSyncMonitorDeflations;
+    private Double threadsSyncMonitorInflations;
+    private Double threadsSyncMonitorFatMonitorsCount;
+    private Double threadsSyncMonitorFutileWakeupsCount;
+    private Double threadsSyncNotificationsCount;
+    private Double threadsSafePointsInterval;
     private Double threadsSafePointsPause;
     private Double threadsSafePointsPauseAvg;
     private Double threadsSafePointsPauseCount;
     private Double threadsSafePointsPauseTTSP;
     private Double threadsSafePointsPauseTTSPAvg;
     private Double threadsSafePointsPauseTTSPCount;
-
-    private static final Logger LOG = LoggerFactory.getLogger(BenchmarkReport.class);
     /*parked threads are suspended until they are given a permit.*/
-    private Double threadsSyncParksCount ;
+    private Double threadsSyncParksCount;
 
-    public BenchmarkReport(){
+    public BenchmarkReport() {
 
     }
+
     @JsonIgnore
-    public String getReportClassName (){
-        if (this.name != null){
-            int idx = this.name.lastIndexOf(".") ;
-            return this.name.substring(0,idx) ;
+    public String getReportClassName() {
+        if (this.name != null) {
+            int idx = this.name.lastIndexOf(".");
+            return this.name.substring(0, idx);
         }
-        return null ;
+        return null;
     }
 
-	@JsonIgnore
-	public void recalculateScoresToMatchNewUnits() {
+    @JsonIgnore
+    public void recalculateScoresToMatchNewUnits() {
 
-		// FIXME seek and r/w conversion to MB/s differs, fix it.
-		String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name);
-		if (className != null) {
-			try {
-				// LOG.info("Custom scores computation for class found:{}",this.name);
-				Class<?> clazz = Class.forName(className);
-				BaseScoreConverter converter = (BaseScoreConverter) clazz.getDeclaredConstructor().newInstance();
-				Map<String, Object> metaData = new HashMap<>();
-				this.score = converter.convertScore(this.score, metaData);
 
-				Double tmpMin = converter.convertScore(this.minScore, metaData);
-				Double tmpMax = converter.convertScore(this.maxScore, metaData);
+        // FIXME seek and r/w conversion to MB/s differs, fix it.
+        String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name);
+        if (className != null) {
+            try {
+                // LOG.info("Custom scores computation for class found:{}",this.name);
+                Class<?> clazz = Class.forName(className);
+                BaseScoreConverter converter = (BaseScoreConverter) clazz.getDeclaredConstructor().newInstance();
+                Map<String, Object> metaData = new HashMap<>();
+                this.score = converter.convertScore(this.score, metaData);
 
-				if (tmpMin != null && tmpMax != null) {
-					if (tmpMin > tmpMax) {
-						this.minScore = tmpMax;
-						this.maxScore = tmpMin;
-					} else {
-						this.minScore = tmpMin;
-						this.maxScore = tmpMax;
-					}
-				} else {
-					this.minScore = null;
-					this.maxScore = null;
-				}
-				this.meanScore = converter.convertScore(this.meanScore, metaData);
-				if (this.stdDevScore != null){
-				    this.stdDevScore = (this.maxScore-this.minScore)/2 ;
+                Double tmpMin = converter.convertScore(this.minScore, metaData);
+                Double tmpMax = converter.convertScore(this.maxScore, metaData);
+
+                if (tmpMin != null && tmpMax != null) {
+                    if (tmpMin > tmpMax) {
+                        this.minScore = tmpMax;
+                        this.maxScore = tmpMin;
+                    } else {
+                        this.minScore = tmpMin;
+                        this.maxScore = tmpMax;
+                    }
+                } else {
+                    this.minScore = null;
+                    this.maxScore = null;
                 }
-				this.units = converter.getUnits();
-			} catch (Exception e) {
-				LOG.error("Error on recalculating score={}", this.name, e);
-			}
-		}
-	}
+                this.meanScore = converter.convertScore(this.meanScore, metaData);
+                if (this.stdDevScore != null) {
+                    this.stdDevScore = (this.maxScore - this.minScore) / 2;
+                }
+                this.units = converter.getUnits();
+            } catch (Exception e) {
+                LOG.error("Error on recalculating score={}", this.name, e);
+            }
+        }
+    }
 
     public String getName() {
         return name;
@@ -540,6 +535,21 @@ public class BenchmarkReport implements Serializable {
 
     public void setBenchWarmUpSeconds(int benchWarmUpSeconds) {
         this.benchWarmUpSeconds = benchWarmUpSeconds;
+    }
+
+    //make flat map https://stackoverflow.com/questions/18043587/why-im-not-able-to-unwrap-and-serialize-a-java-map-using-the-jackson-java-libra/41833934
+    @JsonAnyGetter
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    //^see above
+    @JsonAnySetter
+    public void addMetadata(String key, String val) {
+        if (getMetadata() == null) {
+            this.metadata = new HashMap<>();
+        }
+        getMetadata().put("metadata" + key, val);
     }
 
     @Override
