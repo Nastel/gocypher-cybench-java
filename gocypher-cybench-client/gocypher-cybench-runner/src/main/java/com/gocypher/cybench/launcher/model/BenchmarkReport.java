@@ -23,13 +23,18 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gocypher.cybench.core.model.BaseScoreConverter;
+import com.gocypher.cybench.core.model.ScoreConverter;
+import com.gocypher.cybench.core.utils.JMHUtils;
+import com.gocypher.cybench.core.utils.JMHUtils.ClassAndMethod;
 import com.gocypher.cybench.launcher.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class BenchmarkReport implements Serializable {
     private static final long serialVersionUID = 2293390306981371292L;
@@ -92,11 +97,11 @@ public class BenchmarkReport implements Serializable {
     private Double threadsSyncParksCount;
 
     private Double performanceProcessCpuLoad;
-    private Double performanceProcessHeapMemoryUsed  ;
-    private Double performanceProcessNonHeapMemoryUsed  ;
-    private Double performanceSystemCpuLoad ;
+    private Double performanceProcessHeapMemoryUsed;
+    private Double performanceProcessNonHeapMemoryUsed;
+    private Double performanceSystemCpuLoad;
 
-    public BenchmarkReport(){
+    public BenchmarkReport() {
 
     }
 
@@ -115,9 +120,36 @@ public class BenchmarkReport implements Serializable {
 
         // FIXME seek and r/w conversion to MB/s differs, fix it.
         String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name);
+
+
+        LOG.info("Recalculating score values for" + this.name);
+
+        try {
+            ClassAndMethod classAndMethod = new ClassAndMethod(name).invoke();
+            String clazz1 = classAndMethod.getClazz();
+            String method = classAndMethod.getMethod();
+            Class<?> aClass = Class.forName(clazz1);
+            Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
+            ScoreConverter annotation = benchmarkMethod.get().getAnnotation(ScoreConverter.class);
+            if (annotation != null) {
+                className = annotation.converter().getName();
+            } else {
+                ScoreConverter classAnnotation = aClass.getAnnotation(ScoreConverter.class);
+                if (classAnnotation != null) {
+                    className = classAnnotation.converter().getName();
+                }
+            }
+
+        } catch (ClassNotFoundException e) {
+            LOG.error("ScoreConverter not found in classpath", e);
+        } catch (Exception e) {
+            LOG.error("ScoreConverter error", e);
+        }
+
+
         if (className != null) {
             try {
-                // LOG.info("Custom scores computation for class found:{}",this.name);
+                LOG.info("Custom scores computation for class found:{}", this.name);
                 Class<?> clazz = Class.forName(className);
                 BaseScoreConverter converter = (BaseScoreConverter) clazz.getDeclaredConstructor().newInstance();
                 Map<String, Object> metaData = new HashMap<>();

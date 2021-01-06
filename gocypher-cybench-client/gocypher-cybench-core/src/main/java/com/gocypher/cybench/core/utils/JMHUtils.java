@@ -29,10 +29,8 @@ import org.openjdk.jmh.runner.BenchmarkListEntry;
 import org.openjdk.jmh.runner.format.OutputFormat;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JMHUtils {
@@ -41,6 +39,10 @@ public class JMHUtils {
     public static List<String> getAllBenchmarkClasses() {
         Set<BenchmarkListEntry> all = BenchmarkList.defaultList().getAll(new SilentOutputFormat(), Collections.EMPTY_LIST);
         return all.stream().map(entry -> entry.getUserClassQName()).collect(Collectors.toList());
+    }
+
+    public static Optional<Method> getBenchmarkMethod(String method, Class<?> aClass) {
+        return Arrays.stream(aClass.getMethods()).filter(benchmarks -> benchmarks.getName().equals(method)).findFirst();
     }
 
     public static class SilentOutputFormat implements OutputFormat {
@@ -107,6 +109,30 @@ public class JMHUtils {
         @Override
         public void write(byte[] b) throws IOException {
 
+        }
+    }
+
+    public static class ClassAndMethod {
+        private String name;
+        private String clazz;
+        private String method;
+
+        public ClassAndMethod(String name) {
+            this.name = name;
+        }
+
+        public String getClazz() {
+            return clazz;
+        }
+
+        public String getMethod() {
+            return method;
+        }
+
+        public ClassAndMethod invoke() {
+            clazz = name.substring(0, name.lastIndexOf('.'));
+            method = name.substring(name.lastIndexOf('.') + 1);
+            return this;
         }
     }
 }

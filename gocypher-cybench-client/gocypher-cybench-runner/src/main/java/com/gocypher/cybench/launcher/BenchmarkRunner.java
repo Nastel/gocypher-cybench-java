@@ -244,11 +244,12 @@ public class BenchmarkRunner {
 
 
                 try {
-                    String clazz = name.substring(0, name.lastIndexOf('.'));
-                    String method = name.substring(name.lastIndexOf('.') + 1);
+                    JMHUtils.ClassAndMethod classAndMethod = new JMHUtils.ClassAndMethod(name).invoke();
+                    String clazz = classAndMethod.getClazz();
+                    String method = classAndMethod.getMethod();
                     LOG.info("Adding metadata for benchamrk: " + clazz + " test: " + method);
                     Class<?> aClass = Class.forName(clazz);
-                    Optional<Method> benchmarkMethod = getBenchmarkMethod(method, aClass);
+                    Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
                     appendMetadataFromMethod(benchmarkMethod, benchmarkReport);
                     appendMetadataFromClass(aClass, benchmarkReport);
 
@@ -328,10 +329,6 @@ public class BenchmarkRunner {
 
         }
 
-    }
-
-    private static Optional<Method> getBenchmarkMethod(String method, Class<?> aClass) {
-        return Arrays.stream(aClass.getMethods()).filter(benchmarks -> benchmarks.getName().equals(method)).findFirst();
     }
 
     private static boolean shouldSendReport(BenchmarkOverviewReport report) {
@@ -486,5 +483,6 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collections: " + totalGarbageCollections);
         System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
     }
+
 
 }
