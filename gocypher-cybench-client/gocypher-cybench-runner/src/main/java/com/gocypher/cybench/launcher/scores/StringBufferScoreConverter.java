@@ -36,7 +36,11 @@ public class StringBufferScoreConverter extends BaseScoreConverter {
         }
         return null ;
     }
-
+    @Override
+    public Double getOperationTimeMilliseconds(Double score, Map<String, Object> metaData) {
+        Double opsMSScore = 1/(score/1_000_000);
+        return opsMSScore;
+    }
     @Override
     public String getUnits() {
         return "k ops/s";

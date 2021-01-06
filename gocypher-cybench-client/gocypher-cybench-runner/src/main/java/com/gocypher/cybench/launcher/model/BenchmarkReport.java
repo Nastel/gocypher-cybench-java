@@ -36,6 +36,7 @@ public class BenchmarkReport implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkReport.class);
     private String name;
     private Double score;
+    private Double operationTime;
     private String units;
     private String mode;
     private String category;
@@ -122,6 +123,7 @@ public class BenchmarkReport implements Serializable {
                 BaseScoreConverter converter = (BaseScoreConverter) clazz.getDeclaredConstructor().newInstance();
                 Map<String, Object> metaData = new HashMap<>();
                 this.score = converter.convertScore(this.score, metaData);
+                this.operationTime = converter.getOperationTimeMilliseconds(this.score, metaData);
 
                 Double tmpMin = converter.convertScore(this.minScore, metaData);
                 Double tmpMax = converter.convertScore(this.maxScore, metaData);
@@ -572,6 +574,14 @@ public class BenchmarkReport implements Serializable {
 
     public void setPerformanceSystemCpuLoad(Double performanceSystemCpuLoad) {
         this.performanceSystemCpuLoad = performanceSystemCpuLoad;
+    }
+
+    public Double getOperationTime() {
+        return operationTime;
+    }
+
+    public void setOperationTime(Double operationTime) {
+        this.operationTime = operationTime;
     }
 
     //make flat map https://stackoverflow.com/questions/18043587/why-im-not-able-to-unwrap-and-serialize-a-java-map-using-the-jackson-java-libra/41833934

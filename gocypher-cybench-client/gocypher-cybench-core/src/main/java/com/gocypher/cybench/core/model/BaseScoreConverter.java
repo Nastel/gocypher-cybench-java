@@ -23,5 +23,6 @@ import java.util.Map;
 
 public abstract class BaseScoreConverter {
     public abstract Double convertScore (Double score, Map<String,Object>metaData) ;
+    public abstract Double getOperationTimeMilliseconds(Double score, Map<String,Object>metaData) ;
     public abstract String getUnits () ;
 }

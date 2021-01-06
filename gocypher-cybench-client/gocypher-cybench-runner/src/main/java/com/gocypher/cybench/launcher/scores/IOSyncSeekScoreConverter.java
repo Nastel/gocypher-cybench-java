@@ -29,12 +29,16 @@ public class IOSyncSeekScoreConverter extends BaseScoreConverter {
     public Double convertScore(Double score , Map<String,Object> metaData) {
         if (score != null){
             double nominatorInMB = 128 ;
-            double oldScore = Double.valueOf((double)score.doubleValue()/1000);
+            double oldScore = score / 1000;
             return nominatorInMB/oldScore;
         }
         return score;
     }
-
+    @Override
+    public Double getOperationTimeMilliseconds(Double score, Map<String, Object> metaData) {
+        Double opsMSScore = 1/(score/1_000_000_000);
+        return opsMSScore;
+    }
     @Override
     public String getUnits() {
         return "MB/s";
