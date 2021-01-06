@@ -30,7 +30,7 @@ public class IOSyncReadWriteScoreConverter extends BaseScoreConverter {
     @Override
     public Double convertScore(Double score , Map<String,Object> metaData) {
         if (score != null){
-            double oldScore =  Double.valueOf((double)score.doubleValue()/1000) ;
+            double oldScore = score / 1000 ;
             long mb = 1_048_576 ;
             double benchmarkFileSize = (double) IOUtils.getSmallRandomBinaryFileSizeInBytes()/mb ;
             double newScore = benchmarkFileSize/oldScore ;
@@ -38,7 +38,11 @@ public class IOSyncReadWriteScoreConverter extends BaseScoreConverter {
         }
         return score ;
     }
-
+    @Override
+    public Double getOperationTimeMilliseconds(Double score, Map<String, Object> metaData) {
+        Double opsMSScore = 1/(score/1_000_000_000);
+        return opsMSScore;
+    }
     @Override
     public String getUnits() {
         return "MB/s";
