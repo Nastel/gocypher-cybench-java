@@ -124,6 +124,11 @@ public class ReportingService {
 			report.setThreadsSafePointsPauseTTSPAvg(getScoreFromJMHSecondaryResult(item, "·safepoints.ttsp.avg"));
 			report.setThreadsSafePointsPauseTTSPCount(getScoreFromJMHSecondaryResult(item, "·safepoints.ttsp.count"));
 
+			report.setPerformanceProcessCpuLoad(getScoreFromJMHSecondaryResult(item,"performanceProcessCpuLoad",item.getParams().getMeasurement().getCount()));
+			report.setPerformanceSystemCpuLoad(getScoreFromJMHSecondaryResult(item,"performanceSystemCpuLoad",item.getParams().getMeasurement().getCount()));
+			report.setPerformanceProcessHeapMemoryUsed(getScoreFromJMHSecondaryResult(item,"performanceProcessHeapMemoryUsed",item.getParams().getMeasurement().getCount()));
+			report.setPerformanceProcessNonHeapMemoryUsed(getScoreFromJMHSecondaryResult(item,"performanceProcessNonHeapMemoryUsed",item.getParams().getMeasurement().getCount()));
+
 			String manifestData = null;
 			if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
 				manifestData = Manifests.read(Constants.BENCHMARK_METADATA);
@@ -247,6 +252,13 @@ public class ReportingService {
 			}
 		}
 		return null;
+	}
+	private Double getScoreFromJMHSecondaryResult(RunResult result, String key, int denominator) {
+		Double value = getScoreFromJMHSecondaryResult(result, key) ;
+		if (value != null && denominator != 0){
+			return value/denominator ;
+		}
+		return value ;
 	}
 
 }
