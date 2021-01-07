@@ -19,7 +19,7 @@
 
 package com.gocypher.cybench.launcher;
 
-import com.gocypher.cybench.core.annotation.CyBenchMetadata;
+import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
 import com.gocypher.cybench.core.annotation.CyBenchMetadataList;
 import com.gocypher.cybench.core.utils.IOUtils;
 import com.gocypher.cybench.core.utils.JMHUtils;
@@ -306,7 +306,7 @@ public class BenchmarkRunner {
                 LOG.info("added metadata " + annot.key() + "=" + annot.value());
             });
         }
-        CyBenchMetadata singleAnnotation = aClass.getDeclaredAnnotation(CyBenchMetadata.class);
+        BenchmarkMetaData singleAnnotation = aClass.getDeclaredAnnotation(BenchmarkMetaData.class);
         if (singleAnnotation != null) {
             benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
             LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
@@ -322,7 +322,7 @@ public class BenchmarkRunner {
                 LOG.info("added metadata " + annot.key() + "=" + annot.value());
             });
         }
-        CyBenchMetadata singleAnnotation = benchmarkMethod.get().getDeclaredAnnotation(CyBenchMetadata.class);
+        BenchmarkMetaData singleAnnotation = benchmarkMethod.get().getDeclaredAnnotation(BenchmarkMetaData.class);
         if (singleAnnotation != null) {
             benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
             LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
