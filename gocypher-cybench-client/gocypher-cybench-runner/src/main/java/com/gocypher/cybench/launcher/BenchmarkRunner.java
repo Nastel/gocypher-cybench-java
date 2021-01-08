@@ -43,6 +43,7 @@ import org.openjdk.jmh.profile.HotspotThreadProfiler;
 import org.openjdk.jmh.profile.SafepointsProfiler;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
@@ -81,27 +82,26 @@ public class BenchmarkRunner {
         LOG.info("Collecting JVM properties...");
         JVMProperties jvmProperties = CollectSystemInformation.getJavaVirtualMachineProperties();
         LOG.info("Executing benchmarks...");
-        // printSystemInformation();
-
-        // Number of separate full executions of a benchmark (warm up+measurement), this
-        // is returned still as one primary score item
-        int forks = setExecutionProperty(getProperty(Constants.NUMBER_OF_FORKS), 1);
-        // Number of measurements per benchmark operation, this is returned still as one
-        // primary score item
-        int measurementIterations = setExecutionProperty(getProperty(Constants.MEASUREMENT_ITERATIONS), 5);
-
-        int measurementSeconds = setExecutionProperty(getProperty(Constants.MEASUREMENT_SECONDS), 5);
-        // number of iterations executed for warm up
-        int warmUpIterations = setExecutionProperty(getProperty(Constants.WARM_UP_ITERATIONS), 1);
-        // number of seconds dedicated for each warm up iteration
-        int warmUpSeconds = setExecutionProperty(getProperty(Constants.WARM_UP_SECONDS), 5);
-        // number of threads for benchmark test execution
-        int threads = setExecutionProperty(getProperty(Constants.RUN_THREAD_COUNT), 1);
 
         Map<String, Map<String, String>> defaultBenchmarksMetadata = ComputationUtils.parseBenchmarkMetadata(getProperty(Constants.BENCHMARK_METADATA));
 
         LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
         OptionsBuilder optBuild = new OptionsBuilder();
+        // Number of separate full executions of a benchmark (warm up+measurement), this
+        // is returned still as one primary score item
+        int forks = setExecutionProperty(getProperty(Constants.NUMBER_OF_FORKS));
+        // Number of measurements per benchmark operation, this is returned still as one
+        // primary score item
+        int measurementIterations = setExecutionProperty(getProperty(Constants.MEASUREMENT_ITERATIONS));
+
+        int measurementSeconds = setExecutionProperty(getProperty(Constants.MEASUREMENT_SECONDS));
+        // number of iterations executed for warm up
+        int warmUpIterations = setExecutionProperty(getProperty(Constants.WARM_UP_ITERATIONS));
+        // number of seconds dedicated for each warm up iteration
+        int warmUpSeconds = setExecutionProperty(getProperty(Constants.WARM_UP_SECONDS));
+        // number of threads for benchmark test execution
+        int threads = setExecutionProperty(getProperty(Constants.RUN_THREAD_COUNT));
+
         String tempBenchmark = null;
         SecurityBuilder securityBuilder = new SecurityBuilder();
 
@@ -206,16 +206,26 @@ public class BenchmarkRunner {
             benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
         }
         LOG.info("--->benchmarkSetting:{}", benchmarkSetting);
-        Options opt = optBuild.forks(forks).measurementIterations(measurementIterations)
-                .warmupIterations(warmUpIterations).warmupTime(TimeValue.seconds(warmUpSeconds)).threads(threads)
-                .measurementTime(TimeValue.seconds(measurementSeconds))
-                .shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
-                .addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs()
-                // .addProfiler(StackProfiler.class)
-                // .addProfiler(HotspotMemoryProfiler.class)
-                // .addProfiler(HotspotRuntimeProfiler.class)
-                // .addProfiler(JavaFlightRecorderProfiler.class)
-                .build();
+//        Options opt = optBuild
+//                .forks(forks)
+//                .measurementIterations(measurementIterations)
+//                .warmupIterations(warmUpIterations)
+//                .warmupTime(TimeValue.seconds(warmUpSeconds))
+//                .threads(threads)
+//                .measurementTime(TimeValue.seconds(measurementSeconds))
+//                .shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
+//                .addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs()
+//                // .addProfiler(StackProfiler.class)
+//                // .addProfiler(HotspotMemoryProfiler.class)
+//                // .addProfiler(HotspotRuntimeProfiler.class)
+//                // .addProfiler(JavaFlightRecorderProfiler.class)
+//                .build();
+
+        ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
+                .addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs();
+
+        optionBuilder = setMeasurementProperties(optionBuilder, forks, measurementIterations, measurementSeconds, warmUpIterations, warmUpSeconds, threads);
+        Options opt = optionBuilder.build();
 
         Runner runner = new Runner(opt);
         Collection<RunResult> results = Collections.emptyList();
@@ -296,6 +306,28 @@ public class BenchmarkRunner {
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Finished CyBench benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
         LOG.info("-----------------------------------------------------------------------------------------");
+    }
+
+    private static ChainedOptionsBuilder setMeasurementProperties(ChainedOptionsBuilder optionBuilder, int forks, int measurementIterations, int measurementSeconds, int warmUpIterations, int warmUpSeconds, int threads){
+        if(forks!=-1){
+            optionBuilder = optionBuilder.forks(forks);
+        }
+        if(measurementIterations!=-1){
+            optionBuilder = optionBuilder.measurementIterations(measurementIterations);
+        }
+        if(warmUpIterations!=-1){
+            optionBuilder = optionBuilder.warmupIterations(warmUpIterations);
+        }
+        if(warmUpSeconds!=-1){
+            optionBuilder = optionBuilder.warmupTime(TimeValue.seconds(warmUpSeconds));
+        }
+        if(threads!=-1){
+            optionBuilder = optionBuilder.threads(threads);
+        }
+        if(measurementSeconds!=-1){
+            optionBuilder = optionBuilder.measurementTime(TimeValue.seconds(measurementSeconds));
+        }
+        return optionBuilder;
     }
 
     private static void appendMetadataFromClass(Class<?> aClass, BenchmarkReport benchmarkReport) {
@@ -382,11 +414,11 @@ public class BenchmarkRunner {
         return userProperties;
     }
 
-    private static int setExecutionProperty(String property, int value) {
+    private static int setExecutionProperty(String property) {
         if (checkIfConfigurationPropertyIsSet(property)) {
             return Integer.parseInt(property);
         } else {
-            return value;
+            return -1;
         }
     }
 
