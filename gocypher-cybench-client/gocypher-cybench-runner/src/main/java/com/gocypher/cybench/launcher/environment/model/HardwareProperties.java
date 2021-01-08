@@ -282,10 +282,6 @@ public class HardwareProperties {
         this.hwMemManufacturer = hwMemManufacturer;
     }
 
-    public Boolean isHwBiosPrimaryBios() {
-        return hwBiosPrimaryBios;
-    }
-
     public String getHwLaunchDiskType() {
         return hwLaunchDiskType;
     }

@@ -48,6 +48,7 @@ public class BenchmarkReport implements Serializable {
     private String context;
     private String version;
     private Map<String, String> metadata;
+
     private int benchThreadCount;
     private int benchForkCount;
     private int benchMeasurementIteration;
@@ -628,8 +629,14 @@ public class BenchmarkReport implements Serializable {
         if (getMetadata() == null) {
             this.metadata = new HashMap<>();
         }
-        getMetadata().put("metadata" + key, val);
+        getMetadata().put("bench" + camelCase(key), val);
     }
+
+    @JsonIgnore
+    public static String camelCase(String key) {
+        return key.substring(0, 1).toUpperCase() + key.substring(1);
+    }
+
 
     @Override
     public String toString() {
@@ -685,4 +692,6 @@ public class BenchmarkReport implements Serializable {
                 ", threadsSyncParksCount=" + threadsSyncParksCount +
                 '}';
     }
+
+
 }

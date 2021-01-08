@@ -83,7 +83,15 @@ public class ReportingService {
 				// System.out.println("Mode"+item.getParams().getMode().longLabel());
 			}
 
-			report.setBenchForkCount(Objects.requireNonNull(item.getParams()).getForks());
+            Collection<String> paramsKeys = item.getParams().getParamsKeys();
+			for (String key : paramsKeys) {
+                String value = item.getParams().getParam(key);
+                LOG.info("Collected params. Key: {}, Value: {}", key, value);
+                report.addMetadata("param" + BenchmarkReport.camelCase(key), value);
+            }
+
+
+            report.setBenchForkCount(Objects.requireNonNull(item.getParams()).getForks());
 			report.setBenchThreadCount(item.getParams().getThreads());
 			report.setBenchWarmUpIteration(item.getParams().getWarmup().getCount());
 			report.setBenchWarmUpSeconds((int) item.getParams().getWarmup().getTime().getTime());
