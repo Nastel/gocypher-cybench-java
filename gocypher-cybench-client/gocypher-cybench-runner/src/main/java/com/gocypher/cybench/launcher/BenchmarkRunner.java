@@ -173,52 +173,18 @@ public class BenchmarkRunner {
                 }
             }
         }
-        // LOG.info("Situation of class
-        // signatures:{}",securityBuilder.getMapOfHashedParts()) ;
 
         if (foundBenchmarks) {
-//            String manifestData = null;
-//            if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
-//                LOG.info("--->Manifest found");
-//                manifestData = Manifests.read(Constants.BENCHMARK_METADATA);
-//            }
-//            LOG.info("--->Manifest data:{}", manifestData);
-//            Map<String, Map<String, String>> benchmarksMetadata = ComputationUtils.parseBenchmarkMetadata(manifestData);
-//            LOG.info("--->benchmarksMetadata:{}", benchmarksMetadata);
-//            Map<String, String> benchProps;
-//            if (manifestData != null) {
-//                benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, benchmarksMetadata);
-//            } else {
-//            if (foundBenchmarks) {
-//                Map<String, String>  benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, defaultBenchmarksMetadata);
-//                benchmarkSetting.putAll(benchProps);
-//            }
-
-
-//            benchmarkSetting.putAll(benchProps);
             if (System.getProperty(Constants.REPORT_SOURCE) != null) {
                 benchSource = System.getProperty(Constants.REPORT_SOURCE);
             }
             benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
+            benchmarkSetting.put(Constants.REPORT_VERSION, "1.0.0");
         }
         if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
             benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
         }
         LOG.info("--->benchmarkSetting:{}", benchmarkSetting);
-//        Options opt = optBuild
-//                .forks(forks)
-//                .measurementIterations(measurementIterations)
-//                .warmupIterations(warmUpIterations)
-//                .warmupTime(TimeValue.seconds(warmUpSeconds))
-//                .threads(threads)
-//                .measurementTime(TimeValue.seconds(measurementSeconds))
-//                .shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
-//                .addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs()
-//                // .addProfiler(StackProfiler.class)
-//                // .addProfiler(HotspotMemoryProfiler.class)
-//                // .addProfiler(HotspotRuntimeProfiler.class)
-//                // .addProfiler(JavaFlightRecorderProfiler.class)
-//                .build();
 
         ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
                 .addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs();
@@ -268,7 +234,6 @@ public class BenchmarkRunner {
         List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
         report.getBenchmarks().remove("CUSTOM");
         for(BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
-            LOG.info("Benchmark report category... {}", benchReport.getCategory());
             report.addToBenchmarks(benchReport);
         }
         report.computeScores();

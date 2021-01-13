@@ -29,6 +29,7 @@ public class Constants {
 	public static final String BENCHMARK_RUN_CLASSES = "benchmarkClasses";
 	public static final String USER_PROPERTY_PREFIX = "user.";
 	public static final String REPORT_SOURCE = "benchSource";
+	public static final String REPORT_VERSION = "benchVersion";
 
 	//--------------------------- Properties that configure the runner execution ------------------------------------------
 	public static final String NUMBER_OF_FORKS = "numberOfBenchmarkForks";
