@@ -163,7 +163,7 @@ public class ReportingService {
 
 		overviewReport.setTimestamp(System.currentTimeMillis());
 		overviewReport.setTimestampUTC(ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli());
-		overviewReport.computeScores();
+//		overviewReport.computeScores();
 
 		return overviewReport;
 	}

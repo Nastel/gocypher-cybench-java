@@ -177,31 +177,30 @@ public class BenchmarkRunner {
         // signatures:{}",securityBuilder.getMapOfHashedParts()) ;
 
         if (foundBenchmarks) {
-            String manifestData = null;
-            if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
-                LOG.info("--->Manifest found");
-                manifestData = Manifests.read(Constants.BENCHMARK_METADATA);
-            }
-            LOG.info("--->Manifest data:{}", manifestData);
-            Map<String, Map<String, String>> benchmarksMetadata = ComputationUtils.parseBenchmarkMetadata(manifestData);
-            LOG.info("--->benchmarksMetadata:{}", benchmarksMetadata);
-            Map<String, String> benchProps;
-            if (manifestData != null) {
-                benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, benchmarksMetadata);
-            } else {
-                benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, defaultBenchmarksMetadata);
-            }
+//            String manifestData = null;
+//            if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
+//                LOG.info("--->Manifest found");
+//                manifestData = Manifests.read(Constants.BENCHMARK_METADATA);
+//            }
+//            LOG.info("--->Manifest data:{}", manifestData);
+//            Map<String, Map<String, String>> benchmarksMetadata = ComputationUtils.parseBenchmarkMetadata(manifestData);
+//            LOG.info("--->benchmarksMetadata:{}", benchmarksMetadata);
+//            Map<String, String> benchProps;
+//            if (manifestData != null) {
+//                benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, benchmarksMetadata);
+//            } else {
+//            if (foundBenchmarks) {
+//                Map<String, String>  benchProps = ReportingService.getInstance().prepareBenchmarkSettings(tempBenchmark, defaultBenchmarksMetadata);
+//                benchmarkSetting.putAll(benchProps);
+//            }
 
 
-            benchmarkSetting.putAll(benchProps);
+//            benchmarkSetting.putAll(benchProps);
             if (System.getProperty(Constants.REPORT_SOURCE) != null) {
                 benchSource = System.getProperty(Constants.REPORT_SOURCE);
             }
             benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
-
-
         }
-
         if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
             benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
         }
@@ -236,6 +235,7 @@ public class BenchmarkRunner {
         LOG.info("Benchmark finished, executed tests count:{}", results.size());
 
         BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results, defaultBenchmarksMetadata);
+//        BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results);
         report.getEnvironmentSettings().put("environment", hwProperties);
         report.getEnvironmentSettings().put("jvmEnvironment", jvmProperties);
         report.getEnvironmentSettings().put("unclassifiedProperties", CollectSystemInformation.getUnclassifiedProperties());
@@ -251,8 +251,6 @@ public class BenchmarkRunner {
                 benchmarkReport.setClassFingerprint(classFingerprints.get(name));
                 benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
                 benchmarkReport.setManualFingerprint(manualFingerprints.get(name));
-
-
                 try {
                     JMHUtils.ClassAndMethod classAndMethod = new JMHUtils.ClassAndMethod(name).invoke();
                     String clazz = classAndMethod.getClazz();
@@ -262,18 +260,20 @@ public class BenchmarkRunner {
                     Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
                     appendMetadataFromMethod(benchmarkMethod, benchmarkReport);
                     appendMetadataFromClass(aClass, benchmarkReport);
-
-
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-
-
             });
         }
-
-
+        List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
+        report.getBenchmarks().remove("CUSTOM");
+        for(BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
+            LOG.info("Benchmark report category... {}", benchReport.getCategory());
+            report.addToBenchmarks(benchReport);
+        }
+        report.computeScores();
         getReportUploadStatus(report);
+
         try {
             LOG.info("Generating JSON report...");
             String reportJSON;
@@ -307,7 +307,9 @@ public class BenchmarkRunner {
         LOG.info("                                 Finished CyBench benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
         LOG.info("-----------------------------------------------------------------------------------------");
     }
+    private static void customBenchmarksCategoryCheck(){
 
+    }
     private static ChainedOptionsBuilder setMeasurementProperties(ChainedOptionsBuilder optionBuilder, int forks, int measurementIterations, int measurementSeconds, int warmUpIterations, int warmUpSeconds, int threads){
         if(forks!=-1){
             optionBuilder = optionBuilder.forks(forks);
@@ -334,15 +336,16 @@ public class BenchmarkRunner {
         CyBenchMetadataList annotation = aClass.getDeclaredAnnotation(CyBenchMetadataList.class);
         if (annotation != null) {
             Arrays.stream(annotation.value()).forEach(annot -> {
+                checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
                 benchmarkReport.addMetadata(annot.key(), annot.value());
                 LOG.info("added metadata " + annot.key() + "=" + annot.value());
             });
         }
         BenchmarkMetaData singleAnnotation = aClass.getDeclaredAnnotation(BenchmarkMetaData.class);
         if (singleAnnotation != null) {
+            checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
             benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
             LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
-
         }
     }
 
@@ -350,17 +353,31 @@ public class BenchmarkRunner {
         CyBenchMetadataList annotation = benchmarkMethod.get().getDeclaredAnnotation(CyBenchMetadataList.class);
         if (annotation != null) {
             Arrays.stream(annotation.value()).forEach(annot -> {
+                checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
                 benchmarkReport.addMetadata(annot.key(), annot.value());
                 LOG.info("added metadata " + annot.key() + "=" + annot.value());
             });
         }
         BenchmarkMetaData singleAnnotation = benchmarkMethod.get().getDeclaredAnnotation(BenchmarkMetaData.class);
         if (singleAnnotation != null) {
+            checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
             benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
             LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
 
         }
 
+    }
+
+    private static void checkSetOldMetadataProps(String key,String value, BenchmarkReport benchmarkReport){
+        if(key.equals("api")){
+            benchmarkReport.setCategory(value);
+        }
+        if(key.equals("context")){
+            benchmarkReport.setContext(value);
+        }
+        if(key.equals("version")){
+            benchmarkReport.setVersion(value);
+        }
     }
 
     private static boolean shouldSendReport(BenchmarkOverviewReport report) {
