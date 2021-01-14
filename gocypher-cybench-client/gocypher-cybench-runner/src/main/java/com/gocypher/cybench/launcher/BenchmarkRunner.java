@@ -152,26 +152,28 @@ public class BenchmarkRunner {
                     Class<?> classObj = Class.forName(benchmarkClass);
                     SecurityUtils.generateMethodFingerprints(classObj, manualFingerprints, classFingerprints);
                     SecurityUtils.computeClassHashForMethods(classObj, generatedFingerprints);
-
+                    foundBenchmarks = true;
+                    tempBenchmark = classObj.getName();
+                    securityBuilder.generateSecurityHashForClasses(classObj);
                 } catch (ClassNotFoundException exc) {
                     LOG.error("Class not found in the classpath for execution", exc);
                 }
             }
 
-            Reflections reflections = new Reflections("com.gocypher.cybench.", new SubTypesScanner(false));
-            Set<Class<? extends Object>> allDefaultClasses = reflections.getSubTypesOf(Object.class);
-            foundBenchmarks = true;
-            for (Class<? extends Object> classObj : allDefaultClasses) {
-                if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks")
-                        && !classObj.getSimpleName().contains("_")) {
-                    // LOG.info("==>Default found:{}",classObj.getName());
+//            Reflections reflections = new Reflections("com.gocypher.cybench.", new SubTypesScanner(false));
+//            Set<Class<? extends Object>> allDefaultClasses = reflections.getSubTypesOf(Object.class);
+//            foundBenchmarks = true;
+//            for (Class<? extends Object> classObj : allDefaultClasses) {
+//                if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks")
+//                        && !classObj.getSimpleName().contains("_")) {
                     // We do not include any class, because then JMH will discover all benchmarks
                     // automatically including user defined
                     // optBuild.include(classObj.getName());
-                    tempBenchmark = classObj.getName();
-                    securityBuilder.generateSecurityHashForClasses(classObj);
-                }
-            }
+//                    tempBenchmark = classObj.getName();
+//                    LOG.info("tempBenchmark... {}", tempBenchmark);
+//                    securityBuilder.generateSecurityHashForClasses(classObj);
+//                }
+//            }
         }
 
         if (foundBenchmarks) {
