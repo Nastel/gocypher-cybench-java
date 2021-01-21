@@ -36,7 +36,6 @@ import com.gocypher.cybench.launcher.utils.ComputationUtils;
 import com.gocypher.cybench.launcher.utils.Constants;
 import com.gocypher.cybench.launcher.utils.JSONUtils;
 import com.gocypher.cybench.launcher.utils.SecurityBuilder;
-import com.jcabi.manifests.Manifests;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.HotspotRuntimeProfiler;
 import org.openjdk.jmh.profile.HotspotThreadProfiler;
@@ -47,8 +46,6 @@ import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,11 +58,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class BenchmarkRunner {
-    public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url", "https://www.gocypher.com/cybench/upload");
+    public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url", "https://app.cybench.io/cybench/upload");
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
     private static final String CYB_REPORT_FOLDER = System.getProperty("cybench.report.folder",
             "." + File.separator + "reports" + File.separator);
-    public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_JSON_FILE, "report.json");
+    public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_JSON_FILE, "report.cybench");
     public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
     static Properties cfg = new Properties();
     private static String benchSource = "CyBench Launcher";
@@ -258,6 +255,10 @@ public class BenchmarkRunner {
             reportJSON = JSONUtils.marshalToPrettyJson(report);
             String cybReportJsonFile = getCybReportFileName(report, CYB_REPORT_JSON_FILE);
             String cybReportFile = getCybReportFileName(report, CYB_REPORT_CYB_FILE);
+            if(cybReportJsonFile.equals(CYB_REPORT_JSON_FILE) && cybReportFile.equals(CYB_REPORT_CYB_FILE)){
+                cybReportJsonFile = IOUtils.getReportsPath("", ComputationUtils.createFileNameForReport("report", start, report.getTotalScore(), false));
+                cybReportFile = IOUtils.getReportsPath("", ComputationUtils.createFileNameForReport("report", start, report.getTotalScore(), true));
+            }
             LOG.info("Saving test results to '{}'", cybReportJsonFile);
             IOUtils.storeResultsToFile(cybReportJsonFile, reportJSON);
             LOG.info("Saving ecnrypted test results to '{}'", cybReportFile);
