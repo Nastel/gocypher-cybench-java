@@ -107,6 +107,63 @@ public class Constants {
 		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.NumberBenchmarks.generateAndAddBigDecimalNumbers","com.gocypher.cybench.launcher.scores.NumbersScoreConverter") ;
 		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.NumberBenchmarks.generateAndLogarithmDoubleNumbers","com.gocypher.cybench.launcher.scores.NumbersScoreConverter") ;
 		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.NumberBenchmarks.generateAndPowerDoubleNumbers","com.gocypher.cybench.launcher.scores.NumbersScoreConverter") ;
+
+//---------------------Score converter for JSON operations--------------------------------------------------------------
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gsonWithSmallJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gsonWithAverageJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gsonWithBigJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.moshiWithBigJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.moshiWithSmallJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.moshiWithAverageJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jsonIteratorWithBigJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jsonIteratorWithSmallJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jsonIteratorWithAverageJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.qsonWithBigJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.qsonWithSmallJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.qsonWithAverageJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gensonWithAverageJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gensonWithBigJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gensonWithSmallJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jacksonWithSmallJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jacksonWithAverageJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jacksonWithBigJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.boonWithSmallJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.boonWithAverageJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.boonWithBigJSON","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gsonWithSmallObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gsonWithAverageObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gsonWithBigObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jacksonWithSmallObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jacksonWithAverageObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jacksonWithBigObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.boonWithBigObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.boonWithSmallObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.boonWithAverageObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gensonWithBigObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gensonWithSmallObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.gensonWithAverageObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.moshiWithBigObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.moshiWithSmallObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.moshiWithAverageObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.qsonWithBigObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.qsonWithSmallObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.qsonWithAverageObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jsonIteratorWithBigObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jsonIteratorWithSmallObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.JsonLibraryBenchmark.jsonIteratorWithAverageObject","com.gocypher.cybench.launcher.scores.JsonScoreConverter") ;
+
+
+//---------------------Score converter for LIST operations--------------------------------------------------------------
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.arrayListAdd","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.stackAdd","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.linkedListAdd","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.arrayListRemove","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.stackRemove","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.linkedListRemove","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.arrayListUpdate","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.stackUpdate","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+		BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.put("com.gocypher.cybench.jmh.jvm.client.tests.ListsBenchmark.linkedListUpdate","com.gocypher.cybench.launcher.scores.ListScoreConverter") ;
+
 	}
 
 }

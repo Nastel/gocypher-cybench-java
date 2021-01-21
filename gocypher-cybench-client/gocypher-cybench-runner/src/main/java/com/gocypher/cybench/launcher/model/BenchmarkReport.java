@@ -124,7 +124,7 @@ public class BenchmarkReport implements Serializable {
         String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name);
 
 
-        LOG.info("Recalculating score values for" + this.name);
+        LOG.info("Recalculating score values for: " + this.name);
 
         try {
             ClassAndMethod classAndMethod = new ClassAndMethod(name).invoke();

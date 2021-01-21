@@ -305,14 +305,14 @@ public class BenchmarkRunner {
             Arrays.stream(annotation.value()).forEach(annot -> {
                 checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
                 benchmarkReport.addMetadata(annot.key(), annot.value());
-                LOG.info("added metadata " + annot.key() + "=" + annot.value());
+//                LOG.info("added metadata " + annot.key() + "=" + annot.value());
             });
         }
         BenchmarkMetaData singleAnnotation = aClass.getDeclaredAnnotation(BenchmarkMetaData.class);
         if (singleAnnotation != null) {
             checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
             benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
+//            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
         }
     }
 
@@ -322,14 +322,14 @@ public class BenchmarkRunner {
             Arrays.stream(annotation.value()).forEach(annot -> {
                 checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
                 benchmarkReport.addMetadata(annot.key(), annot.value());
-                LOG.info("added metadata " + annot.key() + "=" + annot.value());
+//                LOG.info("added metadata " + annot.key() + "=" + annot.value());
             });
         }
         BenchmarkMetaData singleAnnotation = benchmarkMethod.get().getDeclaredAnnotation(BenchmarkMetaData.class);
         if (singleAnnotation != null) {
             checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
             benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
+//            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
 
         }
 
