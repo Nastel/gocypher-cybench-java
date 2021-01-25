@@ -230,14 +230,15 @@ public class BenchmarkRunner {
                 }
             });
         }
-        List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
-        report.getBenchmarks().remove("CUSTOM");
-        for(BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
-            report.addToBenchmarks(benchReport);
+        if(report.getBenchmarks() != null) {
+            List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
+            report.getBenchmarks().remove("CUSTOM");
+            for (BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
+                report.addToBenchmarks(benchReport);
+            }
+            report.computeScores();
+            getReportUploadStatus(report);
         }
-        report.computeScores();
-        getReportUploadStatus(report);
-
         try {
             LOG.info("Generating JSON report...");
             String reportJSON;

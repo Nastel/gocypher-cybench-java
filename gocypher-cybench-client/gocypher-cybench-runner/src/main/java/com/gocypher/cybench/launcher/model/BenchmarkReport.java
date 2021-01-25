@@ -119,35 +119,33 @@ public class BenchmarkReport implements Serializable {
     @JsonIgnore
     public void recalculateScoresToMatchNewUnits() {
 
-
         // FIXME seek and r/w conversion to MB/s differs, fix it.
         String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name);
-
-
         LOG.info("Recalculating score values for: " + this.name);
 
-        try {
-            ClassAndMethod classAndMethod = new ClassAndMethod(name).invoke();
-            String clazz1 = classAndMethod.getClazz();
-            String method = classAndMethod.getMethod();
-            Class<?> aClass = Class.forName(clazz1);
-            Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
-            ScoreConverter annotation = benchmarkMethod.get().getAnnotation(ScoreConverter.class);
-            if (annotation != null) {
-                className = annotation.converter().getName();
-            } else {
-                ScoreConverter classAnnotation = aClass.getAnnotation(ScoreConverter.class);
-                if (classAnnotation != null) {
-                    className = classAnnotation.converter().getName();
+        if(Boolean.parseBoolean(System.getProperty("checkScoreAnnotation", "true"))) {
+            try {
+                ClassAndMethod classAndMethod = new ClassAndMethod(name).invoke();
+                String clazz1 = classAndMethod.getClazz();
+                String method = classAndMethod.getMethod();
+                Class<?> aClass = Class.forName(clazz1);
+                Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
+                ScoreConverter annotation = benchmarkMethod.get().getAnnotation(ScoreConverter.class);
+                if (annotation != null) {
+                    className = annotation.converter().getName();
+                } else {
+                    ScoreConverter classAnnotation = aClass.getAnnotation(ScoreConverter.class);
+                    if (classAnnotation != null) {
+                        className = classAnnotation.converter().getName();
+                    }
                 }
+
+            } catch (ClassNotFoundException e) {
+                LOG.error("ScoreConverter not found in classpath", e);
+            } catch (Exception e) {
+                LOG.error("ScoreConverter error", e);
             }
-
-        } catch (ClassNotFoundException e) {
-            LOG.error("ScoreConverter not found in classpath", e);
-        } catch (Exception e) {
-            LOG.error("ScoreConverter error", e);
         }
-
 
         if (className != null) {
             try {
