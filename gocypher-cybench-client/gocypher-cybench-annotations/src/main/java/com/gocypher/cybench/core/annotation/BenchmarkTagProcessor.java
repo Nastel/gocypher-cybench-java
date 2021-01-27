@@ -41,10 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes(
@@ -53,6 +50,8 @@ import java.util.stream.Collectors;
 
 @AutoService(Processor.class)
 public class BenchmarkTagProcessor extends AbstractProcessor {
+
+    private static Map<String, Element> knownAnnotationTags = new HashMap();
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -150,13 +149,22 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
     }
 
     private void checkTagAnnotation(Element element, Messager messager) {
+        BenchmarkTag annotation = element.getAnnotation(BenchmarkTag.class);
+
         try {
-            BenchmarkTag annotation = element.getAnnotation(BenchmarkTag.class);
             if (annotation != null) {
                 UUID.fromString(annotation.tag());
             }
+
         } catch (IllegalArgumentException r) {
             String msg = "@BenchmarkTag is not UUID like. eg. " + UUID.randomUUID();
+            messager.printMessage(Diagnostic.Kind.ERROR, msg);
+            throw new RuntimeException(msg);
+        }
+
+        Element put = knownAnnotationTags.put(annotation.tag(), element);
+        if (put != null) {
+            String msg = "@BenchmarkTag "+ annotation.tag() +" is not unique. Used in: "  + element.getSimpleName().toString() + " and " + put.getSimpleName().toString();
             messager.printMessage(Diagnostic.Kind.ERROR, msg);
             throw new RuntimeException(msg);
         }
