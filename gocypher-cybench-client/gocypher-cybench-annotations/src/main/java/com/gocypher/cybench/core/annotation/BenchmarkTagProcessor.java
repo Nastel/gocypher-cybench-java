@@ -78,7 +78,8 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                 }
             });
 
-            if (createdFiles.size() >0 ) processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Annotations created and files are updated. You need to recompile.");
+            if (createdFiles.size() > 0)
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Annotations created and files are updated. You need to recompile.");
 
         }
 
@@ -107,7 +108,7 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                 } catch (FilerException e) {
                     // complaining about reopening/ do nothing
                 }
-                if (classFile != null && classFile.getLastModified()  == 0) {
+                if (classFile != null && classFile.getLastModified() == 0) {
                     classFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, pck, nm + ".generated");
                     try (PrintWriter wr = new PrintWriter(classFile.openWriter())) {
                         String replaced = getReplaced(fileContents, name, name);
@@ -150,7 +151,7 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
 
     private void checkTagAnnotation(Element element, Messager messager) {
         BenchmarkTag annotation = element.getAnnotation(BenchmarkTag.class);
-
+        if (annotation == null) return;
         try {
             if (annotation != null) {
                 UUID.fromString(annotation.tag());
@@ -164,7 +165,7 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
 
         Element put = knownAnnotationTags.put(annotation.tag(), element);
         if (put != null) {
-            String msg = "@BenchmarkTag "+ annotation.tag() +" is not unique. Used in: "  + element.getSimpleName().toString() + " and " + put.getSimpleName().toString();
+            String msg = "@BenchmarkTag " + annotation.tag() + " is not unique. Used in: " + element.getSimpleName().toString() + " and " + put.getSimpleName().toString();
             messager.printMessage(Diagnostic.Kind.ERROR, msg);
             throw new RuntimeException(msg);
         }
