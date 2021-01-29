@@ -98,23 +98,18 @@ public class SecurityUtils {
 
     public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints) {
 
-        try {
-            JavaClass javaClass = Repository.lookupClass(clazz);
-            List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream().filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName()).collect(Collectors.toList());
-            for (Method method : javaClass.getMethods()) {
-                try {
-                    if (benchmarkMethods.contains(method.getName())) {
-                        String hash = hashByteArray(concatArrays(method.getName().getBytes(), method.getSignature().getBytes(), method.getCode().getCode()));
-                        generatedFingerprints.put(clazz.getName() + "." + method.getName(), hash);
-                    }
-                } catch (Exception e) {
-                    LOG.error("Failed to compute hash for method {} in class {}", method.getName(), clazz, e);
+        JavaClass javaClass = Repository.lookupClass(clazz);
+        List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream().filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName()).collect(Collectors.toList());
+        for (Method method : javaClass.getMethods()) {
+            try {
+                if (benchmarkMethods.contains(method.getName())) {
+                    String hash = hashByteArray(concatArrays(method.getName().getBytes(), method.getSignature().getBytes(), method.getCode().getCode()));
+                    generatedFingerprints.put(clazz.getName() + "." + method.getName(), hash);
                 }
+            } catch (Exception e) {
+                LOG.error("Failed to compute hash for method {} in class {}", method.getName(), clazz, e);
             }
-        } catch (ClassNotFoundException e) {
-            LOG.error("ClassNotFoundException", clazz.getName(), e);
-        }
-
+        } 
     }
 
     protected static byte[] concatArrays(byte[]... bytes) {
