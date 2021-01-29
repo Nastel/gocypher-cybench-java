@@ -301,7 +301,7 @@ public class BenchmarkRunner {
         return optionBuilder;
     }
 
-    private static void appendMetadataFromClass(Class<?> aClass, BenchmarkReport benchmarkReport) {
+    protected static void appendMetadataFromClass(Class<?> aClass, BenchmarkReport benchmarkReport) {
         CyBenchMetadataList annotation = aClass.getDeclaredAnnotation(CyBenchMetadataList.class);
         if (annotation != null) {
             Arrays.stream(annotation.value()).forEach(annot -> {
@@ -316,9 +316,13 @@ public class BenchmarkRunner {
             benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
 //            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
         }
+
+        if (!aClass.getSuperclass().equals(Object.class) ) {
+            appendMetadataFromClass(aClass.getSuperclass(), benchmarkReport);
+        }
     }
 
-    private static void appendMetadataFromMethod(Optional<Method> benchmarkMethod, BenchmarkReport benchmarkReport) {
+    protected static void appendMetadataFromMethod(Optional<Method> benchmarkMethod, BenchmarkReport benchmarkReport) {
         CyBenchMetadataList annotation = benchmarkMethod.get().getDeclaredAnnotation(CyBenchMetadataList.class);
         if (annotation != null) {
             Arrays.stream(annotation.value()).forEach(annot -> {

@@ -35,7 +35,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SecurityUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
@@ -66,7 +65,7 @@ public class SecurityUtils {
         return null;
     }
 
-    public static byte[] getObjectBytes(Object obj){
+    public static byte[] getObjectBytes(Object obj) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             ObjectOutputStream out;
             out = new ObjectOutputStream(bos);
@@ -76,7 +75,7 @@ public class SecurityUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return  new byte[]{};
+        return new byte[]{};
     }
 
     public static String computeClassHash(Class<?> clazz) {
@@ -99,23 +98,26 @@ public class SecurityUtils {
 
     public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints) {
 
-        JavaClass javaClass = Repository.lookupClass(clazz);
-        List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream().filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName()).collect(Collectors.toList());
-        for (Method method : javaClass.getMethods()) {
-            try {
-                if (benchmarkMethods.contains(method.getName())) {
-                    String hash = hashByteArray(concatArrays(method.getName().getBytes(), method.getSignature().getBytes() ,  method.getCode().getCode()));
-                    generatedFingerprints.put(clazz.getName() + "." +method.getName(), hash);
+        try {
+            JavaClass javaClass = Repository.lookupClass(clazz);
+            List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream().filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName()).collect(Collectors.toList());
+            for (Method method : javaClass.getMethods()) {
+                try {
+                    if (benchmarkMethods.contains(method.getName())) {
+                        String hash = hashByteArray(concatArrays(method.getName().getBytes(), method.getSignature().getBytes(), method.getCode().getCode()));
+                        generatedFingerprints.put(clazz.getName() + "." + method.getName(), hash);
+                    }
+                } catch (Exception e) {
+                    LOG.error("Failed to compute hash for method {} in class {}", method.getName(), clazz, e);
                 }
-            } catch (Exception e) {
-                LOG.error("Failed to compute hash for method {} in class {}", method.getName(),clazz, e);
             }
+        } catch (ClassNotFoundException e) {
+            LOG.error("ClassNotFoundException", clazz.getName(), e);
         }
-
 
     }
 
-    protected static byte[] concatArrays(byte[] ... bytes) {
+    protected static byte[] concatArrays(byte[]... bytes) {
         String collect = Arrays.asList(bytes).stream().map(b -> new String(b)).collect(Collectors.joining());
         return collect.getBytes();
     }
