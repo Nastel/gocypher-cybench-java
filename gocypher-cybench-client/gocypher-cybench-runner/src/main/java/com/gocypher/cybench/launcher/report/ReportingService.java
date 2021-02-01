@@ -168,6 +168,13 @@ public class ReportingService {
 		return overviewReport;
 	}
 
+	public Double checkValueExistence(Double value){
+		if(value == -1){
+			return null;
+		}else{
+			return value;
+		}
+	}
 	public Map<String, String> prepareBenchmarkProperties(String className,
 			Map<String, Map<String, String>> benchmarksMetadata) {
 		Map<String, String> benchmarkProperties = new HashMap<>();
@@ -263,6 +270,7 @@ public class ReportingService {
 	}
 	private Double getScoreFromJMHSecondaryResult(RunResult result, String key, int denominator) {
 		Double value = getScoreFromJMHSecondaryResult(result, key) ;
+		checkValueExistence(value);
 		if (value != null && denominator != 0){
 			return value/denominator ;
 		}

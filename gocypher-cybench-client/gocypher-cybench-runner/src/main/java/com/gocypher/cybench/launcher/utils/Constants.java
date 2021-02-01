@@ -25,6 +25,7 @@ import java.util.Map;
 public class Constants {
 	public static final String SEND_REPORT = "sendReport";
 	public static final String REPORT_URL = "reportUrl";
+	public static final String REPORT_USER_URL = "reportUserUrl";
 	public static final String BENCHMARK_REPORT_NAME = "reportName";
 	public static final String BENCHMARK_RUN_CLASSES = "benchmarkClasses";
 	public static final String USER_PROPERTY_PREFIX = "user.";

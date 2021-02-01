@@ -68,7 +68,9 @@ public class DeliveryService {
 
             //LOG.info("Storing result: {}",result);
             result = JSONUtils.parseJsonIntoMap(result).get(Constants.REPORT_URL).toString();
+            result = JSONUtils.parseJsonIntoMap(result).get(Constants.REPORT_USER_URL).toString();
             LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
+            LOG.info("You can find all device benchmarks on {}", Constants.REPORT_USER_URL);
             LOG.info("Your report is available at {}", result);
             LOG.info("NOTE: It may take a few minutes for your report to appear online");
             return result;
