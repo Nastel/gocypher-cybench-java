@@ -246,7 +246,16 @@ public class BenchmarkRunner {
             String responseWithUrl;
             if (shouldSendReport(report)) {
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
-                report.setReportURL(responseWithUrl);
+
+                String deviceReports = JSONUtils.parseJsonIntoMap(responseWithUrl).get(Constants.REPORT_USER_URL).toString();
+                String resultURL = JSONUtils.parseJsonIntoMap(responseWithUrl).get(Constants.REPORT_URL).toString();
+                LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
+                LOG.info("You can find all device benchmarks on {}", deviceReports);
+                LOG.info("Your report is available at {}", resultURL);
+                LOG.info("NOTE: It may take a few minutes for your report to appear online");
+
+                report.setDeviceReports(deviceReports);
+                report.setReportURL(resultURL);
             } else {
                 LOG.info("You may submit your report '{}' manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
             }
