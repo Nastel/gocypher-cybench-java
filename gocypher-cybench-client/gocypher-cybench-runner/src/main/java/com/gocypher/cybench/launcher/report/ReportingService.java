@@ -169,7 +169,7 @@ public class ReportingService {
 	}
 
 	public Double checkValueExistence(Double value){
-		if(value == -1){
+		if(value != null && value == -1){
 			return null;
 		}else{
 			return value;
