@@ -163,9 +163,9 @@ public class BenchmarkRunner {
 //            for (Class<? extends Object> classObj : allDefaultClasses) {
 //                if (!classObj.getName().isEmpty() && classObj.getSimpleName().contains("Benchmarks")
 //                        && !classObj.getSimpleName().contains("_")) {
-                    // We do not include any class, because then JMH will discover all benchmarks
-                    // automatically including user defined
-                    // optBuild.include(classObj.getName());
+            // We do not include any class, because then JMH will discover all benchmarks
+            // automatically including user defined
+            // optBuild.include(classObj.getName());
 //                    tempBenchmark = classObj.getName();
 //                    LOG.info("tempBenchmark... {}", tempBenchmark);
 //                    securityBuilder.generateSecurityHashForClasses(classObj);
@@ -230,7 +230,7 @@ public class BenchmarkRunner {
                 }
             });
         }
-        if(report.getBenchmarks() != null) {
+        if (report.getBenchmarks() != null) {
             List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
             report.getBenchmarks().remove("CUSTOM");
             for (BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
@@ -265,7 +265,7 @@ public class BenchmarkRunner {
             reportJSON = JSONUtils.marshalToPrettyJson(report);
             String cybReportJsonFile = getCybReportFileName(report, CYB_REPORT_JSON_FILE);
             String cybReportFile = getCybReportFileName(report, CYB_REPORT_CYB_FILE);
-            if(cybReportJsonFile.equals(CYB_REPORT_JSON_FILE) && cybReportFile.equals(CYB_REPORT_CYB_FILE)){
+            if (cybReportJsonFile.equals(CYB_REPORT_JSON_FILE) && cybReportFile.equals(CYB_REPORT_CYB_FILE)) {
                 cybReportJsonFile = IOUtils.getReportsPath("", ComputationUtils.createFileNameForReport("report", start, report.getTotalScore(), false));
                 cybReportFile = IOUtils.getReportsPath("", ComputationUtils.createFileNameForReport("report", start, report.getTotalScore(), true));
             }
@@ -285,26 +285,28 @@ public class BenchmarkRunner {
         LOG.info("                                 Finished CyBench benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
         LOG.info("-----------------------------------------------------------------------------------------");
     }
-    private static void customBenchmarksCategoryCheck(){
+
+    private static void customBenchmarksCategoryCheck() {
 
     }
-    private static ChainedOptionsBuilder setMeasurementProperties(ChainedOptionsBuilder optionBuilder, int forks, int measurementIterations, int measurementSeconds, int warmUpIterations, int warmUpSeconds, int threads){
-        if(forks!=-1){
+
+    private static ChainedOptionsBuilder setMeasurementProperties(ChainedOptionsBuilder optionBuilder, int forks, int measurementIterations, int measurementSeconds, int warmUpIterations, int warmUpSeconds, int threads) {
+        if (forks != -1) {
             optionBuilder = optionBuilder.forks(forks);
         }
-        if(measurementIterations!=-1){
+        if (measurementIterations != -1) {
             optionBuilder = optionBuilder.measurementIterations(measurementIterations);
         }
-        if(warmUpIterations!=-1){
+        if (warmUpIterations != -1) {
             optionBuilder = optionBuilder.warmupIterations(warmUpIterations);
         }
-        if(warmUpSeconds!=-1){
+        if (warmUpSeconds != -1) {
             optionBuilder = optionBuilder.warmupTime(TimeValue.seconds(warmUpSeconds));
         }
-        if(threads!=-1){
+        if (threads != -1) {
             optionBuilder = optionBuilder.threads(threads);
         }
-        if(measurementSeconds!=-1){
+        if (measurementSeconds != -1) {
             optionBuilder = optionBuilder.measurementTime(TimeValue.seconds(measurementSeconds));
         }
         return optionBuilder;
@@ -326,8 +328,12 @@ public class BenchmarkRunner {
 //            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
         }
 
-        if (!aClass.getSuperclass().equals(Object.class) ) {
+        if (!aClass.isInterface() && !aClass.getSuperclass().equals(Object.class)) {
             appendMetadataFromClass(aClass.getSuperclass(), benchmarkReport);
+        }
+        for (Class anInterface : aClass.getInterfaces()) {
+            appendMetadataFromClass(anInterface, benchmarkReport);
+
         }
     }
 
@@ -350,20 +356,21 @@ public class BenchmarkRunner {
 
     }
 
-    private static void checkSetOldMetadataProps(String key,String value, BenchmarkReport benchmarkReport){
-        if(key.equals("api")){
+    private static void checkSetOldMetadataProps(String key, String value, BenchmarkReport benchmarkReport) {
+        if (key.equals("api")) {
             benchmarkReport.setCategory(value);
         }
-        if(key.equals("context")){
+        if (key.equals("context")) {
             benchmarkReport.setContext(value);
         }
-        if(key.equals("version")){
+        if (key.equals("version")) {
             benchmarkReport.setVersion(value);
         }
     }
 
     private static boolean shouldSendReport(BenchmarkOverviewReport report) {
-        if (report.getEnvironmentSettings().get("environment") instanceof HardwareProperties.EmptyHardwareProperties) return false;
+        if (report.getEnvironmentSettings().get("environment") instanceof HardwareProperties.EmptyHardwareProperties)
+            return false;
         return report.isEligibleForStoringExternally() && (getProperty(Constants.SEND_REPORT) == null
                 || Boolean.parseBoolean(getProperty(Constants.SEND_REPORT)));
     }

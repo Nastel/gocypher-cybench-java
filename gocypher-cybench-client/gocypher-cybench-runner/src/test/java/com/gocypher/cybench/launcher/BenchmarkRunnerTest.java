@@ -12,7 +12,7 @@ class BenchmarkRunnerTest {
         BenchmarkReport benchmarkReport = new BenchmarkReport();
         BenchmarkRunner.appendMetadataFromClass(TestClass.class, benchmarkReport);
         benchmarkReport.getMetadata().forEach((k, v) -> System.out.println(k + " : " + v));
-        assertEquals(2, benchmarkReport.getMetadata().size());
+        assertEquals(5, benchmarkReport.getMetadata().size());
     }
 
 
@@ -23,7 +23,22 @@ class BenchmarkRunnerTest {
 
 
     @BenchmarkMetaData(key = "C", value = "D")
-    public static class TestClass extends TestSuperClass {
+    public static class TestClass extends TestSuperClass implements E, G {
+
+    }
+
+    @BenchmarkMetaData(key = "E", value = "F")
+    public interface E extends I{
+
+    }
+
+    @BenchmarkMetaData(key = "G", value = "H")
+    public interface G {
+
+    }
+
+    @BenchmarkMetaData(key = "I", value = "J")
+    public interface I {
 
     }
 }
