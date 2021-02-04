@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
@@ -225,6 +226,7 @@ public class BenchmarkRunner {
                     Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
                     appendMetadataFromMethod(benchmarkMethod, benchmarkReport);
                     appendMetadataFromClass(aClass, benchmarkReport);
+                    appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -284,6 +286,27 @@ public class BenchmarkRunner {
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Finished CyBench benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
         LOG.info("-----------------------------------------------------------------------------------------");
+    }
+
+    private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod, BenchmarkReport benchmarkReport) {
+        final String key = aClass.getName() + "." + benchmarkMethod.get().getName();
+
+        LOG.info("Appending javadoc for {}", key);
+        Properties p = new Properties();
+        try {
+            p.load(ClassLoader.getSystemResourceAsStream("benchJavaDoc"));
+
+            final String property = p.getProperty(key);
+            if (property != null) {
+                LOG.info("Appending javadoc {} for {}", key, property);
+
+                benchmarkReport.addMetadata("description", property);
+
+            }
+        } catch (IOException e) {
+            LOG.error("Cannot load Javadoc", e);
+        }
+
     }
 
     private static void customBenchmarksCategoryCheck() {
