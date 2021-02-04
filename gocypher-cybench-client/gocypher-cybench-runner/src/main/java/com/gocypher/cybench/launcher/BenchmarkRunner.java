@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
@@ -291,10 +292,14 @@ public class BenchmarkRunner {
     private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod, BenchmarkReport benchmarkReport) {
         final String key = aClass.getName() + "." + benchmarkMethod.get().getName();
 
-        LOG.info("Appending javadoc for {}", key);
         Properties p = new Properties();
         try {
-            p.load(ClassLoader.getSystemResourceAsStream("benchJavaDoc"));
+            final InputStream benchJavaDoc = ClassLoader.getSystemResourceAsStream("benchJavaDoc");
+            if (benchJavaDoc == null) {
+                LOG.info("No javadoc descriptions found");
+                return;
+            }
+            p.load(benchJavaDoc);
 
             final String property = p.getProperty(key);
             if (property != null) {
