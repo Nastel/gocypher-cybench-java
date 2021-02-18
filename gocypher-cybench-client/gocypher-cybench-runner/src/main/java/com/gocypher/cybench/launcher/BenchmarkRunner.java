@@ -257,7 +257,7 @@ public class BenchmarkRunner {
                 LOG.info("Your report is available at {}", resultURL);
                 LOG.info("NOTE: It may take a few minutes for your report to appear online");
 
-                report.setDeviceReports(deviceReports);
+                report.setDeviceReportsURL(deviceReports);
                 report.setReportURL(resultURL);
             } else {
                 LOG.info("You may submit your report '{}' manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);

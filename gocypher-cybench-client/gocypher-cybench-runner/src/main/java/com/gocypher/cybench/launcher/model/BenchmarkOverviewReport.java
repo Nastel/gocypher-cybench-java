@@ -35,7 +35,7 @@ public class BenchmarkOverviewReport implements Serializable {
 	private long timestamp ;
     private long timestampUTC ;
     private String reportURL ;
-    private String deviceReports ;
+    private String deviceReportsURL ;
     private BigDecimal totalScore ;
     private String uploadStatus ;
     private Map<String,Map<String,Object>>categoriesOverview ;
@@ -178,12 +178,12 @@ public class BenchmarkOverviewReport implements Serializable {
         this.uploadStatus = uploadStatus;
     }
 
-    public String getDeviceReports() {
-        return deviceReports;
+    public String getDeviceReportsURL() {
+        return deviceReportsURL;
     }
 
-    public void setDeviceReports(String deviceReports) {
-        this.deviceReports = deviceReports;
+    public void setDeviceReportsURL(String deviceReports) {
+        this.deviceReportsURL = deviceReports;
     }
 
     @Override
