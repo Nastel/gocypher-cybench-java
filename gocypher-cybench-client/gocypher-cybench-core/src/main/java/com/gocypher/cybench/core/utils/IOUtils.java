@@ -183,7 +183,11 @@ public class IOUtils {
 		FileWriter file = null;
 		try {
 			File cFile = new File(fileName);
-			File pFile = cFile.getParentFile();
+            fileName = cFile.getName().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");//You need to replace everything but [legal characters]
+            cFile = new File(cFile.getParent() + File.separator + fileName);
+            fileName = cFile.getPath();
+
+            File pFile = cFile.getParentFile();
 			boolean exists = pFile.exists();
 			if (!exists) {
 				if (!pFile.mkdir()) {
