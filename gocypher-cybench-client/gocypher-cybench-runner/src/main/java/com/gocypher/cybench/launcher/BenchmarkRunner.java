@@ -68,7 +68,7 @@ public class BenchmarkRunner {
     public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
     static Properties cfg = new Properties();
     private static String benchSource = "CyBench Launcher";
-    public static String USER_REPORT_TOKEN = System.getProperty("upload.token", null);
+    private static String USER_REPORT_TOKEN = System.getProperty("upload.token", null);
 
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
