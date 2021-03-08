@@ -52,6 +52,7 @@ public class Constants {
     public static final String COLLECT_HW = "collectHw";
 	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",	"https://app.cybench.io/cybench/upload");
 	public static final String DEFAULT_REPORT_FILE_NAME_SUFFIX ="report";
+	public static final String USER_REPORT_TOKEN="reportUploadToken";
 
 
     public static final Map<String,String> BENCHMARKS_SCORES_COMPUTATIONS_MAPPING = new HashMap<>() ;

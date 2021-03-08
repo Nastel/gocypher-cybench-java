@@ -68,6 +68,7 @@ public class BenchmarkRunner {
     public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
     static Properties cfg = new Properties();
     private static String benchSource = "CyBench Launcher";
+    public static String USER_REPORT_TOKEN = System.getProperty("upload.token", null);
 
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
@@ -248,7 +249,12 @@ public class BenchmarkRunner {
             String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder, report);
             String responseWithUrl;
             if (shouldSendReport(report)) {
-                responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted);
+
+                String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
+                if(USER_REPORT_TOKEN == null || USER_REPORT_TOKEN.equals("")){
+                    USER_REPORT_TOKEN = reportUploadToken;
+                }
+                responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, USER_REPORT_TOKEN);
 
                 String deviceReports = JSONUtils.parseJsonIntoMap(responseWithUrl).get(Constants.REPORT_USER_URL).toString();
                 String resultURL = JSONUtils.parseJsonIntoMap(responseWithUrl).get(Constants.REPORT_URL).toString();

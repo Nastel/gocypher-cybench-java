@@ -19,8 +19,6 @@
 
 package com.gocypher.cybench.launcher.report;
 
-import com.gocypher.cybench.launcher.utils.Constants;
-import com.gocypher.cybench.launcher.utils.JSONUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -37,7 +35,7 @@ public class DeliveryService {
     private static DeliveryService instance ;
 
     private static final String serviceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/report" ;
-    //private static final String serviceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report" ;
+//    private static final String serviceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report" ;
     private CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private DeliveryService (){
@@ -51,13 +49,14 @@ public class DeliveryService {
     }
 
 
-    public String sendReportForStoring (String reportJSON){
+    public String sendReportForStoring (String reportJSON, String token){
         try {
             LOG.info("-->Sending benchmark report to URL {}", serviceUrl);
             HttpPost request = new HttpPost(serviceUrl);
             //request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             request.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
             request.setHeader(HttpHeaders.ACCEPT,"application/json");
+            request.setHeader("x-api-key",token);
             StringEntity se = new StringEntity(reportJSON) ;
             request.setEntity(se);
 
