@@ -68,7 +68,6 @@ public class BenchmarkRunner {
     public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
     static Properties cfg = new Properties();
     private static String benchSource = "CyBench Launcher";
-    private static String USER_REPORT_TOKEN = System.getProperty("upload.token", null);
     private static final String REPORT_NOT_SENT = "You may submit your report '{}' manually at {}";
 
     public static void main(String[] args) throws Exception {
@@ -227,8 +226,8 @@ public class BenchmarkRunner {
                     LOG.info("Adding metadata for benchamrk: " + clazz + " test: " + method);
                     Class<?> aClass = Class.forName(clazz);
                     Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
-                    appendMetadataFromMethod(benchmarkMethod, benchmarkReport);
                     appendMetadataFromClass(aClass, benchmarkReport);
+                    appendMetadataFromMethod(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -255,10 +254,8 @@ public class BenchmarkRunner {
             if (shouldSendReport(report)) {
 
                 String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
-                if(USER_REPORT_TOKEN == null || USER_REPORT_TOKEN.equals("")){
-                    USER_REPORT_TOKEN = reportUploadToken;
-                }
-                responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, USER_REPORT_TOKEN);
+
+                responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, reportUploadToken);
                 response = com.gocypher.cybench.core.utils.JSONUtils.parseJsonIntoMap(responseWithUrl);
                 if(!response.containsKey("ERROR") && responseWithUrl != null && !responseWithUrl.isEmpty()) {
                     if(response.get(Constants.FOUND_TOKEN_REPOSITORIES) != null) {
@@ -362,7 +359,16 @@ public class BenchmarkRunner {
     }
 
     protected static void appendMetadataFromClass(Class<?> aClass, BenchmarkReport benchmarkReport) {
+        if (!aClass.isInterface() && !aClass.getSuperclass().equals(Object.class)) {
+            appendMetadataFromClass(aClass.getSuperclass(), benchmarkReport);
+        }
+        for (Class anInterface : aClass.getInterfaces()) {
+            appendMetadataFromClass(anInterface, benchmarkReport);
+
+        }
+
         CyBenchMetadataList annotation = aClass.getDeclaredAnnotation(CyBenchMetadataList.class);
+
         if (annotation != null) {
             Arrays.stream(annotation.value()).forEach(annot -> {
                 checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
@@ -377,13 +383,7 @@ public class BenchmarkRunner {
 //            LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
         }
 
-        if (!aClass.isInterface() && !aClass.getSuperclass().equals(Object.class)) {
-            appendMetadataFromClass(aClass.getSuperclass(), benchmarkReport);
-        }
-        for (Class anInterface : aClass.getInterfaces()) {
-            appendMetadataFromClass(anInterface, benchmarkReport);
 
-        }
     }
 
     protected static void appendMetadataFromMethod(Optional<Method> benchmarkMethod, BenchmarkReport benchmarkReport) {

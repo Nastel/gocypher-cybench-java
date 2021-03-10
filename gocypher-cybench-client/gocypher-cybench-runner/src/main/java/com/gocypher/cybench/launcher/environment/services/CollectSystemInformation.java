@@ -143,7 +143,7 @@ public class CollectSystemInformation {
         Map<String, Object> unclassifiedProperties = new HashMap<>();
         List<String> inputArguments = new ArrayList<>(ManagementFactory.getRuntimeMXBean().getInputArguments());
         inputArguments.removeIf(inputArgument -> inputArgument.contains("-javaagent")
-                || inputArgument.contains("DREMOTE_CYBENCH_ACCESS_TOKEN")
+                || inputArgument.contains("DBENCH_ACCESS_TOKEN")
                 || inputArgument.contains("DREPORT_CLASSES")
                 || inputArgument.contains("DUSE_CYBNECH_BENCHMARK_SETTINGS")
                 || inputArgument.contains("DINCLUDE_HARDWARE_PROPERTIES")

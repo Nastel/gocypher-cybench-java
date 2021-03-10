@@ -183,7 +183,7 @@ public class IOUtils {
 		FileWriter file = null;
 		try {
 			File cFile = new File(fileName);
-            fileName = cFile.getName().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");//You need to replace everything but [legal characters]
+            fileName = escapeFile(cFile);//You need to replace everything but [legal characters]
             cFile = new File(cFile.getParent() + File.separator + fileName);
             fileName = cFile.getPath();
 
@@ -204,7 +204,11 @@ public class IOUtils {
 		}
 	}
 
-	public static void close(Closeable obj) {
+    private static String escapeFile(File cFile) {
+        return cFile.getName().replaceAll("[^a-zA-Z0-9\\.\\-,]", "_");
+    }
+
+    public static void close(Closeable obj) {
 		try {
 			if (obj != null) {
 				obj.close();
