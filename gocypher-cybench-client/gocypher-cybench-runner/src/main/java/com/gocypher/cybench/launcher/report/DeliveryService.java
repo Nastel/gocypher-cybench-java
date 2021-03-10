@@ -34,8 +34,8 @@ public class DeliveryService {
     private static final Logger LOG = LoggerFactory.getLogger(DeliveryService.class) ;
     private static DeliveryService instance ;
 
-//    private static final String serviceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/report" ;
-    private static final String serviceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report" ;
+    private static final String serviceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/report" ;
+//    private static final String serviceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report" ;
     private CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private DeliveryService (){

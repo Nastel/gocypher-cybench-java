@@ -54,6 +54,7 @@ public class Constants {
 	public static final String DEFAULT_REPORT_FILE_NAME_SUFFIX ="report";
 	public static final String USER_REPORT_TOKEN="reportUploadToken";
 
+	public static final String FOUND_TOKEN_REPOSITORIES = "reposFound" ;
 
     public static final Map<String,String> BENCHMARKS_SCORES_COMPUTATIONS_MAPPING = new HashMap<>() ;
 

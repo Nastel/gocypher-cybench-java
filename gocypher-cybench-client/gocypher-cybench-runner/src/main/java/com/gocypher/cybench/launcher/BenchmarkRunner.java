@@ -69,6 +69,7 @@ public class BenchmarkRunner {
     static Properties cfg = new Properties();
     private static String benchSource = "CyBench Launcher";
     private static String USER_REPORT_TOKEN = System.getProperty("upload.token", null);
+    private static final String REPORT_NOT_SENT = "You may submit your report '{}' manually at {}";
 
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
@@ -234,7 +235,7 @@ public class BenchmarkRunner {
                 }
             });
         }
-        if (report.getBenchmarks() != null) {
+        if (report.getBenchmarks() != null && report.getBenchmarks().size() > 0) {
             List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
             report.getBenchmarks().remove("CUSTOM");
             for (BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
@@ -247,7 +248,10 @@ public class BenchmarkRunner {
             LOG.info("Generating JSON report...");
             String reportJSON;
             String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder, report);
-            String responseWithUrl;
+            String responseWithUrl = null;
+            String deviceReports = null;
+            String resultURL = null;
+            Map<?, ?> response = new HashMap<>();
             if (shouldSendReport(report)) {
 
                 String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
@@ -255,18 +259,15 @@ public class BenchmarkRunner {
                     USER_REPORT_TOKEN = reportUploadToken;
                 }
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, USER_REPORT_TOKEN);
-
-                String deviceReports = JSONUtils.parseJsonIntoMap(responseWithUrl).get(Constants.REPORT_USER_URL).toString();
-                String resultURL = JSONUtils.parseJsonIntoMap(responseWithUrl).get(Constants.REPORT_URL).toString();
-                LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
-                LOG.info("You can find all device benchmarks on {}", deviceReports);
-                LOG.info("Your report is available at {}", resultURL);
-                LOG.info("NOTE: It may take a few minutes for your report to appear online");
-
-                report.setDeviceReportsURL(deviceReports);
-                report.setReportURL(resultURL);
+                response = com.gocypher.cybench.core.utils.JSONUtils.parseJsonIntoMap(responseWithUrl);
+                if(!response.containsKey("ERROR") && responseWithUrl != null && !responseWithUrl.isEmpty()) {
+                    deviceReports = response.get(Constants.REPORT_USER_URL).toString() + response.get(Constants.FOUND_TOKEN_REPOSITORIES);
+                    resultURL = response.get(Constants.REPORT_URL).toString() + response.get(Constants.FOUND_TOKEN_REPOSITORIES);
+                    report.setDeviceReportsURL(deviceReports);
+                    report.setReportURL(resultURL);
+                }
             } else {
-                LOG.info("You may submit your report '{}' manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
+                LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
             }
 //			LOG.info("-----------------------------------------------------------------------------------------");
 //			LOG.info("REPORT '{}'", report);
@@ -280,15 +281,24 @@ public class BenchmarkRunner {
             }
             LOG.info("Saving test results to '{}'", cybReportJsonFile);
             IOUtils.storeResultsToFile(cybReportJsonFile, reportJSON);
-            LOG.info("Saving ecnrypted test results to '{}'", cybReportFile);
+            LOG.info("Saving encrypted test results to '{}'", cybReportFile);
             IOUtils.storeResultsToFile(cybReportFile, reportEncrypted);
 
             LOG.info("Removing all temporary auto-generated files....");
             IOUtils.removeTestDataFiles();
             LOG.info("Removed all temporary auto-generated files!!!");
+            if(!response.containsKey("ERROR") && responseWithUrl != null && !responseWithUrl.isEmpty()) {
+                LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
+                LOG.info("You can find all device benchmarks on {}", deviceReports);
+                LOG.info("Your report is available at {}", resultURL);
+                LOG.info("NOTE: It may take a few minutes for your report to appear online");
+            }else{
+                LOG.info((String) response.get("ERROR"));
+                LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
+            }
         } catch (Exception e) {
             LOG.error("Failed to save test results", e);
-            LOG.info("You may submit your report '{}' manually at {}", CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
+            LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
         }
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Finished CyBench benchmarking ({})                      ", formatInterval(System.currentTimeMillis() - start));
