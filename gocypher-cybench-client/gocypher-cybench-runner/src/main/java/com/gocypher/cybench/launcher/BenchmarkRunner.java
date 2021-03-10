@@ -261,8 +261,13 @@ public class BenchmarkRunner {
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, USER_REPORT_TOKEN);
                 response = com.gocypher.cybench.core.utils.JSONUtils.parseJsonIntoMap(responseWithUrl);
                 if(!response.containsKey("ERROR") && responseWithUrl != null && !responseWithUrl.isEmpty()) {
-                    deviceReports = response.get(Constants.REPORT_USER_URL).toString() + response.get(Constants.FOUND_TOKEN_REPOSITORIES);
-                    resultURL = response.get(Constants.REPORT_URL).toString() + response.get(Constants.FOUND_TOKEN_REPOSITORIES);
+                    if(response.get(Constants.FOUND_TOKEN_REPOSITORIES) != null) {
+                        deviceReports = response.get(Constants.REPORT_USER_URL).toString() + response.get(Constants.FOUND_TOKEN_REPOSITORIES).toString();
+                        resultURL = response.get(Constants.REPORT_URL).toString() + response.get(Constants.FOUND_TOKEN_REPOSITORIES).toString();
+                    }else{
+                        deviceReports = response.get(Constants.REPORT_USER_URL).toString() ;
+                        resultURL = response.get(Constants.REPORT_URL).toString();
+                    }
                     report.setDeviceReportsURL(deviceReports);
                     report.setReportURL(resultURL);
                 }
