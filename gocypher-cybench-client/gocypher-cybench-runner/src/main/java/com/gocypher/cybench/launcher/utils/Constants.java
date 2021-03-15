@@ -20,9 +20,12 @@
 package com.gocypher.cybench.launcher.utils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Constants {
+
+
 	public static final String SEND_REPORT = "sendReport";
 	public static final String REPORT_URL = "reportUrl";
 	public static final String REPORT_USER_URL = "reportUserUrl";
@@ -57,6 +60,9 @@ public class Constants {
 	public static final String FOUND_TOKEN_REPOSITORIES = "reposFound" ;
 
     public static final Map<String,String> BENCHMARKS_SCORES_COMPUTATIONS_MAPPING = new HashMap<>() ;
+
+
+    public static String[] excludedFromReportArgument = {USER_REPORT_TOKEN, BENCHMARK_RUN_CLASSES, BENCHMARK_REPORT_NAME,COLLECT_HW, SEND_REPORT, REPORT_UPLOAD_STATUS };
 
     static {
 

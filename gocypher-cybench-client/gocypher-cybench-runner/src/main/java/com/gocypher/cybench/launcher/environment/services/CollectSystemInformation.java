@@ -142,14 +142,9 @@ public class CollectSystemInformation {
         LOG.info("Unclassified JVM and GC properties...");
         Map<String, Object> unclassifiedProperties = new HashMap<>();
         List<String> inputArguments = new ArrayList<>(ManagementFactory.getRuntimeMXBean().getInputArguments());
+        inputArguments.forEach(arg ->LOG.info(arg));
         inputArguments.removeIf(inputArgument -> inputArgument.contains("-javaagent")
-                || inputArgument.contains("DBENCH_ACCESS_TOKEN")
-                || inputArgument.contains("DREPORT_CLASSES")
-                || inputArgument.contains("DUSE_CYBNECH_BENCHMARK_SETTINGS")
-                || inputArgument.contains("DINCLUDE_HARDWARE_PROPERTIES")
-                || inputArgument.contains("DSHOULD_SEND_REPORT_CYBENCH")
-                || inputArgument.contains("DREPORT_NAME")
-                || inputArgument.contains("DBENCHMARK_REPORT_STATUS"));
+                ||containsAnyOf(inputArgument, Constants.excludedFromReportArgument)) ;
         unclassifiedProperties.put("performanceJvmRuntimeParameters", inputArguments);
 
         List<GarbageCollectorMXBean> garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans();
@@ -161,6 +156,15 @@ public class CollectSystemInformation {
         }
         unclassifiedProperties.put("performanceGarbageCollectors", garbageCollectorsOutput);
         return unclassifiedProperties;
+    }
+
+    private static boolean containsAnyOf(String test, String[] excludedProperties) {
+        for (String toExclude : excludedProperties) {
+            if (test.contains(toExclude)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
