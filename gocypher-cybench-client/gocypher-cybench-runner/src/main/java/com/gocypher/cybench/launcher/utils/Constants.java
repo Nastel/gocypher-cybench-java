@@ -61,8 +61,14 @@ public class Constants {
 
     public static final Map<String,String> BENCHMARKS_SCORES_COMPUTATIONS_MAPPING = new HashMap<>() ;
 
+	//--------------------------- Properties that configure the runner execution for Eclipse ------------------------------------------
+	public static final String COLLECT_HARDWARE_PROPS= "collectHardware" ;
+	public static final String USE_CYBENCH_CONFIGURATION = "useCyBenchConfig" ;
+	public static final String SELECTED_CLASS_PATHS = "selectedClassesToRun" ;
+	//---------------------------------------------------------------------------------------------------------------------------------
+    public static String[] excludedFromReportArgument = {USER_REPORT_TOKEN, BENCHMARK_RUN_CLASSES, BENCHMARK_REPORT_NAME,COLLECT_HW, SEND_REPORT, REPORT_UPLOAD_STATUS, COLLECT_HARDWARE_PROPS, USE_CYBENCH_CONFIGURATION, SELECTED_CLASS_PATHS};
 
-    public static String[] excludedFromReportArgument = {USER_REPORT_TOKEN, BENCHMARK_RUN_CLASSES, BENCHMARK_REPORT_NAME,COLLECT_HW, SEND_REPORT, REPORT_UPLOAD_STATUS };
+
 
     static {
 
