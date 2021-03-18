@@ -196,9 +196,6 @@ public class ReportingService {
 			}
 			return benchmarkProperties;
 		} catch (Exception e) {
-			benchmarkProperties.put("benchCategory", "CUSTOM");
-			benchmarkProperties.put("benchContext", "Custom");
-			benchmarkProperties.put("benchVersion", "1.0.0");
 			LOG.error("Error on resolving benchmarks category, context and version: class={}", className, e);
 		}
 		return benchmarkProperties;
