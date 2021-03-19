@@ -20,9 +20,9 @@
 package com.gocypher.cybench.core.utils;
 
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
-import com.sun.org.apache.bcel.internal.Repository;
-import com.sun.org.apache.bcel.internal.classfile.JavaClass;
-import com.sun.org.apache.bcel.internal.classfile.Method;
+import org.apache.bcel.Repository;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,12 +96,11 @@ public class SecurityUtils {
         return null;
     }
 
-    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints) {
-
+    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints) throws ClassNotFoundException {
         JavaClass javaClass = Repository.lookupClass(clazz);
         List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream().filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName()).collect(Collectors.toList());
         for (Method method : javaClass.getMethods()) {
-            try {
+            try{
                 if (benchmarkMethods.contains(method.getName())) {
                     String hash = hashByteArray(concatArrays(method.getName().getBytes(), method.getSignature().getBytes(), method.getCode().getCode()));
                     generatedFingerprints.put(clazz.getName() + "." + method.getName(), hash);
@@ -109,7 +108,7 @@ public class SecurityUtils {
             } catch (Exception e) {
                 LOG.error("Failed to compute hash for method {} in class {}", method.getName(), clazz, e);
             }
-        } 
+        }
     }
 
     protected static byte[] concatArrays(byte[]... bytes) {

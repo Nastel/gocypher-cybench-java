@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SecurityUtilsTest  {
 
     @Test
-    public void testComputeClassHashForMethods() {
+    public void testComputeClassHashForMethods() throws ClassNotFoundException {
         Map<String, String> methodHashes = new HashMap<>();
         SecurityUtils.computeClassHashForMethods(TestBenchmarkClass.class, methodHashes);
         System.out.println(methodHashes.toString().replaceAll("\\{", "").replaceAll(", ", "\n"));
