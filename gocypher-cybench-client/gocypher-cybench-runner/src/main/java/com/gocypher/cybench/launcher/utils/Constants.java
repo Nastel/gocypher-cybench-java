@@ -34,6 +34,7 @@ public class Constants {
 	public static final String USER_PROPERTY_PREFIX = "user.";
 	public static final String REPORT_SOURCE = "benchSource";
 	public static final String REPORT_VERSION = "benchVersion";
+	public static final String SEND_REPORT_URL = "sendReportToURL";
 
 	//--------------------------- Properties that configure the runner execution ------------------------------------------
 	public static final String NUMBER_OF_FORKS = "numberOfBenchmarkForks";
