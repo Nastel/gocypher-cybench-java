@@ -57,6 +57,7 @@ public class Constants {
 	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",	"https://app.cybench.io/cybench/upload");
 	public static final String DEFAULT_REPORT_FILE_NAME_SUFFIX ="report";
 	public static final String USER_REPORT_TOKEN="benchAccessToken";
+	public static final String USER_EMAIL_ADDRESS="userEmailAddress";
 
 	public static final String FOUND_TOKEN_REPOSITORIES = "reposFound" ;
 
@@ -67,7 +68,7 @@ public class Constants {
 	public static final String USE_CYBENCH_CONFIGURATION = "useCyBenchConfig" ;
 	public static final String SELECTED_CLASS_PATHS = "selectedClassesToRun" ;
 	//---------------------------------------------------------------------------------------------------------------------------------
-    public static String[] excludedFromReportArgument = {USER_REPORT_TOKEN, BENCHMARK_RUN_CLASSES, BENCHMARK_REPORT_NAME,COLLECT_HW, SEND_REPORT, REPORT_UPLOAD_STATUS, COLLECT_HARDWARE_PROPS, USE_CYBENCH_CONFIGURATION, SELECTED_CLASS_PATHS};
+    public static String[] excludedFromReportArgument = {USER_REPORT_TOKEN, BENCHMARK_RUN_CLASSES, BENCHMARK_REPORT_NAME,COLLECT_HW, SEND_REPORT, REPORT_UPLOAD_STATUS, COLLECT_HARDWARE_PROPS, USE_CYBENCH_CONFIGURATION, SELECTED_CLASS_PATHS, USER_EMAIL_ADDRESS};
 
 
 
