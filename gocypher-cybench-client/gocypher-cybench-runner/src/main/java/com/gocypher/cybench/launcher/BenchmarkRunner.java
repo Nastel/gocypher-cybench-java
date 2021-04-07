@@ -254,8 +254,10 @@ public class BenchmarkRunner {
             if (shouldSendReport(report)) {
 
                 String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
+                String emailAddress = getProperty(Constants.USER_EMAIL_ADDRESS);
 
-                responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, reportUploadToken);
+                String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
+                responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, tokenAndEmail);
                 response = JSONUtils.parseJsonIntoMap(responseWithUrl);
                 if(!response.containsKey("ERROR") && responseWithUrl != null && !responseWithUrl.isEmpty()) {
                     deviceReports = response.get(Constants.REPORT_USER_URL).toString() ;

@@ -156,4 +156,16 @@ public class ComputationUtils {
         }
         return Constants.DEFAULT_REPORT_FILE_NAME_SUFFIX+"-"+timestamp+(isEncryptedFile?Constants.CYB_ENCRYPTED_REPORT_FILE_EXTENSION:Constants.CYB_REPORT_FILE_EXTENSION);
     }
+
+    public static String getRequestHeader(String token, String email){
+        if(email != null && !email.equals("") && token != null && !token.equals("")){
+            return token + ":"+ email;
+        }else if(token != null && !token.equals("")){
+            return token;
+        }else if(email != null && !email.equals("")){
+            return ":" + email;
+        }else{
+            return "";
+        }
+    }
 }

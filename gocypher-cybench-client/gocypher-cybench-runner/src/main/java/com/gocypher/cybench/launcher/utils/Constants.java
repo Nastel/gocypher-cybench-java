@@ -57,7 +57,7 @@ public class Constants {
 	public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",	"https://app.cybench.io/cybench/upload");
 	public static final String DEFAULT_REPORT_FILE_NAME_SUFFIX ="report";
 	public static final String USER_REPORT_TOKEN="benchAccessToken";
-	public static final String USER_EMAIL_ADDRESS="userEmailAddress";
+	public static final String USER_EMAIL_ADDRESS="emailAddress";
 
 	public static final String FOUND_TOKEN_REPOSITORIES = "reposFound" ;
 
