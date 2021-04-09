@@ -60,16 +60,17 @@
             <id>oss.sonatype.org</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-<!--        <snapshotRepository>-->
-<!--            <id>github</id>-->
-<!--            <name>GitHub Nastel Apache Maven Packages</name>-->
-<!--            <url>https://maven.pkg.github.com/Nastel/TNT4J</url>-->
-<!--        </snapshotRepository>-->
+        <!--        <snapshotRepository>-->
+        <!--            <id>github</id>-->
+        <!--            <name>GitHub Nastel Apache Maven Packages</name>-->
+        <!--            <url>https://maven.pkg.github.com/Nastel/TNT4J</url>-->
+        <!--        </snapshotRepository>-->
     </distributionManagement>
-
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.resources.encoding>UTF-8</project.resources.encoding>
         <javac.target>1.8</javac.target>
         <assembly.skipAssembly>true</assembly.skipAssembly>
         <license-name>CYBENCH_LICENSE*</license-name>
@@ -207,6 +208,14 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <version>1.6.8</version>
@@ -228,14 +237,6 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-deploy-plugin</artifactId>-->
-<!--                <version>2.8.2</version>-->
-<!--                <configuration>-->
-<!--                    <skip>true</skip>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
@@ -251,7 +252,7 @@
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
-            <version>1.26</version>
+            <version>${jmh.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
