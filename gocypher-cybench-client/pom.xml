@@ -25,19 +25,48 @@
     <groupId>com.gocypher.cybench.client</groupId>
     <artifactId>gocypher-cybench-client</artifactId>
     <version>1.0.0</version>
+    <packaging>pom</packaging>
 
     <name>gocypher-cybench-client</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
-            <version>1.26</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+    <url>https://github.com/K2NIO/gocypher-cybench-java</url>
+    <description>JMH benchmarking wrapper</description>
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License v2.1</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
+        </license>
+    </licenses>
+    <organization>
+        <name>jKool, LLC</name>
+        <url>https://www.jkoolcloud.com/</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>CyBench Team</name>
+            <email>support@jkoolcloud.com</email>
+            <organization>jKool</organization>
+            <organizationUrl>http://www.jkoolcloud.com</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git://github.com/K2NIO/gocypher-cybench-java</connection>
+        <developerConnection>scm:git:git//github.com/K2NIO/gocypher-cybench-java</developerConnection>
+        <url>https://github.com/K2NIO/gocypher-cybench-java</url>
+    </scm>
 
-    <packaging>pom</packaging>
+    <distributionManagement>
+        <repository>
+            <id>oss.sonatype.org</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+<!--        <snapshotRepository>-->
+<!--            <id>github</id>-->
+<!--            <name>GitHub Nastel Apache Maven Packages</name>-->
+<!--            <url>https://maven.pkg.github.com/Nastel/TNT4J</url>-->
+<!--        </snapshotRepository>-->
+    </distributionManagement>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -49,6 +78,11 @@
         <jackson.version>2.11.2</jackson.version>
         <log4j.version>1.2.17</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
+        <version.plugin.source>3.2.1</version.plugin.source>
+        <version.plugin.javadoc>3.0.1</version.plugin.javadoc>
+        <product.name.hr>CyBench-client</product.name.hr>
+        <product.copyright.html>
+            <![CDATA[<font size="-1">Copyright &#169; 2014-2020 ${project.organization.name}. All Rights Reserved.</font>]]></product.copyright.html>
     </properties>
 
     <modules>
@@ -91,6 +125,14 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
@@ -99,7 +141,118 @@
                     <target>${javac.target}</target>
                 </configuration>
             </plugin>
+            <!-- Attach source jars-->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${version.plugin.source}</version>
+                <executions>
+                    <execution>
+                        <id>attach-source</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${version.plugin.javadoc}</version>
+                <configuration>
+                    <doctitle>${product.name.hr}</doctitle>
+                    <windowtitle>${product.name.hr}</windowtitle>
+                    <header>Version ${project.version}</header>
+                    <bottom>${product.copyright.html}</bottom>
+                    <show>protected</show>
+                    <use>true</use>
+                    <notree>false</notree>
+                    <nonavbar>false</nonavbar>
+                    <noindex>false</noindex>
+                    <splitindex>true</splitindex>
+                    <author>true</author>
+                    <version>true</version>
+                    <nodeprecatedlist>false</nodeprecatedlist>
+                    <nodeprecated>false</nodeprecated>
+                    <failOnError>false</failOnError>
+                    <doclint>all</doclint>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-javadocs-module</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <configuration>
+                    <gpgArguments>
+                        <arg>--pinentry-mode</arg>
+                        <arg>loopback</arg>
+                    </gpgArguments>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>oss.sonatype.org</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <!--<description>${project.version}</description>-->
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy-to-sonatype</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                            <!--<goal>release</goal>-->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-deploy-plugin</artifactId>-->
+<!--                <version>2.8.2</version>-->
+<!--                <configuration>-->
+<!--                    <skip>true</skip>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>1.26</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>
