@@ -19,21 +19,7 @@
 
 package com.gocypher.cybench.launcher.environment.services;
 
-import com.gocypher.cybench.launcher.environment.model.HardwareProperties;
-import com.gocypher.cybench.launcher.environment.model.JVMProperties;
-import com.gocypher.cybench.launcher.utils.Constants;
-import com.profesorfalken.jpowershell.PowerShell;
-import com.profesorfalken.jpowershell.PowerShellResponse;
-import org.jutils.jhardware.HardwareInfo;
-import org.jutils.jhardware.model.BiosInfo;
-import org.jutils.jhardware.model.MemoryInfo;
-import org.jutils.jhardware.model.MotherboardInfo;
-import org.jutils.jhardware.model.OSInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.SystemInfo;
-import oshi.hardware.*;
-import oshi.software.os.OperatingSystem;
+import static com.gocypher.cybench.launcher.BenchmarkRunner.getProperty;
 
 import java.io.*;
 import java.lang.management.GarbageCollectorMXBean;
@@ -46,12 +32,28 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.gocypher.cybench.launcher.BenchmarkRunner.getProperty;
+import org.jutils.jhardware.HardwareInfo;
+import org.jutils.jhardware.model.BiosInfo;
+import org.jutils.jhardware.model.MemoryInfo;
+import org.jutils.jhardware.model.MotherboardInfo;
+import org.jutils.jhardware.model.OSInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gocypher.cybench.launcher.environment.model.HardwareProperties;
+import com.gocypher.cybench.launcher.environment.model.JVMProperties;
+import com.gocypher.cybench.launcher.utils.Constants;
+import com.profesorfalken.jpowershell.PowerShell;
+import com.profesorfalken.jpowershell.PowerShellResponse;
+
+import oshi.SystemInfo;
+import oshi.hardware.*;
+import oshi.software.os.OperatingSystem;
 
 public class CollectSystemInformation {
     private static final Logger LOG = LoggerFactory.getLogger(CollectSystemInformation.class);
     private static final DecimalFormat df = new DecimalFormat("#.####");
-    private static final String[] excludeWindowsMACs = {"virtual", "hyper-v", "npcap"};
+    private static final String[] excludeWindowsMACs = { "virtual", "hyper-v", "npcap" };
     static HardwareProperties hardwareProp = new HardwareProperties();
     static JVMProperties jvmProperties = new JVMProperties();
 
@@ -61,6 +63,8 @@ public class CollectSystemInformation {
 
     /**
      * Collect and return all the main properties about the JVM
+     *
+     * @return JVM properties instance
      */
     public static JVMProperties getJavaVirtualMachineProperties() {
         LOG.info("JVM memory properties...");
@@ -133,18 +137,17 @@ public class CollectSystemInformation {
     }
 
     /**
-     * Collect properties about program JVm arguments and the running gc's at the
-     * start of execution
+     * Collect properties about program JVm arguments and the running gc's at the start of execution
      *
-     * @return
+     * @return unclassified properties map
      */
     public static Map<String, Object> getUnclassifiedProperties() {
         LOG.info("Unclassified JVM and GC properties...");
         Map<String, Object> unclassifiedProperties = new HashMap<>();
         List<String> inputArguments = new ArrayList<>(ManagementFactory.getRuntimeMXBean().getInputArguments());
-        inputArguments.forEach(arg ->LOG.info(arg));
+        inputArguments.forEach(arg -> LOG.info(arg));
         inputArguments.removeIf(inputArgument -> inputArgument.contains("-javaagent")
-                ||containsAnyOf(inputArgument, Constants.excludedFromReportArgument)) ;
+                || containsAnyOf(inputArgument, Constants.excludedFromReportArgument));
         unclassifiedProperties.put("performanceJvmRuntimeParameters", inputArguments);
 
         List<GarbageCollectorMXBean> garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans();
@@ -168,11 +171,12 @@ public class CollectSystemInformation {
     }
 
     /**
-     * Fill the needed hardware properties using the 3-rd party libraries and system
-     * properties.
+     * Fill the needed hardware properties using the 3-rd party libraries and system properties.
+     *
+     * @return system hardware properties instance
      */
     public static HardwareProperties getEnvironmentProperties() {
-        if (getProperty(Constants.COLLECT_HW)!= null && !Boolean.parseBoolean(getProperty(Constants.COLLECT_HW))) {
+        if (getProperty(Constants.COLLECT_HW) != null && !Boolean.parseBoolean(getProperty(Constants.COLLECT_HW))) {
             return new HardwareProperties.EmptyHardwareProperties();
         }
         SystemInfo sysProps = new SystemInfo();
@@ -187,7 +191,6 @@ public class CollectSystemInformation {
         } catch (Exception e) {
             LOG.error(
                     "An error occurred on reading of com.gocypher.benchmarks.runner.environment properties: Some of the properties present in other reports might be missing");
-            ;
         }
         try {
             getMemoryInfo();
@@ -196,7 +199,6 @@ public class CollectSystemInformation {
         } catch (Exception e) {
             LOG.error(
                     "An error occurred on reading of com.gocypher.benchmarks.runner.environment properties: Some of the properties present in other reports might be missing");
-            ;
             setPropertiesForMacOS();
         }
 
@@ -251,11 +253,13 @@ public class CollectSystemInformation {
     }
 
     /**
-     * Method that returns the launch disk sizes type and model. Includes
-     * implementation for multiple OS types.
+     * Method that returns the launch disk sizes type and model. Includes implementation for multiple OS types.
      *
      * @param hwProps
+     *            system hardware properties
+     *
      * @throws Exception
+     *             if can't determine disk properties
      */
     private static void getLaunchDiskProperties(HardwareAbstractionLayer hwProps) throws Exception {
         LOG.info("Looking for Disk properties OSHI...");
@@ -310,11 +314,10 @@ public class CollectSystemInformation {
     }
 
     /**
-     * Get network properties using OSHI and filtering to get the correct mac
-     * address for different operating machines. Excluding virtual machines macs
+     * Get network properties using OSHI and filtering to get the correct mac address for different operating machines.
+     * Excluding virtual machines macs
      */
     private static void getNetworkProperties() throws Exception {
-        ;
 
         InetAddress ip = null;
         Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
@@ -393,7 +396,7 @@ public class CollectSystemInformation {
         LOG.info("Looking for Memory properties JHardware...");
         MemoryInfo infoMemory = HardwareInfo.getMemoryInfo();
         Set<Map.Entry<String, String>> fullInfosMem = infoMemory.getFullInfo().entrySet();
-        for (final Map.Entry<String, String> fullInfo : fullInfosMem) {
+        for (Map.Entry<String, String> fullInfo : fullInfosMem) {
             switch (fullInfo.getKey()) {
                 case "PartNumber":
                     hardwareProp.setHwMemPartNumber(fullInfo.getValue());
@@ -419,7 +422,7 @@ public class CollectSystemInformation {
         hardwareProp.setHwBiosVersion(infoBios.getVersion());
         hardwareProp.setHwBiosManufacturer(infoBios.getManufacturer());
         Set<Map.Entry<String, String>> fullInfosBios = infoBios.getFullInfo().entrySet();
-        for (final Map.Entry<String, String> fullInfo : fullInfosBios) {
+        for (Map.Entry<String, String> fullInfo : fullInfosBios) {
             switch (fullInfo.getKey()) {
                 case "Name":
                     hardwareProp.setHwBiosName(fullInfo.getValue());
@@ -438,6 +441,10 @@ public class CollectSystemInformation {
      * Get Motherboard porperties using OSHI and JHardware fo Windows and linux
      *
      * @param hwProps
+     *            system hardware properties
+     *
+     * @throws java.lang.Exception
+     *             when can't determine motherboard properties
      */
     private static void setMotherboardProperties(HardwareAbstractionLayer hwProps) throws Exception {
         LOG.info("Looking for Motherboard properties JHardware...");
@@ -447,7 +454,7 @@ public class CollectSystemInformation {
         MotherboardInfo infoMotherBoard = HardwareInfo.getMotherboardInfo();
         hardwareProp.setHwMothVersion(infoMotherBoard.getVersion());
         Set<Map.Entry<String, String>> fullInfoMotherboard = infoMotherBoard.getFullInfo().entrySet();
-        for (final Map.Entry<String, String> fullInfo : fullInfoMotherboard) {
+        for (Map.Entry<String, String> fullInfo : fullInfoMotherboard) {
             if (fullInfo.getKey().equals("Product")) {
                 hardwareProp.setHwMothProduct(fullInfo.getValue());
             }
@@ -459,11 +466,13 @@ public class CollectSystemInformation {
      *
      * @param disk
      * @param find
+     *
      * @return
+     *
      * @throws IOException
      */
     private static String getDiskModelAndType(String disk, String find) throws IOException {
-        String[] cmd = {"/bin/sh", "-c", "diskutil info " + disk + " | grep " + find};
+        String[] cmd = { "/bin/sh", "-c", "diskutil info " + disk + " | grep " + find };
         String s;
         String resp = null;
         Process p = Runtime.getRuntime().exec(cmd);
@@ -475,8 +484,7 @@ public class CollectSystemInformation {
     }
 
     /**
-     * Fill in the properties available that could not be get because of JHardware
-     * not supporting MAC OS
+     * Fill in the properties available that could not be get because of JHardware not supporting MAC OS
      */
     private static void setPropertiesForMacOS() {
         try {
@@ -505,8 +513,11 @@ public class CollectSystemInformation {
      * Check if provided String has any matching strings inside array of strings
      *
      * @param inputStr
+     *            string to check
      * @param items
-     * @return
+     *            substrings to check
+     *
+     * @return {@code true} if string contains any of provided substrings, {@code false} - otherwise
      */
     public static boolean stringContainsItemFromList(String inputStr, String[] items) {
         return Arrays.stream(items).anyMatch(inputStr::contains);
@@ -514,11 +525,15 @@ public class CollectSystemInformation {
 
     /**
      * Print out all the collected main hardware properties to a file
+     *
+     * @param obj
+     *            system hardware properties to print into file
+     * @param fileName
+     *            file name to write
      */
     public static void outputHardwareDataObjectToFile(Object obj, String fileName) {
         try {
             LOG.info("Writing properties to file...");
-            ;
             FileWriter myWriter = new FileWriter(fileName);
             myWriter.write(obj.toString());
             myWriter.close();
