@@ -58,7 +58,7 @@
     <distributionManagement>
         <repository>
             <id>oss.sonatype.org</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
         <!--        <snapshotRepository>-->
         <!--            <id>github</id>-->
@@ -204,6 +204,8 @@
                         <arg>--pinentry-mode</arg>
                         <arg>loopback</arg>
                     </gpgArguments>
+                    <keyname>${gpg.keyname}</keyname>
+                    <passphraseServerId>${gpg.keyname}</passphraseServerId>
                 </configuration>
                 <executions>
                     <execution>
@@ -230,7 +232,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>oss.sonatype.org</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
                     <!--<description>${project.version}</description>-->
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
