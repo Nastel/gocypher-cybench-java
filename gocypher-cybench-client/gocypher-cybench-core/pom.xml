@@ -117,6 +117,7 @@
             <artifactId>gocypher-cybench-annotations</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
+            <!--<type>all</type>-->
         </dependency>
         <dependency>
             <groupId>org.apache.bcel</groupId>
