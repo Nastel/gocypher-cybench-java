@@ -84,6 +84,8 @@
         <product.name.hr>CyBench-client</product.name.hr>
         <product.copyright.html>
             <![CDATA[<font size="-1">Copyright &#169; 2014-2020 ${project.organization.name}. All Rights Reserved.</font>]]></product.copyright.html>
+
+        <gpg.skip>true</gpg.skip>
     </properties>
 
     <modules>
@@ -101,6 +103,12 @@
             </modules>
             <properties>
                 <assembly.skipAssembly>false</assembly.skipAssembly>
+            </properties>
+        </profile>
+        <profile>
+            <id>maven-release</id>
+            <properties>
+                <gpg.skip>false</gpg.skip>
             </properties>
         </profile>
     </profiles>
@@ -224,7 +232,7 @@
                     <serverId>oss.sonatype.org</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <!--<description>${project.version}</description>-->
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
                 <executions>
                     <execution>
