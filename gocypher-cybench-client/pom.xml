@@ -100,10 +100,6 @@
     <profiles>
         <profile>
             <id>pack-bin</id>
-            <modules>
-                <module>gocypher-cybench-shade</module>
-                <module>gocypher-cybench-distribution</module>
-            </modules>
             <properties>
                 <assembly.skipAssembly>false</assembly.skipAssembly>
             </properties>
