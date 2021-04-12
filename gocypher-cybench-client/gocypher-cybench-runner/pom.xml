@@ -102,8 +102,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--  Name of the benchmark Uber-JAR to generate. -->
-        <uberjar.name>gocypher-cybench-runner</uberjar.name>
     </properties>
 
     <build>
