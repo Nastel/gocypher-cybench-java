@@ -12,7 +12,7 @@ Download and run CyBench [here](https://github.com/K2NIO/gocypher-cybench-java/r
 
 ## Building CyBench Benchmark From Source
 ```sh
-mvn clean package -P build-jvm,pack-bin
+mvn clean package -P pack-bin
 ```
 ## Running Default Benchmarks using CyBench
 

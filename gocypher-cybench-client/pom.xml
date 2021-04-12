@@ -30,7 +30,7 @@
     <name>gocypher-cybench-client</name>
 
     <url>https://github.com/K2NIO/gocypher-cybench-java</url>
-    <description>JMH benchmarking wrapper</description>
+    <description>CyBench Launcher is a Java module designed to execute JMH benchmarks, collect results, add environment properties , build report and store it into external repository for further analysis.</description>
     <licenses>
         <license>
             <name>GNU Lesser General Public License v2.1</name>
@@ -38,15 +38,15 @@
         </license>
     </licenses>
     <organization>
-        <name>jKool, LLC</name>
+        <name>K2N.IO, LLC</name>
         <url>https://www.jkoolcloud.com/</url>
     </organization>
     <developers>
         <developer>
             <name>CyBench Team</name>
-            <email>support@jkoolcloud.com</email>
-            <organization>jKool</organization>
-            <organizationUrl>http://www.jkoolcloud.com</organizationUrl>
+            <email>info@cybench.io</email>
+            <organization>K2N.IO</organization>
+            <organizationUrl>https://cybench.io</organizationUrl>
         </developer>
     </developers>
     <scm>
@@ -56,15 +56,18 @@
     </scm>
 
     <distributionManagement>
+<!--        <repository>-->
+<!--            <id>oss.sonatype.org</id>-->
+<!--            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
+<!--        </repository>-->
         <repository>
             <id>oss.sonatype.org</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-        <!--        <snapshotRepository>-->
-        <!--            <id>github</id>-->
-        <!--            <name>GitHub Nastel Apache Maven Packages</name>-->
-        <!--            <url>https://maven.pkg.github.com/Nastel/TNT4J</url>-->
-        <!--        </snapshotRepository>-->
+        <snapshotRepository>
+            <id>oss.sonatype.org</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <properties>
@@ -212,6 +215,9 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
+                        <configuration>
+                            <keyname>amavashev</keyname>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -230,7 +236,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>oss.sonatype.org</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
                     <!--<description>${project.version}</description>-->
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
