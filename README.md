@@ -96,5 +96,3 @@ Update CyBench configuration in order to run only user-defined tests:
     ```properties
     benchmarkClasses=com.gocypher.benchmarks.client.CollectionsBenchmarks,NumberBenchmarks
     ```
-
-    

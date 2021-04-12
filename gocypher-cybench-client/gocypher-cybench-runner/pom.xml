@@ -59,7 +59,7 @@
         <dependency>
             <groupId>com.gocypher.cybench.client</groupId>
             <artifactId>gocypher-cybench-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jhardware</groupId>
@@ -88,21 +88,12 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.bcel</groupId>
-            <artifactId>bcel</artifactId>
-            <version>6.5.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
     <build>
         <resources>
@@ -120,7 +111,6 @@
                 </includes>
             </resource>
         </resources>
-        <defaultGoal>clean package</defaultGoal>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -132,7 +122,7 @@
                         <archive>
                             <manifest>
                                 <addClasspath>true</addClasspath>
-                                <mainClass>com\gocypher\cybench\launcher\BenchmarkRunner</mainClass>
+                                <mainClass>com.gocypher.cybench.launcher.BenchmarkRunner</mainClass>
                             </manifest>
                         </archive>
                     </configuration>

@@ -33,20 +33,7 @@
 
     <name>gocypher-cybench-core</name>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <build>
-        <defaultGoal>clean package</defaultGoal>
-    </build>
-
     <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -69,12 +56,6 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.7.0</version>
@@ -85,7 +66,6 @@
             <artifactId>gocypher-cybench-annotations</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
-            <!--<type>all</type>-->
         </dependency>
         <dependency>
             <groupId>org.apache.bcel</groupId>
