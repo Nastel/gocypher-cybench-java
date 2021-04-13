@@ -24,7 +24,7 @@
 
     <groupId>com.gocypher.cybench.client</groupId>
     <artifactId>gocypher-cybench-client</artifactId>
-    <version>1.0.0</version>
+    <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>gocypher-cybench-client</name>
@@ -80,9 +80,11 @@
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <version.plugin.source>3.2.1</version.plugin.source>
         <version.plugin.javadoc>3.0.1</version.plugin.javadoc>
+        <version.plugin.gpg>1.6</version.plugin.gpg>
         <product.name.hr>CyBench-client</product.name.hr>
         <product.copyright.html>
-            <![CDATA[<font size="-1">Copyright &#169; 2014-2020 ${project.organization.name}. All Rights Reserved.</font>]]></product.copyright.html>
+            <![CDATA[<font size="-1">Copyright &#169; 2014-2020 ${project.organization.name}. All Rights Reserved.</font>]]>
+        </product.copyright.html>
 
         <gpg.skip>true</gpg.skip>
     </properties>
@@ -187,7 +189,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>${version.plugin.gpg}</version>
                 <configuration>
                     <gpgArguments>
                         <arg>--pinentry-mode</arg>
