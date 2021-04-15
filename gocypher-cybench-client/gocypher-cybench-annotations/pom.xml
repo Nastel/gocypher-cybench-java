@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
-            <version>3.17.0</version>
+            <version>3.20.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.olivergondza</groupId>
