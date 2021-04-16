@@ -14,8 +14,10 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.Blackhole;
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
+import org.openjdk.jmh.infra.Control;
 
 @State(Scope.Benchmark)
 public class TestBenchmarkClass {
@@ -40,7 +42,7 @@ public class TestBenchmarkClass {
 
     @Benchmark
     @BenchmarkTag(tag = "dea83398-1f94-4162-a73c-e017af3714e8")
-    public void mainBenchmark3(Blackhole bh, String a) {
+    public void mainBenchmark4(Blackhole bh, BenchmarkParams a) {
         bh.consume(System.getProperties().getProperty("DEF"));
     }
 
