@@ -30,7 +30,7 @@
     <name>gocypher-cybench-client</name>
 
     <url>https://github.com/K2NIO/gocypher-cybench-java</url>
-    <description>CyBench Launcher is a Java module designed to execute JMH benchmarks, collect results, add environment properties , build
+    <description>CyBench Launcher is a Java module designed to execute JMH benchmarks, collect results, add environment properties, build
         report and store it into external repository for further analysis.
     </description>
     <licenses>
@@ -105,7 +105,7 @@
     </profiles>
 
     <build>
-        <defaultGoal>clean package</defaultGoal>
+        <defaultGoal>clean install</defaultGoal>
 
         <resources>
             <resource>
