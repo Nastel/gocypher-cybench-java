@@ -20,13 +20,13 @@ Download and run CyBench [here](https://github.com/K2NIO/cybench-java-benchmarks
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
-            <version>1.26</version>
+            <version>1.29</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
-            <version>1.26</version>
+            <version>1.29</version>
         </dependency>
         <dependency>
             <groupId>com.gocypher.cybench.client</groupId>

@@ -75,7 +75,7 @@
         <javac.target>1.8</javac.target>
         <license-name>CYBENCH_LICENSE*</license-name>
         <uberjar.name>gocypher-cybench-client</uberjar.name>
-        <jmh.version>1.27</jmh.version>
+        <jmh.version>1.29</jmh.version>
         <jackson.version>2.12.3</jackson.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <version.plugin.source>3.2.1</version.plugin.source>

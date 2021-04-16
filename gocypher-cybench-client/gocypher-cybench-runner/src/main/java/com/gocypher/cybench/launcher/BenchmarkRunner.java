@@ -37,8 +37,6 @@ import com.gocypher.cybench.launcher.utils.Constants;
 import com.gocypher.cybench.launcher.utils.JSONUtils;
 import com.gocypher.cybench.launcher.utils.SecurityBuilder;
 import org.openjdk.jmh.profile.GCProfiler;
-import org.openjdk.jmh.profile.HotspotRuntimeProfiler;
-import org.openjdk.jmh.profile.HotspotThreadProfiler;
 import org.openjdk.jmh.profile.SafepointsProfiler;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
@@ -188,8 +186,12 @@ public class BenchmarkRunner {
         }
         LOG.info("--->benchmarkSetting:{}", benchmarkSetting);
 
-        ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true).addProfiler(GCProfiler.class).addProfiler(HotspotThreadProfiler.class)
-                .addProfiler(HotspotRuntimeProfiler.class).addProfiler(SafepointsProfiler.class).detectJvmArgs();
+        ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true) //
+            //.addProfiler(HotspotThreadProfiler.class) // obsolete
+            //.addProfiler(HotspotRuntimeProfiler.class) // obsolete
+            .addProfiler(GCProfiler.class) //
+            .addProfiler(SafepointsProfiler.class) //
+            .detectJvmArgs();
 
         optionBuilder = setMeasurementProperties(optionBuilder, forks, measurementIterations, measurementSeconds, warmUpIterations, warmUpSeconds, threads);
         Options opt = optionBuilder.build();
