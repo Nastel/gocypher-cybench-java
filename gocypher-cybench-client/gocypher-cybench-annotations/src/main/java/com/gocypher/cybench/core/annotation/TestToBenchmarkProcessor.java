@@ -13,8 +13,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import java.util.Set;
 
-@SupportedAnnotationTypes(
-        "org.junit.Test")
+@SupportedAnnotationTypes("org.junit.Test")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class TestToBenchmarkProcessor extends AbstractProcessor {
@@ -32,6 +31,7 @@ public class TestToBenchmarkProcessor extends AbstractProcessor {
         if (System.getProperty("generateBenchmarkFromTest") == null) {
             return false;
         }
+        
         GeneratorSource source = new APGeneratorSource(roundEnv, processingEnv);
         GeneratorDestination destination = new APGeneratorDestinaton(roundEnv, processingEnv);
         if (!roundEnv.processingOver()) {
@@ -39,6 +39,7 @@ public class TestToBenchmarkProcessor extends AbstractProcessor {
         } else {
             generator.complete(source, destination);
         }
+
         return false;
     }
 }

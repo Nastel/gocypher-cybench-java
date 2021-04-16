@@ -5,14 +5,14 @@ import org.junit.Test;
 class TestScopeBenchmarkGeneratorTest {
 
     @Test
-    void getAndRunPrivateMethod() {
+    public void getAndRunPrivateMethod() {
         TestScopeBenchmarkGenerator gen = new TestScopeBenchmarkGenerator();
         A a = new A();
         System.out.println(gen._getAndRunPrivateMethod( a, "privMethod", "a"));
     }
 
 
-    public static class A extends B{
+    public static class A extends B {
 
     }
 
