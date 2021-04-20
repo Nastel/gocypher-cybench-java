@@ -37,6 +37,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,14 +45,13 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SupportedAnnotationTypes(
-        "org.openjdk.jmh.annotations.Benchmark")
+@SupportedAnnotationTypes("org.openjdk.jmh.annotations.Benchmark")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 
 @AutoService(Processor.class)
 public class BenchmarkTagProcessor extends AbstractProcessor {
 
-    private static Map<String, Element> knownAnnotationTags = new HashMap();
+    private static Map<String, Element> knownAnnotationTags = new HashMap<>();
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -60,7 +60,7 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
             Set<? extends Element> annotatedElements
                     = roundEnv.getElementsAnnotatedWith(annotation);
 
-            annotatedElements.stream().forEach(element -> {
+            annotatedElements.forEach(element -> {
                 checkTagAnnotation(element, processingEnv.getMessager());
                 if (element.getAnnotation(BenchmarkTag.class) == null) {
                     FromSourceToGenerated file = createFile(element);
@@ -95,7 +95,7 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                 JavaFileObject sourceFile = classSymbol.sourcefile;
                 Path path = Paths.get(sourceFile.toUri());
 
-                String fileContents = new String(Files.readAllBytes(path), "UTF-8");
+                String fileContents = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
                 String name = String.valueOf(classSymbol.getSimpleName());
 
@@ -122,17 +122,16 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, fromSourceToGenerated.toString());
 
                 return fromSourceToGenerated;
-
-
             }
         } catch (IOException e) {
             e.printStackTrace();
 
         }
+
         return null;
     }
 
-    private String getReplaced(String fileContents, String newName, String oldName) {
+    private static String getReplaced(String fileContents, String newName, String oldName) {
         CompilationUnit cu = StaticJavaParser.parse(fileContents);
         List<MethodDeclaration> allMethods = cu.findAll(MethodDeclaration.class);
         if (!cu.getImports().contains(StaticJavaParser.parseImport("import " + BenchmarkTag.class.getCanonicalName() + ";"))) {
@@ -144,12 +143,12 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                         methodDeclaration.getAnnotationByClass(Benchmark.class).isPresent()
         ).collect(Collectors.toList());
 
-        methodsNeedTag.stream().forEach(methodDeclaration -> methodDeclaration.addAnnotation(StaticJavaParser.parseAnnotation("@BenchmarkTag(tag=\"" + UUID.randomUUID() + "\")")));
+        methodsNeedTag.forEach(methodDeclaration -> methodDeclaration.addAnnotation(StaticJavaParser.parseAnnotation("@BenchmarkTag(tag=\"" + UUID.randomUUID() + "\")")));
 
         return cu.toString();
     }
 
-    private void checkTagAnnotation(Element element, Messager messager) {
+    private static void checkTagAnnotation(Element element, Messager messager) {
         BenchmarkTag annotation = element.getAnnotation(BenchmarkTag.class);
         if (annotation == null) return;
         try {

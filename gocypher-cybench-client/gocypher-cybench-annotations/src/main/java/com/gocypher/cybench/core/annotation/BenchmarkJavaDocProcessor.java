@@ -15,8 +15,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 
-@SupportedAnnotationTypes(
-        "org.openjdk.jmh.annotations.Benchmark")
+@SupportedAnnotationTypes("org.openjdk.jmh.annotations.Benchmark")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 
 @AutoService(Processor.class)
@@ -24,13 +23,10 @@ public class BenchmarkJavaDocProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for (TypeElement annotation : annotations) {
-            Set<? extends Element> annotatedElements
-                    = roundEnv.getElementsAnnotatedWith(annotation);
-
+            Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
             Properties p = new Properties();
 
-            annotatedElements.stream().forEach(element -> {
-
+            annotatedElements.forEach(element -> {
                 String docComment = processingEnv.getElementUtils().getDocComment(element);
                 if (docComment != null) {
                     Symbol.ClassSymbol classSymbol = ((Symbol.MethodSymbol) element).enclClass();
@@ -41,8 +37,6 @@ public class BenchmarkJavaDocProcessor extends AbstractProcessor {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Found " + ((Symbol.MethodSymbol) element).getQualifiedName());
                     p.put(classSymbol + "." + qualifiedName, docComment);
                 }
-
-
             });
 
             if (!p.isEmpty()) {
@@ -51,12 +45,10 @@ public class BenchmarkJavaDocProcessor extends AbstractProcessor {
                     p.store(file.openWriter(), "");
                 } catch (IOException e) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
-
                 }
             }
-
-
         }
+        
         return false;
     }
 }

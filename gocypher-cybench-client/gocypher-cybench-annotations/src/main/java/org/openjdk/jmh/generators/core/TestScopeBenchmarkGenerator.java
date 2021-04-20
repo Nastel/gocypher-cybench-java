@@ -34,16 +34,13 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     }
 
     static Object _getAndRunPrivateMethod(Object obj, String name, Object... parameters) {
-
-        Class[] parameterClasses = Arrays.stream(parameters).map(p -> p.getClass()).toArray(size -> new Class[size]);
-
+        Class<?>[] parameterClasses = Arrays.stream(parameters).map(p -> p.getClass()).toArray(size -> new Class[size]);
 
         try {
-
             Method method = Arrays.stream(obj.getClass().getSuperclass().getDeclaredMethods()).filter(m -> m.getName().equals(name)).findFirst().get();
             method.setAccessible(true);
-            return method.invoke(obj, parameters);
 
+            return method.invoke(obj, parameters);
 //        } catch (NoSuchMethodException e) {
 //            e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -51,6 +48,7 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
@@ -162,6 +160,7 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
                 }
             }
         }
+
         return result;
     }
 
@@ -173,9 +172,9 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         getAndRunPrivateMethod("validateBenchmark", clazz, methods);
     }
 
+    @SuppressWarnings ("unchecked")
     private Collection<BenchmarkInfo> makeBenchmarkInfo(ClassInfo clazz, Collection<MethodInfo> methods) {
         return (Collection<BenchmarkInfo>) getAndRunPrivateMethod("makeBenchmarkInfo", clazz, methods);
-
     }
 
     private void generateClass(GeneratorDestination destination, ClassInfo classInfo, BenchmarkInfo info) throws IOException {
