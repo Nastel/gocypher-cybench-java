@@ -2,10 +2,14 @@ package org.openjdk.jmh.generators.core;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.runner.BenchmarkList;
+import org.openjdk.jmh.runner.BenchmarkListEntry;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -76,6 +80,74 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
             compilerControl.process(source, destination);
         } catch (Throwable t) {
             destination.printError("Annotation generator had thrown the exception.", t);
+        }
+    }
+
+    public void complete(GeneratorSource source, GeneratorDestination destination) {
+        compilerControl.finish(source, destination);
+
+        Set<BenchmarkListEntry> entries = new HashSet<>();
+
+        Multimap<String, BenchmarkListEntry> entriesByQName = new HashMultimap<>();
+        try (InputStream stream = destination.getResource(BenchmarkList.BENCHMARK_LIST.substring(1))) {
+            for (BenchmarkListEntry ble : BenchmarkList.readBenchmarkList(stream)) {
+                entries.add(ble);
+                entriesByQName.put(ble.getUserClassQName(), ble);
+            }
+        } catch (IOException e) {
+            // okay, move on
+        } catch (UnsupportedOperationException e) {
+            destination.printError("Unable to read the existing benchmark list.", e);
+        }
+
+        // Generate new benchmark entries
+        for (BenchmarkInfo info : benchmarkInfos) {
+            try {
+                MethodGroup group = info.methodGroup;
+                for (Mode m : group.getModes()) {
+                    BenchmarkListEntry br = new BenchmarkListEntry(
+                            info.userClassQName,
+                            info.generatedClassQName,
+                            group.getName(),
+                            m,
+                            group.getTotalThreadCount(),
+                            group.getGroupThreads(),
+                            group.getGroupLabels(),
+                            group.getWarmupIterations(),
+                            group.getWarmupTime(),
+                            group.getWarmupBatchSize(),
+                            group.getMeasurementIterations(),
+                            group.getMeasurementTime(),
+                            group.getMeasurementBatchSize(),
+                            group.getForks(),
+                            group.getWarmupForks(),
+                            group.getJvm(),
+                            group.getJvmArgs(),
+                            group.getJvmArgsPrepend(),
+                            group.getJvmArgsAppend(),
+                            group.getParams(),
+                            group.getOutputTimeUnit(),
+                            group.getOperationsPerInvocation(),
+                            group.getTimeout()
+                    );
+
+                    if (entriesByQName.keys().contains(info.userClassQName)) {
+                        destination.printNote("Benchmark entries for " + info.userClassQName + " already exist, overwriting");
+                        entries.removeAll(entriesByQName.get(info.userClassQName));
+                        entriesByQName.remove(info.userClassQName);
+                    }
+
+                    entries.add(br);
+                }
+            } catch (GenerationException ge) {
+                destination.printError(ge.getMessage(), ge.getElement());
+            }
+        }
+
+        try (OutputStream stream = destination.newResource(BenchmarkList.BENCHMARK_LIST.substring(1))) {
+            BenchmarkList.writeBenchmarkList(stream, entries);
+        } catch (IOException ex) {
+            destination.printError("Error writing benchmark list", ex);
         }
     }
 
