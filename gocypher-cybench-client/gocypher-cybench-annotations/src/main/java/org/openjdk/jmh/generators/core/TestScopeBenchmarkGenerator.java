@@ -1,12 +1,15 @@
 package org.openjdk.jmh.generators.core;
 
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.runner.BenchmarkList;
 import org.openjdk.jmh.runner.BenchmarkListEntry;
+import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
+import org.openjdk.jmh.util.Optional;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,10 +24,20 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     protected static final String JMH_GENERATED_SUBPACKAGE = "jmh_generated";
     private static final String JMH_STUB_SUFFIX = "_jmhStub";
     private static final String JMH_TESTCLASS_SUFFIX = "_jmhTest";
+
+
+    private static final int NUMBER_OF_FORKS = 1;
+    private static final int NUMBER_OF_WARMUPS = 0;
+    private static final int NUMBER_OF_MEASUREMENTS = 1;
+    private static final Mode BENCHMARK_MODE = Mode.AverageTime;
+    private static final TimeValue MEASUREMENT_TIME = TimeValue.seconds(3);
+    private static final TimeValue WARMUPS_TIME = TimeValue.seconds(0);
+
     private final Set<BenchmarkInfo> benchmarkInfos;
     private final CompilerControlPlugin compilerControl;
     private final Set<String> processedBenchmarks;
     private final BenchmarkGeneratorSession session;
+    private ProcessingEnvironment processingEnv;
 
     public TestScopeBenchmarkGenerator() {
         benchmarkInfos = new HashSet<>();
@@ -111,13 +124,13 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
                             group.getTotalThreadCount(),
                             group.getGroupThreads(),
                             group.getGroupLabels(),
-                            group.getWarmupIterations(),
+                            Optional.of(NUMBER_OF_WARMUPS),
                             group.getWarmupTime(),
                             group.getWarmupBatchSize(),
-                            group.getMeasurementIterations(),
+                            Optional.of(NUMBER_OF_MEASUREMENTS),
                             group.getMeasurementTime(),
                             group.getMeasurementBatchSize(),
-                            group.getForks(),
+                            Optional.of(NUMBER_OF_FORKS),
                             group.getWarmupForks(),
                             group.getJvm(),
                             group.getJvmArgs(),
@@ -164,7 +177,7 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         return result;
     }
 
-    private Object getAndRunPrivateMethod(String name, Object ... params) {
+    private Object getAndRunPrivateMethod(String name, Object... params) {
         return _getAndRunPrivateMethod(this, name, params);
     }
 
@@ -172,7 +185,7 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         getAndRunPrivateMethod("validateBenchmark", clazz, methods);
     }
 
-    @SuppressWarnings ("unchecked")
+    @SuppressWarnings("unchecked")
     private Collection<BenchmarkInfo> makeBenchmarkInfo(ClassInfo clazz, Collection<MethodInfo> methods) {
         return (Collection<BenchmarkInfo>) getAndRunPrivateMethod("makeBenchmarkInfo", clazz, methods);
     }
@@ -181,5 +194,8 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         getAndRunPrivateMethod("generateClass", destination, classInfo, info);
     }
 
+    public void setProcessingEnv(ProcessingEnvironment processingEnv) {
+        this.processingEnv = processingEnv;
+    }
 }
 
