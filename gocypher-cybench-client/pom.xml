@@ -86,6 +86,9 @@
             <![CDATA[<font size="-1">Copyright &#169; 2014-2020 ${project.organization.name}. All Rights Reserved.</font>]]>
         </product.copyright.html>
 
+        <maven.source.skip>true</maven.source.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <assembly.skipAssembly>true</assembly.skipAssembly>
         <gpg.skip>true</gpg.skip>
     </properties>
 
@@ -97,8 +100,31 @@
 
     <profiles>
         <profile>
+            <id>pack-bin</id>
+            <properties>
+                <assembly.skipAssembly>false</assembly.skipAssembly>
+            </properties>
+        </profile>
+        <profile>
+            <id>pack-all</id>
+            <properties>
+                <maven.source.skip>false</maven.source.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <assembly.skipAssembly>false</assembly.skipAssembly>
+            </properties>
+        </profile>
+        <profile>
+            <id>pack-maven</id>
+            <properties>
+                <maven.source.skip>false</maven.source.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+            </properties>
+        </profile>
+        <profile>
             <id>maven-release</id>
             <properties>
+                <maven.source.skip>false</maven.source.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
                 <gpg.skip>false</gpg.skip>
             </properties>
         </profile>
