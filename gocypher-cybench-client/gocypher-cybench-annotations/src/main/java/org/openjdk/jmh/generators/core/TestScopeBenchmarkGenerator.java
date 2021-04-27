@@ -1,5 +1,18 @@
 package org.openjdk.jmh.generators.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.processing.ProcessingEnvironment;
+
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.runner.BenchmarkList;
 import org.openjdk.jmh.runner.BenchmarkListEntry;
@@ -8,23 +21,10 @@ import org.openjdk.jmh.util.HashMultimap;
 import org.openjdk.jmh.util.Multimap;
 import org.openjdk.jmh.util.Optional;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.StandardLocation;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     protected static final String JMH_GENERATED_SUBPACKAGE = "jmh_generated";
     private static final String JMH_STUB_SUFFIX = "_jmhStub";
     private static final String JMH_TESTCLASS_SUFFIX = "_jmhTest";
-
 
     private static final int NUMBER_OF_FORKS = 1;
     private static final int NUMBER_OF_WARMUPS = 0;
@@ -50,7 +50,8 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         Class<?>[] parameterClasses = Arrays.stream(parameters).map(p -> p.getClass()).toArray(size -> new Class[size]);
 
         try {
-            Method method = Arrays.stream(obj.getClass().getSuperclass().getDeclaredMethods()).filter(m -> m.getName().equals(name)).findFirst().get();
+            Method method = Arrays.stream(obj.getClass().getSuperclass().getDeclaredMethods())
+                    .filter(m -> m.getName().equals(name)).findFirst().get();
             method.setAccessible(true);
 
             return method.invoke(obj, parameters);
@@ -71,7 +72,9 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
             Multimap<ClassInfo, MethodInfo> clazzes = buildAnnotatedSet(source);
 
             for (ClassInfo clazz : clazzes.keys()) {
-                if (!processedBenchmarks.add(clazz.getQualifiedName())) continue;
+                if (!processedBenchmarks.add(clazz.getQualifiedName())) {
+                    continue;
+                }
                 try {
                     validateBenchmark(clazz, clazzes.get(clazz));
                     Collection<BenchmarkInfo> infos = makeBenchmarkInfo(clazz, clazzes.get(clazz));
@@ -94,6 +97,7 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         }
     }
 
+    @Override
     public void complete(GeneratorSource source, GeneratorDestination destination) {
         compilerControl.finish(source, destination);
 
@@ -165,9 +169,11 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     private Multimap<ClassInfo, MethodInfo> buildAnnotatedSet(GeneratorSource source) {
         Multimap<ClassInfo, MethodInfo> result = new HashMultimap<>();
         for (ClassInfo currentClass : source.getClasses()) {
-            if (currentClass.isAbstract()) continue;
+            if (currentClass.isAbstract()) {
+                continue;
+            }
             for (MethodInfo mi : currentClass.getMethods()) {
-                Object ann = mi.getAnnotation(org.junit.Test.class);
+                Annotation ann = getAnnotation(mi, org.junit.Test.class, org.junit.jupiter.api.Test.class);
                 if (ann != null) {
                     result.put(currentClass, mi);
                 }
@@ -175,6 +181,18 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         }
 
         return result;
+    }
+
+    private static Annotation getAnnotation(MethodInfo mi, Class<? extends Annotation>... aClasses) {
+        for (Class<? extends Annotation> aClass : aClasses) {
+            Annotation annotation = mi.getAnnotation(aClass);
+
+            if (annotation != null) {
+                return annotation;
+            }
+        }
+
+        return null;
     }
 
     private Object getAndRunPrivateMethod(String name, Object... params) {
@@ -198,4 +216,3 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
         this.processingEnv = processingEnv;
     }
 }
-
