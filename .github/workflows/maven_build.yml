@@ -20,7 +20,7 @@ on:
       tags:
         description: 'Run reason'
         required: true
-        default: 'Simple UI trigger'
+        default: 'UI triggered by ${{ github.actor }}'
 
 jobs:
   build:
