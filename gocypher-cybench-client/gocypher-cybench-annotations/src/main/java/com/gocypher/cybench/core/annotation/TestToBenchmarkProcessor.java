@@ -27,7 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 
-@SupportedAnnotationTypes("org.junit.Test")
+@SupportedAnnotationTypes({"org.junit.Test", "org.junit.jupiter.api.Test"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class TestToBenchmarkProcessor extends AbstractProcessor {

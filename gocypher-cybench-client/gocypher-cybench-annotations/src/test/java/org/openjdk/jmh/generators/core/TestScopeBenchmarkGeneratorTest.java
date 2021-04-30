@@ -1,6 +1,6 @@
 package org.openjdk.jmh.generators.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 class TestScopeBenchmarkGeneratorTest {
 

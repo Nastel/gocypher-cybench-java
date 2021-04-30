@@ -2,22 +2,16 @@
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by Fernflower decompiler)
 // 
+
 package com.gocypher.cybench.core.utils;
 
-// import com.gocypher.cybench.core.annotation.BenchmarkTag;
 import java.util.concurrent.TimeUnit;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
+
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.Blackhole;
+
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
-import org.openjdk.jmh.infra.Control;
 
 @State(Scope.Benchmark)
 public class TestBenchmarkClass {

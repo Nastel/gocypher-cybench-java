@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BenchmarkRunnerTest {
     @Test
-    public void testMetadataPropogation() {
+    public void testMetadataPropagation() {
         BenchmarkReport benchmarkReport = new BenchmarkReport();
         BenchmarkRunner.appendMetadataFromClass(TestClass.class, benchmarkReport);
         benchmarkReport.getMetadata().forEach((k, v) -> System.out.println(k + " : " + v));
