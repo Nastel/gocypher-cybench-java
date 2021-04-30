@@ -1,6 +1,10 @@
 package com.gocypher.cybench.core.annotation;
 
 import com.google.auto.service.AutoService;
+import com.sun.source.util.Trees;
+import com.sun.tools.javac.processing.JavacProcessingEnvironment;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeMaker;
 import org.openjdk.jmh.generators.annotations.APGeneratorDestinaton;
 import org.openjdk.jmh.generators.annotations.APGeneratorSource;
 import org.openjdk.jmh.generators.core.BenchmarkGenerator;
@@ -10,6 +14,7 @@ import org.openjdk.jmh.generators.core.TestScopeBenchmarkGenerator;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -27,6 +32,8 @@ import java.util.Set;
 @AutoService(Processor.class)
 public class TestToBenchmarkProcessor extends AbstractProcessor {
     private final BenchmarkGenerator generator = new TestScopeBenchmarkGenerator();
+    private Trees trees;
+    private ChangeTranslator visitor;
 
     static File getAlreadyCreatedFile(ProcessingEnvironment processingEnv, String name) {
 
@@ -67,17 +74,29 @@ public class TestToBenchmarkProcessor extends AbstractProcessor {
     }
 
     @Override
-    public synchronized void init(ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        ((TestScopeBenchmarkGenerator) generator).setProcessingEnv(processingEnv);
+    public synchronized void init(ProcessingEnvironment processingEnvironment) {
+        if (processingEnvironment == null) return;
+        super.init(processingEnvironment);
+        ((TestScopeBenchmarkGenerator) generator).setProcessingEnv(processingEnvironment);
+        JavacProcessingEnvironment javacProcessingEnvironment = (JavacProcessingEnvironment)processingEnvironment;
+        this.trees = Trees.instance(processingEnvironment);
+        TreeMaker treeMaker = TreeMaker.instance(javacProcessingEnvironment.getContext());
+        visitor = new ChangeTranslator(javacProcessingEnvironment, treeMaker);
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (System.getProperty("generateBenchmarkFromTest") == null) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "A");
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "TestToBenchmarkProcessor processor not enabled by default. You need to set property \"generateBenchmarkFromTest\"");
             return false;
+        }
 
+        if (!roundEnv.processingOver()) {
+            Set<? extends Element > elements = roundEnv.getRootElements();
+            elements.forEach(element -> {
+                JCTree tree = (JCTree) trees.getTree(element);
+                tree.accept(visitor);
+            });
         }
 
         GeneratorSource source = new APGeneratorSource(roundEnv, processingEnv);
