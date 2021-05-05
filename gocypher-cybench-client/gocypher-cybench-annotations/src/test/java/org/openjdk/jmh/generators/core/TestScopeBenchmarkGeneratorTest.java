@@ -8,7 +8,7 @@ class TestScopeBenchmarkGeneratorTest {
     public void getAndRunPrivateMethod() {
         TestScopeBenchmarkGenerator gen = new TestScopeBenchmarkGenerator();
         A a = new A();
-        System.out.println(gen._getAndRunPrivateMethod( a, "privMethod", "a"));
+       // System.out.println(gen._getAndRunPrivateMethod( a, "privMethod", "a"));
     }
 
 

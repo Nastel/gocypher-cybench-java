@@ -2,6 +2,7 @@ package com.gocypher.cybench.core.annotation;
 
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.processing.JavacFiler;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
@@ -13,13 +14,17 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 
 import javax.lang.model.element.Element;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ChangeTranslator extends TreeTranslator {
     private final CreateStatement createStatement;
+    private final JavacProcessingEnvironment env;
+    private LinkedList<Symbol.ClassSymbol> processed = new LinkedList<>();
 
     public ChangeTranslator(JavacProcessingEnvironment javacProcessingEnvironment, TreeMaker treeMaker) {
         createStatement = new CreateStatement(new GetElement(javacProcessingEnvironment), treeMaker);
+        this.env = javacProcessingEnvironment;
     }
 
     @Override
@@ -28,32 +33,43 @@ public class ChangeTranslator extends TreeTranslator {
         if (!isContainsAnnotation(jcClassDecl.getModifiers()) && notContainBenchmark(jcClassDecl) && containsTest(jcClassDecl)) {
             // result is placed into the AST, replacing the current variable declaration.
             result = createStatement.apply(jcClassDecl);
+            if (result != null && !((JavacFiler) env.getFiler()).newFiles()) {
+                ((JavacFiler) env.getFiler()).getGeneratedSourceNames().add("cyBenchDummy" + System.currentTimeMillis());
+            }
+            processed.add(jcClassDecl.sym);
         }
     }
 
     private boolean containsTest(JCTree.JCClassDecl jcClassDecl) {
-        return  jcClassDecl.getMembers().stream()
+        return jcClassDecl.getMembers().stream()
                 .filter(e -> e.getKind() == Tree.Kind.METHOD)
                 .map(m -> (JCTree.JCMethodDecl) m)
-                .anyMatch(m -> containsAnnotation(m.getModifiers(),"Test")); //FIXME please
+                .anyMatch(m -> containsAnnotation(m.getModifiers(), Test.class)); //FIXME please
     }
 
 
     private boolean notContainBenchmark(JCTree.JCClassDecl jcClassDecl) {
-        return  jcClassDecl.getMembers().stream()
+        return jcClassDecl.getMembers().stream()
                 .filter(e -> e.getKind() == Tree.Kind.METHOD)
                 .map(m -> (JCTree.JCMethodDecl) m)
-                .noneMatch(m -> containsAnnotation(m.getModifiers(), Benchmark.class.getName()));
+                .noneMatch(m -> containsAnnotation(m.getModifiers(), Benchmark.class));
     }
-
 
 
     private boolean isContainsAnnotation(JCTree.JCModifiers modifiers) {
-        return containsAnnotation(modifiers,State.class.getName());
+        return containsAnnotation(modifiers, State.class);
     }
 
-    private boolean containsAnnotation(JCTree.JCModifiers modifiers, String qualifiedANme  ) {
-        return modifiers.getAnnotations().stream().filter(a -> a.getAnnotationType().toString().equals(qualifiedANme)).findAny().isPresent();
+    private boolean containsAnnotation(JCTree.JCModifiers modifiers, Class clazz) {
+        return modifiers.getAnnotations().stream().filter(a -> nameIs(clazz, a)).findAny().isPresent();
+    }
+
+    private boolean nameIs(Class name, JCTree.JCAnnotation a) {
+        return a.getAnnotationType().toString().equals(name.getName()) || a.getAnnotationType().toString().equals(name.getSimpleName());
+    }
+
+    public LinkedList<Symbol.ClassSymbol> getProcessed() {
+        return processed;
     }
 
 
@@ -75,7 +91,7 @@ public class ChangeTranslator extends TreeTranslator {
         public Symbol apply(Enum javaEnum) {
             return (Symbol) getClassElements(javaEnum.getDeclaringClass())
                     .stream()
-                    .filter(s->s.getSimpleName().contentEquals("Benchmark"))
+                    .filter(s -> s.getSimpleName().contentEquals("Benchmark"))
                     .findAny()
                     .orElseThrow(() -> new AssertionError("Unable to get " + javaEnum));
         }
