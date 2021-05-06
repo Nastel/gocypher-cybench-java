@@ -1,5 +1,15 @@
 package com.gocypher.cybench.core.annotation;
 
+import java.lang.annotation.Annotation;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.lang.model.element.Element;
+
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
+
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.processing.JavacFiler;
@@ -8,14 +18,6 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.Name;
-import org.junit.Test;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
-
-import javax.lang.model.element.Element;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ChangeTranslator extends TreeTranslator {
     private final CreateStatement createStatement;
@@ -24,7 +26,7 @@ public class ChangeTranslator extends TreeTranslator {
 
     public ChangeTranslator(JavacProcessingEnvironment javacProcessingEnvironment, TreeMaker treeMaker) {
         createStatement = new CreateStatement(new GetElement(javacProcessingEnvironment), treeMaker);
-        this.env = javacProcessingEnvironment;
+        env = javacProcessingEnvironment;
     }
 
     @Override
@@ -44,9 +46,9 @@ public class ChangeTranslator extends TreeTranslator {
         return jcClassDecl.getMembers().stream()
                 .filter(e -> e.getKind() == Tree.Kind.METHOD)
                 .map(m -> (JCTree.JCMethodDecl) m)
-                .anyMatch(m -> containsAnnotation(m.getModifiers(), Test.class)); //FIXME please
+                .anyMatch(m -> containsAnnotation(m.getModifiers(),
+                        org.junit.Test.class, org.junit.jupiter.api.Test.class)); // FIXME please
     }
-
 
     private boolean notContainBenchmark(JCTree.JCClassDecl jcClassDecl) {
         return jcClassDecl.getMembers().stream()
@@ -55,23 +57,31 @@ public class ChangeTranslator extends TreeTranslator {
                 .noneMatch(m -> containsAnnotation(m.getModifiers(), Benchmark.class));
     }
 
-
     private boolean isContainsAnnotation(JCTree.JCModifiers modifiers) {
         return containsAnnotation(modifiers, State.class);
     }
 
-    private boolean containsAnnotation(JCTree.JCModifiers modifiers, Class clazz) {
-        return modifiers.getAnnotations().stream().filter(a -> nameIs(clazz, a)).findAny().isPresent();
+    private boolean containsAnnotation(JCTree.JCModifiers modifiers, Class<? extends Annotation>... aClasses) {
+        if (aClasses != null) {
+            for (Class<? extends Annotation> aClass : aClasses) {
+                boolean match = modifiers.getAnnotations().stream().anyMatch(a -> nameIs(aClass, a));
+
+                if (match) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
-    private boolean nameIs(Class name, JCTree.JCAnnotation a) {
+    private boolean nameIs(Class<?> name, JCTree.JCAnnotation a) {
         return a.getAnnotationType().toString().equals(name.getName()) || a.getAnnotationType().toString().equals(name.getSimpleName());
     }
 
     public LinkedList<Symbol.ClassSymbol> getProcessed() {
         return processed;
     }
-
 
     public static class GetElement {
         private final JavacProcessingEnvironment javacProcessingEnvironment;
@@ -88,7 +98,7 @@ public class ChangeTranslator extends TreeTranslator {
                     .orElseThrow(() -> new AssertionError("Unable to get " + javaClass));
         }
 
-        public Symbol apply(Enum javaEnum) {
+        public Symbol apply(Enum<?> javaEnum) {
             return (Symbol) getClassElements(javaEnum.getDeclaringClass())
                     .stream()
                     .filter(s -> s.getSimpleName().contentEquals("Benchmark"))
