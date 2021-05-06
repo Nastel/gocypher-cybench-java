@@ -1,14 +1,5 @@
 package org.openjdk.jmh.generators.core;
 
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.runner.BenchmarkList;
-import org.openjdk.jmh.runner.BenchmarkListEntry;
-import org.openjdk.jmh.runner.options.TimeValue;
-import org.openjdk.jmh.util.HashMultimap;
-import org.openjdk.jmh.util.Multimap;
-import org.openjdk.jmh.util.Optional;
-
-import javax.annotation.processing.ProcessingEnvironment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,6 +9,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.annotation.processing.ProcessingEnvironment;
+
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.runner.BenchmarkList;
+import org.openjdk.jmh.runner.BenchmarkListEntry;
+import org.openjdk.jmh.runner.options.TimeValue;
+import org.openjdk.jmh.util.HashMultimap;
+import org.openjdk.jmh.util.Multimap;
+import org.openjdk.jmh.util.Optional;
 
 public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     protected static final String JMH_GENERATED_SUBPACKAGE = "jmh_generated";
@@ -54,11 +55,13 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     }
 
     private static Annotation getAnnotation(MethodInfo mi, Class<? extends Annotation>... aClasses) {
-        for (Class<? extends Annotation> aClass : aClasses) {
-            Annotation annotation = mi.getAnnotation(aClass);
+        if (aClasses != null) {
+            for (Class<? extends Annotation> aClass : aClasses) {
+                Annotation annotation = mi.getAnnotation(aClass);
 
-            if (annotation != null) {
-                return annotation;
+                if (annotation != null) {
+                    return annotation;
+                }
             }
         }
 
@@ -202,10 +205,9 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     private void generateClass(GeneratorDestination destination, ClassInfo classInfo, BenchmarkInfo info) throws IOException {
         try {
             getAndRunPrivateMethod("generateClass", destination, classInfo, info);
+        } catch (IOException ioe) {
+            throw ioe;
         } catch (Exception io) {
-            if (io instanceof IOException) {
-                throw (IOException) io;
-            }
         }
     }
 
