@@ -19,15 +19,6 @@
 
 package com.gocypher.cybench.core.utils;
 
-import com.gocypher.cybench.core.annotation.BenchmarkTag;
-import org.apache.bcel.Repository;
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Method;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.crypto.*;
 import java.io.*;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
@@ -35,6 +26,17 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.crypto.*;
+
+import org.apache.bcel.Repository;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gocypher.cybench.core.annotation.BenchmarkTag;
 
 public class SecurityUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
@@ -66,16 +68,15 @@ public class SecurityUtils {
     }
 
     public static byte[] getObjectBytes(Object obj) {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            ObjectOutputStream out;
-            out = new ObjectOutputStream(bos);
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutputStream out = new ObjectOutputStream(bos)) {
             out.writeObject(obj);
             out.flush();
             return bos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new byte[]{};
+        return new byte[] {};
     }
 
     public static String computeClassHash(Class<?> clazz) {
@@ -96,13 +97,17 @@ public class SecurityUtils {
         return null;
     }
 
-    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints) throws ClassNotFoundException {
+    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints)
+            throws ClassNotFoundException {
         JavaClass javaClass = Repository.lookupClass(clazz);
-        List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream().filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName()).collect(Collectors.toList());
+        List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream()
+                .filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName())
+                .collect(Collectors.toList());
         for (Method method : javaClass.getMethods()) {
-            try{
+            try {
                 if (benchmarkMethods.contains(method.getName())) {
-                    String hash = hashByteArray(concatArrays(method.getName().getBytes(), method.getSignature().getBytes(), method.getCode().getCode()));
+                    String hash = hashByteArray(concatArrays(method.getName().getBytes(),
+                            method.getSignature().getBytes(), method.getCode().getCode()));
                     generatedFingerprints.put(clazz.getName() + "." + method.getName(), hash);
                 }
             } catch (Exception e) {
@@ -116,10 +121,8 @@ public class SecurityUtils {
         return collect.getBytes();
     }
 
-
     private static byte[] file2ByteArray(InputStream inputStream) {
-        try {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             int nRead;
             byte[] data = new byte[1024];
             while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
@@ -155,23 +158,25 @@ public class SecurityUtils {
             Key pvt = kp.getPrivate();
 
             Base64.Encoder encoder = Base64.getEncoder();
-            Writer out = new FileWriter(fileName + ".key");
-            out.write(BEGIN_PRIVATE_KEY);
-            out.write("\n");
-            out.write(encoder.encodeToString(pvt.getEncoded()));
-            out.write("\n");
-            out.write(END_PRIVATE_KEY);
-            out.write("\n");
-            out.close();
+            try (Writer out = new FileWriter(fileName + ".key")) {
+                out.write(BEGIN_PRIVATE_KEY);
+                out.write("\n");
+                out.write(encoder.encodeToString(pvt.getEncoded()));
+                out.write("\n");
+                out.write(END_PRIVATE_KEY);
+                out.write("\n");
+                out.flush();
+            }
 
-            out = new FileWriter(fileName + ".pub");
-            out.write(BEGIN_PUBLIC_KEY);
-            out.write("\n");
-            out.write(encoder.encodeToString(pub.getEncoded()));
-            out.write("\n");
-            out.write(END_PUBLIC_KEY);
-            out.write("\n");
-            out.close();
+            try (Writer out = new FileWriter(fileName + ".pub")) {
+                out.write(BEGIN_PUBLIC_KEY);
+                out.write("\n");
+                out.write(encoder.encodeToString(pub.getEncoded()));
+                out.write("\n");
+                out.write(END_PUBLIC_KEY);
+                out.write("\n");
+                out.flush();
+            }
         } catch (Exception e) {
             LOG.error("Failed to generate keypair: filename={}", fileName, e);
         }
@@ -213,20 +218,21 @@ public class SecurityUtils {
         ClassLoader CLDR = SecurityUtils.class.getClassLoader();
         InputStream in = CLDR.getResourceAsStream(fileName);
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String header = reader.readLine();
-        boolean valid = (header != null)
-                && (isPublicKey ? header.contains(BEGIN_PUBLIC_KEY) : header.contains(BEGIN_PRIVATE_KEY));
-        if (!valid) {
-            throw new IOException("Invalid key header=" + header);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            String header = reader.readLine();
+            boolean valid = (header != null)
+                    && (isPublicKey ? header.contains(BEGIN_PUBLIC_KEY) : header.contains(BEGIN_PRIVATE_KEY));
+            if (!valid) {
+                throw new IOException("Invalid key header=" + header);
+            }
+            String publicKeyPEM = reader.readLine();
+            String footer = reader.readLine();
+            valid = valid && (isPublicKey ? footer.contains(END_PUBLIC_KEY) : footer.contains(END_PRIVATE_KEY));
+            if (!valid) {
+                throw new IOException("Invalid key footer=" + footer);
+            }
+            return Base64.getDecoder().decode(publicKeyPEM);
         }
-        String publicKeyPEM = reader.readLine();
-        String footer = reader.readLine();
-        valid = valid && (isPublicKey ? footer.contains(END_PUBLIC_KEY) : footer.contains(END_PRIVATE_KEY));
-        if (!valid) {
-            throw new IOException("Invalid key footer=" + footer);
-        }
-        return Base64.getDecoder().decode(publicKeyPEM);
     }
 
     private static byte[] encryptRSA(PublicKey key, byte[] plaintext) throws NoSuchAlgorithmException,
@@ -274,7 +280,8 @@ public class SecurityUtils {
         return Base64.getDecoder().decode(CYB_PUBLIC_KEY_RAW);
     }
 
-    public static void generateMethodFingerprints(Class<?> benchmarkClass, Map<String, String> manualFingerprints, Map<String, String> classFingerprints) throws ClassNotFoundException {
+    public static void generateMethodFingerprints(Class<?> benchmarkClass, Map<String, String> manualFingerprints,
+            Map<String, String> classFingerprints) throws ClassNotFoundException {
         LOG.info("benchmarkClass name {}", benchmarkClass.getSimpleName());
         String classHash = computeClassHash(benchmarkClass);
         java.lang.reflect.Method[] methods = benchmarkClass.getMethods();

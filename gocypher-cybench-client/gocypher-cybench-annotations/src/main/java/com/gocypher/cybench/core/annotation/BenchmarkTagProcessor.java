@@ -19,22 +19,6 @@
 
 package com.gocypher.cybench.core.annotation;
 
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.google.auto.service.AutoService;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.util.Name;
-import org.openjdk.jmh.annotations.Benchmark;
-
-import javax.annotation.processing.*;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
-import javax.tools.FileObject;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +28,24 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.annotation.processing.*;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
+import javax.tools.FileObject;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
+
+import org.openjdk.jmh.annotations.Benchmark;
+
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.google.auto.service.AutoService;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.util.Name;
 
 @SupportedAnnotationTypes("org.openjdk.jmh.annotations.Benchmark")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -57,8 +59,7 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         List<FromSourceToGenerated> createdFiles = new ArrayList<>();
         for (TypeElement annotation : annotations) {
-            Set<? extends Element> annotatedElements
-                    = roundEnv.getElementsAnnotatedWith(annotation);
+            Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
 
             annotatedElements.forEach(element -> {
                 checkTagAnnotation(element, processingEnv.getMessager());
@@ -72,20 +73,23 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
 
             createdFiles.forEach(fromSourceToGenerated -> {
                 try {
-                    Files.copy(fromSourceToGenerated.generated, fromSourceToGenerated.source, StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(fromSourceToGenerated.generated, fromSourceToGenerated.source,
+                            StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getLocalizedMessage());
                 }
             });
 
             if (createdFiles.size() > 0)
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Annotations created and files are updated. You need to recompile.");
+            {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                        "Annotations created and files are updated. You need to recompile.");
+            }
 
         }
 
         return false;
     }
-
 
     private FromSourceToGenerated createFile(Element element) {
         try {
@@ -99,9 +103,11 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
 
                 String name = String.valueOf(classSymbol.getSimpleName());
 
-
-                Name pck = classSymbol.getQualifiedName().subName(0, classSymbol.getQualifiedName().lastIndexOf((byte) '.'));
-                Name nm = classSymbol.getQualifiedName().subName(classSymbol.getQualifiedName().lastIndexOf((byte) '.') + 1, classSymbol.getQualifiedName().length());
+                Name pck = classSymbol.getQualifiedName().subName(0,
+                        classSymbol.getQualifiedName().lastIndexOf((byte) '.'));
+                Name nm = classSymbol.getQualifiedName().subName(
+                        classSymbol.getQualifiedName().lastIndexOf((byte) '.') + 1,
+                        classSymbol.getQualifiedName().length());
                 FileObject classFile = null;
                 try {
                     classFile = filer.getResource(StandardLocation.SOURCE_OUTPUT, pck, nm + ".generated");
@@ -113,12 +119,14 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                     try (PrintWriter wr = new PrintWriter(classFile.openWriter())) {
                         String replaced = getReplaced(fileContents, name, name);
                         wr.print(replaced);
+                        wr.flush();
                     }
                 } else {
                     return null;
                 }
 
-                FromSourceToGenerated fromSourceToGenerated = new FromSourceToGenerated(path, Paths.get(classFile.toUri()));
+                FromSourceToGenerated fromSourceToGenerated = new FromSourceToGenerated(path,
+                        Paths.get(classFile.toUri()));
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, fromSourceToGenerated.toString());
 
                 return fromSourceToGenerated;
@@ -134,23 +142,28 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
     private static String getReplaced(String fileContents, String newName, String oldName) {
         CompilationUnit cu = StaticJavaParser.parse(fileContents);
         List<MethodDeclaration> allMethods = cu.findAll(MethodDeclaration.class);
-        if (!cu.getImports().contains(StaticJavaParser.parseImport("import " + BenchmarkTag.class.getCanonicalName() + ";"))) {
+        if (!cu.getImports()
+                .contains(StaticJavaParser.parseImport("import " + BenchmarkTag.class.getCanonicalName() + ";"))) {
             cu.addImport(BenchmarkTag.class);
         }
 
-        List<MethodDeclaration> methodsNeedTag = allMethods.stream().filter(
-                methodDeclaration -> !methodDeclaration.getAnnotationByClass(BenchmarkTag.class).isPresent() &&
-                        methodDeclaration.getAnnotationByClass(Benchmark.class).isPresent()
-        ).collect(Collectors.toList());
+        List<MethodDeclaration> methodsNeedTag = allMethods.stream()
+                .filter(methodDeclaration -> !methodDeclaration.getAnnotationByClass(BenchmarkTag.class).isPresent()
+                        && methodDeclaration.getAnnotationByClass(Benchmark.class).isPresent())
+                .collect(Collectors.toList());
 
-        methodsNeedTag.forEach(methodDeclaration -> methodDeclaration.addAnnotation(StaticJavaParser.parseAnnotation("@BenchmarkTag(tag=\"" + UUID.randomUUID() + "\")")));
+        methodsNeedTag.forEach(methodDeclaration -> methodDeclaration
+                .addAnnotation(StaticJavaParser.parseAnnotation("@BenchmarkTag(tag=\"" + UUID.randomUUID() + "\")")));
 
         return cu.toString();
     }
 
     private static void checkTagAnnotation(Element element, Messager messager) {
         BenchmarkTag annotation = element.getAnnotation(BenchmarkTag.class);
-        if (annotation == null) return;
+        if (annotation == null)
+        {
+            return;
+        }
         try {
             if (annotation != null) {
                 UUID.fromString(annotation.tag());
@@ -164,12 +177,12 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
 
         Element put = knownAnnotationTags.put(annotation.tag(), element);
         if (put != null) {
-            String msg = "@BenchmarkTag " + annotation.tag() + " is not unique. Used in: " + element.getSimpleName().toString() + " and " + put.getSimpleName().toString();
+            String msg = "@BenchmarkTag " + annotation.tag() + " is not unique. Used in: "
+                    + element.getSimpleName().toString() + " and " + put.getSimpleName().toString();
             messager.printMessage(Diagnostic.Kind.ERROR, msg);
             throw new RuntimeException(msg);
         }
     }
-
 
     private static class FromSourceToGenerated {
         Path source;

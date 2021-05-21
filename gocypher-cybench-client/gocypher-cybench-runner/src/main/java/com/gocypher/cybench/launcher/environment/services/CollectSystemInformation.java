@@ -82,54 +82,54 @@ public class CollectSystemInformation {
         Properties properties = System.getProperties();
         for (Object property : properties.keySet()) {
             switch (property.toString()) {
-                case "java.runtime.name":
-                    jvmProperties.setJvmRuntimeName(properties.getProperty("java.runtime.name"));
-                    break;
-                case "sun.boot.library.path":
-                    jvmProperties.setJvmUserBootLibraryPath(properties.getProperty("sun.boot.library.path"));
-                    break;
-                case "java.vendor.url":
-                    jvmProperties.setJvmVendorURL(properties.getProperty("java.vendor.url"));
-                    break;
-                case "java.vendor":
-                    jvmProperties.setJvmVendor(properties.getProperty("java.vendor"));
-                    break;
-                case "java.vm.name":
-                    jvmProperties.setJvmVmName(properties.getProperty("java.vm.name"));
-                    break;
-                case "java.runtime.version":
-                    jvmProperties.setJvmRuntimeVersion(properties.getProperty("java.runtime.version"));
-                    break;
-                case "java.home":
-                    jvmProperties.setJvmUserJavaHome(properties.getProperty("java.home"));
-                    break;
-                case "user.language":
-                    jvmProperties.setJvmUserLanguage(properties.getProperty("user.language"));
-                    break;
-                case "java.vm.info":
-                    jvmProperties.setJvmVmInfo(properties.getProperty("java.vm.info"));
-                    break;
-                case "file.encoding":
-                    jvmProperties.setJvmOtherEncoding(properties.getProperty("file.encoding"));
-                    break;
-                case "sun.io.unicode.encoding":
-                    jvmProperties.setJvmOtherIOUnicodeEncoding(properties.getProperty("sun.io.unicode.encoding"));
-                    break;
-                case "java.vm.version":
-                    jvmProperties.setJvmVmVersion(properties.getProperty("java.vm.version"));
-                    break;
-                case "sun.management.compiler":
-                    jvmProperties.setJvmOtherManagementCompiler(properties.getProperty("sun.management.compiler"));
-                    break;
-                case "java.class.version":
-                    jvmProperties.setJvmJavaClassVersion(properties.getProperty("java.class.version"));
-                    break;
-                case "java.specification.name":
-                    jvmProperties.setJvmJavaSpecificationName(properties.getProperty("java.specification.name"));
-                    break;
-                case "java.version":
-                    jvmProperties.setJvmJavaVersion(properties.getProperty("java.version"));
-                    break;
+            case "java.runtime.name":
+                jvmProperties.setJvmRuntimeName(properties.getProperty("java.runtime.name"));
+                break;
+            case "sun.boot.library.path":
+                jvmProperties.setJvmUserBootLibraryPath(properties.getProperty("sun.boot.library.path"));
+                break;
+            case "java.vendor.url":
+                jvmProperties.setJvmVendorURL(properties.getProperty("java.vendor.url"));
+                break;
+            case "java.vendor":
+                jvmProperties.setJvmVendor(properties.getProperty("java.vendor"));
+                break;
+            case "java.vm.name":
+                jvmProperties.setJvmVmName(properties.getProperty("java.vm.name"));
+                break;
+            case "java.runtime.version":
+                jvmProperties.setJvmRuntimeVersion(properties.getProperty("java.runtime.version"));
+                break;
+            case "java.home":
+                jvmProperties.setJvmUserJavaHome(properties.getProperty("java.home"));
+                break;
+            case "user.language":
+                jvmProperties.setJvmUserLanguage(properties.getProperty("user.language"));
+                break;
+            case "java.vm.info":
+                jvmProperties.setJvmVmInfo(properties.getProperty("java.vm.info"));
+                break;
+            case "file.encoding":
+                jvmProperties.setJvmOtherEncoding(properties.getProperty("file.encoding"));
+                break;
+            case "sun.io.unicode.encoding":
+                jvmProperties.setJvmOtherIOUnicodeEncoding(properties.getProperty("sun.io.unicode.encoding"));
+                break;
+            case "java.vm.version":
+                jvmProperties.setJvmVmVersion(properties.getProperty("java.vm.version"));
+                break;
+            case "sun.management.compiler":
+                jvmProperties.setJvmOtherManagementCompiler(properties.getProperty("sun.management.compiler"));
+                break;
+            case "java.class.version":
+                jvmProperties.setJvmJavaClassVersion(properties.getProperty("java.class.version"));
+                break;
+            case "java.specification.name":
+                jvmProperties.setJvmJavaSpecificationName(properties.getProperty("java.specification.name"));
+                break;
+            case "java.version":
+                jvmProperties.setJvmJavaVersion(properties.getProperty("java.version"));
+                break;
 
             }
         }
@@ -152,9 +152,9 @@ public class CollectSystemInformation {
 
         List<GarbageCollectorMXBean> garbageCollectors = ManagementFactory.getGarbageCollectorMXBeans();
         List<String> garbageCollectorsOutput = new ArrayList<>();
-//        Map<String, Object> garbageCollectorsMap = new HashMap<>();
+        // Map<String, Object> garbageCollectorsMap = new HashMap<>();
         for (GarbageCollectorMXBean garbageCollector : garbageCollectors) {
-//            garbageCollectorsMap.put(garbageCollector.getName(), garbageCollector.getName()) ;
+            // garbageCollectorsMap.put(garbageCollector.getName(), garbageCollector.getName()) ;
             garbageCollectorsOutput.add(garbageCollector.getName());
         }
         unclassifiedProperties.put("performanceGarbageCollectors", garbageCollectorsOutput);
@@ -398,17 +398,17 @@ public class CollectSystemInformation {
         Set<Map.Entry<String, String>> fullInfosMem = infoMemory.getFullInfo().entrySet();
         for (Map.Entry<String, String> fullInfo : fullInfosMem) {
             switch (fullInfo.getKey()) {
-                case "PartNumber":
-                    hardwareProp.setHwMemPartNumber(fullInfo.getValue());
-                    break;
-                case "Manufacturer":
-                    hardwareProp.setHwMemManufacturer(fullInfo.getValue());
-                    break;
-                case "Speed":
-                    if (!fullInfo.getValue().equals("")) {
-                        hardwareProp.setHwMemSpeed(Double.parseDouble(fullInfo.getValue()));
-                    }
-                    break;
+            case "PartNumber":
+                hardwareProp.setHwMemPartNumber(fullInfo.getValue());
+                break;
+            case "Manufacturer":
+                hardwareProp.setHwMemManufacturer(fullInfo.getValue());
+                break;
+            case "Speed":
+                if (!fullInfo.getValue().equals("")) {
+                    hardwareProp.setHwMemSpeed(Double.parseDouble(fullInfo.getValue()));
+                }
+                break;
             }
         }
     }
@@ -424,15 +424,15 @@ public class CollectSystemInformation {
         Set<Map.Entry<String, String>> fullInfosBios = infoBios.getFullInfo().entrySet();
         for (Map.Entry<String, String> fullInfo : fullInfosBios) {
             switch (fullInfo.getKey()) {
-                case "Name":
-                    hardwareProp.setHwBiosName(fullInfo.getValue());
-                    break;
-                case "SerialNumber":
-                    hardwareProp.setHwBiosSerialNumber(fullInfo.getValue());
-                    break;
-                case "PrimaryBIOS":
-                    hardwareProp.setHwBiosPrimaryBios(Boolean.parseBoolean(fullInfo.getValue()));
-                    break;
+            case "Name":
+                hardwareProp.setHwBiosName(fullInfo.getValue());
+                break;
+            case "SerialNumber":
+                hardwareProp.setHwBiosSerialNumber(fullInfo.getValue());
+                break;
+            case "PrimaryBIOS":
+                hardwareProp.setHwBiosPrimaryBios(Boolean.parseBoolean(fullInfo.getValue()));
+                break;
             }
         }
     }
@@ -534,9 +534,10 @@ public class CollectSystemInformation {
     public static void outputHardwareDataObjectToFile(Object obj, String fileName) {
         try {
             LOG.info("Writing properties to file...");
-            FileWriter myWriter = new FileWriter(fileName);
-            myWriter.write(obj.toString());
-            myWriter.close();
+            try (FileWriter myWriter = new FileWriter(fileName)) {
+                myWriter.write(obj.toString());
+                myWriter.flush();
+            }
         } catch (IOException e) {
             LOG.error("An error occurred: ", e);
         }

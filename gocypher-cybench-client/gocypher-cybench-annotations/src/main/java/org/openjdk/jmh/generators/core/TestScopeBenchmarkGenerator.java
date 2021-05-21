@@ -149,7 +149,8 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
                     );
 
                     if (entriesByQName.keys().contains(info.userClassQName)) {
-                        destination.printNote("Benchmark entries for " + info.userClassQName + " already exist, overwriting");
+                        destination.printNote(
+                                "Benchmark entries for " + info.userClassQName + " already exist, overwriting");
                         entries.removeAll(entriesByQName.get(info.userClassQName));
                         entriesByQName.remove(info.userClassQName);
                     }
@@ -198,16 +199,19 @@ public class TestScopeBenchmarkGenerator extends BenchmarkGenerator {
     }
 
     @SuppressWarnings("unchecked")
-    private Collection<BenchmarkInfo> makeBenchmarkInfo(ClassInfo clazz, Collection<MethodInfo> methods) throws Exception {
+    private Collection<BenchmarkInfo> makeBenchmarkInfo(ClassInfo clazz, Collection<MethodInfo> methods)
+            throws Exception {
         return (Collection<BenchmarkInfo>) getAndRunPrivateMethod("makeBenchmarkInfo", clazz, methods);
     }
 
-    private void generateClass(GeneratorDestination destination, ClassInfo classInfo, BenchmarkInfo info) throws IOException {
+    private void generateClass(GeneratorDestination destination, ClassInfo classInfo, BenchmarkInfo info)
+            throws IOException {
         try {
             getAndRunPrivateMethod("generateClass", destination, classInfo, info);
-        } catch (IOException ioe) {
-            throw ioe;
         } catch (Exception io) {
+            if (io instanceof IOException) {
+                throw (IOException) io;
+            }
         }
     }
 

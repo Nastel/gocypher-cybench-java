@@ -32,27 +32,26 @@ public class ChangeTranslator extends TreeTranslator {
     @Override
     public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
         super.visitClassDef(jcClassDecl);
-        if (!isContainsAnnotation(jcClassDecl.getModifiers()) && notContainBenchmark(jcClassDecl) && containsTest(jcClassDecl)) {
+        if (!isContainsAnnotation(jcClassDecl.getModifiers()) && notContainBenchmark(jcClassDecl)
+                && containsTest(jcClassDecl)) {
             // result is placed into the AST, replacing the current variable declaration.
             result = createStatement.apply(jcClassDecl);
             if (result != null && !((JavacFiler) env.getFiler()).newFiles()) {
-                ((JavacFiler) env.getFiler()).getGeneratedSourceNames().add("cyBenchDummy" + System.currentTimeMillis());
+                ((JavacFiler) env.getFiler()).getGeneratedSourceNames()
+                        .add("cyBenchDummy" + System.currentTimeMillis());
             }
             processed.add(jcClassDecl.sym);
         }
     }
 
     private boolean containsTest(JCTree.JCClassDecl jcClassDecl) {
-        return jcClassDecl.getMembers().stream()
-                .filter(e -> e.getKind() == Tree.Kind.METHOD)
-                .map(m -> (JCTree.JCMethodDecl) m)
-                .anyMatch(m -> containsAnnotation(m.getModifiers(),
+        return jcClassDecl.getMembers().stream().filter(e -> e.getKind() == Tree.Kind.METHOD)
+                .map(m -> (JCTree.JCMethodDecl) m).anyMatch(m -> containsAnnotation(m.getModifiers(),
                         org.junit.Test.class, org.junit.jupiter.api.Test.class)); // FIXME please
     }
 
     private boolean notContainBenchmark(JCTree.JCClassDecl jcClassDecl) {
-        return jcClassDecl.getMembers().stream()
-                .filter(e -> e.getKind() == Tree.Kind.METHOD)
+        return jcClassDecl.getMembers().stream().filter(e -> e.getKind() == Tree.Kind.METHOD)
                 .map(m -> (JCTree.JCMethodDecl) m)
                 .noneMatch(m -> containsAnnotation(m.getModifiers(), Benchmark.class));
     }
@@ -76,7 +75,8 @@ public class ChangeTranslator extends TreeTranslator {
     }
 
     private boolean nameIs(Class<?> name, JCTree.JCAnnotation a) {
-        return a.getAnnotationType().toString().equals(name.getName()) || a.getAnnotationType().toString().equals(name.getSimpleName());
+        return a.getAnnotationType().toString().equals(name.getName())
+                || a.getAnnotationType().toString().equals(name.getSimpleName());
     }
 
     public LinkedList<Symbol.ClassSymbol> getProcessed() {
@@ -91,32 +91,30 @@ public class ChangeTranslator extends TreeTranslator {
         }
 
         public Symbol apply(Class<?> javaClass) {
-            return (Symbol) getPackageElements(javaClass)
-                    .stream()
-                    .filter(element -> element.getSimpleName().toString().equals(javaClass.getSimpleName()))
-                    .findAny()
+            return (Symbol) getPackageElements(javaClass).stream()
+                    .filter(element -> element.getSimpleName().toString().equals(javaClass.getSimpleName())).findAny()
                     .orElseThrow(() -> new AssertionError("Unable to get " + javaClass));
         }
 
         public Symbol apply(Enum<?> javaEnum) {
-            return (Symbol) getClassElements(javaEnum.getDeclaringClass())
-                    .stream()
-                    .filter(s -> s.getSimpleName().contentEquals("Benchmark"))
-                    .findAny()
+            return (Symbol) getClassElements(javaEnum.getDeclaringClass()).stream()
+                    .filter(s -> s.getSimpleName().contentEquals("Benchmark")).findAny()
                     .orElseThrow(() -> new AssertionError("Unable to get " + javaEnum));
         }
 
         private List<? extends Element> getPackageElements(Class<?> javaClass) {
-            return javacProcessingEnvironment.getElementUtils().getPackageElement(javaClass.getPackage().getName()).getEnclosedElements();
+            return javacProcessingEnvironment.getElementUtils().getPackageElement(javaClass.getPackage().getName())
+                    .getEnclosedElements();
         }
 
         private List<? extends Element> getClassElements(Class<?> javaClass) {
-            return javacProcessingEnvironment.getElementUtils().getTypeElement(javaClass.getName()).getEnclosedElements();
+            return javacProcessingEnvironment.getElementUtils().getTypeElement(javaClass.getName())
+                    .getEnclosedElements();
         }
 
     }
 
-    public class CreateStatement {
+    public static class CreateStatement {
         private final GetElement getElement;
         private final TreeMaker treeMaker;
 
@@ -125,22 +123,27 @@ public class ChangeTranslator extends TreeTranslator {
             this.treeMaker = treeMaker;
         }
 
-        //JCModifiers var1, Name var2, List<JCTypeParameter> var3, JCExpression var4, List<JCExpression> var5, List<JCTree> var6
+        // JCModifiers var1, Name var2, List<JCTypeParameter> var3, JCExpression var4, List<JCExpression> var5,
+        // List<JCTree> var6
 
         public JCTree.JCClassDecl apply(JCTree.JCClassDecl classDeclaration) {
             JCTree.JCModifiers modifiers1 = classDeclaration.getModifiers();
 
-            com.sun.tools.javac.util.List<JCTree.JCExpression> symbols = com.sun.tools.javac.util.List.of(treeMaker.QualIdent(getElement.apply(Scope.Benchmark)));
-            JCTree.JCAnnotation annotation = treeMaker.TypeAnnotation(treeMaker.QualIdent(getElement.apply(State.class)), symbols);
+            com.sun.tools.javac.util.List<JCTree.JCExpression> symbols = com.sun.tools.javac.util.List
+                    .of(treeMaker.QualIdent(getElement.apply(Scope.Benchmark)));
+            JCTree.JCAnnotation annotation = treeMaker
+                    .TypeAnnotation(treeMaker.QualIdent(getElement.apply(State.class)), symbols);
             modifiers1.annotations = modifiers1.annotations.append(annotation);
 
             Name name = classDeclaration.getSimpleName();
             com.sun.tools.javac.util.List<JCTree.JCTypeParameter> typeParameters = classDeclaration.getTypeParameters();
             JCTree.JCExpression extendsClause = classDeclaration.getExtendsClause();
-            com.sun.tools.javac.util.List<JCTree.JCExpression> implementsClause = classDeclaration.getImplementsClause();
+            com.sun.tools.javac.util.List<JCTree.JCExpression> implementsClause = classDeclaration
+                    .getImplementsClause();
             com.sun.tools.javac.util.List<JCTree> members = classDeclaration.getMembers();
 
-            JCTree.JCClassDecl newVariableDeclaration = treeMaker.ClassDef(modifiers1, name, typeParameters, extendsClause, implementsClause, members);
+            JCTree.JCClassDecl newVariableDeclaration = treeMaker.ClassDef(modifiers1, name, typeParameters,
+                    extendsClause, implementsClause, members);
             return newVariableDeclaration;
         }
     }

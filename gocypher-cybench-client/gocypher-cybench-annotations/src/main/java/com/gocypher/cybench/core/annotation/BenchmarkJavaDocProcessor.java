@@ -1,8 +1,9 @@
 package com.gocypher.cybench.core.annotation;
 
-import com.google.auto.service.AutoService;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.util.Name;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -11,9 +12,10 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.Set;
+
+import com.google.auto.service.AutoService;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.util.Name;
 
 @SupportedAnnotationTypes("org.openjdk.jmh.annotations.Benchmark")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -30,25 +32,32 @@ public class BenchmarkJavaDocProcessor extends AbstractProcessor {
                 String docComment = processingEnv.getElementUtils().getDocComment(element);
                 if (docComment != null) {
                     Symbol.ClassSymbol classSymbol = ((Symbol.MethodSymbol) element).enclClass();
-//                        Name nm = classSymbol.getQualifiedName().subName(classSymbol.getQualifiedName().lastIndexOf((byte) '.') + 1, classSymbol.getQualifiedName().length());
-//                        Name pck = classSymbol.getQualifiedName().subName(0, classSymbol.getQualifiedName().lastIndexOf((byte) '.'));
-                    final Name qualifiedName = ((Symbol.MethodSymbol) element).getQualifiedName();
+                    // Name nm =
+                    // classSymbol.getQualifiedName().subName(classSymbol.getQualifiedName().lastIndexOf((byte) '.') +
+                    // 1, classSymbol.getQualifiedName().length());
+                    // Name pck = classSymbol.getQualifiedName().subName(0,
+                    // classSymbol.getQualifiedName().lastIndexOf((byte) '.'));
+                    Name qualifiedName = ((Symbol.MethodSymbol) element).getQualifiedName();
 
-                    processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Found " + ((Symbol.MethodSymbol) element).getQualifiedName());
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
+                            "Found " + ((Symbol.MethodSymbol) element).getQualifiedName());
                     p.put(classSymbol + "." + qualifiedName, docComment);
                 }
             });
 
             if (!p.isEmpty()) {
                 try {
-                    FileObject file = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", "benchJavaDoc");
-                    p.store(file.openWriter(), "");
+                    FileObject file = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "",
+                            "benchJavaDoc");
+                    try (Writer fw = file.openWriter()) {
+                        p.store(fw, "");
+                    }
                 } catch (IOException e) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
                 }
             }
         }
-        
+
         return false;
     }
 }

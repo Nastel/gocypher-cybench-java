@@ -19,39 +19,47 @@
 
 package com.gocypher.cybench.launcher.services;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
-
 public class ConfigurationHandler {
-	private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHandler.class);
-	private static final String CONFIG_FILE = System.getProperty("cybench.config.file", "/conf/cybench-launcher.properties");
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHandler.class);
+    private static final String CONFIG_FILE = System.getProperty("cybench.config.file",
+            "/conf/cybench-launcher.properties");
 
-	public static Properties loadConfiguration(String filePath) {
-		Properties prop = new Properties();
-		String confFilePath = filePath;
-		try {
-			if (filePath.isEmpty()) {
-				confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
-			} else {
-				confFilePath = filePath;
-			}
-			prop.load(new FileInputStream(confFilePath));
-			LOG.info("** Configuration loaded: {}", confFilePath);
-			return prop;
-		} catch (Exception e) {
-			LOG.error("Configuration file={} not found, will try to use default configuration", confFilePath, e);
-			try {
-				confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
-				prop.load(new FileInputStream(confFilePath));
-				return prop;
-			} catch (Exception err) {
-				LOG.error("Default configuration file is missing, try re-downloading the project or use our documentation to create your own configuration file={}", confFilePath, err);
-			}
-		}
-		return new Properties();
-	}
+    public static Properties loadConfiguration(String filePath) {
+        Properties prop = new Properties();
+        String confFilePath = filePath;
+        try {
+            if (filePath.isEmpty()) {
+                confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
+            } else {
+                confFilePath = filePath;
+            }
+            try (InputStream cfIn = new FileInputStream(confFilePath)) {
+                prop.load(cfIn);
+            }
+            LOG.info("** Configuration loaded: {}", confFilePath);
+            return prop;
+        } catch (Exception e) {
+            LOG.error("Configuration file={} not found, will try to use default configuration", confFilePath, e);
+            try {
+                confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
+                try (InputStream cfIn = new FileInputStream(confFilePath)) {
+                    prop.load(cfIn);
+                }
+                return prop;
+            } catch (Exception err) {
+                LOG.error(
+                        "Default configuration file is missing, try re-downloading the project or use our documentation to create your own configuration file={}",
+                        confFilePath, err);
+            }
+        }
+        return new Properties();
+    }
 }
