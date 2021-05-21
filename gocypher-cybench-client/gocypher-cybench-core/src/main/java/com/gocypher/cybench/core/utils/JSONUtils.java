@@ -19,17 +19,21 @@
 
 package com.gocypher.cybench.core.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-public class JSONUtils {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public final class JSONUtils {
     private static Logger LOG = LoggerFactory.getLogger(JSONUtils.class);
     private static ObjectMapper mapper = new ObjectMapper();
+
+    private JSONUtils() {
+    }
 
     public static Map<?, ?> parseJsonIntoMap(String jsonString) {
         try {
@@ -68,7 +72,6 @@ public class JSONUtils {
     }
 
     public static String convertNumToStringByLength(String value) throws NumberFormatException {
-
 
         double v = Double.parseDouble(value);
         if (value != null) {

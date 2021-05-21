@@ -33,7 +33,10 @@ import org.openjdk.jmh.runner.BenchmarkList;
 import org.openjdk.jmh.runner.BenchmarkListEntry;
 import org.openjdk.jmh.runner.format.OutputFormat;
 
-public class JMHUtils {
+public final class JMHUtils {
+
+    private JMHUtils() {
+    }
 
     public static List<String> getAllBenchmarkClasses() {
         Set<BenchmarkListEntry> all = BenchmarkList.defaultList().getAll(new SilentOutputFormat(),

@@ -31,8 +31,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.gocypher.cybench.launcher.model.BenchmarkReport;
 
-public class ComputationUtils {
+public final class ComputationUtils {
     private static final int SCALE = 18;
+
+    private ComputationUtils() {
+    }
 
     public static BigDecimal log10(BigDecimal b) {
         int NUM_OF_DIGITS = SCALE + 2;
@@ -131,7 +134,7 @@ public class ComputationUtils {
 
     public static Map<String, Object> customUserDefinedProperties(String customPropertiesStr) {
         Map<String, Object> customUserProperties = new HashMap<>();
-        if (customPropertiesStr != null && !customPropertiesStr.isEmpty()) {
+        if (StringUtils.isNotEmpty(customPropertiesStr)) {
             String[] pairs = customPropertiesStr.split(";");
             for (String pair : pairs) {
                 String[] kv = pair.split("=");

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.core.annotation.BenchmarkTag;
 
-public class SecurityUtils {
+public final class SecurityUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
     private static final String CYB_PUBLIC_KEY_FILE = "cybench_key.pub";
     private static final String CYB_PRIVATE_KEY_FILE = "cybench_key.key";
@@ -49,6 +49,9 @@ public class SecurityUtils {
 
     private static final String BEGIN_PUBLIC_KEY = "-----BEGIN RSA PUBLIC KEY-----";
     private static final String END_PUBLIC_KEY = "-----END RSA PUBLIC KEY-----";
+
+    private SecurityUtils() {
+    }
 
     public static String computeStringHash(String string) {
         if (string != null) {
@@ -139,7 +142,7 @@ public class SecurityUtils {
         return null;
     }
 
-    private static String hashByteArray(byte[] classBytes) throws Exception {
+    public static String hashByteArray(byte[] classBytes) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.reset();
         byte[] digested = md.digest(classBytes);

@@ -28,7 +28,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IOUtils {
+public final class IOUtils {
     private static Logger LOG = LoggerFactory.getLogger(IOUtils.class);
     private static int randomFileChunkSize = 65536;
     private static long fileSizeMultiplierPerChunkSize = 16384;
@@ -38,6 +38,9 @@ public class IOUtils {
     private static String FILE_NAME_AS_SRC_FOR_SMALL_CASES = "small_binary.bin";
     private static String FILE_NAME_AS_DST = "output-binary-test.txt";
     private static String FILE_NAME_AS_DST_FOR_SMALL_CASES = "output_small_binary_test.bin";
+
+    private IOUtils() {
+    }
 
     public static File createOutputFileForTests() {
         return createFile(FILE_NAME_AS_DST);

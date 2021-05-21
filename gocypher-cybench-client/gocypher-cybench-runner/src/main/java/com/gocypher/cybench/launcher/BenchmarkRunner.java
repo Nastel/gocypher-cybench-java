@@ -372,7 +372,15 @@ public class BenchmarkRunner {
         appendMetadataFromAnnotated(Optional.of(aClass), benchmarkReport);
     }
 
-    protected static void appendMetadataFromAnnotated(Optional<? extends AnnotatedElement> annotated,
+    /**
+     * Resolve and add benchmark annotation to report
+     * 
+     * @param annotated
+     *            benchmark annotated objects
+     * @param benchmarkReport
+     *            report data object
+     */
+    public static void appendMetadataFromAnnotated(Optional<? extends AnnotatedElement> annotated,
             BenchmarkReport benchmarkReport) {
         if (annotated.isPresent()) {
             CyBenchMetadataList annotation = annotated.get().getDeclaredAnnotation(CyBenchMetadataList.class);
@@ -392,7 +400,18 @@ public class BenchmarkRunner {
         }
     }
 
-    private static void checkSetOldMetadataProps(String key, String value, BenchmarkReport benchmarkReport) {
+    /**
+     * A method needed in order to support the previous data model. Setting the needed values from annotation to a
+     * previously defined data model value
+     * 
+     * @param key
+     *            property key
+     * @param value
+     *            value to set for the key found
+     * @param benchmarkReport
+     *            report data object
+     */
+    public static void checkSetOldMetadataProps(String key, String value, BenchmarkReport benchmarkReport) {
         if ("api".equals(key)) {
             benchmarkReport.setCategory(value);
         }
@@ -428,7 +447,7 @@ public class BenchmarkRunner {
         return System.getProperty(key, cfg.getProperty(key));
     }
 
-    private static void getReportUploadStatus(BenchmarkOverviewReport report) {
+    public static void getReportUploadStatus(BenchmarkOverviewReport report) {
         String reportUploadStatus = getProperty(Constants.REPORT_UPLOAD_STATUS);
         if (Constants.REPORT_PUBLIC.equals(reportUploadStatus)) {
             report.setUploadStatus(reportUploadStatus);
