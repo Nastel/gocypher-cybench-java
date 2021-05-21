@@ -98,11 +98,8 @@ public class BenchmarkOverviewReport implements Serializable {
 
     @JsonIgnore
     public boolean isEligibleForStoringExternally() {
-        if (totalScore != null && !environmentSettings.isEmpty() && !categoriesOverview.isEmpty()
-            && !benchmarks.isEmpty()) {
-            return true;
-        }
-        return false;
+        return totalScore != null && !environmentSettings.isEmpty() && !categoriesOverview.isEmpty()
+                && !benchmarks.isEmpty();
     }
 
     public long getTimestamp() {

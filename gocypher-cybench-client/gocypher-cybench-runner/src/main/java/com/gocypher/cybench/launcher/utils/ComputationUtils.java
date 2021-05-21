@@ -113,9 +113,7 @@ public class ComputationUtils {
                 String[] testCfg = item.split("=");
                 if (testCfg != null && testCfg.length == 2) {
                     String name = testCfg[0];
-                    if (benchConfiguration.get(name) == null) {
-                        benchConfiguration.put(name, new HashMap<>());
-                    }
+                    benchConfiguration.computeIfAbsent(name, k -> new HashMap<>());
                     String value = testCfg[1];
                     for (String cfgItem : value.split(",")) {
                         String[] values = cfgItem.split(":");

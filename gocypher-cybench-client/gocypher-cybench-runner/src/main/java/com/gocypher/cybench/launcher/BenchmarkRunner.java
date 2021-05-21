@@ -314,7 +314,7 @@ public class BenchmarkRunner {
 
     private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod,
             BenchmarkReport benchmarkReport) {
-        String key = aClass.getName() + "." + benchmarkMethod.get().getName();
+        String key = aClass.getName() + "." + (benchmarkMethod.isPresent() ? benchmarkMethod.get().getName() : "");
 
         Properties p = new Properties();
         try (InputStream benchJavaDoc = ClassLoader.getSystemResourceAsStream("benchJavaDoc")) {
@@ -374,21 +374,22 @@ public class BenchmarkRunner {
 
     protected static void appendMetadataFromAnnotated(Optional<? extends AnnotatedElement> annotated,
             BenchmarkReport benchmarkReport) {
-        CyBenchMetadataList annotation = annotated.get().getDeclaredAnnotation(CyBenchMetadataList.class);
-        if (annotation != null) {
-            Arrays.stream(annotation.value()).forEach(annot -> {
-                checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
-                benchmarkReport.addMetadata(annot.key(), annot.value());
-                // LOG.info("added metadata " + annot.key() + "=" + annot.value());
-            });
+        if (annotated.isPresent()) {
+            CyBenchMetadataList annotation = annotated.get().getDeclaredAnnotation(CyBenchMetadataList.class);
+            if (annotation != null) {
+                Arrays.stream(annotation.value()).forEach(annot -> {
+                    checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
+                    benchmarkReport.addMetadata(annot.key(), annot.value());
+                    // LOG.info("added metadata " + annot.key() + "=" + annot.value());
+                });
+            }
+            BenchmarkMetaData singleAnnotation = annotated.get().getDeclaredAnnotation(BenchmarkMetaData.class);
+            if (singleAnnotation != null) {
+                checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
+                benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
+                // LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
+            }
         }
-        BenchmarkMetaData singleAnnotation = annotated.get().getDeclaredAnnotation(BenchmarkMetaData.class);
-        if (singleAnnotation != null) {
-            checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
-            benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-            // LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
-        }
-
     }
 
     private static void checkSetOldMetadataProps(String key, String value, BenchmarkReport benchmarkReport) {

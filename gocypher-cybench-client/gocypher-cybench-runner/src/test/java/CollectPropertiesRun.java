@@ -39,8 +39,8 @@ public class CollectPropertiesRun {
     private static volatile GarbageCollectorMXBean gcMBean;
 
     private static final Logger LOG = LoggerFactory.getLogger(CollectSystemInformation.class);
-    static HardwareProperties hardwareProp = new HardwareProperties();
-    static JVMProperties jvmProperties = new JVMProperties();
+    static final HardwareProperties hardwareProp = new HardwareProperties();
+    static final JVMProperties jvmProperties = new JVMProperties();
     private static final DecimalFormat df = new DecimalFormat("#.####");
     private static final String[] excludeWindowsMACs = { "virtual", "hyper-v", "npcap" };
 

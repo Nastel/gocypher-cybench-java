@@ -19,18 +19,19 @@
 
 package com.gocypher.cybench.launcher.utils;
 
-import com.gocypher.cybench.core.utils.SecurityUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class SecurityBuilder {
-    private Map<String,String> mapOfHashedParts ;
+import com.gocypher.cybench.core.utils.SecurityUtils;
 
-    public SecurityBuilder(){
-        mapOfHashedParts = new HashMap<>() ;
+public class SecurityBuilder {
+    private Map<String, String> mapOfHashedParts;
+
+    public SecurityBuilder() {
+        mapOfHashedParts = new HashMap<>();
     }
-    public void generateSecurityHashForClasses (Class<?> clazz){
+
+    public void generateSecurityHashForClasses(Class<?> clazz) {
         if (clazz != null) {
             String hash = SecurityUtils.computeClassHash(clazz);
             if (hash != null) {
@@ -38,16 +39,17 @@ public class SecurityBuilder {
             }
         }
     }
-    public void generateSecurityHashForReport (String report){
-        String hash = SecurityUtils.computeStringHash(report) ;
-        if (hash != null){
-            mapOfHashedParts.put("report",hash) ;
+
+    public void generateSecurityHashForReport(String report) {
+        String hash = SecurityUtils.computeStringHash(report);
+        if (hash != null) {
+            mapOfHashedParts.put("report", hash);
         }
     }
-    public Map<String, Object> buildSignatures (){
-        Map<String,Object> map = new HashMap<>() ;
-        map.putAll( this.mapOfHashedParts) ;
-        return map ;
+
+    public Map<String, Object> buildSignatures() {
+        Map<String, Object> map = new HashMap<>(mapOfHashedParts);
+        return map;
     }
 
     public Map<String, String> getMapOfHashedParts() {

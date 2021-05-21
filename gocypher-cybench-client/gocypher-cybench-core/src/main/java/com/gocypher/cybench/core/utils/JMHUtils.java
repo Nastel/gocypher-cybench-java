@@ -19,6 +19,11 @@
 
 package com.gocypher.cybench.core.utils;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.IterationParams;
 import org.openjdk.jmh.results.BenchmarkResult;
@@ -28,16 +33,11 @@ import org.openjdk.jmh.runner.BenchmarkList;
 import org.openjdk.jmh.runner.BenchmarkListEntry;
 import org.openjdk.jmh.runner.format.OutputFormat;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.stream.Collectors;
-
 public class JMHUtils {
 
-
     public static List<String> getAllBenchmarkClasses() {
-        Set<BenchmarkListEntry> all = BenchmarkList.defaultList().getAll(new SilentOutputFormat(), Collections.EMPTY_LIST);
+        Set<BenchmarkListEntry> all = BenchmarkList.defaultList().getAll(new SilentOutputFormat(),
+                Collections.<String> emptyList());
         return all.stream().map(entry -> entry.getUserClassQName()).collect(Collectors.toList());
     }
 
@@ -52,7 +52,8 @@ public class JMHUtils {
         }
 
         @Override
-        public void iterationResult(BenchmarkParams benchParams, IterationParams params, int iteration, IterationResult data) {
+        public void iterationResult(BenchmarkParams benchParams, IterationParams params, int iteration,
+                IterationResult data) {
 
         }
 

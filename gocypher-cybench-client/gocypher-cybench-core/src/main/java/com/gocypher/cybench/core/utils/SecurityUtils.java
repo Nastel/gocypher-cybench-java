@@ -20,6 +20,7 @@
 package com.gocypher.cybench.core.utils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -76,13 +77,13 @@ public class SecurityUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new byte[] {};
+        return new byte[0];
     }
 
     public static String computeClassHash(Class<?> clazz) {
         if (clazz != null) {
             String name = clazz.getName();
-            String fileName = "" + name.replaceAll("\\.", "/") + ".class";
+            String fileName = name.replaceAll("\\.", "/") + ".class";
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             LOG.info("Computing hash for class {}, classloader {}", fileName, loader);
             try (InputStream in = loader.getResourceAsStream(fileName)) {
@@ -100,7 +101,7 @@ public class SecurityUtils {
     public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints)
             throws ClassNotFoundException {
         JavaClass javaClass = Repository.lookupClass(clazz);
-        List<String> benchmarkMethods = Arrays.asList(clazz.getMethods()).stream()
+        List<String> benchmarkMethods = Arrays.stream(clazz.getMethods())
                 .filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName())
                 .collect(Collectors.toList());
         for (Method method : javaClass.getMethods()) {
@@ -117,7 +118,7 @@ public class SecurityUtils {
     }
 
     protected static byte[] concatArrays(byte[]... bytes) {
-        String collect = Arrays.asList(bytes).stream().map(b -> new String(b)).collect(Collectors.joining());
+        String collect = Arrays.stream(bytes).map(b -> new String(b)).collect(Collectors.joining());
         return collect.getBytes();
     }
 
@@ -142,9 +143,9 @@ public class SecurityUtils {
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.reset();
         byte[] digested = md.digest(classBytes);
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < digested.length; i++) {
-            sb.append(Integer.toHexString(0xff & digested[i]));
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digested) {
+            sb.append(Integer.toHexString(0xff & b));
         }
         return sb.toString();
     }
@@ -265,7 +266,7 @@ public class SecurityUtils {
     private static byte[] encryptAES(SecretKey secKey, String text) throws Exception {
         Cipher aesCipher = Cipher.getInstance("AES");
         aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
-        byte[] byteCipherText = aesCipher.doFinal(text.getBytes("UTF-8"));
+        byte[] byteCipherText = aesCipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
         return byteCipherText;
     }
 

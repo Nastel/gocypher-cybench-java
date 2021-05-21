@@ -19,6 +19,15 @@
 
 package com.gocypher.cybench.launcher.model;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,14 +36,6 @@ import com.gocypher.cybench.core.model.ScoreConverter;
 import com.gocypher.cybench.core.utils.JMHUtils;
 import com.gocypher.cybench.core.utils.JMHUtils.ClassAndMethod;
 import com.gocypher.cybench.launcher.utils.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 public class BenchmarkReport implements Serializable {
     private static final long serialVersionUID = 2293390306981371292L;
@@ -74,11 +75,18 @@ public class BenchmarkReport implements Serializable {
     private Double threadsAliveCount;
     private Double threadsDaemonCount;
     private Double threadsStartedCount;
-    /*A safepoint is a moment in time when a  thread's data, its internal state and representation in the JVM are, well,safe for observation by other threads in the JVM.
-    All JVM's use safepoints to bring all of the application threads to a known state so the JVM can perform certain operations. Safepoints are used during Garbage Collection, during JIT compilation, for Thread Dumps, and many other operations. When a safepoint call is issued all of the application threads should "come to safepoint" as fast as possible. Threads that have come to safepoint block until the JVM releases them. Once all of the threads are at safepoint, the JVM performs the operation -- GC, compile, thread dump, etc. -- and then releases all the threads to run again. But when one or more application threads take a long time to come to safepoint, all of the other threads, which are now blocked, have to wait for the tardy thread(s).
-     Time To Safepoint (TTSP).
-     https://docs.azul.com/zing/19.02.1.0/Zing_AT_SafePointProfiler.htm
-    */
+    /*
+     * A safepoint is a moment in time when a thread's data, its internal state and representation in the JVM are,
+     * well,safe for observation by other threads in the JVM. All JVM's use safepoints to bring all of the application
+     * threads to a known state so the JVM can perform certain operations. Safepoints are used during Garbage
+     * Collection, during JIT compilation, for Thread Dumps, and many other operations. When a safepoint call is issued
+     * all of the application threads should "come to safepoint" as fast as possible. Threads that have come to
+     * safepoint block until the JVM releases them. Once all of the threads are at safepoint, the JVM performs the
+     * operation -- GC, compile, thread dump, etc. -- and then releases all the threads to run again. But when one or
+     * more application threads take a long time to come to safepoint, all of the other threads, which are now blocked,
+     * have to wait for the tardy thread(s). Time To Safepoint (TTSP).
+     * https://docs.azul.com/zing/19.02.1.0/Zing_AT_SafePointProfiler.htm
+     */
     private Double threadsSafePointsCount;
     private Double threadsSafePointTime;
     private Double threadsSafePointSyncTime;
@@ -95,7 +103,7 @@ public class BenchmarkReport implements Serializable {
     private Double threadsSafePointsPauseTTSP;
     private Double threadsSafePointsPauseTTSPAvg;
     private Double threadsSafePointsPauseTTSPCount;
-    /*parked threads are suspended until they are given a permit.*/
+    /* parked threads are suspended until they are given a permit. */
     private Double threadsSyncParksCount;
 
     private Double performanceProcessCpuLoad;
@@ -109,9 +117,9 @@ public class BenchmarkReport implements Serializable {
 
     @JsonIgnore
     public String getReportClassName() {
-        if (this.name != null) {
-            int idx = this.name.lastIndexOf(".");
-            return this.name.substring(0, idx);
+        if (name != null) {
+            int idx = name.lastIndexOf(".");
+            return name.substring(0, idx);
         }
         return null;
     }
@@ -120,17 +128,18 @@ public class BenchmarkReport implements Serializable {
     public void recalculateScoresToMatchNewUnits() {
 
         // FIXME seek and r/w conversion to MB/s differs, fix it.
-        String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(this.name);
-        LOG.info("Recalculating score values for: " + this.name);
+        String className = Constants.BENCHMARKS_SCORES_COMPUTATIONS_MAPPING.get(name);
+        LOG.info("Recalculating score values for: " + name);
 
-        if(Boolean.parseBoolean(System.getProperty("checkScoreAnnotation", "true"))) {
+        if (Boolean.parseBoolean(System.getProperty("checkScoreAnnotation", "true"))) {
             try {
                 ClassAndMethod classAndMethod = new ClassAndMethod(name).invoke();
                 String clazz1 = classAndMethod.getClazz();
                 String method = classAndMethod.getMethod();
                 Class<?> aClass = Class.forName(clazz1);
                 Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
-                ScoreConverter annotation = benchmarkMethod.get().getAnnotation(ScoreConverter.class);
+                ScoreConverter annotation = benchmarkMethod.map(method1 -> method1.getAnnotation(ScoreConverter.class))
+                        .orElse(null);
                 if (annotation != null) {
                     className = annotation.converter().getName();
                 } else {
@@ -149,35 +158,35 @@ public class BenchmarkReport implements Serializable {
 
         if (className != null) {
             try {
-                LOG.info("Custom scores computation for class found:{}", this.name);
+                LOG.info("Custom scores computation for class found:{}", name);
                 Class<?> clazz = Class.forName(className);
                 BaseScoreConverter converter = (BaseScoreConverter) clazz.getDeclaredConstructor().newInstance();
                 Map<String, Object> metaData = new HashMap<>();
-                this.score = converter.convertScore(this.score, metaData);
-                this.operationTime = converter.getOperationTimeMilliseconds(this.score, metaData);
+                score = converter.convertScore(score, metaData);
+                operationTime = converter.getOperationTimeMilliseconds(score, metaData);
 
-                Double tmpMin = converter.convertScore(this.minScore, metaData);
-                Double tmpMax = converter.convertScore(this.maxScore, metaData);
+                Double tmpMin = converter.convertScore(minScore, metaData);
+                Double tmpMax = converter.convertScore(maxScore, metaData);
 
                 if (tmpMin != null && tmpMax != null) {
                     if (tmpMin > tmpMax) {
-                        this.minScore = tmpMax;
-                        this.maxScore = tmpMin;
+                        minScore = tmpMax;
+                        maxScore = tmpMin;
                     } else {
-                        this.minScore = tmpMin;
-                        this.maxScore = tmpMax;
+                        minScore = tmpMin;
+                        maxScore = tmpMax;
                     }
                 } else {
-                    this.minScore = null;
-                    this.maxScore = null;
+                    minScore = null;
+                    maxScore = null;
                 }
-                this.meanScore = converter.convertScore(this.meanScore, metaData);
-                if (this.stdDevScore != null) {
-                    this.stdDevScore = (this.maxScore - this.minScore) / 2;
+                meanScore = converter.convertScore(meanScore, metaData);
+                if (stdDevScore != null) {
+                    stdDevScore = (maxScore - minScore) / 2;
                 }
-                this.units = converter.getUnits();
+                units = converter.getUnits();
             } catch (Exception e) {
-                LOG.error("Error on recalculating score={}", this.name, e);
+                LOG.error("Error on recalculating score={}", name, e);
             }
         }
     }
@@ -502,7 +511,6 @@ public class BenchmarkReport implements Serializable {
         this.threadsSafePointsPauseTTSPCount = threadsSafePointsPauseTTSPCount;
     }
 
-
     public String getGeneratedFingerprint() {
         return generatedFingerprint;
     }
@@ -615,26 +623,26 @@ public class BenchmarkReport implements Serializable {
         this.operationTime = operationTime;
     }
 
-    //make flat map https://stackoverflow.com/questions/18043587/why-im-not-able-to-unwrap-and-serialize-a-java-map-using-the-jackson-java-libra/41833934
+    // make flat map
+    // https://stackoverflow.com/questions/18043587/why-im-not-able-to-unwrap-and-serialize-a-java-map-using-the-jackson-java-libra/41833934
     @JsonAnyGetter
     public Map<String, String> getMetadata() {
         return metadata;
     }
 
-    //^see above
+    // ^see above
     @JsonAnySetter
     public void addMetadata(String key, String val) {
-        if (getMetadata() == null) {
-            this.metadata = new HashMap<>();
+        if (metadata == null) {
+            metadata = new HashMap<>();
         }
-        getMetadata().put("bench" + camelCase(key), val);
+        metadata.put("bench" + camelCase(key), val);
     }
 
     @JsonIgnore
     public static String camelCase(String key) {
         return key.substring(0, 1).toUpperCase() + key.substring(1);
     }
-
 
     @Override
     public String toString() {
@@ -690,6 +698,5 @@ public class BenchmarkReport implements Serializable {
                 ", threadsSyncParksCount=" + threadsSyncParksCount +
                 '}';
     }
-
 
 }
