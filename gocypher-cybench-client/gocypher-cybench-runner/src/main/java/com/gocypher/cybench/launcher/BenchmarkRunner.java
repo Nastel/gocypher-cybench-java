@@ -107,13 +107,10 @@ public class BenchmarkRunner {
 
         String tempBenchmark = null;
         SecurityBuilder securityBuilder = new SecurityBuilder();
-
         Map<String, Object> benchmarkSetting = new HashMap<>();
-
         Map<String, String> generatedFingerprints = new HashMap<>();
         Map<String, String> manualFingerprints = new HashMap<>();
         Map<String, String> classFingerprints = new HashMap<>();
-
         boolean foundBenchmarks = false;
 
         if (checkIfConfigurationPropertyIsSet(getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
@@ -219,11 +216,9 @@ public class BenchmarkRunner {
         report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
         report.setBenchmarkSettings(benchmarkSetting);
 
-        Iterator<String> it = report.getBenchmarks().keySet().iterator();
-
-        while (it.hasNext()) {
-            List<BenchmarkReport> custom = report.getBenchmarks().get(it.next()).stream().collect(Collectors.toList());
-            custom.stream().forEach(benchmarkReport -> {
+        for (String s : report.getBenchmarks().keySet()) {
+            List<BenchmarkReport> custom = new ArrayList<>(report.getBenchmarks().get(s));
+            custom.forEach(benchmarkReport -> {
                 String name = benchmarkReport.getName();
                 benchmarkReport.setClassFingerprint(classFingerprints.get(name));
                 benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
@@ -232,7 +227,7 @@ public class BenchmarkRunner {
                     JMHUtils.ClassAndMethod classAndMethod = new JMHUtils.ClassAndMethod(name).invoke();
                     String clazz = classAndMethod.getClazz();
                     String method = classAndMethod.getMethod();
-                    LOG.info("Adding metadata for benchamrk: " + clazz + " test: " + method);
+                    LOG.info("Adding metadata for benchmark: " + clazz + " test: " + method);
                     Class<?> aClass = Class.forName(clazz);
                     Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
                     appendMetadataFromClass(aClass, benchmarkReport);
@@ -369,7 +364,7 @@ public class BenchmarkRunner {
         if (!aClass.isInterface() && !aClass.getSuperclass().equals(Object.class)) {
             appendMetadataFromClass(aClass.getSuperclass(), benchmarkReport);
         }
-        for (Class anInterface : aClass.getInterfaces()) {
+        for (Class<?> anInterface : aClass.getInterfaces()) {
             appendMetadataFromClass(anInterface, benchmarkReport);
 
         }
