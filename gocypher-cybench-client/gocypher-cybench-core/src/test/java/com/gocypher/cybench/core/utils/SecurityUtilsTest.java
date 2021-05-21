@@ -13,15 +13,16 @@ public class SecurityUtilsTest {
     @Test
     public void testComputeClassHashForMethods() throws ClassNotFoundException {
         String version = System.getProperty("java.version");
-        if(version.startsWith("1.8")) {
+        if (version.startsWith("1.8")) {
             Map<String, String> methodHashes = new HashMap<>();
             SecurityUtils.computeClassHashForMethods(TestBenchmarkClass.class, methodHashes);
             System.out.println(methodHashes.toString().replaceAll("\\{", "").replaceAll(", ", "\n"));
 
-            assertEquals(3, methodHashes.size());
+            assertEquals(4, methodHashes.size());
             assertEquals("dffd7e1b291878c3cde3fb22ab583", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark"));
             assertEquals("a7494a7f19fa15e1c38812746d527f", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.someLibraryMethodBenchmark"));
-            assertEquals("ddaaa53cec636ee71b8d4baf9f9f29", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark3"));
+            assertEquals("a61b28d2c39660e8d68faea3c411142", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark3"));
+            assertEquals("28624525d5a4b50fb2897cc135e79e", methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark4"));
 
             assertNotNull(methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark"));
             assertNotNull(methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.someLibraryMethodBenchmark"));
@@ -30,7 +31,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void concat(){
+    public void concat() {
         System.out.println(new String(SecurityUtils.concatArrays("ABC".getBytes(), "DEF".getBytes())));
     }
 
