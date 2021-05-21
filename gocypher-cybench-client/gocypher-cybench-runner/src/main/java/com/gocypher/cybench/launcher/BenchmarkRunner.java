@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,6 +45,7 @@ import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
 import com.gocypher.cybench.core.annotation.CyBenchMetadataList;
 import com.gocypher.cybench.core.utils.IOUtils;
 import com.gocypher.cybench.core.utils.JMHUtils;
+import com.gocypher.cybench.core.utils.JSONUtils;
 import com.gocypher.cybench.core.utils.SecurityUtils;
 import com.gocypher.cybench.launcher.environment.model.HardwareProperties;
 import com.gocypher.cybench.launcher.environment.model.JVMProperties;
@@ -55,7 +57,6 @@ import com.gocypher.cybench.launcher.report.ReportingService;
 import com.gocypher.cybench.launcher.services.ConfigurationHandler;
 import com.gocypher.cybench.launcher.utils.ComputationUtils;
 import com.gocypher.cybench.launcher.utils.Constants;
-import com.gocypher.cybench.launcher.utils.JSONUtils;
 import com.gocypher.cybench.launcher.utils.SecurityBuilder;
 
 public class BenchmarkRunner {
@@ -231,7 +232,7 @@ public class BenchmarkRunner {
                     Class<?> aClass = Class.forName(clazz);
                     Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
                     appendMetadataFromClass(aClass, benchmarkReport);
-                    appendMetadataFromMethod(benchmarkMethod, benchmarkReport);
+                    appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -366,29 +367,14 @@ public class BenchmarkRunner {
         }
         for (Class<?> anInterface : aClass.getInterfaces()) {
             appendMetadataFromClass(anInterface, benchmarkReport);
-
         }
 
-        CyBenchMetadataList annotation = aClass.getDeclaredAnnotation(CyBenchMetadataList.class);
-
-        if (annotation != null) {
-            Arrays.stream(annotation.value()).forEach(annot -> {
-                checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
-                benchmarkReport.addMetadata(annot.key(), annot.value());
-                // LOG.info("added metadata " + annot.key() + "=" + annot.value());
-            });
-        }
-        BenchmarkMetaData singleAnnotation = aClass.getDeclaredAnnotation(BenchmarkMetaData.class);
-        if (singleAnnotation != null) {
-            checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
-            benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-            // LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
-        }
-
+        appendMetadataFromAnnotated(Optional.of(aClass), benchmarkReport);
     }
 
-    protected static void appendMetadataFromMethod(Optional<Method> benchmarkMethod, BenchmarkReport benchmarkReport) {
-        CyBenchMetadataList annotation = benchmarkMethod.get().getDeclaredAnnotation(CyBenchMetadataList.class);
+    protected static void appendMetadataFromAnnotated(Optional<? extends AnnotatedElement> annotated,
+            BenchmarkReport benchmarkReport) {
+        CyBenchMetadataList annotation = annotated.get().getDeclaredAnnotation(CyBenchMetadataList.class);
         if (annotation != null) {
             Arrays.stream(annotation.value()).forEach(annot -> {
                 checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
@@ -396,12 +382,11 @@ public class BenchmarkRunner {
                 // LOG.info("added metadata " + annot.key() + "=" + annot.value());
             });
         }
-        BenchmarkMetaData singleAnnotation = benchmarkMethod.get().getDeclaredAnnotation(BenchmarkMetaData.class);
+        BenchmarkMetaData singleAnnotation = annotated.get().getDeclaredAnnotation(BenchmarkMetaData.class);
         if (singleAnnotation != null) {
             checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
             benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
             // LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
-
         }
 
     }

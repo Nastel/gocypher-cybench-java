@@ -54,15 +54,13 @@ public class IOUtils {
     public static File generateBinaryFileForTests() throws Exception {
         createRandomBinaryFileIfNotExists(FILE_NAME_AS_SRC, fileSizeMultiplierPerChunkSize,
                 randomFileChunkSize * fileSizeMultiplierPerChunkSize);
-        File f = new File(FILE_NAME_AS_SRC);
-        return f;
+        return new File(FILE_NAME_AS_SRC);
     }
 
     public static File generateSmallBinaryFileForTests() throws Exception {
         createRandomBinaryFileIfNotExists(FILE_NAME_AS_SRC_FOR_SMALL_CASES, fileSizeSmallMultiplierPerChunkSize,
                 randomFileChunkSize * fileSizeSmallMultiplierPerChunkSize);
-        File f = new File(FILE_NAME_AS_SRC_FOR_SMALL_CASES);
-        return f;
+        return new File(FILE_NAME_AS_SRC_FOR_SMALL_CASES);
     }
 
     /*
@@ -95,53 +93,29 @@ public class IOUtils {
 
     public static long copyFileUsingFileStreams(File srcFile, File targetFile, int bufferSize, boolean isSyncWrite)
             throws IOException {
-        long bytesCopied = 0L;
-        byte[] buffer = new byte[bufferSize];
-
-        try (InputStream in = new FileInputStream(srcFile)) {
-            try (OutputStream out = new FileOutputStream(targetFile)) {
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                    if (isSyncWrite) {
-                        out.flush();
-                    }
-                    bytesCopied += bytesRead;
-                }
-            }
-        }
-
-        return bytesCopied;
+        return copyFileUsingStreams(new FileInputStream(srcFile), new FileOutputStream(targetFile), bufferSize,
+                isSyncWrite);
     }
 
     public static long copyFileUsingBufferedStreams(File srcFile, File targetFile, int bufferSize, boolean isSyncWrite)
             throws IOException {
-        long bytesCopied = 0L;
-        byte[] buffer = new byte[bufferSize];
-
-        try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile))) {
-            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile))) {
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                    if (isSyncWrite) {
-                        out.flush();
-                    }
-                    bytesCopied += bytesRead;
-                }
-            }
-        }
-
-        return bytesCopied;
+        return copyFileUsingStreams(new BufferedInputStream(new FileInputStream(srcFile)),
+                new BufferedOutputStream(new FileOutputStream(targetFile)), bufferSize, isSyncWrite);
     }
 
     public static long copyFileUsingDirectBufferedStreams(File srcFile, File targetFile, int bufferSize,
             boolean isSyncWrite) throws IOException {
+        return copyFileUsingStreams(new BufferedInputStream(new FileInputStream(srcFile), bufferSize * 2),
+                new BufferedOutputStream(new FileOutputStream(targetFile), bufferSize * 2), bufferSize, isSyncWrite);
+    }
+
+    private static long copyFileUsingStreams(InputStream inStr, OutputStream outStr, int bufferSize,
+            boolean isSyncWrite) throws IOException {
         long bytesCopied = 0L;
         byte[] buffer = new byte[bufferSize];
 
-        try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile), bufferSize * 2)) {
-            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile), bufferSize * 2)) {
+        try (InputStream in = inStr) {
+            try (OutputStream out = outStr) {
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
@@ -182,7 +156,7 @@ public class IOUtils {
             boolean exists = pFile.exists();
             if (!exists) {
                 if (!pFile.mkdir()) {
-                    throw new IOException("Coluld not create folder=" + pFile);
+                    throw new IOException("Could not create folder=" + pFile);
                 }
             }
             try (Writer file = new FileWriter(fileName)) {
