@@ -32,6 +32,8 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.jutils.jhardware.HardwareInfo;
 import org.jutils.jhardware.model.BiosInfo;
 import org.jutils.jhardware.model.MemoryInfo;
@@ -57,7 +59,7 @@ public class CollectSystemInformation {
     static HardwareProperties hardwareProp = new HardwareProperties();
     static JVMProperties jvmProperties = new JVMProperties();
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         getEnvironmentProperties();
     }
 
@@ -270,9 +272,8 @@ public class CollectSystemInformation {
 
         // Execute a command in PowerShell session
         Map<String, String> diskPropertyMap = new HashMap<>();
-        String osName = System.getProperty("os.name");
         try {
-            if (osName.toLowerCase().contains("windows")) {
+            if (SystemUtils.IS_OS_WINDOWS) {
                 PowerShellResponse response = PowerShell
                         .executeSingleCommand("Get-PhysicalDisk | Select MediaType, SerialNumber");
                 String[] responseLines = response.getCommandOutput().split("\\r?\\n");
@@ -292,7 +293,7 @@ public class CollectSystemInformation {
             for (HWPartition partition : partitions) {
                 if (root.toString().contains(partition.getMountPoint())) {
                     hardwareProp.setHwLaunchDiskModel(disk.getModel());
-                    if (osName.toLowerCase().contains("mac os")) {
+                    if (SystemUtils.IS_OS_MAC) {
                         String type = getDiskModelAndType(disk.getName(), "'Solid State:'");
                         if ("Yes".equals(type)) {
                             type = "SSD";
@@ -301,10 +302,10 @@ public class CollectSystemInformation {
                         }
                         hardwareProp.setHwLaunchDiskType(type);
                     } else {
-                        for (String model : diskPropertyMap.keySet()) {
+                        for (Map.Entry<String, String> stringStringEntry : diskPropertyMap.entrySet()) {
                             String serialNumber = disk.getSerial().trim();
-                            if (serialNumber.equals(model)) {
-                                hardwareProp.setHwLaunchDiskType(diskPropertyMap.get(model));
+                            if (serialNumber.equals(stringStringEntry.getKey())) {
+                                hardwareProp.setHwLaunchDiskType(stringStringEntry.getValue());
                             }
                         }
                     }
@@ -325,7 +326,7 @@ public class CollectSystemInformation {
             // Filter names for UNIX to take "eth0" , "en0"
             // Filter names for WINDOWS to not take "Virtual", "Hyper-V"
             String tempName = netw.toString().toLowerCase();
-            if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
+            if (!SystemUtils.IS_OS_WINDOWS) {
                 if (tempName.contains("eth0")
                         || Pattern.compile("(eth(\\w)*0(\\w)*)|(en(\\w)*0(\\w*))").matcher(tempName).find()) {
                     Enumeration<InetAddress> addresses = netw.getInetAddresses();
@@ -370,14 +371,13 @@ public class CollectSystemInformation {
         LOG.info("Looking for OS properties OSHI...");
         Properties properties = System.getProperties();
         OperatingSystem osSystemProps = sysProps.getOperatingSystem();
-        String osName = System.getProperty("os.name");
-        if (osName.toLowerCase().contains("windows")) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             OSInfo osInfo = HardwareInfo.getOSInfo();
             hardwareProp.setHwOsName(osInfo.getName());
             Map<String, String> fullOsInfo = osInfo.getFullInfo();
-            for (String key : fullOsInfo.keySet()) {
-                if ("BuildNumber".equals(key)) {
-                    hardwareProp.setHwOsBuildNumber(fullOsInfo.get(key));
+            for (Map.Entry<String, String> stringStringEntry : fullOsInfo.entrySet()) {
+                if ("BuildNumber".equals(stringStringEntry.getKey())) {
+                    hardwareProp.setHwOsBuildNumber(stringStringEntry.getValue());
                 }
             }
         } else {
@@ -405,7 +405,7 @@ public class CollectSystemInformation {
                 hardwareProp.setHwMemManufacturer(fullInfo.getValue());
                 break;
             case "Speed":
-                if (!fullInfo.getValue().equals("")) {
+                if (StringUtils.isNotEmpty(fullInfo.getValue())) {
                     hardwareProp.setHwMemSpeed(Double.parseDouble(fullInfo.getValue()));
                 }
                 break;

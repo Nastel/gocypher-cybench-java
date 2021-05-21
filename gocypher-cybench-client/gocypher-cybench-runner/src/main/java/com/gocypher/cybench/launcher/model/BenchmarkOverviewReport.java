@@ -30,47 +30,48 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gocypher.cybench.launcher.utils.ComputationUtils;
 
 public class BenchmarkOverviewReport implements Serializable {
-	private static final long serialVersionUID = 4919010767589263480L;
+    private static final long serialVersionUID = 4919010767589263480L;
 
-	private long timestamp ;
-    private long timestampUTC ;
-    private String reportURL ;
-    private String deviceReportsURL ;
-    private BigDecimal totalScore ;
-    private String uploadStatus ;
-    private Map<String,Map<String,Object>>categoriesOverview ;
-    private Map<String,Object> environmentSettings  ;
-    private Map<String,Object> benchmarkSettings  ;
-    private Map<String,List<BenchmarkReport>> benchmarks ;
+    private long timestamp;
+    private long timestampUTC;
+    private String reportURL;
+    private String deviceReportsURL;
+    private BigDecimal totalScore;
+    private String uploadStatus;
+    private Map<String, Map<String, Object>> categoriesOverview;
+    private Map<String, Object> environmentSettings;
+    private Map<String, Object> benchmarkSettings;
+    private Map<String, List<BenchmarkReport>> benchmarks;
 
-
-    public BenchmarkOverviewReport(){
-        this.benchmarks = new HashMap<>();
-        this.categoriesOverview = new HashMap<>();
-        this.environmentSettings = new HashMap<>() ;
+    public BenchmarkOverviewReport() {
+        benchmarks = new HashMap<>();
+        categoriesOverview = new HashMap<>();
+        environmentSettings = new HashMap<>();
     }
-    public void addToBenchmarks (BenchmarkReport report){
-        this.benchmarks.computeIfAbsent(report.getCategory(), k -> new ArrayList<>());
-        this.benchmarks.get(report.getCategory()).add(report) ;
+
+    public void addToBenchmarks(BenchmarkReport report) {
+        benchmarks.computeIfAbsent(report.getCategory(), k -> new ArrayList<>());
+        benchmarks.get(report.getCategory()).add(report);
     }
-    public void updateUploadStatus (String uploadStatus){
-        if ("private".equalsIgnoreCase(uploadStatus)){
+
+    public void updateUploadStatus(String uploadStatus) {
+        if ("private".equalsIgnoreCase(uploadStatus)) {
             this.uploadStatus = uploadStatus;
-        }
-        else {
-            this.uploadStatus= "public";
+        } else {
+            this.uploadStatus = "public";
         }
     }
-    public void computeScores (){
-        Double sumOfCategoryScores = 0.0 ;
-        for (String category : this.benchmarks.keySet()) {
+
+    public void computeScores() {
+        Double sumOfCategoryScores = 0.0;
+        for (Map.Entry<String, List<BenchmarkReport>> stringListEntry : benchmarks.entrySet()) {
             Map<String, Object> categoryOverviewMap = new HashMap<>();
-            List<BenchmarkReport> categoryReports = this.benchmarks.get(category);
-            //BigDecimal productOfCategoryScores = BigDecimal.ONE;
+            List<BenchmarkReport> categoryReports = stringListEntry.getValue();
+            // BigDecimal productOfCategoryScores = BigDecimal.ONE;
             long gcCallsCount = 0;
             long gcTime = 0;
             for (BenchmarkReport item : categoryReports) {
-                //productOfCategoryScores = productOfCategoryScores.multiply(BigDecimal.valueOf(item.getScore()));
+                // productOfCategoryScores = productOfCategoryScores.multiply(BigDecimal.valueOf(item.getScore()));
                 if (item.getGcCalls() != null) {
                     gcCallsCount += item.getGcCalls().longValue();
                 }
@@ -79,33 +80,31 @@ public class BenchmarkOverviewReport implements Serializable {
                 }
             }
 
-            //BigDecimal categoryScore = ComputationUtils.log10(productOfCategoryScores.multiply(BigDecimal.valueOf(10000)));
+            // BigDecimal categoryScore =
+            // ComputationUtils.log10(productOfCategoryScores.multiply(BigDecimal.valueOf(10000)));
             Double categoryScore = ComputationUtils.computeCategoryScore(categoryReports);
-            sumOfCategoryScores += categoryScore ;
+            sumOfCategoryScores += categoryScore;
 
             categoryOverviewMap.put("score", categoryScore);
             categoryOverviewMap.put("gcCallsCount", BigDecimal.valueOf(gcCallsCount));
             categoryOverviewMap.put("gcTime", BigDecimal.valueOf(gcTime));
 
-            categoriesOverview.put(category, categoryOverviewMap);
-            //productOfTotals = productOfTotals.multiply(categoryScore);
+            categoriesOverview.put(stringListEntry.getKey(), categoryOverviewMap);
+            // productOfTotals = productOfTotals.multiply(categoryScore);
         }
-        //this.totalScore = ComputationUtils.log10(productOfTotals).multiply(BigDecimal.valueOf(10000)) ;
-        this.totalScore = BigDecimal.valueOf(sumOfCategoryScores) ;
+        // this.totalScore = ComputationUtils.log10(productOfTotals).multiply(BigDecimal.valueOf(10000)) ;
+        totalScore = BigDecimal.valueOf(sumOfCategoryScores);
     }
-
 
     @JsonIgnore
-    public boolean isEligibleForStoringExternally (){
-        if (    this.totalScore != null
-                && !this.environmentSettings.isEmpty()
-                && !this.categoriesOverview.isEmpty()
-                && !this.benchmarks.isEmpty()
-                ){
-            return true ;
+    public boolean isEligibleForStoringExternally() {
+        if (totalScore != null && !environmentSettings.isEmpty() && !categoriesOverview.isEmpty()
+            && !benchmarks.isEmpty()) {
+            return true;
         }
-        return false ;
+        return false;
     }
+
     public long getTimestamp() {
         return timestamp;
     }
@@ -183,7 +182,7 @@ public class BenchmarkOverviewReport implements Serializable {
     }
 
     public void setDeviceReportsURL(String deviceReports) {
-        this.deviceReportsURL = deviceReports;
+        deviceReportsURL = deviceReports;
     }
 
     @Override
@@ -198,6 +197,5 @@ public class BenchmarkOverviewReport implements Serializable {
                 ", reportURL=" + reportURL +
                 '}';
     }
-
 
 }

@@ -26,9 +26,9 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.SafepointsProfiler;
 import org.openjdk.jmh.results.RunResult;
@@ -307,7 +307,7 @@ public class BenchmarkRunner {
         }
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Finished CyBench benchmarking ({})                      ",
-                formatInterval(System.currentTimeMillis() - start));
+                ComputationUtils.formatInterval(System.currentTimeMillis() - start));
         LOG.info("-----------------------------------------------------------------------------------------");
     }
 
@@ -407,13 +407,13 @@ public class BenchmarkRunner {
     }
 
     private static void checkSetOldMetadataProps(String key, String value, BenchmarkReport benchmarkReport) {
-        if (key.equals("api")) {
+        if ("api".equals(key)) {
             benchmarkReport.setCategory(value);
         }
-        if (key.equals("context")) {
+        if ("context".equals(key)) {
             benchmarkReport.setContext(value);
         }
-        if (key.equals("version")) {
+        if ("version".equals(key)) {
             benchmarkReport.setVersion(value);
         }
     }
@@ -440,15 +440,6 @@ public class BenchmarkRunner {
 
     public static String getProperty(String key) {
         return System.getProperty(key, cfg.getProperty(key));
-    }
-
-    private static String formatInterval(long l) {
-        long hr = TimeUnit.MILLISECONDS.toHours(l);
-        long min = TimeUnit.MILLISECONDS.toMinutes(l - TimeUnit.HOURS.toMillis(hr));
-        long sec = TimeUnit.MILLISECONDS.toSeconds(l - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min));
-        long ms = TimeUnit.MILLISECONDS.toMillis(
-                l - TimeUnit.HOURS.toMillis(hr) - TimeUnit.MINUTES.toMillis(min) - TimeUnit.SECONDS.toMillis(sec));
-        return String.format("%02d:%02d:%02d.%03d", hr, min, sec, ms);
     }
 
     private static void getReportUploadStatus(BenchmarkOverviewReport report) {
@@ -482,7 +473,7 @@ public class BenchmarkRunner {
     }
 
     private static boolean checkIfConfigurationPropertyIsSet(String property) {
-        return property != null && !property.equals("");
+        return StringUtils.isNotEmpty(property);
     }
 
     private static void identifyPropertiesFromArguments(String[] args) {
@@ -516,8 +507,8 @@ public class BenchmarkRunner {
         System.out.println("Architecture of The OS: " + System.getProperty(architectureOS));
         Map<String, String> env = System.getenv();
         System.out.println("Environment values");
-        for (String key : env.keySet()) {
-            System.out.println("K: " + key + " \n\tV: " + env.get(key));
+        for (Map.Entry<String, String> stringStringEntry : env.entrySet()) {
+            System.out.println("K: " + stringStringEntry.getKey() + " \n\tV: " + stringStringEntry.getValue());
         }
         /* Total number of processors or cores available to the JVM */
         System.out.println("\nAvailable processors (cores): " + Runtime.getRuntime().availableProcessors());
