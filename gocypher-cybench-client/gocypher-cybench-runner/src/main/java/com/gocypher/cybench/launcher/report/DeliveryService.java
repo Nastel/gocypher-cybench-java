@@ -19,7 +19,8 @@
 
 package com.gocypher.cybench.launcher.report;
 
-import com.gocypher.cybench.launcher.utils.Constants;
+import java.io.IOException;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -30,27 +31,28 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gocypher.cybench.launcher.utils.Constants;
 
 public class DeliveryService {
-    private static final Logger LOG = LoggerFactory.getLogger(DeliveryService.class) ;
-    private static DeliveryService instance ;
+    private static final Logger LOG = LoggerFactory.getLogger(DeliveryService.class);
+    private static DeliveryService instance;
 
-    private static String serviceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/report" ;
-//    private static final String serviceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report" ;
+    private static String serviceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/report";
+    // private static String serviceUrl =
+    // "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report";
     private CloseableHttpClient httpClient = HttpClients.createDefault();
 
-    private DeliveryService (){
-
+    private DeliveryService() {
     }
-    public static DeliveryService getInstance (){
-        if (instance == null){
-            instance = new DeliveryService () ;
+
+    public static DeliveryService getInstance() {
+        if (instance == null) {
+            instance = new DeliveryService();
         }
-        return instance ;
+        return instance;
     }
 
-
-    public String sendReportForStoring (String reportJSON, String token){
+    public String sendReportForStoring(String reportJSON, String token) {
         try {
 
             if (System.getProperty(Constants.SEND_REPORT_URL) != null) {
@@ -58,25 +60,32 @@ public class DeliveryService {
             }
             LOG.info("-->Sending benchmark report to URL {}", serviceUrl);
             HttpPost request = new HttpPost(serviceUrl);
-            //request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            // request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             request.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
-            request.setHeader(HttpHeaders.ACCEPT,"application/json");
-            request.setHeader("x-api-key",token);
-            StringEntity se = new StringEntity(reportJSON) ;
+            request.setHeader(HttpHeaders.ACCEPT, "application/json");
+            request.setHeader("x-api-key", token);
+            StringEntity se = new StringEntity(reportJSON);
             request.setEntity(se);
 
-            CloseableHttpResponse response = httpClient.execute(request);
-            String result = EntityUtils.toString(response.getEntity());
-            EntityUtils.consume(response.getEntity());
-            response.close();
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String result = EntityUtils.toString(response.getEntity());
+                EntityUtils.consume(response.getEntity());
 
-            //LOG.info("Storing result: {}",result);
+                // LOG.info("Storing result: {}",result);
 
-            return result;
-        }catch (Exception e){
+                return result;
+            }
+        } catch (Exception e) {
             LOG.error("Failed to submit report to URL {}", serviceUrl, e);
         }
         return "";
+    }
+
+    public void close() {
+        try {
+            httpClient.close();
+        } catch (IOException exc) {
+        }
     }
 
 }

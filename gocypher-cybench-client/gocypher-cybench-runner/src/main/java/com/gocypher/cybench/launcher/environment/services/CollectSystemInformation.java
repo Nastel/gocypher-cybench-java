@@ -476,9 +476,10 @@ public class CollectSystemInformation {
         String s;
         String resp = null;
         Process p = Runtime.getRuntime().exec(cmd);
-        BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        while ((s = stdInput.readLine()) != null) {
-            resp = s.replace(find.substring(1, find.length() - 1), "").trim();
+        try (BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            while ((s = stdInput.readLine()) != null) {
+                resp = s.replace(find.substring(1, find.length() - 1), "").trim();
+            }
         }
         return resp;
     }

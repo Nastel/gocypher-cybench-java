@@ -257,7 +257,6 @@ public class BenchmarkRunner {
             String resultURL = null;
             Map<?, ?> response = new HashMap<>();
             if (shouldSendReport(report)) {
-
                 String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
                 String emailAddress = getProperty(Constants.USER_EMAIL_ADDRESS);
 
@@ -305,6 +304,8 @@ public class BenchmarkRunner {
         } catch (Exception e) {
             LOG.error("Failed to save test results", e);
             LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
+        } finally {
+            DeliveryService.getInstance().close();
         }
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Finished CyBench benchmarking ({})                      ",
