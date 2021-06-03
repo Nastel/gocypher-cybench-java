@@ -72,7 +72,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.resources.encoding>UTF-8</project.resources.encoding>
-        <javac.target>1.8</javac.target>
+        <project.java.version>1.8</project.java.version>
+        <java.source.version>${project.java.version}</java.source.version>
+        <java.target.version>${project.java.version}</java.target.version>
+        <java.compiler.version>${project.java.version}</java.compiler.version>
+        <java.compiler.debuglevel>source,lines,vars</java.compiler.debuglevel>
+        <java.compiler.verbose>false</java.compiler.verbose>
         <license-name>CYBENCH_LICENSE*</license-name>
         <uberjar.name>gocypher-cybench-client</uberjar.name>
         <jmh.version>1.31</jmh.version>
@@ -160,11 +165,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
-                    <compilerVersion>${javac.target}</compilerVersion>
-                    <source>${javac.target}</source>
-                    <target>${javac.target}</target>
+                    <verbose>${java.compiler.verbose}</verbose>
+                    <compilerVersion>${java.compiler.version}</compilerVersion>
+                    <source>${java.source.version}</source>
+                    <target>${java.target.version}</target>
+                    <debuglevel>${java.compiler.debuglevel}</debuglevel>
                 </configuration>
             </plugin>
             <!-- Attach source jars-->
