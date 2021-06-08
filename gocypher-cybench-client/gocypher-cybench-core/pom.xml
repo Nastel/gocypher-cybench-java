@@ -25,7 +25,7 @@
     <parent>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-client</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>gocypher-cybench-core</artifactId>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.gocypher.cybench.client</groupId>
             <artifactId>gocypher-cybench-annotations</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.1.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
