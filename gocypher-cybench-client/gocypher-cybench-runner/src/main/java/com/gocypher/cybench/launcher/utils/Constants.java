@@ -42,6 +42,7 @@ public class Constants {
     public static final String WARM_UP_ITERATIONS = "warmUpIterations";
     public static final String WARM_UP_SECONDS = "warmUpSeconds";
     public static final String RUN_THREAD_COUNT = "runThreadCount";
+    public static final String BENCHMARK_MODES = "benchmarkModes";
 
     public static final String REPORT_UPLOAD_STATUS = "reportUploadStatus";
     public static final String BENCHMARK_METADATA = "benchmarkMetadata";

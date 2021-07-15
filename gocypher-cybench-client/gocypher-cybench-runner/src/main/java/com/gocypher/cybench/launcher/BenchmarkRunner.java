@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.SafepointsProfiler;
 import org.openjdk.jmh.results.RunResult;
@@ -73,7 +74,7 @@ public class BenchmarkRunner {
     private static String benchSource = "CyBench Launcher";
     private static final String REPORT_NOT_SENT = "You may submit your report '{}' manually at {}";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String... args) throws Exception {
         long start = System.currentTimeMillis();
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Starting CyBench benchmarks                             ");
@@ -105,6 +106,8 @@ public class BenchmarkRunner {
         int warmUpSeconds = setExecutionProperty(getProperty(Constants.WARM_UP_SECONDS));
         // number of threads for benchmark test execution
         int threads = setExecutionProperty(getProperty(Constants.RUN_THREAD_COUNT));
+        // benchmarks run mode
+        Set<Mode> modes = setExecutionModes(getProperty(Constants.BENCHMARK_MODES));
 
         String tempBenchmark = null;
         SecurityBuilder securityBuilder = new SecurityBuilder();
@@ -186,7 +189,7 @@ public class BenchmarkRunner {
         if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
             benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
         }
-        LOG.info("--->benchmarkSetting:{}", benchmarkSetting);
+        LOG.info("--->benchmarkSetting: {}", benchmarkSetting);
 
         ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true) //
                 // .addProfiler(HotspotThreadProfiler.class) // obsolete
@@ -196,7 +199,7 @@ public class BenchmarkRunner {
                 .detectJvmArgs();
 
         optionBuilder = setMeasurementProperties(optionBuilder, forks, measurementIterations, measurementSeconds,
-                warmUpIterations, warmUpSeconds, threads);
+                warmUpIterations, warmUpSeconds, threads, modes);
         Options opt = optionBuilder.build();
 
         Runner runner = new Runner(opt);
@@ -205,7 +208,7 @@ public class BenchmarkRunner {
             results = runner.run();
         }
 
-        LOG.info("Benchmark finished, executed tests count:{}", results.size());
+        LOG.info("Benchmark finished, executed tests count: {}", results.size());
 
         BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results,
                 defaultBenchmarksMetadata);
@@ -340,7 +343,8 @@ public class BenchmarkRunner {
     }
 
     private static ChainedOptionsBuilder setMeasurementProperties(ChainedOptionsBuilder optionBuilder, int forks,
-            int measurementIterations, int measurementSeconds, int warmUpIterations, int warmUpSeconds, int threads) {
+            int measurementIterations, int measurementSeconds, int warmUpIterations, int warmUpSeconds, int threads,
+            Set<Mode> modes) {
         if (forks != -1) {
             optionBuilder = optionBuilder.forks(forks);
         }
@@ -358,6 +362,11 @@ public class BenchmarkRunner {
         }
         if (measurementSeconds != -1) {
             optionBuilder = optionBuilder.measurementTime(TimeValue.seconds(measurementSeconds));
+        }
+        if (modes != null) {
+            for (Mode mode : modes) {
+                optionBuilder = optionBuilder.mode(mode);
+            }
         }
         return optionBuilder;
     }
@@ -478,6 +487,15 @@ public class BenchmarkRunner {
         }
     }
 
+    private static Set<Mode> setExecutionModes(String property) {
+        if (checkIfConfigurationPropertyIsSet(property)) {
+            return Arrays.stream(property.split(",")).map(String::trim).map(Mode::deepValueOf)
+                    .collect(Collectors.toSet());
+        } else {
+            return null;
+        }
+    }
+
     private static boolean checkIfConfigurationPropertyIsSet(String property) {
         return StringUtils.isNotEmpty(property);
     }
@@ -553,7 +571,7 @@ public class BenchmarkRunner {
         long garbageCollectionTime = 0;
 
         for (GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
-            System.out.println("GC:" + gc.getName() + ";" + gc.getClass());
+            System.out.println("GC: " + gc.getName() + ";" + gc.getClass());
 
             long count = gc.getCollectionCount();
 
