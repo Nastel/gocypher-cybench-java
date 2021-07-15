@@ -80,9 +80,9 @@
         <java.compiler.verbose>false</java.compiler.verbose>
         <license-name>CYBENCH_LICENSE*</license-name>
         <uberjar.name>gocypher-cybench-client</uberjar.name>
-        <jmh.version>1.31</jmh.version>
+        <jmh.version>1.32</jmh.version>
         <jackson.version>2.12.3</jackson.version>
-        <org.slf4j.version>1.7.30</org.slf4j.version>
+        <org.slf4j.version>1.7.31</org.slf4j.version>
         <version.plugin.source>3.2.1</version.plugin.source>
         <version.plugin.javadoc>3.0.1</version.plugin.javadoc>
         <version.plugin.gpg>1.6</version.plugin.gpg>
@@ -148,6 +148,11 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
