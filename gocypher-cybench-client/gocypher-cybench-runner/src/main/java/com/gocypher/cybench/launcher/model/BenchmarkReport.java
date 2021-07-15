@@ -158,7 +158,7 @@ public class BenchmarkReport implements Serializable {
 
         if (className != null) {
             try {
-                LOG.info("Custom scores computation for class found:{}", name);
+                LOG.info("Custom scores computation for class found: {}", name);
                 Class<?> clazz = Class.forName(className);
                 BaseScoreConverter converter = (BaseScoreConverter) clazz.getDeclaredConstructor().newInstance();
                 Map<String, Object> metaData = new HashMap<>();

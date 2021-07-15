@@ -44,7 +44,7 @@ public class CollectPropertiesRun {
     private static final DecimalFormat df = new DecimalFormat("#.####");
     private static final String[] excludeWindowsMACs = { "virtual", "hyper-v", "npcap" };
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String... args) throws Exception {
         getGCInfo(args);
         getHardwarePropsInfo(args);
     }

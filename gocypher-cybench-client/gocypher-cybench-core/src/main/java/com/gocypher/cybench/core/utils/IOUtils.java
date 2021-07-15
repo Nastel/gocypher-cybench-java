@@ -86,7 +86,7 @@ public final class IOUtils {
     public static void removeFile(File file) {
         try {
             if (file != null && file.exists()) {
-                // LOG.info("Will delete file:{}",file.getAbsolutePath());
+                // LOG.info("Will delete file: {}", file.getAbsolutePath());
                 file.delete();
             }
         } catch (Exception e) {

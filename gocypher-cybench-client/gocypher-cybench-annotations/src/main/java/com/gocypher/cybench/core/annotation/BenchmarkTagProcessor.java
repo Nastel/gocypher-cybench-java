@@ -80,8 +80,7 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                 }
             });
 
-            if (createdFiles.size() > 0)
-            {
+            if (createdFiles.size() > 0) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
                         "Annotations created and files are updated. You need to recompile.");
             }
@@ -160,8 +159,7 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
 
     private static void checkTagAnnotation(Element element, Messager messager) {
         BenchmarkTag annotation = element.getAnnotation(BenchmarkTag.class);
-        if (annotation == null)
-        {
+        if (annotation == null) {
             return;
         }
         try {
