@@ -58,7 +58,7 @@ public class DeliveryService {
             if (System.getProperty(Constants.SEND_REPORT_URL) != null) {
                 serviceUrl = System.getProperty(Constants.SEND_REPORT_URL);
             }
-            LOG.info("-->Sending benchmark report to URL {}", serviceUrl);
+            LOG.info("--> Sending benchmark report to URL {}", serviceUrl);
             HttpPost request = new HttpPost(serviceUrl);
             // request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
             request.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");

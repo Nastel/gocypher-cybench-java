@@ -189,7 +189,7 @@ public class BenchmarkRunner {
         if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
             benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
         }
-        LOG.info("--->benchmarkSetting: {}", benchmarkSetting);
+        LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
 
         ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true) //
                 // .addProfiler(HotspotThreadProfiler.class) // obsolete
