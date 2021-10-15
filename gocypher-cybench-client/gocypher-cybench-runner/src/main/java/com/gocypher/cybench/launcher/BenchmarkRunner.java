@@ -35,10 +35,7 @@ import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.SafepointsProfiler;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.runner.options.TimeValue;
+import org.openjdk.jmh.runner.options.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,20 +91,21 @@ public class BenchmarkRunner {
         OptionsBuilder optBuild = new OptionsBuilder();
         // Number of separate full executions of a benchmark (warm up+measurement), this
         // is returned still as one primary score item
-        int forks = setExecutionProperty(getProperty(Constants.NUMBER_OF_FORKS));
+        int forks = setExecutionIntProperty(getProperty(Constants.NUMBER_OF_FORKS));
         // Number of measurements per benchmark operation, this is returned still as one
         // primary score item
-        int measurementIterations = setExecutionProperty(getProperty(Constants.MEASUREMENT_ITERATIONS));
+        int measurementIterations = setExecutionIntProperty(getProperty(Constants.MEASUREMENT_ITERATIONS));
 
-        int measurementSeconds = setExecutionProperty(getProperty(Constants.MEASUREMENT_SECONDS));
+        int measurementSeconds = setExecutionIntProperty(getProperty(Constants.MEASUREMENT_SECONDS));
         // number of iterations executed for warm up
-        int warmUpIterations = setExecutionProperty(getProperty(Constants.WARM_UP_ITERATIONS));
+        int warmUpIterations = setExecutionIntProperty(getProperty(Constants.WARM_UP_ITERATIONS));
         // number of seconds dedicated for each warm up iteration
-        int warmUpSeconds = setExecutionProperty(getProperty(Constants.WARM_UP_SECONDS));
+        int warmUpSeconds = setExecutionIntProperty(getProperty(Constants.WARM_UP_SECONDS));
         // number of threads for benchmark test execution
-        int threads = setExecutionProperty(getProperty(Constants.RUN_THREAD_COUNT));
+        int threads = setExecutionIntProperty(getProperty(Constants.RUN_THREAD_COUNT));
         // benchmarks run mode
         Set<Mode> modes = setExecutionModes(getProperty(Constants.BENCHMARK_MODES));
+        String jmhArguments = setExecutionStringProperty(getProperty(Constants.JMH_ARGUMENTS));
 
         String tempBenchmark = null;
         SecurityBuilder securityBuilder = new SecurityBuilder();
@@ -200,6 +198,12 @@ public class BenchmarkRunner {
 
         optionBuilder = setMeasurementProperties(optionBuilder, forks, measurementIterations, measurementSeconds,
                 warmUpIterations, warmUpSeconds, threads, modes);
+
+        if (StringUtils.isNotEmpty(jmhArguments)) {
+            CommandLineOptions cliOptions = new CommandLineOptions(jmhArguments);
+            optionBuilder.parent(cliOptions);
+        }
+
         Options opt = optionBuilder.build();
 
         Runner runner = new Runner(opt);
@@ -479,11 +483,19 @@ public class BenchmarkRunner {
         return userProperties;
     }
 
-    private static int setExecutionProperty(String property) {
+    private static int setExecutionIntProperty(String property) {
         if (checkIfConfigurationPropertyIsSet(property)) {
             return Integer.parseInt(property);
         } else {
             return -1;
+        }
+    }
+
+    private static String setExecutionStringProperty(String property) {
+        if (checkIfConfigurationPropertyIsSet(property)) {
+            return property;
+        } else {
+            return null;
         }
     }
 

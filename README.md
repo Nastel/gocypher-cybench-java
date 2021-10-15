@@ -69,8 +69,9 @@ run configuration. [Configuration example](https://github.com/K2NIO/gocypher-cyb
 | **warmUpSeconds** | Number of seconds dedicated for each warm up iteration. | 5 |
 | **runThreadCount** | Number of threads for benchmark test execution. | 1 |
 | **benchmarkModes** | Benchmark modes to run. | `All`, or ones defined by annotation |
-| **benchmarkMetadata** | A property which adds extra properties to the benchmarks report such as category or version or context. Configuration pattern is `<fully qualified benchmark class name>=<key1>:<value1>;<key2>:<value2>`. Example which adds category for class CollectionsBenchmarks: `com.gocypher.benchmarks.client.CollectionsBenchmarks=category:Collections;`   |   -  |
-| **userProperties** | User defined properties which will be added to benchmarks report section `environmentSettings->userDefinedProperties` as key/value strings. Configuration pattern:`<key1>:<value1>;<key2>:<value2>`. Example which adds a project name:`user.propname1=My Test Project;` |  -  |
+| **jmhArguments** | JMH CLI supported arguments line. See [JMH Command line options](https://github.com/guozheng/jmh-tutorial/blob/master/README.md#jmh-command-line-options) for details| - |
+| **benchmarkMetadata** | A property which adds extra properties to the benchmarks report such as category or version or context. Configuration pattern is `<fully qualified benchmark class name>=<key1>:<value1>;<key2>:<value2>`. Example which adds category for class CollectionsBenchmarks: `com.gocypher.benchmarks.client.CollectionsBenchmarks=category:Collections;`   | - |
+| **userProperties** | User defined properties which will be added to benchmarks report section `environmentSettings->userDefinedProperties` as key/value strings. Configuration pattern:`<key1>:<value1>;<key2>:<value2>`. Example which adds a project name:`user.propname1=My Test Project;` | - |
 
 ### Adding Custom Benchmarks for Execution
 
