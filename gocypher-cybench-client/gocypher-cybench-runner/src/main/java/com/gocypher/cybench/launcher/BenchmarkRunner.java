@@ -200,7 +200,7 @@ public class BenchmarkRunner {
                 warmUpIterations, warmUpSeconds, threads, modes);
 
         if (StringUtils.isNotEmpty(jmhArguments)) {
-            CommandLineOptions cliOptions = new CommandLineOptions(jmhArguments);
+            CommandLineOptions cliOptions = new CommandLineOptions(jmhArguments.split("\\s"));
             optionBuilder.parent(cliOptions);
         }
 
