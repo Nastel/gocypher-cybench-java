@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.SafepointsProfiler;
 import org.openjdk.jmh.results.RunResult;
@@ -349,22 +349,22 @@ public class BenchmarkRunner {
     private static ChainedOptionsBuilder setMeasurementProperties(ChainedOptionsBuilder optionBuilder, int forks,
             int measurementIterations, int measurementSeconds, int warmUpIterations, int warmUpSeconds, int threads,
             Set<Mode> modes) {
-        if (forks != -1) {
+        if (forks != Fork.BLANK_FORKS) {
             optionBuilder = optionBuilder.forks(forks);
         }
-        if (measurementIterations != -1) {
+        if (measurementIterations != Measurement.BLANK_ITERATIONS) {
             optionBuilder = optionBuilder.measurementIterations(measurementIterations);
         }
-        if (warmUpIterations != -1) {
+        if (warmUpIterations != Warmup.BLANK_ITERATIONS) {
             optionBuilder = optionBuilder.warmupIterations(warmUpIterations);
         }
-        if (warmUpSeconds != -1) {
+        if (warmUpSeconds != Warmup.BLANK_TIME) {
             optionBuilder = optionBuilder.warmupTime(TimeValue.seconds(warmUpSeconds));
         }
-        if (threads != -1) {
+        if (threads != Threads.MAX) {
             optionBuilder = optionBuilder.threads(threads);
         }
-        if (measurementSeconds != -1) {
+        if (measurementSeconds != Measurement.BLANK_TIME) {
             optionBuilder = optionBuilder.measurementTime(TimeValue.seconds(measurementSeconds));
         }
         if (modes != null) {
