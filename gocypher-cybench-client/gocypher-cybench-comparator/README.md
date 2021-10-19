@@ -211,10 +211,10 @@ Dependencies for your project:
 
     * Kotlin
         ```kotlin
-        import java.util.Properties;
+        import java.util.Properties
         // ...
         repositories {
-          mavenCentral();
+          mavenCentral()
           maven {
             setUrl("https://s01.oss.sonatype.org/content/repositories/snapshots")
           }
