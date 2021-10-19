@@ -299,20 +299,16 @@ public class CompareBenchmarks {
             }
         }
         
-
-//         switch (compareMethod) {
-//	         case MEAN:
-//	        	 return Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
-//	         case DELTA:
-//	        	 return Comparisons.compareDelta(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
-//	         case SD:
-//	        	 return Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
-//	         default:
-//	        	 return 0;
-//         }
-
-         
-         return -1;
+         switch (compareMethod) {
+	         case MEAN:
+	        	 return Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
+	         case DELTA:
+	        	 return Comparisons.compareDelta(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
+	         case SD:
+	        	 return Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
+	         default:
+	        	 return 0;
+         }
     }
 
 }
