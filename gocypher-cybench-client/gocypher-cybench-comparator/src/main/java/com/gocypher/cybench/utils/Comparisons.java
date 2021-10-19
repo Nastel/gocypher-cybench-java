@@ -61,6 +61,7 @@ public final class Comparisons {
 
 		switch (threshold) {
 		case GREATER:
+			comparePercentage = (Double) null;
 			return (recentScore - average);
 		case PERCENT_CHANGE:
 			return (calculatePerChange(average, recentScore));
@@ -91,6 +92,7 @@ public final class Comparisons {
 
 		switch (threshold) {
 		case GREATER:
+			comparePercentage = (Double) null;
 			return (recentScore - lastScoreFromPrevious);
 		case PERCENT_CHANGE:
 			return calculatePerChange(recentScore, lastScoreFromPrevious);
