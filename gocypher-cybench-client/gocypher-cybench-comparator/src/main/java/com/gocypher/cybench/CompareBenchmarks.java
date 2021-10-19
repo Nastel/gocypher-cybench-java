@@ -33,26 +33,22 @@ public class CompareBenchmarks {
                 .identifyAndValidifySpecificComparisonConfigs(allConfigs);
 
         File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
-        String sessionToken = Requests.getInstance().getSessionToken((String) allConfigs.get("token"));
-        String benchmarkWorkspace = (String) allConfigs.get("workspace");
+        String accessToken = (String) allConfigs.get("token");
 
-        if (recentReport != null && sessionToken != null) {
-
-            analyzeBenchmarks(recentReport, sessionToken, benchmarkWorkspace, defaultConfigs, configuredPackages,
-                    allConfigs);
+        if (recentReport != null && accessToken != null) {
+            analyzeBenchmarks(recentReport, accessToken, defaultConfigs, configuredPackages, allConfigs);
         } else {
             if (recentReport == null) {
                 log.error("* No recent report found to compare!");
-            } else if (sessionToken == null) {
+            } else if (accessToken == null) {
                 log.error("* Failed to authorize provided access token!");
             }
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static void analyzeBenchmarks(File recentReport, String sessionToken, String benchmarkWorkspace,
-            Map<String, Object> defaultConfigs, Map<String, String> configuredPackages, Map<String, Object> allConfigs)
-            throws Exception {
+    private static void analyzeBenchmarks(File recentReport, String accessToken, Map<String, Object> defaultConfigs,
+            Map<String, String> configuredPackages, Map<String, Object> allConfigs) throws Exception {
         // < BenchmarkName, < BenchmarkVersion, < BenchmarkMode, < BenchmarkScore,
         // CompareMethod, CompareScope, CompareVersion >>>
         Map<String, Map<String, Map<String, List<Object>>>> passedBenchmarks = new HashMap<>();
@@ -100,8 +96,7 @@ public class CompareBenchmarks {
                     String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
                     namesToFingerprints.put(benchmarkName, benchmarkFingerprint);
                     // fetch and store data from CyBench UI
-                    if (Requests.getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, sessionToken,
-                            benchmarkWorkspace)) {
+                    if (Requests.getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, accessToken)) {
                         // store new data in map if this report hasn't been added already
                         if (reportID != null && !Requests.getReports().contains(reportID)) {
                             Map<String, Map<String, List<Double>>> benchTable = Requests

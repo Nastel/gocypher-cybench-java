@@ -2,16 +2,11 @@ package com.gocypher.cybench.services;
 
 import java.util.*;
 
-import org.apache.http.Consts;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -22,17 +17,15 @@ import org.slf4j.LoggerFactory;
 public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
 
-    private static final String benchmarkViewBenchmarksServiceUrl = "https://www.gocypher.com/gocypher-benchmarks-services/services/v1/benchmarks/benchmark/view/";
-    private static final String authFinalizeLoginServiceURL = "https://www.gocypher.com/gocypher-benchmarks-services/services/v1/auth/finalizeSignIn/token";
-    private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-services-1.0-SNAPSHOT/services/v1/benchmarks/benchmark/view/";
-    private static final String localAuthFinalizeLoginServiceURL = "http://localhost:8080/gocypher-benchmarks-services-1.0-SNAPSHOT/services/v1/auth/finalizeSignIn/token";
+    private static final String benchmarkViewBenchmarksServiceUrl = "https://www.gocypher.com/gocypher-benchmarks-services/services/v1/reports/benchmark/view/";
+    private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-services-1.0-SNAPSHOT/services/v1/reports/benchmark/view/";
 
     private static Requests instance;
     private String tagFingerprint = "benchmarkTag";
 
     // <Benchmark Fingerprint : <Version : <Mode : <List of Scores in Test Order>>>>
     public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarkTables;
-    // keep track of reports to prevent duplicates
+    // keep track of reports preventing duplicates
     public static Set<String> reportIDs;
 
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -69,8 +62,7 @@ public class Requests {
         return reportIDs;
     }
 
-    public boolean fetchBenchmarks(String name, String benchmarkFingerprint, String sessionToken,
-            String benchmarkWorkspace) {
+    public boolean fetchBenchmarks(String name, String benchmarkFingerprint, String accessToken) {
         if (!allBenchmarkTables.containsKey(benchmarkFingerprint)) {
             String serviceUrl = localBenchmarkViewBenchmarksServiceUrl + benchmarkFingerprint + "?typeOfFingerprint="
                     + tagFingerprint;
@@ -80,8 +72,7 @@ public class Requests {
                 uri.setParameter("typeOfFingerprint", tagFingerprint);
 
                 HttpGet request = new HttpGet(uri.build());
-                request.setHeader("x-benchmark-workspace", benchmarkWorkspace);
-                request.setHeader("Authorization", sessionToken);
+                request.setHeader("x-api-key", accessToken);
 
                 CloseableHttpResponse response = httpClient.execute(request);
                 String responseString = EntityUtils.toString(response.getEntity());
@@ -145,36 +136,6 @@ public class Requests {
         List<Double> testsWithinVersion = benchTable.get(version).get(mode);
         testsWithinVersion.add(score);
         return true;
-    }
-
-    public String getSessionToken(String personalAccessToken) {
-        if (personalAccessToken != null && !personalAccessToken.isEmpty()) {
-            log.info("Authorizing GitHub Token...");
-            try {
-                URIBuilder uri = new URIBuilder(localAuthFinalizeLoginServiceURL);
-                HttpPost request = new HttpPost(uri.build());
-                List<NameValuePair> nvps = new ArrayList<>();
-                nvps.add(new BasicNameValuePair("personalToken", personalAccessToken));
-                request.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
-
-                CloseableHttpResponse response = httpClient.execute(request);
-                String responseString = EntityUtils.toString(response.getEntity());
-                EntityUtils.consume(response.getEntity());
-
-                JSONParser parser = new JSONParser();
-                JSONObject responseJSON = (JSONObject) parser.parse(responseString);
-                if (responseJSON.containsKey("error")) {
-                    log.error("{}, the provided token may be incorrect...", responseJSON.get("error"));
-                    return null;
-                }
-                String sessionToken = (String) responseJSON.get("token");
-                return sessionToken;
-            } catch (Exception e) {
-                log.error("Failed to get CyBench session token", e);
-                return null;
-            }
-        }
-        return "";
     }
 
     public void close() {
