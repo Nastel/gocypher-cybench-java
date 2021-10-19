@@ -22,19 +22,10 @@ public final class Comparisons {
 
 		switch (threshold) {
 		case GREATER:
-
-			if (calculateSD(scores, stopCounter) > (calculateSD(tempList, stopCounter))) {
-				return true;
-			} else {
-				return false;
-			}
+			return (calculateSD(scores, stopCounter) > (calculateSD(tempList, stopCounter)));
 		case PERCENT_CHANGE_ALLOWED:
-			if (calculatePerChange(calculateSD(scores, stopCounter),
-					(calculateSD(tempList, stopCounter))) < comparePercentage) {
-				return false;
-			} else {
-				return true;
-			}
+			return (calculatePerChange(calculateSD(scores, stopCounter),
+					(calculateSD(tempList, stopCounter))) < comparePercentage);
 		}
 		return true;
 	}
@@ -81,17 +72,9 @@ public final class Comparisons {
 		average /= (totalCounter);
 		switch (threshold) {
 		case GREATER:
-			if (newestScore > average) {
-				return true;
-			} else {
-				return false;
-			}
+			return (newestScore > average);
 		case PERCENT_CHANGE_ALLOWED:
-			if (calculatePerChange(average, newestScore) < comparePercentage) {
-				return false;
-			} else {
-				return true;
-			}
+			return (calculatePerChange(average, newestScore) < comparePercentage);
 		}
 		return false;
 	}
@@ -99,11 +82,13 @@ public final class Comparisons {
 	public static boolean compareDelta(List<Double> scores, int totalScores, double comparePercentage, Range range,
 			Threshold threshold) {
 		int stopCounter = scores.size();
-		/* This switch case isn't used yet, as not sure how Delta should be 
-		 * compared with 3 or more scores.
+		/*
+		 * This switch case isn't used yet, as not sure how Delta should be compared
+		 * with 3 or more scores.
 		 * 
-		 * Possibly: log/print the change in delta that occurred in each test? Compare delta of newest score and an older, specific
-		 * score? (e.g. return scores.get(totalScores-1) <= scores.get(stopCounter);)
+		 * Possibly: log/print the change in delta that occurred in each test? Compare
+		 * delta of newest score and an older, specific score? (e.g. return
+		 * scores.get(totalScores-1) <= scores.get(stopCounter);)
 		 */
 		switch (range) {
 		case ALL_VALUES:
@@ -118,7 +103,7 @@ public final class Comparisons {
 		case GREATER:
 			return scores.get(totalScores - 1) <= scores.get(totalScores - 2);
 		case PERCENT_CHANGE_ALLOWED:
-			return calculatePerChange(scores.get(totalScores - 1), scores.get(totalScores - 2)) < comparePercentage;
+			return calculatePerChange(scores.get(totalScores - 1), scores.get(totalScores - 2)) > comparePercentage;
 		}
 
 		return scores.get(totalScores - 1) <= scores.get(totalScores - 2);
