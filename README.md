@@ -118,3 +118,10 @@ Update CyBench configuration in order to run only user-defined tests:
     ```properties
     benchmarkClasses=com.gocypher.benchmarks.client.CollectionsBenchmarks,NumberBenchmarks
     ```
+
+### Benchmark reports comparator
+
+Java app comparing most recently ran CyBench benchmarks to previously ran benchmarks hosted on the CyBench site.
+
+See [gocypher-cybench-comparator](gocypher-cybench-client/gocypher-cybench-comparator) [readme](gocypher-cybench-client/gocypher-cybench-comparator/README.md)
+file for usage details. 
