@@ -87,9 +87,6 @@ public class CompareBenchmarks {
                     totalComparedBenchmarks++;
                     JSONObject benchmark = (JSONObject) packageBenchmark;
                     String benchmarkName = (String) benchmark.get("name");
-                    String[] parsedName = benchmarkName.split("BenchmarkByT2B"); // why you stick to T2B naming??? BTW
-                                                                                 // it is subject to change ;)
-                    benchmarkName = parsedName[0].concat(parsedName[1]);
                     String benchmarkVersion = (String) benchmark.get("version");
                     Double score = (Double) benchmark.get("score");
                     String benchmarkMode = (String) benchmark.get("mode");
