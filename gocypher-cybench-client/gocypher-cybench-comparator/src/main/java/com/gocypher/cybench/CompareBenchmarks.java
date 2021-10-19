@@ -49,10 +49,9 @@ public class CompareBenchmarks {
     @SuppressWarnings("unchecked")
     private static void analyzeBenchmarks(File recentReport, String accessToken, Map<String, Object> defaultConfigs,
             Map<String, String> configuredPackages, Map<String, Object> allConfigs) throws Exception {
-        // < BenchmarkName, < BenchmarkVersion, < BenchmarkMode, < BenchmarkScore,
-        // CompareMethod, CompareScope, CompareVersion >>>
-        Map<String, Map<String, Map<String, List<Object>>>> passedBenchmarks = new HashMap<>();
-        Map<String, Map<String, Map<String, List<Object>>>> failedBenchmarks = new HashMap<>();
+        // < BenchmarkName, < BenchmarkVersion, < BenchmarkMode, < Data >>>
+        Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
+        Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
         Map<String, String> namesToFingerprints = new HashMap<>();
         JSONObject benchmarkReport = null;
         int totalComparedBenchmarks = 0;
@@ -174,48 +173,48 @@ public class CompareBenchmarks {
         }
     }
 
-    private static void addPassFailBenchData(Map<String, Map<String, Map<String, List<Object>>>> benchmarks,
+    private static void addPassFailBenchData(Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks,
             Double scoreDiff, String benchmarkName, String benchmarkVersion, String benchmarkMode, Double score,
             Comparisons.Method compareMethod, Comparisons.Scope compareScope, Comparisons.Range compareRange, 
             Comparisons.Threshold compareThreshold, Double comparePercentage, String compareVersion) {
 
         if (!benchmarks.containsKey(benchmarkName)) {
-            List<Object> data = new ArrayList<>();
-            Map<String, List<Object>> scoresPerMode = new HashMap<>();
-            Map<String, Map<String, List<Object>>> scoresPerVersion = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
+            Map<String, Map<String, Object>> scoresPerMode = new HashMap<>();
+            Map<String, Map<String, Map<String, Object>>> scoresPerVersion = new HashMap<>();
             scoresPerMode.put(benchmarkMode, data);
             scoresPerVersion.put(benchmarkVersion, scoresPerMode);
             benchmarks.put(benchmarkName, scoresPerVersion);
         }
 
-        Map<String, Map<String, List<Object>>> scoresPerVersion = benchmarks.get(benchmarkName);
+        Map<String, Map<String, Map<String, Object>>> scoresPerVersion = benchmarks.get(benchmarkName);
         if (!scoresPerVersion.containsKey(benchmarkVersion)) {
-            List<Object> data = new ArrayList<>();
-            Map<String, List<Object>> scoresPerMode = new HashMap<>();
+        	Map<String, Object> data = new HashMap<>();
+            Map<String, Map<String, Object>> scoresPerMode = new HashMap<>();
             scoresPerMode.put(benchmarkMode, data);
             scoresPerVersion.put(benchmarkVersion, scoresPerMode);
         }
 
-        Map<String, List<Object>> scoresPerMode = scoresPerVersion.get(benchmarkVersion);
+        Map<String, Map<String, Object>> scoresPerMode = scoresPerVersion.get(benchmarkVersion);
         if (!scoresPerMode.containsKey(benchmarkMode)) {
-            List<Object> data = new ArrayList<>();
+        	Map<String, Object> data = new HashMap<>();
             scoresPerMode.put(benchmarkMode, data);
         }
 
-        List<Object> data = scoresPerMode.get(benchmarkMode);
-        data.add(score);
-        data.add(scoreDiff);
-        data.add(compareMethod);
-        data.add(compareScope);
-        data.add(compareRange);
-        data.add(compareThreshold);
-        data.add(compareVersion);
-        data.add(comparePercentage);
+        Map<String, Object> data = scoresPerMode.get(benchmarkMode);
+        data.put("score", score);
+        data.put("scoreDiff", scoreDiff);
+        data.put("compareMethod", compareMethod);
+        data.put("compareScope", compareScope);
+        data.put("compareRange", compareRange);
+        data.put("compareThreshold", compareThreshold);
+        data.put("compareVersion", compareVersion);
+        data.put("comparePercentage", comparePercentage);
     }
 
     private static void printBenchmarkResults(int totalComparedBenchmarks, int totalPassedBenchmarks,
-            Map<String, Map<String, Map<String, List<Object>>>> passedBenchmarks, int totalFailedBenchmarks,
-            Map<String, Map<String, Map<String, List<Object>>>> failedBenchmarks,
+            Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks, int totalFailedBenchmarks,
+            Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks,
             Map<String, String> namesToFingerprints) {
         if (totalPassedBenchmarks > 0) {
             printBenchmarkResultsHelper("PASSED", totalComparedBenchmarks, totalPassedBenchmarks, passedBenchmarks,
@@ -231,23 +230,23 @@ public class CompareBenchmarks {
     }
 
     private static void printBenchmarkResultsHelper(String passfail, int totalComparedBenchmarks,
-            int totalBenchmarksToReport, Map<String, Map<String, Map<String, List<Object>>>> benchmarksToReport,
+            int totalBenchmarksToReport, Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarksToReport,
             Map<String, String> namesToFingerprints) {
         log.info("** {}/{} benchmarks {}:", totalBenchmarksToReport, totalComparedBenchmarks, passfail);
-        for (Map.Entry<String, Map<String, Map<String, List<Object>>>> entry : benchmarksToReport.entrySet()) {
+        for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> entry : benchmarksToReport.entrySet()) {
             String benchmarkName = entry.getKey();
             String fingerprint = namesToFingerprints.get(benchmarkName);
             for (String benchmarkVersion : entry.getValue().keySet()) {
-                Map<String, List<Object>> data = entry.getValue().get(benchmarkVersion);
-                for (Map.Entry<String, List<Object>> e : data.entrySet()) {
+                Map<String, Map<String, Object>> data = entry.getValue().get(benchmarkVersion);
+                for (Map.Entry<String, Map<String, Object>> e : data.entrySet()) {
                     String benchmarkMode = e.getKey();
-                    Double score = (Double) e.getValue().get(0);
-                    Double scoreDiff = (Double) e.getValue().get(1);
-                    Comparisons.Method compareMethod = (Comparisons.Method) e.getValue().get(2);
-                    Comparisons.Scope compareScope = (Comparisons.Scope) e.getValue().get(3);
-                    Comparisons.Range compareRange = (Comparisons.Range) e.getValue().get(4);
-                    Comparisons.Threshold compareThreshold = (Comparisons.Threshold) e.getValue().get(5);
-                    String compareVersion = (String) e.getValue().get(6);
+                    Double score = (Double) e.getValue().get("score");
+                    Double scoreDiff = (Double) e.getValue().get("scoreDiff");
+                    Comparisons.Method compareMethod = (Comparisons.Method) e.getValue().get("compareMethod");
+                    Comparisons.Scope compareScope = (Comparisons.Scope) e.getValue().get("compareScope");
+                    Comparisons.Range compareRange = (Comparisons.Range) e.getValue().get("compareRange");
+                    Comparisons.Threshold compareThreshold = (Comparisons.Threshold) e.getValue().get("compareThreshold");
+                    String compareVersion = (String) e.getValue().get("compareVersion");
           
                     if (compareThreshold.equals(Comparisons.Threshold.GREATER)) {
                         log.info(
@@ -256,7 +255,7 @@ public class CompareBenchmarks {
                                 benchmarkName, benchmarkVersion, benchmarkMode, score, scoreDiff, compareMethod, compareScope,
                                 compareVersion, compareRange, compareThreshold, fingerprint);
                     } else {
-                    	Double comparePercentage = (Double) e.getValue().get(7);
+                    	Double comparePercentage = (Double) e.getValue().get("comparePercentage");
                         log.info(
                                 "   test.name={}, test.version={}, test.mode={}, test.score={}, test.score.difference={}%, test.compare.method={}, test.compare.scope={}, test.compare.version={}, "
                                 + "test.compare.range={}, test.compare.threshold={}, test.compare.percentage={}, test.id={}",
@@ -309,6 +308,7 @@ public class CompareBenchmarks {
 	         case SD:
 	        	 scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
          }
+         System.out.println(scoreDiff);
          return scoreDiff;
     }
 
