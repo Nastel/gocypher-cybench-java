@@ -293,7 +293,7 @@ public class CompareBenchmarks {
         else if (compareScope.equals(Comparisons.Scope.WITHIN)) {
             if (currentVersionScores.size() <= 1) {
                 log.warn(
-                        "{} - {}: There are no no previously tested benchmarks within the version ({})",
+                        "{} - {}: There are no previously tested benchmarks within the version ({})",
                         benchmarkName, benchmarkMode, benchmarkVersion);
                 return 0;
             }
