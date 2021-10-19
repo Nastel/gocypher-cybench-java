@@ -1,0 +1,44 @@
+### Property File for Cybench Comparator Tool ###
+
+# reports = location of CyBench reports folder
+
+# workspace = name of CyBench workspace
+
+# token = GitHub personal access token 
+###  Token must have READ:USER privileges ###
+
+# compare.default = default comparison configurations
+
+#compare.{} = specific comparison configurations 
+### {} can be any identifier of your choice ###
+### Make sure to include {package} to specify which package you want these comparisons to run on ###
+
+
+### Comparison Configurations ###
+
+# method = how benchmarks will be compared
+### Options {delta, mean, SD, moving_average} ###
+
+# scope = (within or between project versions)
+### Options {within, between} ###
+### {between} will compare the newest version to the previous version ###
+### add {version} to specify which version to compare to, otherwise comparison scope will default to {within} ###
+
+# cpercentage = percentage score should be within in order to pass 
+### ex. 5% means the new score should be within 5% of the previous threshold
+
+
+reports: "reports/"
+workspace: "MY WORKSPACE"
+token: "MY TOKEN"
+
+compare.default:
+    method: "MEAN"
+    percentage: "6"
+    scope: "BETWEEN"
+    version: "1.0.0"
+    
+compare.A:
+    method: "DELTA"
+    package: "com.my.package"
+    scope: "WITHIN"

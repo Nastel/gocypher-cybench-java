@@ -102,6 +102,7 @@
         <module>gocypher-cybench-runner</module>
         <module>gocypher-cybench-core</module>
         <module>gocypher-cybench-annotations</module>
+        <module>gocypher-cybench-comparator</module>
     </modules>
 
     <profiles>
