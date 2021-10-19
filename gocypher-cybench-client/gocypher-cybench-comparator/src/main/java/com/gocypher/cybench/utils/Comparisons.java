@@ -7,8 +7,8 @@ public final class Comparisons {
 	private Comparisons() {
 	}
 
-	public static double compareSD(List<Double> compareScores, double recentScore, Range range, Threshold threshold,
-			double comparePercentage) {
+	public static Double compareSD(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
+			Double comparePercentage) {
 
 		int stopCounter = compareScores.size();
 
@@ -20,9 +20,9 @@ public final class Comparisons {
 		case LAST_VALUE:
 			stopCounter = compareScores.size();
 		}
-		double previousSD = (calculateSD(compareScores, stopCounter));
+		Double previousSD = (calculateSD(compareScores, stopCounter));
 		compareScores.add(recentScore);
-		double newSD = (calculateSD(compareScores, stopCounter));
+		Double newSD = (calculateSD(compareScores, stopCounter));
 
 		switch (threshold) {
 		case GREATER:
@@ -34,9 +34,9 @@ public final class Comparisons {
 		return newSD;
 	}
 
-	public static double compareMean(List<Double> compareScores, double recentScore, Range range, Threshold threshold,
-			double comparePercentage) {
-		double average = 0;
+	public static Double compareMean(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
+			Double comparePercentage) {
+		Double average = 0.0;
 		int stopCounter = compareScores.size();
 		int totalCounter = 0;
 
@@ -69,10 +69,10 @@ public final class Comparisons {
 		return average;
 	}
 
-	public static double compareDelta(List<Double> compareScores, double recentScore, Range range, Threshold threshold,
-			double comparePercentage) {
+	public static Double compareDelta(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
+			Double comparePercentage) {
 		int stopCounter = compareScores.size();
-		double lastScoreFromPrevious = compareScores.get(compareScores.size() - 1); // gets the latest score
+		Double lastScoreFromPrevious = compareScores.get(compareScores.size() - 1); // gets the latest score
 		/*
 		 * This switch case isn't used yet, as not sure how Delta should be compared
 		 * with 3 or more scores.
@@ -105,8 +105,8 @@ public final class Comparisons {
 	 * NOTE: Not sure if 'calculate5MA' is still necessary, as it can be achieved by
 	 * calling compareMean with a LAST_5 range
 	 * 
-	 * 5-day moving average calculator: public static double
-	 * calculate5MA(List<Double> scores, int totalScores) { double average = 0; for
+	 * 5-day moving average calculator: public static Double
+	 * calculate5MA(List<Double> scores, int totalScores) { Double average = 0; for
 	 * (int scoreIndex = 0; scoreIndex < -5; scoreIndex++) { average +=
 	 * scores.get(scoreIndex); } average /= 5; return average; }
 	 * 
@@ -116,9 +116,9 @@ public final class Comparisons {
 	 * }
 	 */
 
-	private static double calculateSD(List<Double> scores, int stopCounter) {
+	private static Double calculateSD(List<Double> scores, int stopCounter) {
 		int numCounter = 0;
-		double total = 0, average, sDeviate = 0;
+		Double total = 0.0, average, sDeviate = 0.0;
 		List<Double> tempScores = null;
 
 		for (int i = scores.size(); i >= stopCounter; i--) {
@@ -128,20 +128,20 @@ public final class Comparisons {
 		}
 		average = total / numCounter;
 
-		for (double score : tempScores) {
+		for (Double score : tempScores) {
 			sDeviate = Math.pow(score - average, 2);
 		}
 		return sDeviate;
 	}
 
 	// percent change grabbing directly from list
-	private static double calculatePerChange(List<Double> scores, double newestScore) {
-		double latestScore = scores.get(scores.size() - 1);
+	private static Double calculatePerChange(List<Double> scores, Double newestScore) {
+		Double latestScore = scores.get(scores.size() - 1);
 		return 100 * ((newestScore - latestScore) / latestScore);
 	}
 
 	// percent change if you already have the newest and previous score.
-	private static double calculatePerChange(double previousScore, double newestScore) {
+	private static Double calculatePerChange(Double previousScore, Double newestScore) {
 		return 100 * ((newestScore - previousScore) / previousScore);
 	}
 

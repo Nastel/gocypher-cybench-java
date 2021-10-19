@@ -268,10 +268,12 @@ public class CompareBenchmarks {
         }
     }
 
-    private static double passedBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
+    private static Double passedBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
             String benchmarkMode, Comparisons.Method compareMethod, Comparisons.Scope compareScope, Comparisons.Range compareRange, 
             Comparisons.Threshold compareThreshold, Double comparePercentage, String compareVersion) {
 
+    	Double scoreDiff = 0.0;
+    	
         List<Double> currentVersionScores = Requests.getBenchmarks(benchmarkFingerprint, benchmarkVersion,
                 benchmarkMode);
         Double recentScore = currentVersionScores.get(currentVersionScores.size()-1);
@@ -287,7 +289,7 @@ public class CompareBenchmarks {
             } else {
                 log.warn("{} - {}: There are no benchmarks for the specified compare version ({})",
                         benchmarkName, benchmarkMode, compareVersion);
-                return 0;
+                return scoreDiff;
             }
         }
         else if (compareScope.equals(Comparisons.Scope.WITHIN)) {
@@ -295,20 +297,19 @@ public class CompareBenchmarks {
                 log.warn(
                         "{} - {}: There are no previously tested benchmarks within the version ({})",
                         benchmarkName, benchmarkMode, benchmarkVersion);
-                return 0;
+                return scoreDiff;
             }
         }
         
          switch (compareMethod) {
 	         case MEAN:
-	        	 return Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
+	        	 scoreDiff = Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
 	         case DELTA:
-	        	 return Comparisons.compareDelta(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
+	        	 scoreDiff = Comparisons.compareDelta(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
 	         case SD:
-	        	 return Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
-	         default:
-	        	 return 0;
+	        	 scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
          }
+         return scoreDiff;
     }
 
 }
