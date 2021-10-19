@@ -16,7 +16,7 @@
 ### Comparison Configurations ###
 
 # method = how benchmarks will be compared
-### Options {delta, mean, SD, moving_average} ###
+### Options {delta, mean, SD} ###
 
 # scope = (within or between project versions)
 ## Options {within, between} ##

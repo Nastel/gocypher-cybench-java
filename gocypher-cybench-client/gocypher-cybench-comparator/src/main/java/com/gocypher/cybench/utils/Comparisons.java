@@ -1,5 +1,6 @@
 package com.gocypher.cybench.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class Comparisons {
@@ -119,19 +120,19 @@ public final class Comparisons {
 	private static Double calculateSD(List<Double> scores, int stopCounter) {
 		int numCounter = 0;
 		Double total = 0.0, average, sDeviate = 0.0;
-		List<Double> tempScores = null;
+		List<Double> tempScores = new ArrayList<>();
 
-		for (int i = scores.size(); i >= stopCounter; i--) {
+		for (int i = scores.size()-1; i >= stopCounter; i--) {
 			total += scores.get(i);
 			tempScores.add(scores.get(i));
 			numCounter++;
 		}
 		average = total / numCounter;
-
+		
 		for (Double score : tempScores) {
-			sDeviate = Math.pow(score - average, 2);
+			sDeviate += Math.pow(score - average, 2);
 		}
-		return sDeviate;
+		return Math.sqrt(sDeviate/numCounter);
 	}
 
 	// percent change grabbing directly from list
@@ -146,7 +147,7 @@ public final class Comparisons {
 	}
 
 	public static enum Method {
-		MEAN, DELTA, SD, MOVING_AVERAGE
+		MEAN, DELTA, SD
 	}
 
 	public static enum Scope {
