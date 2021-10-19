@@ -42,8 +42,7 @@ Dependencies for your project:
 * Configuration file [comparator.yaml](config/comparator.yaml)  
   `reports` = the location of the CyBench reports folder for your repository  
   `method` = the method you would like to use for comparing  
-  `workspace` = (optional) the name of your CyBench workspace   
-  `token` = (optional) your GitHub personal access token for authentication
+  `token` = (optional) your CyBench workspace query access token
 
 #### Comparator Methods
 
