@@ -133,13 +133,13 @@ public final class Comparisons {
 	}
 
 	// percent change grabbing directly from list
-	public static double calculatePerChange(List<Double> scores, double newestScore) {
+	private static double calculatePerChange(List<Double> scores, double newestScore) {
 		double latestScore = scores.get(scores.size() - 1);
 		return 100 * ((newestScore - latestScore) / latestScore);
 	}
 
 	// percent change if you already have the newest and previous score.
-	public static double calculatePerChange(double previousScore, double newestScore) {
+	private static double calculatePerChange(double previousScore, double newestScore) {
 		return 100 * ((newestScore - previousScore) / previousScore);
 	}
 
