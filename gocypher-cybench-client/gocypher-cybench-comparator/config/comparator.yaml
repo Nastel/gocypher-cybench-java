@@ -2,10 +2,9 @@
 
 # reports = location of CyBench reports folder
 
-# workspace = name of CyBench workspace
-
-# token = GitHub personal access token 
-###  Token must have READ:USER privileges ###
+# token = CyBench Access Token with View Permissions
+### Token can be found on the CyBench site by clicking on your username ###
+### Token should be a query token with access to the specific workspace that stores your benchmarks ###
 
 # compare.default = default comparison configurations
 
@@ -29,7 +28,6 @@
 
 
 reports: "reports/"
-workspace: "MY WORKSPACE"
 token: "MY TOKEN"
 
 compare.default:

@@ -18,7 +18,6 @@ public class ConfigHandling {
 
     public static final String DEFAULT_COMPARATOR_CONFIG_PATH = "config/comparator.yaml";
     public static final String DEFAULT_REPORTS_LOCATION = "reports/";
-    public static final String DEFAULT_WORKSPACE = "";
     public static final String DEFAULT_TOKEN = "";
     public static final String IDENTIFIER_HEADER = "compare.";
     public static final String DEFAULT_IDENTIFIER_HEADER = "compare.default";
@@ -82,14 +81,6 @@ public class ConfigHandling {
     }
 
     public static void configHandling(Map<String, Object> comparatorProps) {
-        if (!comparatorProps.containsKey("workspace")) {
-            log.warn("Workspace key not found in config file - will look for benchmarks in public CyBench workspace");
-            comparatorProps.put("workspace", DEFAULT_WORKSPACE);
-        } else {
-            String workspace = (String) comparatorProps.get("workspace");
-            workspace = workspace.replaceAll("\\s", "").concat("$O_k2admin");
-            comparatorProps.put("workspace", workspace);
-        }
         if (!comparatorProps.containsKey("reports")) {
             log.warn("Reports key not found in config file - using default reports location: {}",
                     DEFAULT_REPORTS_LOCATION);
