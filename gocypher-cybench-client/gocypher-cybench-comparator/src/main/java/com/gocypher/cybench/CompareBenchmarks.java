@@ -30,7 +30,7 @@ public class CompareBenchmarks {
         Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
                 .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
         Map<String, String> configuredPackages = ConfigHandling
-                .identifyAndValidifySpecificComparisonConfigs(allConfigs);
+                .identifyAndValidifySpecificConfigs(allConfigs);
 
         File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
         String accessToken = (String) allConfigs.get("token");
@@ -308,7 +308,7 @@ public class CompareBenchmarks {
 	         case SD:
 	        	 scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold, comparePercentage);
          }
-         System.out.println(scoreDiff);
+
          return scoreDiff;
     }
 

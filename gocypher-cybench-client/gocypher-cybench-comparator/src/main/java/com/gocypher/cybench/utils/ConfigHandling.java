@@ -106,12 +106,12 @@ public class ConfigHandling {
             defaultValues.put("threshold", DEFAULT_COMPARE_THRESHOLD);
             comparatorProps.put(DEFAULT_IDENTIFIER_HEADER, defaultValues);
         } else {
-            checkValidValues(DEFAULT_IDENTIFIER_HEADER, comparatorProps);
+        	checkConfigValidity(DEFAULT_IDENTIFIER_HEADER, comparatorProps);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static String checkValidValues(String identifier, Map<String, Object> comparatorProps) {
+    private static String checkConfigValidity(String identifier, Map<String, Object> comparatorProps) {
         String simplifiedIdentifier = identifier.split(IDENTIFIER_HEADER)[1];
         String packageName = null;
         if (comparatorProps.get(identifier) instanceof Map<?, ?>) {
@@ -308,12 +308,12 @@ public class ConfigHandling {
         return packageName;
     }
 
-    public static Map<String, String> identifyAndValidifySpecificComparisonConfigs(
+    public static Map<String, String> identifyAndValidifySpecificConfigs(
             Map<String, Object> comparatorProps) {
         Map<String, String> specificIdentifiers = new HashMap<>();
         for (String identifier : comparatorProps.keySet()) {
             if (identifier.contains(IDENTIFIER_HEADER) && !identifier.equals(DEFAULT_IDENTIFIER_HEADER)) {
-                String packageName = checkValidValues(identifier, comparatorProps);
+                String packageName = checkConfigValidity(identifier, comparatorProps);
                 specificIdentifiers.put(packageName, identifier);
             }
         }
