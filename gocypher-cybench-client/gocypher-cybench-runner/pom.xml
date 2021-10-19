@@ -35,6 +35,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.gocypher.cybench.client</groupId>
+            <artifactId>gocypher-cybench-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
             <version>5.8.2</version>
@@ -49,11 +54,6 @@
                     <groupId>org.javassist</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.gocypher.cybench.client</groupId>
-            <artifactId>gocypher-cybench-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jhardware</groupId>
