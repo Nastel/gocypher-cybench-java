@@ -23,7 +23,7 @@ public final class Comparisons {
 		switch (threshold) {
 		case GREATER:
 			return (calculateSD(scores, stopCounter) > (calculateSD(tempList, stopCounter)));
-		case PERCENT_CHANGE_ALLOWED:
+		case PERCENT_CHANGE:
 			return (calculatePerChange(calculateSD(scores, stopCounter),
 					(calculateSD(tempList, stopCounter))) < comparePercentage);
 		}
@@ -73,7 +73,7 @@ public final class Comparisons {
 		switch (threshold) {
 		case GREATER:
 			return (newestScore > average);
-		case PERCENT_CHANGE_ALLOWED:
+		case PERCENT_CHANGE:
 			return (calculatePerChange(average, newestScore) < comparePercentage);
 		}
 		return false;
@@ -102,7 +102,7 @@ public final class Comparisons {
 		switch (threshold) {
 		case GREATER:
 			return scores.get(totalScores - 1) <= scores.get(totalScores - 2);
-		case PERCENT_CHANGE_ALLOWED:
+		case PERCENT_CHANGE:
 			return calculatePerChange(scores.get(totalScores - 1), scores.get(totalScores - 2)) > comparePercentage;
 		}
 
@@ -148,6 +148,6 @@ public final class Comparisons {
 	}
 
 	public static enum Threshold {
-		PERCENT_CHANGE_ALLOWED, GREATER
+		PERCENT_CHANGE, GREATER
 	}
 }

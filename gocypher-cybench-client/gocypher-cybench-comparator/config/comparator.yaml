@@ -19,12 +19,21 @@
 ### Options {delta, mean, SD, moving_average} ###
 
 # scope = (within or between project versions)
-### Options {within, between} ###
-### {between} will compare the newest version to the previous version ###
-### add {version} to specify which version to compare to, otherwise comparison scope will default to {within} ###
+## Options {within, between} ##
+### {within} will compare all benchmarks within the benchmarked version ###
+### if {between} is chosen, must specify {version} (will compare benchmarked version to the specified version) ###
+    ### add {version} to specify which version to compare to ###
 
-# cpercentage = percentage score should be within in order to pass 
-### ex. 5% means the new score should be within 5% of the previous threshold
+# range = the amount of benchmarks within the scope to compare to
+## Options {last_value, last_5, all_values} ##
+### {last_value} will compare to last value, {last_5} will compare to last 5 values, {all_values} will compare to all values within scope ###
+
+# threshold = how to specify a passing benchmark 
+## Options {percent_change, greater} ##
+### {greater} will check to see if new score is simply greater than the compared to score ###
+### if {percent_change} is chosen, must specify {percentage} ###
+    ### percentage = percentage score should be within in order to pass ###
+    ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
 reports: "reports/"
@@ -32,11 +41,18 @@ token: "MY TOKEN"
 
 compare.default:
     method: "MEAN"
-    percentage: "6"
+    threshold: "greater"
     scope: "BETWEEN"
     version: "1.0.0"
+    range: "last_value"
     
 compare.A:
     method: "DELTA"
     package: "com.my.package"
     scope: "WITHIN"
+    
+compare.B:
+    pacakge: "com.my.other.package"
+    percentage: "6"
+    threshold: "percent_change"
+    
