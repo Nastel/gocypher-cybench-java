@@ -1,5 +1,6 @@
 package com.gocypher.cybench.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class Comparisons {
@@ -7,88 +8,29 @@ public final class Comparisons {
     private Comparisons() {
     }
 
-    public static boolean compareSD(List<Double> scores, int totalScores, double comparePercentage, Range range,
-            Threshold threshold) {
-        int stopCounter = scores.size();
-        List<Double> tempScores = null, tempList = null;
-        switch (range) {
-        case ALL_VALUES:
-            stopCounter = 0;
-            break;
-        case LAST_5:
-            stopCounter -= 6;
-            break;
-        case LAST_VALUE:
-            stopCounter -= 2;
-            break;
-        }
+    public static Double compareSD(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
+            Double comparePercentage) {
+        int stopCounter = getStopCounter(compareScores, range);
+        Double previousSD = (calculateSD(compareScores, stopCounter));
+        compareScores.add(recentScore);
+        Double newSD = (calculateSD(compareScores, stopCounter));
 
         switch (threshold) {
         case GREATER:
-            return (calculateSD(scores, stopCounter) > (calculateSD(tempList, stopCounter)));
-        case PERCENT_CHANGE_ALLOWED:
-            return (calculatePerChange(calculateSD(scores, stopCounter),
-                    (calculateSD(tempList, stopCounter))) < comparePercentage);
+            comparePercentage = null;
+            return newSD - previousSD;
+        case PERCENT_CHANGE:
+            return calculatePerChange(newSD, previousSD);
         }
-        return true;
+        return newSD;
     }
 
-    private static double calculateSD(List<Double> scores, int stopCounter) {
-        int numCounter = 0;
-        double total = 0, average, sDeviate = 0;
-        List<Double> tempScores = null;
-        for (int i = scores.size(); --i >= stopCounter; numCounter++) {
+    private static int getStopCounter(List<Double> compareScores, Range range) {
+        int stopCounter = compareScores.size();
 
-            total += scores.get(i);
-            tempScores.add(scores.get(i));
-        }
-        average = total / numCounter;
-
-        for (double score : tempScores) {
-            sDeviate = Math.pow(score - average, 2);
-        }
-        return sDeviate;
-    }
-
-    public static boolean compareMean(List<Double> scores, int totalScores, double comparePercentage, Range range,
-            Threshold threshold) {
-        double average = 0;
-        double newestScore = scores.get(scores.size() - 1);
-        int stopCounter = scores.size();
-        int totalCounter = 0;
-        switch (range) {
-        case ALL_VALUES:
-            stopCounter = 0;
-            break;
-        case LAST_VALUE:
-            stopCounter -= 2;
-            break;
-        case LAST_5:
-            stopCounter -= 6;
-            break;
-        }
-
-        for (int scoreIndex = scores.size(); scoreIndex >= stopCounter; scoreIndex--, totalCounter++) {
-            average += scores.get(scoreIndex);
-        }
-        if (totalCounter != 0) {
-            average /= (totalCounter);
-        }
-        switch (threshold) {
-        case GREATER:
-            return (newestScore > average);
-        case PERCENT_CHANGE_ALLOWED:
-            return (calculatePerChange(average, newestScore) < comparePercentage);
-        }
-        return false;
-    }
-
-    public static boolean compareDelta(List<Double> scores, int totalScores, double comparePercentage, Range range,
-            Threshold threshold) {
-        int stopCounter = scores.size();
         /*
          * This switch case isn't used yet, as not sure how Delta should be compared with 3 or more scores.
-         * 
+         *
          * Possibly: log/print the change in delta that occurred in each test? Compare delta of the newest score and an
          * older, specific score? (e.g. return scores.get(totalScores-1) <= scores.get(stopCounter);)
          */
@@ -97,21 +39,52 @@ public final class Comparisons {
             stopCounter = 0;
             break;
         case LAST_5:
-            stopCounter -= 6;
+            stopCounter -= 5;
             break;
         case LAST_VALUE:
-            stopCounter -= 2;
+        default:
             break;
         }
+
+        return stopCounter;
+    }
+
+    public static Double compareMean(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
+            Double comparePercentage) {
+        Double average = 0.0;
+        int stopCounter = getStopCounter(compareScores, range);
+        int totalCounter = 0;
+
+        for (int scoreIndex = compareScores.size(); scoreIndex >= stopCounter; scoreIndex--, totalCounter++) {
+            average += compareScores.get(scoreIndex);
+        }
+        if (totalCounter != 0) {
+            average /= (totalCounter);
+        }
+        switch (threshold) {
+        case GREATER:
+            comparePercentage = null;
+            return (recentScore - average);
+        case PERCENT_CHANGE:
+            return (calculatePerChange(average, recentScore));
+        }
+        return average;
+    }
+
+    public static Double compareDelta(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
+            Double comparePercentage) {
+        int stopCounter = getStopCounter(compareScores, range);
+        Double lastScoreFromPrevious = compareScores.get(compareScores.size() - 1); // gets the latest score
 
         switch (threshold) {
         case GREATER:
-            return scores.get(totalScores - 1) <= scores.get(totalScores - 2);
-        case PERCENT_CHANGE_ALLOWED:
-            return calculatePerChange(scores.get(totalScores - 1), scores.get(totalScores - 2)) > comparePercentage;
+            comparePercentage = null;
+            return (recentScore - lastScoreFromPrevious);
+        case PERCENT_CHANGE:
+            return calculatePerChange(recentScore, lastScoreFromPrevious);
         }
 
-        return scores.get(totalScores - 1) <= scores.get(totalScores - 2);
+        return (recentScore - compareScores.get(compareScores.size() - 1));
     }
 
     /**
@@ -140,19 +113,37 @@ public final class Comparisons {
      * </pre>
      */
 
+    private static Double calculateSD(List<Double> scores, int stopCounter) {
+        int numCounter = 0;
+        double total = 0.0, average, sDeviate = 0.0;
+        List<Double> tempScores = new ArrayList<>();
+
+        for (int i = scores.size() - 1; i >= stopCounter; i--) {
+            total += scores.get(i);
+            tempScores.add(scores.get(i));
+            numCounter++;
+        }
+        average = total / numCounter;
+
+        for (Double score : tempScores) {
+            sDeviate += Math.pow(score - average, 2);
+        }
+        return Math.sqrt(sDeviate / numCounter);
+    }
+
     // percent change grabbing directly from list
-    public static double calculatePerChange(List<Double> scores, double newestScore) {
-        double latestScore = scores.get(scores.size() - 1);
+    private static Double calculatePerChange(List<Double> scores, Double newestScore) {
+        Double latestScore = scores.get(scores.size() - 1);
         return 100 * ((newestScore - latestScore) / latestScore);
     }
 
     // percent change if you already have the newest and previous score.
-    public static double calculatePerChange(double previousScore, double newestScore) {
+    private static Double calculatePerChange(Double previousScore, Double newestScore) {
         return 100 * ((newestScore - previousScore) / previousScore);
     }
 
     public static enum Method {
-        MEAN, DELTA, SD, MOVING_AVERAGE
+        MEAN, DELTA, SD
     }
 
     public static enum Scope {
@@ -164,6 +155,6 @@ public final class Comparisons {
     }
 
     public static enum Threshold {
-        PERCENT_CHANGE_ALLOWED, GREATER
+        PERCENT_CHANGE, GREATER
     }
 }
