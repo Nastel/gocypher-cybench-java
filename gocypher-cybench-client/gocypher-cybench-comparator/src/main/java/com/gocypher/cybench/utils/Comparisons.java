@@ -157,7 +157,7 @@ public final class Comparisons {
 		return stopCounter;
 	}
 
-//    public static Double compareSD(List<Double> compareScores, Double recentScore, Range range, Threshold threshold) {
+//	public static Double compareSD(List<Double> compareScores, Double recentScore, Range range, Threshold threshold) {
 //        int stopCounter = getStopCounter(compareScores, range);
 //        Double previousSD = (calculateSD(compareScores, stopCounter));
 //        compareScores.add(recentScore);
@@ -167,12 +167,34 @@ public final class Comparisons {
 //        case GREATER:
 //            return newSD - previousSD;
 //        case PERCENT_CHANGE:
-//            return calculatePercentChange(newSD, previousSD);
+//            return calculatePerChange(newSD, previousSD);
 //        }
 //        return newSD;
 //    }
 //
-//    
+//    private static int getStopCounter(List<Double> compareScores, Range range) {
+//        int stopCounter = compareScores.size();
+//
+//        /*
+//         * This switch case isn't used yet, as not sure how Delta should be compared with 3 or more scores.
+//         *
+//         * Possibly: log/print the change in delta that occurred in each test? Compare delta of the newest score and an
+//         * older, specific score? (e.g. return scores.get(totalScores-1) <= scores.get(stopCounter);)
+//         */
+//        switch (range) {
+//        case ALL_VALUES:
+//            stopCounter = 0;
+//            break;
+//        case LAST_5:
+//            stopCounter -= 5;
+//            break;
+//        case LAST_VALUE:
+//        default:
+//            break;
+//        }
+//
+//        return stopCounter;
+//    }
 //
 //    public static Double compareMean(List<Double> compareScores, Double recentScore, Range range, Threshold threshold) {
 //        Double average = 0.0;
@@ -189,12 +211,24 @@ public final class Comparisons {
 //        case GREATER:
 //            return (recentScore - average);
 //        case PERCENT_CHANGE:
-//            return (calculatePercentChange(average, recentScore));
+//            return (calculatePerChange(average, recentScore));
 //        }
 //        return average;
 //    }
 //
-//    
+//    public static Double compareDelta(List<Double> compareScores, Double recentScore, Range range, Threshold threshold) {
+//        int stopCounter = getStopCounter(compareScores, range);
+//        Double lastScoreFromPrevious = compareScores.get(compareScores.size() - 1); // gets the latest score
+//
+//        switch (threshold) {
+//        case GREATER:
+//            return (recentScore - lastScoreFromPrevious);
+//        case PERCENT_CHANGE:
+//            return calculatePerChange(recentScore, lastScoreFromPrevious);
+//        }
+//
+//        return (recentScore - compareScores.get(compareScores.size() - 1));
+//    }
 //
 //    /**
 //     * NOTE: Not sure if 'calculate5MA' is still necessary, as it can be achieved by calling compareMean with a LAST_5
@@ -241,11 +275,19 @@ public final class Comparisons {
 //    }
 //
 //    // percent change grabbing directly from list
-//    private static Double calculatePercentChange(List<Double> scores, Double newestScore) {
+//    private static Double calculatePerChange(List<Double> scores, Double newestScore) {
 //        Double latestScore = scores.get(scores.size() - 1);
 //        return 100 * ((newestScore - latestScore) / latestScore);
 //    }
 //
+//    // percent change if you already have the newest and previous score.
+//    private static Double calculatePerChange(Double previousScore, Double newestScore) {
+//        return 100 * ((newestScore - previousScore) / previousScore);
+//    }
+//	
+//	public static enum Range {
+//        ALL_VALUES, LAST_VALUE, LAST_5
+//    }
 
 	public static enum Method {
 		MEAN, DELTA, SD
