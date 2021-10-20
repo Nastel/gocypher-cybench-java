@@ -279,11 +279,11 @@ public class CompareBenchmarks {
 						"{} - {}: There are no benchmarks for the specified compare version ({}), will perform WITHIN VERSION comparisons",
 						benchmarkName, benchmarkMode, compareVersion);
 				compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
-				compareVersion = benchmarkVersion;
 			}
 		}
 
 		if (compareScope.equals(Comparisons.Scope.WITHIN)) {
+			compareVersion = benchmarkVersion;
 			if (benchmarkVersionScores.size() <= 1) {
 				log.warn("{} - {}: There are no previously tested benchmarks within the version ({})", benchmarkName,
 						benchmarkMode, benchmarkVersion);
