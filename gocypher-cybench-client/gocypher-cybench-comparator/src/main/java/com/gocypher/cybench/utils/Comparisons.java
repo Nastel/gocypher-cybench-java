@@ -8,8 +8,7 @@ public final class Comparisons {
     private Comparisons() {
     }
 
-    public static Double compareSD(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
-            Double comparePercentage) {
+    public static Double compareSD(List<Double> compareScores, Double recentScore, Range range, Threshold threshold) {
         int stopCounter = getStopCounter(compareScores, range);
         Double previousSD = (calculateSD(compareScores, stopCounter));
         compareScores.add(recentScore);
@@ -17,7 +16,6 @@ public final class Comparisons {
 
         switch (threshold) {
         case GREATER:
-            comparePercentage = null;
             return newSD - previousSD;
         case PERCENT_CHANGE:
             return calculatePerChange(newSD, previousSD);
@@ -49,8 +47,7 @@ public final class Comparisons {
         return stopCounter;
     }
 
-    public static Double compareMean(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
-            Double comparePercentage) {
+    public static Double compareMean(List<Double> compareScores, Double recentScore, Range range, Threshold threshold) {
         Double average = 0.0;
         int stopCounter = getStopCounter(compareScores, range);
         int totalCounter = 0;
@@ -63,7 +60,6 @@ public final class Comparisons {
         }
         switch (threshold) {
         case GREATER:
-            comparePercentage = null;
             return (recentScore - average);
         case PERCENT_CHANGE:
             return (calculatePerChange(average, recentScore));
@@ -71,14 +67,12 @@ public final class Comparisons {
         return average;
     }
 
-    public static Double compareDelta(List<Double> compareScores, Double recentScore, Range range, Threshold threshold,
-            Double comparePercentage) {
+    public static Double compareDelta(List<Double> compareScores, Double recentScore, Range range, Threshold threshold) {
         int stopCounter = getStopCounter(compareScores, range);
         Double lastScoreFromPrevious = compareScores.get(compareScores.size() - 1); // gets the latest score
 
         switch (threshold) {
         case GREATER:
-            comparePercentage = null;
             return (recentScore - lastScoreFromPrevious);
         case PERCENT_CHANGE:
             return calculatePerChange(recentScore, lastScoreFromPrevious);

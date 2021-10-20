@@ -134,15 +134,23 @@ public class CompareBenchmarks {
                         }
 
                         Double scoreDiff = passedBenchmark(benchmarkName, benchmarkFingerprint, benchmarkVersion,
-                                benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
-                                comparePercentage, compareVersion);
+                                benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold, compareVersion);
 
-                        if (scoreDiff >= 0)
+                        boolean pass = true;
+                        
+                        if(compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0 && Math.abs(scoreDiff) > comparePercentage) {
+                        	pass = false;
+                        } else if (!compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0) {
+                        	pass = false;
+                        }
+                        
+                        if (pass)
                         	totalPassedBenchmarks++;
                         else
                         	totalFailedBenchmarks++;
                         
-                        addPassFailBenchData(scoreDiff >= 0 ? passedBenchmarks : failedBenchmarks, scoreDiff,
+                        
+                        addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, scoreDiff,
                                 benchmarkName, benchmarkVersion, benchmarkMode, score, compareMethod, compareScope,
                                 compareRange, compareThreshold, comparePercentage, compareVersion);
                     } else {
@@ -271,8 +279,7 @@ public class CompareBenchmarks {
 
     private static Double passedBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
             String benchmarkMode, Comparisons.Method compareMethod, Comparisons.Scope compareScope,
-            Comparisons.Range compareRange, Comparisons.Threshold compareThreshold, Double comparePercentage,
-            String compareVersion) {
+            Comparisons.Range compareRange, Comparisons.Threshold compareThreshold, String compareVersion) {
 
         Double scoreDiff = 0.0;
 
@@ -302,16 +309,13 @@ public class CompareBenchmarks {
 
         switch (compareMethod) {
         case MEAN:
-            scoreDiff = Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold,
-                    comparePercentage);
+            scoreDiff = Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold);
             break;
         case DELTA:
-            scoreDiff = Comparisons.compareDelta(compareVersionScores, recentScore, compareRange, compareThreshold,
-                    comparePercentage);
+            scoreDiff = Comparisons.compareDelta(compareVersionScores, recentScore, compareRange, compareThreshold);
             break;
         case SD:
-            scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold,
-                    comparePercentage);
+            scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold);
             break;
         }
         
