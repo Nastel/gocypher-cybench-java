@@ -34,7 +34,7 @@ public final class Comparisons {
 			return 0.0;
 		} else {
 			if (stopCounter == size) {
-				return scores.get(size - 1) - scores.get(size - 2);
+				return scores.get(size - 1);
 			} else {
 				List<Double> deltas = new ArrayList<>();
 				for (int i = size - 1; i > stopCounter; i--) {
@@ -71,7 +71,7 @@ public final class Comparisons {
 			return 0.0;
 		} else {
 			if (stopCounter == size) {
-				return calculateMean(scores.subList(0, size - 1)) - calculateMean(scores.subList(0, size - 2));
+				return calculateMean(scores.subList(0, size - 1));
 			} else {
 				List<Double> means = new ArrayList<>();
 				for (int i = size; i > stopCounter; i--) {
@@ -108,7 +108,7 @@ public final class Comparisons {
 			return 0.0;
 		} else {
 			if (stopCounter == size) {
-				return calculateSD(scores.subList(0, size - 1)) - calculateSD(scores.subList(0, size - 2));
+				return calculateSD(scores.subList(0, size - 1));
 			} else {
 				List<Double> deviations = new ArrayList<>();
 				for (int i = size; i > stopCounter; i--) {
