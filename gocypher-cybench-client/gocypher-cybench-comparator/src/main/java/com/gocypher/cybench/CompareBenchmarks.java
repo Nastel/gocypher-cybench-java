@@ -295,10 +295,10 @@ public class CompareBenchmarks {
 			}
 		}
 
-		if (!compareTrend.equals(Comparisons.Trend.LAST_5)) {
+		if (compareTrend.equals(Comparisons.Trend.LAST_5)) {
 			if (benchmarkVersionScores.size() < 5 || compareVersionScores.size() < 5) {
 				log.warn(
-						"{} - {}: There are less than five benchmarks in either the benchmarked version ({}) or the specified compare version ({}), will perform comparisons with as many benchmarks as possible",
+						"{} - {}: Specified Trend: LAST_5 but there are less than five benchmarks in either the benchmarked version ({}) or the specified compare version ({}) - will perform comparisons with as many benchmarks as possible",
 						benchmarkName, benchmarkMode, benchmarkVersion, compareVersion);
 				compareTrend = Comparisons.Trend.ALL_VALUES;
 			}
