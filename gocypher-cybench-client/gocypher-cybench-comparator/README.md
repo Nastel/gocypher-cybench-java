@@ -177,7 +177,7 @@ compare.A:
     <project>
         <profiles>
             <profile>
-                <id>test-2-bench</id>
+                <id>compareBenchmarks</id>
                 <!-- @@@ Maven central snapshots repository to get dependency artifacts snapshot releases @@@ -->
                 <repositories>
                     <repository>
@@ -272,9 +272,9 @@ compare.A:
     <comp.class.args>cfg=config/comparator.yaml</comp.class.args>
     ```
 
-* Step 2: run your Maven script with `test-2-bench` profile enabled:
+* Step 2: run your Maven script with `compareBenchmarks` profile enabled:
     ```cmd
-    mvn clean verify -f pom.xml -P test-2-bench 
+    mvn clean verify -f pom.xml -P compareBenchmarks 
     ```
 
   **Note:**
