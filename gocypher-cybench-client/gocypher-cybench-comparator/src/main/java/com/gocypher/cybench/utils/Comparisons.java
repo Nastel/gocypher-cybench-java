@@ -8,10 +8,10 @@ public final class Comparisons {
 	private Comparisons() {
 	}
 
-	public static Double compareDelta(List<Double> newScores, List<Double> compareScores, Range range,
-			Threshold threshold) {
-		int newScoresStopCounter = getStopCounter(newScores, range);
-		int compareScoresStopCounter = getStopCounter(compareScores, range);
+	public static Double compareDelta(List<Double> newScores, List<Double> compareScores, Threshold threshold,
+			Trend trend) {
+		int newScoresStopCounter = getStopCounter(newScores, trend);
+		int compareScoresStopCounter = getStopCounter(compareScores, trend);
 
 		Double newTrend = calculateDeltaTrend(newScores, newScoresStopCounter);
 		Double compareTrend = calculateDeltaTrend(compareScores, compareScoresStopCounter);
@@ -45,10 +45,10 @@ public final class Comparisons {
 		}
 	}
 	
-	public static Double compareMean(List<Double> newScores, List<Double> compareScores, Range range,
-			Threshold threshold) {
-		int newScoresStopCounter = getStopCounter(newScores, range);
-		int compareScoresStopCounter = getStopCounter(compareScores, range);
+	public static Double compareMean(List<Double> newScores, List<Double> compareScores, Threshold threshold,
+			Trend trend) {
+		int newScoresStopCounter = getStopCounter(newScores, trend);
+		int compareScoresStopCounter = getStopCounter(compareScores, trend);
 
 		Double newTrend = calculateMeanTrend(newScores, newScoresStopCounter);
 		Double compareTrend = calculateMeanTrend(compareScores, compareScoresStopCounter);
@@ -82,10 +82,10 @@ public final class Comparisons {
 		}
 	}
 	
-	public static Double compareSD(List<Double> newScores, List<Double> compareScores, Range range,
-			Threshold threshold) {
-		int newScoresStopCounter = getStopCounter(newScores, range);
-		int compareScoresStopCounter = getStopCounter(compareScores, range);
+	public static Double compareSD(List<Double> newScores, List<Double> compareScores, Threshold threshold,
+			Trend trend) {
+		int newScoresStopCounter = getStopCounter(newScores, trend);
+		int compareScoresStopCounter = getStopCounter(compareScores, trend);
 
 		Double newTrend = calculateSDTrend(newScores, newScoresStopCounter);
 		Double compareTrend = calculateSDTrend(compareScores, compareScoresStopCounter);
@@ -142,10 +142,10 @@ public final class Comparisons {
 		return 100 * ((newTrend - compareTrend) / compareTrend);
 	}
 
-	private static int getStopCounter(List<Double> scores, Range range) {
+	private static int getStopCounter(List<Double> scores, Trend trend) {
 		int stopCounter = scores.size();
 
-		switch (range) {
+		switch (trend) {
 		case ALL_VALUES:
 			stopCounter = 0;
 			break;
@@ -255,8 +255,8 @@ public final class Comparisons {
 		WITHIN, BETWEEN
 	}
 
-	public static enum Range {
-		ALL_VALUES, LAST_VALUE, LAST_5
+	public static enum Trend {
+		ALL_VALUES, LAST_5, NONE
 	}
 
 	public static enum Threshold {

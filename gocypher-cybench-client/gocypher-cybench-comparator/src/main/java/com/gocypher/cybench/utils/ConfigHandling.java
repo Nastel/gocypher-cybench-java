@@ -23,7 +23,7 @@ public class ConfigHandling {
     public static final String DEFAULT_IDENTIFIER_HEADER = "compare.default";
     public static final Comparisons.Method DEFAULT_COMPARE_METHOD = Comparisons.Method.DELTA;
     public static final Comparisons.Scope DEFAULT_COMPARE_SCOPE = Comparisons.Scope.WITHIN;
-    public static final Comparisons.Range DEFAULT_COMPARE_RANGE = Comparisons.Range.LAST_VALUE;
+    public static final Comparisons.Trend DEFAULT_COMPARE_TREND = Comparisons.Trend.NONE;
     public static final Comparisons.Threshold DEFAULT_COMPARE_THRESHOLD = Comparisons.Threshold.GREATER;
     public static final Double DEFAULT_COMPARE_PERCENTAGE = 5.0;
     public static final String DEFAULT_COMPARE_VERSION = null;
@@ -97,12 +97,12 @@ public class ConfigHandling {
                 || !(comparatorProps.get(DEFAULT_IDENTIFIER_HEADER) instanceof Map<?, ?>)) {
             log.error(
                     "Default compare values not configured properly, check the example comparator.yaml on the Cybench Wiki");
-            log.warn("Using predefined defaults (method: {}, scope: {}, range: {}, threshold: {})",
-                    DEFAULT_COMPARE_METHOD, DEFAULT_COMPARE_SCOPE, DEFAULT_COMPARE_RANGE, DEFAULT_COMPARE_THRESHOLD);
+            log.warn("Using predefined defaults (method: {}, scope: {}, trend: {}, threshold: {})",
+                    DEFAULT_COMPARE_METHOD, DEFAULT_COMPARE_SCOPE, DEFAULT_COMPARE_TREND, DEFAULT_COMPARE_THRESHOLD);
             Map<String, Object> defaultValues = new HashMap<>();
             defaultValues.put("method", DEFAULT_COMPARE_METHOD);
             defaultValues.put("scope", DEFAULT_COMPARE_SCOPE);
-            defaultValues.put("range", DEFAULT_COMPARE_RANGE);
+            defaultValues.put("trend", DEFAULT_COMPARE_TREND);
             defaultValues.put("threshold", DEFAULT_COMPARE_THRESHOLD);
             comparatorProps.put(DEFAULT_IDENTIFIER_HEADER, defaultValues);
         } else {
@@ -120,7 +120,7 @@ public class ConfigHandling {
 
             Comparisons.Method defaultMethod = DEFAULT_COMPARE_METHOD;
             Comparisons.Scope defaultScope = DEFAULT_COMPARE_SCOPE;
-            Comparisons.Range defaultRange = DEFAULT_COMPARE_RANGE;
+            Comparisons.Trend defaultTrend = DEFAULT_COMPARE_TREND;
             Comparisons.Threshold defaultThreshold = DEFAULT_COMPARE_THRESHOLD;
             Double defaultPercentage = DEFAULT_COMPARE_PERCENTAGE;
             String defaultVersion = DEFAULT_COMPARE_VERSION;
@@ -132,8 +132,8 @@ public class ConfigHandling {
                 if (defaultVals.containsKey("scope")) {
                     defaultScope = (Comparisons.Scope) defaultVals.get("scope");
                 }
-                if (defaultVals.containsKey("range")) {
-                    defaultRange = (Comparisons.Range) defaultVals.get("range");
+                if (defaultVals.containsKey("trend")) {
+                    defaultTrend = (Comparisons.Trend) defaultVals.get("trend");
                 }
                 if (defaultVals.containsKey("threshold")) {
                     defaultThreshold = (Comparisons.Threshold) defaultVals.get("threshold");
@@ -161,19 +161,19 @@ public class ConfigHandling {
                 compareVals.put("method", methodEnum);
             }
 
-            if (!compareVals.containsKey("range")) {
-                log.warn("'{}': Range not defined, will use: {}", simplifiedIdentifier, defaultRange);
-                compareVals.put("range", defaultRange);
+            if (!compareVals.containsKey("trend")) {
+                log.warn("'{}': Trend not defined, will use: {}", simplifiedIdentifier, defaultTrend);
+                compareVals.put("trend", defaultTrend);
             } else {
-                String range = (String) compareVals.get("range");
-                range = range.toUpperCase();
-                if (!EnumUtils.isValidEnum(Comparisons.Range.class, range)) {
-                    log.warn("'{}': '{}' found in config file is not a valid comparison range - will use: {}",
-                            simplifiedIdentifier, range, defaultRange);
-                    range = defaultRange.toString();
+                String trend = (String) compareVals.get("trend");
+                trend = trend.toUpperCase();
+                if (!EnumUtils.isValidEnum(Comparisons.Trend.class, trend)) {
+                    log.warn("'{}': '{}' found in config file is not a valid comparison trend - will use: {}",
+                            simplifiedIdentifier, trend, defaultTrend);
+                    trend = defaultTrend.toString();
                 }
-                Comparisons.Range rangeEnum = Comparisons.Range.valueOf(range);
-                compareVals.put("range", rangeEnum);
+                Comparisons.Trend trendEnum = Comparisons.Trend.valueOf(trend);
+                compareVals.put("trend", trendEnum);
             }
 
             if (!compareVals.containsKey("scope")) {
