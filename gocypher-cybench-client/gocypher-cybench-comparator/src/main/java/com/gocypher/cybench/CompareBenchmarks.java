@@ -20,6 +20,11 @@ import com.gocypher.cybench.utils.ConfigHandling;
 
 public class CompareBenchmarks {
     private static final Logger log = LoggerFactory.getLogger(CompareBenchmarks.class);
+    private static Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
+    private static int totalPassedBenchmarks;
+    private static Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
+    private static int totalFailedBenchmarks;
+    private static Map<String, String> namesToFingerprints = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public static void main(String... args) throws Exception {
@@ -49,13 +54,9 @@ public class CompareBenchmarks {
     private static void analyzeBenchmarks(File recentReport, String accessToken, Map<String, Object> defaultConfigs,
             Map<String, String> configuredPackages, Map<String, Object> allConfigs) throws Exception {
         // < BenchmarkName, < BenchmarkVersion, < BenchmarkMode, < Data >>>
-        Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
-        Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
-        Map<String, String> namesToFingerprints = new HashMap<>();
+        
         JSONObject benchmarkReport = null;
         int totalComparedBenchmarks = 0;
-        int totalPassedBenchmarks = 0;
-        int totalFailedBenchmarks = 0;
         boolean failFetch = false;
         try {
             String str = FileUtils.readFileToString(recentReport, "UTF-8");
@@ -86,7 +87,7 @@ public class CompareBenchmarks {
                     JSONObject benchmark = (JSONObject) packageBenchmark;
                     String benchmarkName = (String) benchmark.get("name");
                     String benchmarkVersion = (String) benchmark.get("version");
-                    Double score = (Double) benchmark.get("score");
+                    Double benchmarkScore = (Double) benchmark.get("score");
                     String benchmarkMode = (String) benchmark.get("mode");
                     String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
                     namesToFingerprints.put(benchmarkName, benchmarkFingerprint);
@@ -96,7 +97,7 @@ public class CompareBenchmarks {
                         if (reportID != null && !Requests.getReports().contains(reportID)) {
                             Map<String, Map<String, List<Double>>> benchTable = Requests
                                     .getBenchmarks(benchmarkFingerprint);
-                            Requests.storeBenchmarkData(benchTable, benchmarkMode, benchmarkVersion, score);
+                            Requests.storeBenchmarkData(benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
                         }
 
                         Comparisons.Method compareMethod = (Comparisons.Method) defaultConfigs.get("method");
@@ -115,37 +116,15 @@ public class CompareBenchmarks {
                                 compareScope = (Comparisons.Scope) specificConfigs.get("scope");
                                 compareRange = (Comparisons.Range) specificConfigs.get("range");
                                 compareThreshold = (Comparisons.Threshold) specificConfigs.get("threshold");
-                                comparePercentage = (Double) specificConfigs.get("percentage");
                                 compareVersion = (String) specificConfigs.get("version");
+                                comparePercentage = (Double) specificConfigs.get("percentage");
                                 break;
                             }
                         }
-
-                        if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
-                            if (benchmarkVersion.equals(compareVersion)) {
-                                log.warn(
-                                        "{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
-                                        benchmarkName, benchmarkMode, compareVersion, benchmarkVersion);
-                                compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
-                            }
-                        } else {
-                            // Using WITHIN comparison, doesn't matter what the specified compareVersion was, the
-                            // version compared to will be the benchmarkVersion
-                            compareVersion = benchmarkVersion;
-                        }
-
-                        Double scoreDiff = getScoreDifference(benchmarkName, benchmarkFingerprint, benchmarkVersion,
-                                benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold, compareVersion);
-
-                        boolean pass = passedBenchmark(scoreDiff, compareThreshold, comparePercentage);
-                        if (pass)
-                        	totalPassedBenchmarks++;
-                        else
-                        	totalFailedBenchmarks++;
                         
-                        addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, scoreDiff,
-                                benchmarkName, benchmarkVersion, benchmarkMode, score, compareMethod, compareScope,
-                                compareRange, compareThreshold, comparePercentage, compareVersion);
+                        compareBenchmark(benchmarkName, benchmarkFingerprint, benchmarkVersion,
+                                benchmarkMode, benchmarkScore, compareMethod, compareScope, compareRange, compareThreshold, compareVersion, comparePercentage);
+     
                     } else {
                         failFetch = true;
                         break;
@@ -270,9 +249,9 @@ public class CompareBenchmarks {
         }
     }
 
-    private static Double getScoreDifference(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
-            String benchmarkMode, Comparisons.Method compareMethod, Comparisons.Scope compareScope,
-            Comparisons.Range compareRange, Comparisons.Threshold compareThreshold, String compareVersion) {
+    private static boolean compareBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
+            String benchmarkMode, Double benchmarkScore, Comparisons.Method compareMethod, Comparisons.Scope compareScope,
+            Comparisons.Range compareRange, Comparisons.Threshold compareThreshold, String compareVersion, Double comparePercentage) {
 
         Double scoreDiff = 0.0;
 
@@ -282,21 +261,30 @@ public class CompareBenchmarks {
         // default the comparison scores to the current version without the newly added benchmark
         List<Double> compareVersionScores = new ArrayList<>(currentVersionScores);
         compareVersionScores.remove(currentVersionScores.size()-1);
+        
 
         if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
-            if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(compareVersion)
+        	if (benchmarkVersion.equals(compareVersion)) {
+                log.warn(
+                        "{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
+                        benchmarkName, benchmarkMode, compareVersion, benchmarkVersion);
+                compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
+            } else if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(compareVersion)
                     && Requests.getBenchmarks(benchmarkFingerprint, compareVersion).containsKey(benchmarkMode)) {
                 compareVersionScores = Requests.getBenchmarks(benchmarkFingerprint, compareVersion, benchmarkMode);
             } else {
-                log.warn("{} - {}: There are no benchmarks for the specified compare version ({})", benchmarkName,
+                log.warn("{} - {}: There are no benchmarks for the specified compare version ({}), will perform WITHIN VERSION comparisons", benchmarkName,
                         benchmarkMode, compareVersion);
-                return scoreDiff;
+                compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
+                compareVersion = benchmarkVersion;
             }
-        } else if (compareScope.equals(Comparisons.Scope.WITHIN)) {
+        }
+        
+        if (compareScope.equals(Comparisons.Scope.WITHIN)) {
             if (currentVersionScores.size() <= 1) {
                 log.warn("{} - {}: There are no previously tested benchmarks within the version ({})", benchmarkName,
                         benchmarkMode, benchmarkVersion);
-                return scoreDiff;
+                return false;
             }
         }
 
@@ -312,7 +300,19 @@ public class CompareBenchmarks {
 //            break;
         }
         
-        return scoreDiff;
+       
+
+        boolean pass = passedBenchmark(scoreDiff, compareThreshold, comparePercentage);
+        if (pass)
+        	totalPassedBenchmarks++;
+        else
+        	totalFailedBenchmarks++;
+        
+        addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, scoreDiff,
+                benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareMethod, compareScope,
+                compareRange, compareThreshold, comparePercentage, compareVersion);
+        
+        return true;
     }
     
     private static boolean passedBenchmark(Double scoreDiff, Comparisons.Threshold compareThreshold, Double comparePercentage) {

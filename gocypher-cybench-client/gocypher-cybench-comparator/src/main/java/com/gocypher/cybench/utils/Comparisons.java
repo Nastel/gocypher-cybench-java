@@ -13,14 +13,8 @@ public final class Comparisons {
 		int newScoresStopCounter = getStopCounter(newScores, range);
 		int compareScoresStopCounter = getStopCounter(compareScores, range);
 
-		System.out.println("new scores: " + newScores);
-		System.out.println("com scores: " + compareScores);
-
 		Double newTrend = calculateDeltaTrend(newScores, newScoresStopCounter);
 		Double compareTrend = calculateDeltaTrend(compareScores, compareScoresStopCounter);
-
-		System.out.println("new trend: " + newTrend);
-		System.out.println("com trend: " + compareTrend);
 
 		switch (threshold) {
 		case GREATER:
