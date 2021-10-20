@@ -52,8 +52,8 @@ public final class Comparisons {
         int stopCounter = getStopCounter(compareScores, range);
         int totalCounter = 0;
 
-        for (int scoreIndex = compareScores.size(); scoreIndex >= stopCounter; scoreIndex--, totalCounter++) {
-            average += compareScores.get(scoreIndex-1);
+        for (int scoreIndex = compareScores.size()-1; scoreIndex >= stopCounter; scoreIndex--, totalCounter++) {
+            average += compareScores.get(scoreIndex);
         }
         if (totalCounter != 0) {
             average /= (totalCounter);
