@@ -309,13 +309,16 @@ public class CompareBenchmarks {
 			scoreDiff = Comparisons.compareDelta(benchmarkVersionScores, compareVersionScores, compareRange,
 					compareThreshold);
 			break;
-//        case MEAN:
-//            scoreDiff = Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold);
-//            break;
-//        case SD:
-//            scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold);
-//            break;
+        case MEAN:
+            scoreDiff = Comparisons.compareMean(benchmarkVersionScores, compareVersionScores, compareRange,
+					compareThreshold);
+            break;
+        case SD:
+            scoreDiff = Comparisons.compareSD(benchmarkVersionScores, compareVersionScores, compareRange,
+					compareThreshold);
+            break;
 		}
+		
 
 		boolean pass = passedBenchmark(scoreDiff, compareThreshold, comparePercentage);
 		if (pass)

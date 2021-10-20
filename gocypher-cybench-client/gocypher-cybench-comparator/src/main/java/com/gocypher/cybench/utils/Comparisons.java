@@ -26,6 +26,8 @@ public final class Comparisons {
 		}
 	}
 
+	// returns average delta after calculating delta at each point in the list
+	// if range = LAST_VALUE : returns recentScore - previousScore
 	public static Double calculateDeltaTrend(List<Double> scores, int stopCounter) {
 		int size = scores.size();
 		if (size < 2) {
@@ -34,15 +36,106 @@ public final class Comparisons {
 			if (stopCounter == size) {
 				return scores.get(size - 1) - scores.get(size - 2);
 			} else {
-				Double average = 0.0;
-				int count = 0;
+				List<Double> deltas = new ArrayList<>();
 				for (int i = size - 1; i > stopCounter; i--) {
-					average += (scores.get(i) - scores.get(i - 1));
-					count++;
+					deltas.add(scores.get(i) - scores.get(i - 1));
 				}
-				return average / count;
+				return calculateMean(deltas);
 			}
 		}
+	}
+	
+	public static Double compareMean(List<Double> newScores, List<Double> compareScores, Range range,
+			Threshold threshold) {
+		int newScoresStopCounter = getStopCounter(newScores, range);
+		int compareScoresStopCounter = getStopCounter(compareScores, range);
+
+		Double newTrend = calculateMeanTrend(newScores, newScoresStopCounter);
+		Double compareTrend = calculateMeanTrend(compareScores, compareScoresStopCounter);
+		
+		switch (threshold) {
+			case GREATER:
+				return newTrend - compareTrend;
+			case PERCENT_CHANGE:
+				return calculatePercentChange(newTrend, compareTrend);
+			default:
+				return null;
+		}
+	}
+		
+	// returns average mean after calculating mean at each point in the list
+	// if range = LAST_VALUE : returns mean of list including recentScore - mean of list not including recentScore
+	public static Double calculateMeanTrend(List<Double> scores, int stopCounter) {
+		int size = scores.size();
+		if (size < 2) {
+			return 0.0;
+		} else {
+			if (stopCounter == size) {
+				return calculateMean(scores.subList(0, size - 1)) - calculateMean(scores.subList(0, size - 2));
+			} else {
+				List<Double> means = new ArrayList<>();
+				for (int i = size; i > stopCounter; i--) {
+					means.add(calculateMean(scores.subList(stopCounter, i)));
+				}
+				return calculateMean(means);
+			}
+		}
+	}
+	
+	public static Double compareSD(List<Double> newScores, List<Double> compareScores, Range range,
+			Threshold threshold) {
+		int newScoresStopCounter = getStopCounter(newScores, range);
+		int compareScoresStopCounter = getStopCounter(compareScores, range);
+
+		Double newTrend = calculateSDTrend(newScores, newScoresStopCounter);
+		Double compareTrend = calculateSDTrend(compareScores, compareScoresStopCounter);
+		
+		switch (threshold) {
+			case GREATER:
+				return newTrend - compareTrend;
+			case PERCENT_CHANGE:
+				return calculatePercentChange(newTrend, compareTrend);
+			default:
+				return null;
+		}
+	}
+	
+	// returns average deviation after calculating SD at each point in list
+	// if range = LAST_VALUE : returns SD of list including recentScore - SD of list not including recentScore
+	public static Double calculateSDTrend(List<Double> scores, int stopCounter) {
+		int size = scores.size();
+		if (size < 2) {
+			return 0.0;
+		} else {
+			if (stopCounter == size) {
+				return calculateSD(scores.subList(0, size - 1)) - calculateSD(scores.subList(0, size - 2));
+			} else {
+				List<Double> deviations = new ArrayList<>();
+				for (int i = size; i > stopCounter; i--) {
+					deviations.add(calculateSD(scores.subList(stopCounter, i)));
+				}
+				return calculateMean(deviations);
+			}
+		}
+	}
+	
+	public static Double calculateMean(List<Double> scores) {
+		Double average = 0.0;
+		for(Double score : scores) {
+			average += score;
+		}
+		return average/scores.size();
+	}
+	
+	public static Double calculateSD(List<Double> scores) {
+		Double mean = calculateMean(scores);
+		List<Double> temp = new ArrayList<>();
+		
+		for(Double score : scores) {
+			temp.add(Math.pow(score - mean, 2));
+		}
+		
+		return Math.sqrt(calculateMean(temp));
 	}
 
 	private static Double calculatePercentChange(Double newTrend, Double compareTrend) {
