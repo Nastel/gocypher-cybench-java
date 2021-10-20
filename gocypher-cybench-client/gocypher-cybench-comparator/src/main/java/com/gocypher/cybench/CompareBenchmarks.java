@@ -304,14 +304,17 @@ public class CompareBenchmarks {
         case MEAN:
             scoreDiff = Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold,
                     comparePercentage);
+            break;
         case DELTA:
             scoreDiff = Comparisons.compareDelta(compareVersionScores, recentScore, compareRange, compareThreshold,
                     comparePercentage);
+            break;
         case SD:
             scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold,
                     comparePercentage);
+            break;
         }
-
+        
         return scoreDiff;
     }
 
