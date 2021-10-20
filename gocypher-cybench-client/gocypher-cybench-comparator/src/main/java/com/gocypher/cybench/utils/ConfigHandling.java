@@ -204,6 +204,7 @@ public class ConfigHandling {
                                 simplifiedIdentifier);
                         log.warn("'{}': Will use scope: {}", simplifiedIdentifier, defaultScope);
                         compareVals.put("scope", defaultScope);
+                        compareVals.remove("version");
                     }
                 } else {
                     String version = (String) compareVals.get("version");
@@ -215,6 +216,7 @@ public class ConfigHandling {
                     log.warn(
                             "'{}': Version was specified, but scope was specified as 'WITHIN' - will compare within benchmarked version",
                             simplifiedIdentifier);
+                    compareVals.remove("version");
                 } else if (compareVals.containsKey("version")) {
                     String version = (String) compareVals.get("version");
                     if (defaultScope.equals(Comparisons.Scope.BETWEEN)) {
