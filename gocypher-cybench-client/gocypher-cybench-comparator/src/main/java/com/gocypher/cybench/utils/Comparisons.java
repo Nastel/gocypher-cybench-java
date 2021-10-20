@@ -27,7 +27,7 @@ public final class Comparisons {
 	}
 
 	// returns average delta after calculating delta at each point in the list
-	// if range = LAST_VALUE : returns recentScore - previousScore
+	// if trend = NONE : returns recentScore
 	public static Double calculateDeltaTrend(List<Double> scores, int stopCounter) {
 		int size = scores.size();
 		if (size < 2) {
@@ -64,14 +64,14 @@ public final class Comparisons {
 	}
 		
 	// returns average mean after calculating mean at each point in the list
-	// if range = LAST_VALUE : returns mean of list including recentScore - mean of list not including recentScore
+	// if trend = NONE : returns mean of list
 	public static Double calculateMeanTrend(List<Double> scores, int stopCounter) {
 		int size = scores.size();
 		if (size < 2) {
 			return 0.0;
 		} else {
 			if (stopCounter == size) {
-				return calculateMean(scores.subList(0, size - 1));
+				return calculateMean(scores.subList(0, size));
 			} else {
 				List<Double> means = new ArrayList<>();
 				for (int i = size; i > stopCounter; i--) {
@@ -101,14 +101,14 @@ public final class Comparisons {
 	}
 	
 	// returns average deviation after calculating SD at each point in list
-	// if range = LAST_VALUE : returns SD of list including recentScore - SD of list not including recentScore
+	// if trend = NONE : returns SD of list
 	public static Double calculateSDTrend(List<Double> scores, int stopCounter) {
 		int size = scores.size();
 		if (size < 2) {
 			return 0.0;
 		} else {
 			if (stopCounter == size) {
-				return calculateSD(scores.subList(0, size - 1));
+				return calculateSD(scores.subList(0, size));
 			} else {
 				List<Double> deviations = new ArrayList<>();
 				for (int i = size; i > stopCounter; i--) {
