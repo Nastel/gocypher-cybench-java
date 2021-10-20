@@ -1,6 +1,7 @@
 package com.gocypher.cybench;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -277,10 +278,10 @@ public class CompareBenchmarks {
 
         List<Double> currentVersionScores = Requests.getBenchmarks(benchmarkFingerprint, benchmarkVersion,
                 benchmarkMode);
-        Double recentScore = currentVersionScores.get(currentVersionScores.size() - 1);
-        currentVersionScores.remove(currentVersionScores.size() - 1);
-
-        List<Double> compareVersionScores = currentVersionScores;
+        
+        // default the comparison scores to the current version without the newly added benchmark
+        List<Double> compareVersionScores = new ArrayList<>(currentVersionScores);
+        compareVersionScores.remove(currentVersionScores.size()-1);
 
         if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
             if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(compareVersion)
@@ -300,15 +301,15 @@ public class CompareBenchmarks {
         }
 
         switch (compareMethod) {
-        case MEAN:
-            scoreDiff = Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold);
-            break;
         case DELTA:
-            scoreDiff = Comparisons.compareDelta(compareVersionScores, recentScore, compareRange, compareThreshold);
+            scoreDiff = Comparisons.compareDelta(currentVersionScores, compareVersionScores, compareRange, compareThreshold);
             break;
-        case SD:
-            scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold);
-            break;
+//        case MEAN:
+//            scoreDiff = Comparisons.compareMean(compareVersionScores, recentScore, compareRange, compareThreshold);
+//            break;
+//        case SD:
+//            scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold);
+//            break;
         }
         
         return scoreDiff;
