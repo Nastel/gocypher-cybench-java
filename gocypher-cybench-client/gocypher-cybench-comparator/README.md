@@ -140,8 +140,8 @@ A template `comparator.yaml` can be taken from this repository, and can/should b
     ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
-reports: "C:/Users/drigos/eclipse-workspace/calctest/reports/"
-token: "ws_305a4eb4-cbda-44fb-ba58-g8eea7820e115_query"
+reports: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/"
+token: "ws_874a4eb4-fzsa-48fb-pr58-g8lwa7820e132_query"
 
 compare.default:
     method: "MEAN"
