@@ -1,14 +1,16 @@
 package com.gocypher.cybench.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class Comparisons {
 
 	private Comparisons() {
 	}
 
-	public static Double compareDelta(List<Double> newScores, List<Double> compareScores, Threshold threshold,
+	public static Map<String, Double> compareDelta(List<Double> newScores, List<Double> compareScores, Threshold threshold,
 			Trend trend) {
 		int newScoresStopCounter = getStopCounter(newScores, trend);
 		int compareScoresStopCounter = getStopCounter(compareScores, trend);
@@ -16,14 +18,23 @@ public final class Comparisons {
 		Double newTrend = calculateDeltaTrend(newScores, newScoresStopCounter);
 		Double compareTrend = calculateDeltaTrend(compareScores, compareScoresStopCounter);
 
+		Map<String, Double> differenceData = new HashMap<>();
+		differenceData.put("benchmarkTrendScore", newTrend);
+		differenceData.put("compareTrendScore", compareTrend);
+		Double difference = 0.0;
+		
 		switch (threshold) {
 		case GREATER:
-			return newTrend - compareTrend;
+			difference = newTrend - compareTrend;
+			break;
 		case PERCENT_CHANGE:
-			return calculatePercentChange(newTrend, compareTrend);
-		default:
-			return null;
+			difference = calculatePercentChange(newTrend, compareTrend);
+			break;
 		}
+		System.out.println(newTrend+" "+compareTrend+" "+difference +" CALC: "+(newTrend-compareTrend));
+		
+		differenceData.put("difference", difference);
+		return differenceData;
 	}
 
 	// returns average delta after calculating delta at each point in the list
@@ -45,7 +56,7 @@ public final class Comparisons {
 		}
 	}
 	
-	public static Double compareMean(List<Double> newScores, List<Double> compareScores, Threshold threshold,
+	public static Map<String, Double> compareMean(List<Double> newScores, List<Double> compareScores, Threshold threshold,
 			Trend trend) {
 		int newScoresStopCounter = getStopCounter(newScores, trend);
 		int compareScoresStopCounter = getStopCounter(compareScores, trend);
@@ -53,14 +64,22 @@ public final class Comparisons {
 		Double newTrend = calculateMeanTrend(newScores, newScoresStopCounter);
 		Double compareTrend = calculateMeanTrend(compareScores, compareScoresStopCounter);
 		
+		Map<String, Double> differenceData = new HashMap<>();
+		differenceData.put("benchmarkTrendScore", newTrend);
+		differenceData.put("compareTrendScore", compareTrend);
+		Double difference = 0.0;
+		
 		switch (threshold) {
-			case GREATER:
-				return newTrend - compareTrend;
-			case PERCENT_CHANGE:
-				return calculatePercentChange(newTrend, compareTrend);
-			default:
-				return null;
+		case GREATER:
+			difference = newTrend - compareTrend;
+			break;
+		case PERCENT_CHANGE:
+			difference = calculatePercentChange(newTrend, compareTrend);
+			break;
 		}
+		
+		differenceData.put("difference", difference);
+		return differenceData;
 	}
 		
 	// returns average mean after calculating mean at each point in the list
@@ -82,7 +101,7 @@ public final class Comparisons {
 		}
 	}
 	
-	public static Double compareSD(List<Double> newScores, List<Double> compareScores, Threshold threshold,
+	public static Map<String, Double> compareSD(List<Double> newScores, List<Double> compareScores, Threshold threshold,
 			Trend trend) {
 		int newScoresStopCounter = getStopCounter(newScores, trend);
 		int compareScoresStopCounter = getStopCounter(compareScores, trend);
@@ -90,14 +109,22 @@ public final class Comparisons {
 		Double newTrend = calculateSDTrend(newScores, newScoresStopCounter);
 		Double compareTrend = calculateSDTrend(compareScores, compareScoresStopCounter);
 		
+		Map<String, Double> differenceData = new HashMap<>();
+		differenceData.put("benchmarkTrendScore", newTrend);
+		differenceData.put("compareTrendScore", compareTrend);
+		Double difference = 0.0;
+		
 		switch (threshold) {
-			case GREATER:
-				return newTrend - compareTrend;
-			case PERCENT_CHANGE:
-				return calculatePercentChange(newTrend, compareTrend);
-			default:
-				return null;
+		case GREATER:
+			difference = newTrend - compareTrend;
+			break;
+		case PERCENT_CHANGE:
+			difference = calculatePercentChange(newTrend, compareTrend);
+			break;
 		}
+		
+		differenceData.put("difference", difference);
+		return differenceData;
 	}
 	
 	// returns average deviation after calculating SD at each point in list

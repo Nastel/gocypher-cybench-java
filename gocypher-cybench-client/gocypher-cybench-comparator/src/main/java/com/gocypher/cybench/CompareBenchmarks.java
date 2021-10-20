@@ -155,7 +155,7 @@ public class CompareBenchmarks {
 	}
 
 	private static void addPassFailBenchData(Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks,
-			Double scoreDiff, String benchmarkName, String benchmarkVersion, String benchmarkMode, Double score,
+			Double benchmarkScore, Double difference, Double benchmarkTrendScore, Double compareTrendScore, String benchmarkName, String benchmarkVersion, String benchmarkMode, 
 			Comparisons.Method compareMethod, Comparisons.Scope compareScope, Comparisons.Trend compareTrend,
 			Comparisons.Threshold compareThreshold, Double comparePercentage, String compareVersion) {
 
@@ -183,14 +183,16 @@ public class CompareBenchmarks {
 		}
 
 		Map<String, Object> data = scoresPerMode.get(benchmarkMode);
-		data.put("score", score);
-		data.put("scoreDiff", scoreDiff);
+		data.put("benchmarkScore", benchmarkScore);
+		data.put("difference", difference);
 		data.put("compareMethod", compareMethod);
 		data.put("compareScope", compareScope);
 		data.put("compareTrend", compareTrend);
 		data.put("compareThreshold", compareThreshold);
 		data.put("compareVersion", compareVersion);
 		data.put("comparePercentage", comparePercentage);
+		data.put("benchmarkTrendScore", benchmarkTrendScore);
+		data.put("compareTrendScore", compareTrendScore);
 	}
 
 	private static void printBenchmarkResults(int totalComparedBenchmarks, int totalPassedBenchmarks,
@@ -221,30 +223,33 @@ public class CompareBenchmarks {
 				Map<String, Map<String, Object>> data = entry.getValue().get(benchmarkVersion);
 				for (Map.Entry<String, Map<String, Object>> e : data.entrySet()) {
 					String benchmarkMode = e.getKey();
-					Double score = (Double) e.getValue().get("score");
-					Double scoreDiff = (Double) e.getValue().get("scoreDiff");
+					Double benchmarkScore = (Double) e.getValue().get("benchmarkScore");
+					Double difference = (Double) e.getValue().get("difference");
+					Double benchmarkTrendScore = (Double) e.getValue().get("benchmarkTrendScore");
+					Double compareTrendScore = (Double) e.getValue().get("compareTrendScore");
 					Comparisons.Method compareMethod = (Comparisons.Method) e.getValue().get("compareMethod");
 					Comparisons.Scope compareScope = (Comparisons.Scope) e.getValue().get("compareScope");
 					Comparisons.Trend compareTrend = (Comparisons.Trend) e.getValue().get("compareTrend");
 					Comparisons.Threshold compareThreshold = (Comparisons.Threshold) e.getValue()
 							.get("compareThreshold");
 					String compareVersion = (String) e.getValue().get("compareVersion");
-
-					if (compareThreshold.equals(Comparisons.Threshold.GREATER)) {
-						log.info(
-								"   test.name={}, test.version={}, test.mode={}, test.score={}, test.score.difference={}, test.compare.method={}, test.compare.scope={}, test.compare.version={}, "
-										+ "test.compare.trend={}, test.compare.threshold={}, test.id={}",
-								benchmarkName, benchmarkVersion, benchmarkMode, score, scoreDiff, compareMethod,
-								compareScope, compareVersion, compareTrend, compareThreshold, fingerprint);
-					} else {
-						Double comparePercentage = (Double) e.getValue().get("comparePercentage");
-						log.info(
-								"   test.name={}, test.version={}, test.mode={}, test.score={}, test.score.difference={}%, test.compare.method={}, test.compare.scope={}, test.compare.version={}, "
-										+ "test.compare.trend={}, test.compare.threshold={}, test.compare.percentage={}, test.id={}",
-								benchmarkName, benchmarkVersion, benchmarkMode, score, scoreDiff, compareMethod,
-								compareScope, compareVersion, compareTrend, compareThreshold, comparePercentage,
-								fingerprint);
+					
+					StringBuilder logReport = new StringBuilder("   test.name={}, test.version={}, test.mode={}, test.score={}, test.difference={}, ");
+					if (!compareTrend.equals(Comparisons.Trend.NONE)) {
+						logReport.append("test.trendScore=" + benchmarkTrendScore + ", " + "test.compare.trendScore=" + compareTrendScore + ", ");
 					}
+					
+					logReport.append("test.compare.method={}, test.compare.scope={}, test.compare.version={}, test.compare.trend={}, test.compare.threshold={}, ");
+					
+					if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
+						Double comparePercentage = (Double) e.getValue().get("comparePercentage");
+						logReport.append("test.compare.percentage=" + comparePercentage + ", ");
+					} 
+					
+					logReport.append("test.id={}");
+					
+					log.info(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, difference, compareMethod,
+							compareScope, compareVersion, compareTrend, compareThreshold, fingerprint);
 				}
 			}
 		}
@@ -255,7 +260,9 @@ public class CompareBenchmarks {
 			Comparisons.Scope compareScope, Comparisons.Trend compareTrend, Comparisons.Threshold compareThreshold,
 			String compareVersion, Double comparePercentage) {
 
-		Double scoreDiff = 0.0;
+		Double difference = 0.0;
+		Double benchmarkTrendScore = 0.0;
+		Double compareTrendScore = 0.0;
 
 		List<Double> benchmarkVersionScores = Requests.getBenchmarks(benchmarkFingerprint, benchmarkVersion,
 				benchmarkMode);
@@ -281,15 +288,15 @@ public class CompareBenchmarks {
 				compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
 			}
 		}
-
+		
 		if (compareScope.equals(Comparisons.Scope.WITHIN)) {
 			compareVersion = benchmarkVersion;
 			if (benchmarkVersionScores.size() <= 1) {
 				log.warn("{} - {}: There are no previously tested benchmarks within the version ({})", benchmarkName,
 						benchmarkMode, benchmarkVersion);
 				totalPassedBenchmarks++;
-				addPassFailBenchData(passedBenchmarks, scoreDiff, benchmarkName, benchmarkVersion,
-						benchmarkMode, benchmarkScore, compareMethod, compareScope, compareTrend, compareThreshold,
+				addPassFailBenchData(passedBenchmarks, benchmarkScore, difference, benchmarkTrendScore, compareTrendScore, benchmarkName, benchmarkVersion,
+						benchmarkMode, compareMethod, compareScope, compareTrend, compareThreshold,
 						comparePercentage, compareVersion);
 				return false;
 			}
@@ -304,41 +311,47 @@ public class CompareBenchmarks {
 			}
 		}
 
+		Map<String, Double> differenceData = new HashMap<>();
+		
 		switch (compareMethod) {
 		case DELTA:
-			scoreDiff = Comparisons.compareDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
+			differenceData = Comparisons.compareDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
 					compareTrend);
 			break;
         case MEAN:
-            scoreDiff = Comparisons.compareMean(benchmarkVersionScores, compareVersionScores, compareThreshold,
+        	differenceData = Comparisons.compareMean(benchmarkVersionScores, compareVersionScores, compareThreshold,
 					compareTrend);
             break;
         case SD:
-            scoreDiff = Comparisons.compareSD(benchmarkVersionScores, compareVersionScores, compareThreshold,
+        	differenceData = Comparisons.compareSD(benchmarkVersionScores, compareVersionScores, compareThreshold,
 					compareTrend);
             break;
 		}
 		
+		difference = differenceData.get("difference");
+		benchmarkTrendScore = differenceData.get("benchmarkTrendScore");
+		compareTrendScore = differenceData.get("compareTrendScore");
+		
 
-		boolean pass = passedBenchmark(scoreDiff, compareThreshold, comparePercentage);
+		boolean pass = passedBenchmark(difference, compareThreshold, comparePercentage);
 		if (pass)
 			totalPassedBenchmarks++;
 		else
 			totalFailedBenchmarks++;
 
-		addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, scoreDiff, benchmarkName, benchmarkVersion,
-				benchmarkMode, benchmarkScore, compareMethod, compareScope, compareTrend, compareThreshold,
+		addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, benchmarkScore, difference, benchmarkTrendScore, compareTrendScore, benchmarkName, benchmarkVersion,
+				benchmarkMode, compareMethod, compareScope, compareTrend, compareThreshold,
 				comparePercentage, compareVersion);
 
 		return true;
 	}
 
-	private static boolean passedBenchmark(Double scoreDiff, Comparisons.Threshold compareThreshold,
+	private static boolean passedBenchmark(Double difference, Comparisons.Threshold compareThreshold,
 			Double comparePercentage) {
-		if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0
-				&& Math.abs(scoreDiff) > comparePercentage) {
+		if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && difference < 0
+				&& Math.abs(difference) > comparePercentage) {
 			return false;
-		} else if (!compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0) {
+		} else if (!compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && difference < 0) {
 			return false;
 		}
 
