@@ -40,18 +40,130 @@ Dependencies for your project:
 #### Configuration Variables
 
 * Configuration file [comparator.yaml](config/comparator.yaml)  
-  `reports` = the location of the CyBench reports folder for your repository  
-  `method` = the method you would like to use for comparing  
-  `token` = (optional) your CyBench workspace query access token
+ * The first two configurations are vital to fetching the previous benchmark scores correctly
+    * `reports:` The location of the CyBench reports folder for your repository  
+      * If running the Comparator from the root of your project, `reports: "reports/"` shall suffice as reports are by default generated into `~/reports`
+    * `token:` Set this to your CyBench Access token, specifically a 'query' one. You can generate an access token for your private workspace on the CyBench website. More details and a guide is provided [here](https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-private-workspaces).
+ * The following branches of `comparator.yaml` are used for configuring values exclusive to a certain package. i.e. If you'd like to test for change in Delta between the last benchmark for one package, and then test for change in average compared to ALL previous benchmarks in another package, you can! Multiple branches are defined by `compare.X` where `X` is any arbitrary name that you choose. While `compare.default` values should be changed to your liking, the name `compare.default` itself should **NOT** be adjusted.
+ * An example has been given below of setting up different packages
 
-#### Comparator Methods
+```yaml
+compare.default:
+    method: "DELTA"
+    package: "calctest.CalculatorTest"
+    scope: "BETWEEN"
+    threshold: "GREATER"
+    percentage: "1"
+    range: "LAST_VALUE"
+    version: "1.0.1"
+compare.A:
+    method: "MEAN"
+    package: "calctest.ClockTest"
+    scope: "WITHIN"
+    threshold: "percent_change"
+    percentage: "15"
+    range: "ALL_VALUES"
+```
+In the above example, the package `calctest.ClockTest` and all its benchmarks will test for a percent change of no less than -15% or better, it'll also compare all previous benchmarks for this package version and its tests. Other tested packages will refer to the `compare.default` since they are not explicitly defined by a `package:` value. This means all other packages in your Comparator run will test for the change in score between your most recent score, and the previous score. In this case, `threshold:` is set to `"GREATER"`, which means the most recent score must be greater than the previous in order to pass. As opposed to `compare.A`, `compare.default` will check scores from a different version (in this example, it'll compare scores between the current version, and `version: 1.0.1`.
+ * Inside these `compare.X` branches exists various configurations you can set.
+##### Comparator Methods
+* The first configuration you should decide is the method to compare
+* Comparison method is defined by `method:`
+* The possible values for `method:` are listed below  
+  * `DELTA` = Tests if newest benchmark scores higher than the previous 
+  * `MEAN` = Takes the average of X previous scores (where X is defined by `range:`) and compares average to the newest score 
+  * `SD` = Tests if the newest score is within the standard deviation of X previous scores (where X is defined by `range:`)
+#### Package to Compare
+* The next configuration to decide is which package should be tested
+    * Setting this value is crucial to taking advantage of multiple `compare.X` branches
+* Package is defined with `package:`
+* Must be set to the full package name, e.g. `package:com.calcTest`
+#### Comparison Scope
+* This configuration is used for testing either within or between versions
+* Scope is defined by `scope:`
+* Possible values are `"WITHIN"` or `"BETWEEN"`
+    * `"WITHIN"` = Compare scores within the same version of your project
+    * `"BETWEEN"` = Compare scores between different versions of your project
+* **NOTE:** When using the `"BETWEEN"` scope, make sure to also set `version:` to whichever version you wish to compare to
+#### Comparison Threshold
+* This configuration will decide what values dictate if your build/test passes or fails
+* Threshold is defined by `threshold:`
+* Possible values are either `"GREATER"` or `"PERCENT_CHANGE"`
+    * `"GREATER"` = Passes/fails depending on if your current score was higher than the score getting compared against (whether it's MEAN, DELTA, etc.)
+    * `"PERCENT_CHANGE"` = More flexible, allows the build/test to pass even if the score was lower, as long as it is within a given percentage
+* **NOTE:** When using `"PERCENT_CHANGE"`, make sure to define `percentage:"X"`, where X is the percent change allowed, even if the comparison results in a negative number
+#### Comparison Range
+* Setting this configuration will allow you to choose what your newest score compares again
+* Possible values for range are `"LAST_VALUE"`, `"LAST_5"`, and `"ALL_VALUES"`
+    * `"LAST_VALUE"` = Compare newest score to only the previous one
+    * `"LAST_5"` = Compare newest score to the previous 5 scores
+    * `"ALL_VALUES"` = Compare newest score to **ALL** previous scores
+#### Example `comparator.yaml`
+The `comparator.yaml` below is taken directly from this repository, and can/should be used as a template for your own tests. If you've added the CyBench comparator to your project via this README or the CyBench Wiki, Comparator will look for `comparator.yaml` in a folder called `config/` at the root of your project. All CyBench components that use a properties or configuration file will look for those files inside this same folder. The template `comparator.yaml` also includes comments at the top to help you adjust values on the fly. Once you've set your configurations, you're ready for the next step of running the Comparator, detailed in the next section.
 
-* All comparisons are done within the same version release  
-  `Delta` = Tests if newest benchmark is quicker than previous benchmark  
-  `Mean` = Tests if newest benchmark is quicker than the average scores of the previous benchmarks  
-  `SD` = Tests if newest benchmark exceeds the accepted standard deviation of previous tests  
-  `Moving_Average` = Tests if newest benchmark has lowered the moving average of the previous 5 benchmarks
+```yaml
+### Property File for Cybench Comparator Tool ###
 
+# reports = location of CyBench reports folder
+
+# token = CyBench Access Token with View Permissions
+### Token can be found on the CyBench site by clicking on your username ###
+### Token should be a query token with access to the specific workspace that stores your benchmarks ###
+
+# compare.default = default comparison configurations
+
+#compare.{} = specific comparison configurations 
+### {} can be any identifier of your choice ###
+### Make sure to include {package} to specify which package you want these comparisons to run on ###
+
+
+### Comparison Configurations ###
+
+# method = how benchmarks will be compared
+### Options {delta, mean, SD, moving_average} ###
+
+# scope = (within or between project versions)
+## Options {within, between} ##
+### {within} will compare all benchmarks within the benchmarked version ###
+### if {between} is chosen, must specify {version} (will compare benchmarked version to the specified version) ###
+    ### add {version} to specify which version to compare to ###
+
+# range = the amount of benchmarks within the scope to compare to
+## Options {last_value, last_5, all_values} ##
+### {last_value} will compare to last value, {last_5} will compare to last 5 values, {all_values} will compare to all values within scope ###
+
+# threshold = how to specify a passing benchmark 
+## Options {percent_change, greater} ##
+### {greater} will check to see if new score is simply greater than the compared to score ###
+### if {percent_change} is chosen, must specify {percentage} ###
+    ### percentage = percentage score should be within in order to pass ###
+    ### ex. 5% means the new score should be within 5% of the previous threshold ###
+
+
+reports: "C:/Users/drigos/eclipse-workspace/calctest/reports/"
+token: "ws_305a4eb4-cbda-44fb-ba58-g8eea7820e115_query"
+
+compare.default:
+    method: "MEAN"
+    package: "calctest.CalculatorTest"
+    scope: "BETWEEN"
+    threshold: "GREATER"
+    percentage: "1"
+    range: "ALL_VALUES"
+    version: "1.0.1"
+compare.A:
+    method: "MEAN"
+    package: "calctest.ClockTest"
+    scope: "WITHIN"
+    threshold: "PERCENT_CHANGE"
+    percentage: "15"
+    range: "LAST_VALUE"
+    
+#compare.B:
+  #  pacakge: "com.my.other.package"
+  #  percentage: "6"
+  #  threshold: "percent_change"
+```
 #### Application
 
 * Main class: `com.gocypher.cybench.CompareBenchmarks`
