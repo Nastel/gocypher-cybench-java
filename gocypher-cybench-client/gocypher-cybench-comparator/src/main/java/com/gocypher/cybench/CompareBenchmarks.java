@@ -133,22 +133,14 @@ public class CompareBenchmarks {
                             compareVersion = benchmarkVersion;
                         }
 
-                        Double scoreDiff = passedBenchmark(benchmarkName, benchmarkFingerprint, benchmarkVersion,
+                        Double scoreDiff = getScoreDifference(benchmarkName, benchmarkFingerprint, benchmarkVersion,
                                 benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold, compareVersion);
 
-                        boolean pass = true;
-                        
-                        if(compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0 && Math.abs(scoreDiff) > comparePercentage) {
-                        	pass = false;
-                        } else if (!compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0) {
-                        	pass = false;
-                        }
-                        
+                        boolean pass = passedBenchmark(scoreDiff, compareThreshold, comparePercentage);
                         if (pass)
                         	totalPassedBenchmarks++;
                         else
                         	totalFailedBenchmarks++;
-                        
                         
                         addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, scoreDiff,
                                 benchmarkName, benchmarkVersion, benchmarkMode, score, compareMethod, compareScope,
@@ -277,7 +269,7 @@ public class CompareBenchmarks {
         }
     }
 
-    private static Double passedBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
+    private static Double getScoreDifference(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
             String benchmarkMode, Comparisons.Method compareMethod, Comparisons.Scope compareScope,
             Comparisons.Range compareRange, Comparisons.Threshold compareThreshold, String compareVersion) {
 
@@ -320,6 +312,16 @@ public class CompareBenchmarks {
         }
         
         return scoreDiff;
+    }
+    
+    private static boolean passedBenchmark(Double scoreDiff, Comparisons.Threshold compareThreshold, Double comparePercentage) {
+    	if(compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0 && Math.abs(scoreDiff) > comparePercentage) {
+        	return false;
+        } else if (!compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0) {
+        	return false;
+        }
+    	
+    	return true;
     }
 
 }
