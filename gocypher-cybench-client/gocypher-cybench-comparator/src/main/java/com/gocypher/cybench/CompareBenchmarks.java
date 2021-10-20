@@ -134,17 +134,19 @@ public class CompareBenchmarks {
                         }
 
                         Double scoreDiff = getScoreDifference(benchmarkName, benchmarkFingerprint, benchmarkVersion,
-                                benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold, compareVersion);
+                                benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
+                                compareVersion);
 
                         boolean pass = passedBenchmark(scoreDiff, compareThreshold, comparePercentage);
-                        if (pass)
-                        	totalPassedBenchmarks++;
-                        else
-                        	totalFailedBenchmarks++;
-                        
-                        addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, scoreDiff,
-                                benchmarkName, benchmarkVersion, benchmarkMode, score, compareMethod, compareScope,
-                                compareRange, compareThreshold, comparePercentage, compareVersion);
+                        if (pass) {
+                            totalPassedBenchmarks++;
+                        } else {
+                            totalFailedBenchmarks++;
+                        }
+
+                        addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, scoreDiff, benchmarkName,
+                                benchmarkVersion, benchmarkMode, score, compareMethod, compareScope, compareRange,
+                                compareThreshold, comparePercentage, compareVersion);
                     } else {
                         failFetch = true;
                         break;
@@ -310,18 +312,18 @@ public class CompareBenchmarks {
             scoreDiff = Comparisons.compareSD(compareVersionScores, recentScore, compareRange, compareThreshold);
             break;
         }
-        
+
         return scoreDiff;
     }
-    
-    private static boolean passedBenchmark(Double scoreDiff, Comparisons.Threshold compareThreshold, Double comparePercentage) {
-    	if(compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0 && Math.abs(scoreDiff) > comparePercentage) {
-        	return false;
-        } else if (!compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0) {
-        	return false;
+
+    private static boolean passedBenchmark(Double scoreDiff, Comparisons.Threshold compareThreshold,
+            Double comparePercentage) {
+        if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && scoreDiff < 0
+                && Math.abs(scoreDiff) > comparePercentage) {
+            return false;
+        } else {
+            return compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) || scoreDiff >= 0;
         }
-    	
-    	return true;
     }
 
 }

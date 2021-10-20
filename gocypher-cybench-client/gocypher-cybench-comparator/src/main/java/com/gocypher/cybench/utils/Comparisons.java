@@ -52,7 +52,7 @@ public final class Comparisons {
         int stopCounter = getStopCounter(compareScores, range);
         int totalCounter = 0;
 
-        for (int scoreIndex = compareScores.size()-1; scoreIndex >= stopCounter; scoreIndex--, totalCounter++) {
+        for (int scoreIndex = compareScores.size() - 1; scoreIndex >= stopCounter; scoreIndex--, totalCounter++) {
             average += compareScores.get(scoreIndex);
         }
         if (totalCounter != 0) {
@@ -67,7 +67,8 @@ public final class Comparisons {
         return average;
     }
 
-    public static Double compareDelta(List<Double> compareScores, Double recentScore, Range range, Threshold threshold) {
+    public static Double compareDelta(List<Double> compareScores, Double recentScore, Range range,
+            Threshold threshold) {
         int stopCounter = getStopCounter(compareScores, range);
         Double lastScoreFromPrevious = compareScores.get(compareScores.size() - 1); // gets the latest score
 
