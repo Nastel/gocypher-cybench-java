@@ -99,7 +99,7 @@ In the above example, the package `calctest.ClockTest` and all its benchmarks wi
     * `"LAST_5"` = Compare newest score to the previous 5 scores
     * `"ALL_VALUES"` = Compare newest score to **ALL** previous scores
 #### Example `comparator.yaml`
-The `comparator.yaml` below is taken directly from this repository, and can/should be used as a template for your own tests. If you've added the CyBench comparator to your project via this README or the CyBench Wiki, Comparator will look for `comparator.yaml` in a folder called `config/` at the root of your project. All CyBench components that use a properties or configuration file will look for those files inside this same folder. The template `comparator.yaml` also includes comments at the top to help you adjust values on the fly. Once you've set your configurations, you're ready for the next step of running the Comparator, detailed in the next section.
+A template `comparator.yaml` can be taken from this repository, and can/should be used for your own tests. If you've added the CyBench comparator to your project via this README or the CyBench Wiki, Comparator will look for `comparator.yaml` in a folder called `config/` at the root of your project. All CyBench components that use a properties or configuration file will look for those files inside this same folder. The template `comparator.yaml` also includes comments at the top to help you adjust values on the fly. Once you've set your configurations, you're ready for the next step of running the Comparator, detailed in the next section. Below is an example of a more fleshed out `comparator.yaml`
 
 ```yaml
 ### Property File for Cybench Comparator Tool ###
