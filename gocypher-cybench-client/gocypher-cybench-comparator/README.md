@@ -93,7 +93,7 @@ In the above example, the package `calctest.ClockTest` and all its benchmarks wi
     * `"PERCENT_CHANGE"` = More flexible, allows the build/test to pass even if the score was lower, as long as it is within a given percentage
 * **NOTE:** When using `"PERCENT_CHANGE"`, make sure to define `percentage:"X"`, where X is the percent change allowed, even if the comparison results in a negative number
 #### Comparison Range
-* Setting this configuration will allow you to choose what your newest score compares again
+* Setting this configuration will allow you to choose what your newest score compares against
 * Possible values for range are `"LAST_VALUE"`, `"LAST_5"`, and `"ALL_VALUES"`
     * `"LAST_VALUE"` = Compare newest score to only the previous one
     * `"LAST_5"` = Compare newest score to the previous 5 scores
