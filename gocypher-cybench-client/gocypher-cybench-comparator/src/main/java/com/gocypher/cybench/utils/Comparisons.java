@@ -53,7 +53,7 @@ public final class Comparisons {
         int totalCounter = 0;
 
         for (int scoreIndex = compareScores.size(); scoreIndex >= stopCounter; scoreIndex--, totalCounter++) {
-            average += compareScores.get(scoreIndex);
+            average += compareScores.get(scoreIndex-1);
         }
         if (totalCounter != 0) {
             average /= (totalCounter);
