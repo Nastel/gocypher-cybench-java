@@ -64,7 +64,7 @@ compare.A:
     percentage: "15"
     range: "ALL_VALUES"
 ```
-In the above example, the package `calctest.ClockTest` and all its benchmarks will test for a percent change of no less than -15% or better, it'll also compare all previous benchmarks for this package version and its tests. Other tested packages will refer to the `compare.default` since they are not explicitly defined by a `package:` value. This means all other packages in your Comparator run will test for the change in score between your most recent score, and the previous score. In this case, `threshold:` is set to `"GREATER"`, which means the most recent score must be greater than the previous in order to pass. As opposed to `compare.A`, `compare.default` will check scores from a different version (in this example, it'll compare scores between the current version, and `version: 1.0.1`.
+In the above example, the package `calctest.ClockTest` and all its benchmarks will test for a percent change of no less than -15% or better, it'll also compare all previous benchmarks for this package version and its tests. Other tested packages will refer to the `compare.default` since they are not explicitly defined by a `package:` value. This means all other packages in your Comparator run will test for the change in score between your most recent score, and the previous score. In this case, `threshold:` is set to `"GREATER"`, which means the most recent score must be greater than the previous in order to pass. As opposed to `compare.A`, `compare.default` will check scores from a different version (in this example, it'll compare scores between the current version, and `version: "1.0.1"`.
  * Inside these `compare.X` branches exists various configurations you can set.
 ##### Comparator Methods
 * The first configuration you should decide is the method to compare
@@ -77,7 +77,7 @@ In the above example, the package `calctest.ClockTest` and all its benchmarks wi
 * The next configuration to decide is which package should be tested
     * Setting this value is crucial to taking advantage of multiple `compare.X` branches
 * Package is defined with `package:`
-* Must be set to the full package name, e.g. `package:com.calcTest`
+* Must be set to the full package name, e.g. `package:"com.calcTest"`
 #### Comparison Scope
 * This configuration is used for testing either within or between versions
 * Scope is defined by `scope:`
