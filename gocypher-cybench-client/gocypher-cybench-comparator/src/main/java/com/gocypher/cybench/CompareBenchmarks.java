@@ -137,7 +137,11 @@ public class CompareBenchmarks {
                                 benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
                                 comparePercentage, compareVersion);
 
-                        totalPassedBenchmarks++;
+                        if (scoreDiff >= 0)
+                        	totalPassedBenchmarks++;
+                        else
+                        	totalFailedBenchmarks++;
+                        
                         addPassFailBenchData(scoreDiff >= 0 ? passedBenchmarks : failedBenchmarks, scoreDiff,
                                 benchmarkName, benchmarkVersion, benchmarkMode, score, compareMethod, compareScope,
                                 compareRange, compareThreshold, comparePercentage, compareVersion);
