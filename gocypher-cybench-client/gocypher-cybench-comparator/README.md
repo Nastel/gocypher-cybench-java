@@ -50,7 +50,6 @@ Dependencies for your project:
 ```yaml
 compare.default:
     method: "DELTA"
-    package: "calctest.CalculatorTest"
     scope: "BETWEEN"
     threshold: "GREATER"
     percentage: "1"
@@ -76,6 +75,7 @@ In the above example, the package `calctest.ClockTest` and all its benchmarks wi
 #### Package to Compare
 * The next configuration to decide is which package should be tested
     * Setting this value is crucial to taking advantage of multiple `compare.X` branches
+* Does not get defined in `compare.default`
 * Package is defined with `package:`
 * Must be set to the full package name, e.g. `package:"com.calcTest"`
 #### Comparison Scope
