@@ -35,6 +35,7 @@ import com.gocypher.cybench.launcher.utils.Constants;
 
 public class DeliveryService {
     private static final Logger LOG = LoggerFactory.getLogger(DeliveryService.class);
+
     private static DeliveryService instance;
 
     private static String serviceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/report";

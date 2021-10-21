@@ -78,6 +78,13 @@ public class BenchmarkRunner {
         LOG.info("-----------------------------------------------------------------------------------------");
         identifyPropertiesFromArguments(args);
 
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DeliveryService.getInstance().close();
+            }
+        }));
+
         LOG.info("Collecting hardware, software information...");
         HardwareProperties hwProperties = CollectSystemInformation.getEnvironmentProperties();
         LOG.info("Collecting JVM properties...");
@@ -312,10 +319,9 @@ public class BenchmarkRunner {
             LOG.error("Failed to save test results", e);
             LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
         } finally {
-            DeliveryService.getInstance().close();
         }
         LOG.info("-----------------------------------------------------------------------------------------");
-        LOG.info("                                 Finished CyBench benchmarking ({})                      ",
+        LOG.info("                           Finished CyBench benchmarking ({})                            ",
                 ComputationUtils.formatInterval(System.currentTimeMillis() - start));
         LOG.info("-----------------------------------------------------------------------------------------");
     }
