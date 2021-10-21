@@ -355,9 +355,8 @@ public class CompareBenchmarks {
         if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && difference < 0
                 && Math.abs(difference) > comparePercentage) {
             return false;
-        } else if (!compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && difference < 0) {
-            return false;
         }
-    }
 
+        return compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) || difference >= 0;
+    }
 }
