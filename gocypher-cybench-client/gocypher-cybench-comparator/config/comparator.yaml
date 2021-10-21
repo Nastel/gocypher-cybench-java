@@ -24,9 +24,11 @@
 ### if {between} is chosen, must specify {version} (will compare benchmarked version to the specified version) ###
     ### add {version} to specify which version to compare to ###
 
-# range = the amount of benchmarks within the scope to compare to
-## Options {last_value, last_5, all_values} ##
-### {last_value} will compare to last value, {last_5} will compare to last 5 values, {all_values} will compare to all values within scope ###
+# trend = whether or not to compare the trend in data
+## Options {none, last_5, all_values} ##
+### {none} will do a basic comparison, {last_5} will compare to last 5 values, {all_values} will compare to all values within scope ###
+### ex. {method: DELTA, trend: NONE, scope: BETWEEN} will perform a simple difference calculation between the recent score if the recent version and the score of the compare version ###
+### ex.{method: DELTA, trend: ALL_VALUES, scope: BETWEEN} will compare the average change in scores of the recent version to the average change in scores of the compare version ### 
 
 # threshold = how to specify a passing benchmark 
 ## Options {percent_change, greater} ##
@@ -44,12 +46,13 @@ compare.default:
     threshold: "greater"
     scope: "BETWEEN"
     version: "1.0.0"
-    range: "last_value"
+    trend: "NONE"
     
 compare.A:
     method: "DELTA"
     package: "com.my.package"
     scope: "WITHIN"
+    trend: "ALL_VALUES"
     
 compare.B:
     pacakge: "com.my.other.package"
