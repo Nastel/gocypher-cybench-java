@@ -102,29 +102,35 @@ public class CompareBenchmarks {
 
                         Comparisons.Method compareMethod = (Comparisons.Method) defaultConfigs.get("method");
                         Comparisons.Scope compareScope = (Comparisons.Scope) defaultConfigs.get("scope");
-                        Comparisons.Range compareRange = (Comparisons.Range) defaultConfigs.get("range");
+                        String compareRange = (String) defaultConfigs.get("range");
                         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) defaultConfigs
                                 .get("threshold");
-                        Double comparePercentage = (Double) defaultConfigs.get("percentage");
+                        Double percentageAllowed = (Double) defaultConfigs.get("percentageAllowed");
                         String compareVersion = (String) defaultConfigs.get("version");
+                        Double deviationsAllowed = (Double) defaultConfigs.get("deviationsAllowed");
 
                         for (Map.Entry<String, String> entry : configuredPackages.entrySet()) {
-                            if (benchmarkName.startsWith(entry.getKey())) {
+                            if (entry.getKey() != null && benchmarkName.startsWith(entry.getKey())) {
                                 String identifier = entry.getValue();
                                 Map<String, Object> specificConfigs = (Map<String, Object>) allConfigs.get(identifier);
                                 compareMethod = (Comparisons.Method) specificConfigs.get("method");
                                 compareScope = (Comparisons.Scope) specificConfigs.get("scope");
-                                compareRange = (Comparisons.Range) specificConfigs.get("range");
+                                compareRange = (String) specificConfigs.get("range");
                                 compareThreshold = (Comparisons.Threshold) specificConfigs.get("threshold");
                                 compareVersion = (String) specificConfigs.get("version");
-                                comparePercentage = (Double) specificConfigs.get("percentage");
+                                if(specificConfigs.containsKey("percentageAllowed")) {
+                                	percentageAllowed = Double.parseDouble(specificConfigs.get("percentageAllowed").toString());
+                                }
+                                if(specificConfigs.containsKey("deviationsAllowed")) {
+                                	deviationsAllowed = Double.parseDouble(specificConfigs.get("deviationsAllowed").toString());
+                                }
                                 break;
                             }
                         }
 
                         compareBenchmark(benchmarkName, benchmarkFingerprint, benchmarkVersion, benchmarkMode,
                                 benchmarkScore, compareMethod, compareScope, compareRange, compareThreshold,
-                                compareVersion, comparePercentage);
+                                compareVersion, percentageAllowed, deviationsAllowed);
                     } else {
                         failFetch = true;
                         break;
@@ -154,10 +160,10 @@ public class CompareBenchmarks {
     }
 
     private static void addPassFailBenchData(Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks,
-            Double benchmarkScore, Double difference, 
+            Double benchmarkScore, Double COMPARE_VALUE, 
             String benchmarkName, String benchmarkVersion, String benchmarkMode, Comparisons.Method compareMethod,
-            Comparisons.Scope compareScope, Comparisons.Range compareRange, Comparisons.Threshold compareThreshold,
-            Double comparePercentage, String compareVersion) {
+            Comparisons.Scope compareScope, String compareRange, Comparisons.Threshold compareThreshold,
+            Double percentageAllowed, Double deviationsAllowed, String compareVersion) {
 
         if (!benchmarks.containsKey(benchmarkName)) {
             Map<String, Object> data = new HashMap<>();
@@ -184,13 +190,14 @@ public class CompareBenchmarks {
 
         Map<String, Object> data = scoresPerMode.get(benchmarkMode);
         data.put("benchmarkScore", benchmarkScore);
-        data.put("difference", difference);
+        data.put("COMPARE_VALUE", COMPARE_VALUE);
         data.put("compareMethod", compareMethod);
         data.put("compareScope", compareScope);
         data.put("compareRange", compareRange);
         data.put("compareThreshold", compareThreshold);
         data.put("compareVersion", compareVersion);
-        data.put("comparePercentage", comparePercentage);
+        data.put("percentageAllowed", percentageAllowed);
+        data.put("deviationsAllowed", deviationsAllowed);
     }
 
     private static void printBenchmarkResults(int totalComparedBenchmarks, int totalPassedBenchmarks,
@@ -222,27 +229,40 @@ public class CompareBenchmarks {
                 for (Map.Entry<String, Map<String, Object>> e : data.entrySet()) {
                     String benchmarkMode = e.getKey();
                     Double benchmarkScore = (Double) e.getValue().get("benchmarkScore");
-                    Double difference = (Double) e.getValue().get("difference");
+                    Double COMPARE_VALUE = (Double) e.getValue().get("COMPARE_VALUE");
                     Comparisons.Method compareMethod = (Comparisons.Method) e.getValue().get("compareMethod");
                     Comparisons.Scope compareScope = (Comparisons.Scope) e.getValue().get("compareScope");
-                    Comparisons.Range compareRange = (Comparisons.Range) e.getValue().get("compareRange");
-                    Comparisons.Threshold compareThreshold = (Comparisons.Threshold) e.getValue()
-                            .get("compareThreshold");
+                    String compareRange = (String) e.getValue().get("compareRange");
                     String compareVersion = (String) e.getValue().get("compareVersion");
+                    
+                    
+                    String compareStr = "";
+                    if (compareMethod == Comparisons.Method.DELTA)
+                    	compareStr = "test.delta={}, ";
+                    else
+                    	compareStr = "test.SDsFromMean={}, ";
 
                     StringBuilder logReport = new StringBuilder(
-                            "   test.name={}, test.version={}, test.mode={}, test.score={}, test.difference={}, test.compare.method={}, "
-                            + "test.compare.scope={}, test.compare.version={}, test.compare.range={}, test.compare.threshold={}, ");
+                            "   test.name={}, test.version={}, test.mode={}, test.score={}, " + compareStr + "test.compare.method={}, "
+                            + "test.compare.scope={}, test.compare.version={}, test.compare.range={}, ");
 
-                    if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-                        Double comparePercentage = (Double) e.getValue().get("comparePercentage");
-                        logReport.append("test.compare.percentage=").append(comparePercentage).append(", ");
+                    if (compareMethod.equals(Comparisons.Method.DELTA)) {
+                    	Comparisons.Threshold compareThreshold = (Comparisons.Threshold) e.getValue()
+                                .get("compareThreshold");
+                    	logReport.append("test.compare.threshold=").append(compareThreshold).append(", ");
+                    	if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
+                    		Double percentageAllowed = (Double) e.getValue().get("percentageAllowed");
+                            logReport.append("test.percentageAllowed=").append(percentageAllowed).append(", ");
+                    	}
+                    } else {
+                    	Double deviationsAllowed = (Double) e.getValue().get("deviationsAllowed");
+                    	logReport.append("test.deviationsAllowed=").append(deviationsAllowed).append(", ");
                     }
 
                     logReport.append("test.id={}");
 
                     log.info(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
-                            difference, compareMethod, compareScope, compareVersion, compareRange, compareThreshold,
+                    		COMPARE_VALUE, compareMethod, compareScope, compareVersion, compareRange,
                             fingerprint);
                 }
             }
@@ -251,10 +271,10 @@ public class CompareBenchmarks {
 
     private static boolean compareBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
             String benchmarkMode, Double benchmarkScore, Comparisons.Method compareMethod,
-            Comparisons.Scope compareScope, Comparisons.Range compareRange, Comparisons.Threshold compareThreshold,
-            String compareVersion, Double comparePercentage) {
+            Comparisons.Scope compareScope, String compareRange, Comparisons.Threshold compareThreshold,
+            String compareVersion, Double percentageAllowed, Double deviationsAllowed) {
 
-        Double difference = 0.0;
+        Double COMPARE_VALUE = null;
 
         List<Double> benchmarkVersionScores = Requests.getBenchmarks(benchmarkFingerprint, benchmarkVersion,
                 benchmarkMode);
@@ -281,55 +301,84 @@ public class CompareBenchmarks {
             }
         }
 
+        Integer range = null;
+        
+        if (compareRange.equals("ALL")) {
+        	range = compareVersionScores.size();
+        } else {
+        	range = Integer.parseInt(compareRange);
+        	if (range > compareVersionScores.size()) {
+        		log.warn("{} - {}: There are not enough values to compare to within version ({}) with specific range ({}), will compare with as many values as possible", 
+        				benchmarkName, benchmarkMode, benchmarkVersion, range);
+        		range = compareVersionScores.size();
+        		compareRange = range.toString();
+        	}
+        }
+        
         if (compareScope.equals(Comparisons.Scope.WITHIN)) {
             compareVersion = benchmarkVersion;
             if (benchmarkVersionScores.size() <= 1) {
                 log.warn("{} - {}: There are no previously tested benchmarks within the version ({})", benchmarkName,
                         benchmarkMode, benchmarkVersion);
                 totalPassedBenchmarks++;
-                addPassFailBenchData(passedBenchmarks, benchmarkScore, difference, benchmarkName, benchmarkVersion, 
-                		benchmarkMode, compareMethod, compareScope,
-                		compareRange, compareThreshold, comparePercentage, compareVersion);
+                addPassFailBenchData(passedBenchmarks, benchmarkScore, COMPARE_VALUE, benchmarkName, benchmarkVersion, 
+                		benchmarkMode, compareMethod, compareScope, compareRange,
+                		compareThreshold, percentageAllowed, deviationsAllowed, compareVersion);
                 return false;
             }
         }
-
+        
         switch (compareMethod) {
         case DELTA:
-        	difference = Comparisons.compareDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
-        			compareRange);
-            break;
-        case MEAN:
-        	difference = Comparisons.compareMean(benchmarkVersionScores, compareVersionScores, compareThreshold,
-        			compareRange);
+        	COMPARE_VALUE = Comparisons.compareWithDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
+        			range);
             break;
         case SD:
-        	difference = Comparisons.compareSD(benchmarkVersionScores, compareVersionScores, compareThreshold,
-        			compareRange);
+        	COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareThreshold,
+        			range);
             break;
         }
 
-        boolean pass = passedBenchmark(difference, compareThreshold, comparePercentage);
+        boolean pass = passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentageAllowed, deviationsAllowed);
         if (pass) {
             totalPassedBenchmarks++;
         } else {
             totalFailedBenchmarks++;
         }
 
-        addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, benchmarkScore, difference,
-                benchmarkName, benchmarkVersion, benchmarkMode, compareMethod,
-                compareScope, compareRange, compareThreshold, comparePercentage, compareVersion);
+        addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, benchmarkScore, COMPARE_VALUE,
+                benchmarkName, benchmarkVersion, benchmarkMode, compareMethod, compareScope,
+                compareRange, compareThreshold, percentageAllowed, deviationsAllowed, compareVersion);
 
         return true;
     }
 
-    private static boolean passedBenchmark(Double difference, Comparisons.Threshold compareThreshold,
-            Double comparePercentage) {
-        if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) && difference < 0
-                && Math.abs(difference) > comparePercentage) {
-            return false;
+    private static boolean passAssertion(Double COMPARE_VALUE, Comparisons.Method method, 
+    		Comparisons.Threshold threshold, Double percentageAllowed, Double deviationsAllowed) {
+    	
+    	// assert within x SDs from mean
+    	if (method.equals(Comparisons.Method.SD)) {
+    		return passAssertionDeviation(COMPARE_VALUE, deviationsAllowed);
+    	}
+    	
+    	// assert within x Percentage from COMPARE_VALUE
+        if (threshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
+        	return passAssertionPercentage(COMPARE_VALUE, percentageAllowed);
         }
 
-        return compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) || difference >= 0;
+        // assert higher than COMPARE_VALUE
+        return passAssertionPositive(COMPARE_VALUE);
+    }
+    
+    private static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
+    	return deviationsFromMean < deviationsAllowed;
+    }
+    
+    private static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
+    	 return Math.abs(percentChange) < percentageAllowed;
+    }
+    
+    private static boolean passAssertionPositive(Double val) {
+    	return val >= 0;
     }
 }

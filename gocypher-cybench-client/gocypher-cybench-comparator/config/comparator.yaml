@@ -15,47 +15,49 @@
 
 ### Comparison Configurations ###
 
-# method = how benchmarks will be compared
-### Options {delta, mean, SD} ###
-
 # scope = (within or between project versions)
 ## Options {within, between} ##
 ### {within} will compare all benchmarks within the benchmarked version ###
 ### if {between} is chosen, must specify {version} (will compare benchmarked version to the specified version) ###
     ### add {version} to specify which version to compare to ###
 
-# trend = whether or not to compare the trend in data
-## Options {none, last_5, all_values} ##
-### {none} will do a basic comparison, {last_5} will compare to last 5 values, {all_values} will compare to all values within scope ###
-### ex. {method: DELTA, trend: NONE, scope: BETWEEN} will perform a simple difference calculation between the recent score if the recent version and the score of the compare version ###
-### ex.{method: DELTA, trend: ALL_VALUES, scope: BETWEEN} will compare the average change in scores of the recent version to the average change in scores of the compare version ### 
+# range = {amount of values to compare against}
+## Options {all, (#)} - can specify the word "all" to compare against all values or any number X to compare against previous X recorded scores ##
+    ### to compare against just the previous score within your version or the most recent score in another version, specify range '1' ###
+    ### otherwise the new score will be compared against the mean of the previous X values ###
 
-# threshold = how to specify a passing benchmark 
-## Options {percent_change, greater} ##
-### {greater} will check to see if new score is simply greater than the compared to score ###
-### if {percent_change} is chosen, must specify {percentage} ###
-    ### percentage = percentage score should be within in order to pass ###
-    ### ex. 5% means the new score should be within 5% of the previous threshold ###
+# method = how benchmarks will be compared
+## Options {delta, SD} ##
+### if {SD} is chosen, must specify {deviationsAllowed} ###
+    ### {deviationsAllowed} = the amount of deviations you will allow your score to be away from the mean of the previous X values (X specified as {range}) ###
+### if {delta} is chosen, must specify {threshold} ###
+    # {threshold} = how to specify a passing benchmark 
+    ## Options {percent_change, greater} ##
+    ### {greater} will check to see if new score is simply greater than the compared to score ###
+    ### if {percent_change} is chosen, must specify {percentageAllowed} ###
+        ### {percentageAllowed} = percentage score should be within in order to pass ###
+        ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
 reports: "reports/"
 token: "MY TOKEN"
 
 compare.default:
-    method: "MEAN"
-    threshold: "greater"
+    method: "DELTA"
     scope: "BETWEEN"
     version: "1.0.0"
-    trend: "NONE"
+    range: "ALL"
+    threshold: "greater"
     
 compare.A:
-    method: "DELTA"
+    method: "SD"
     package: "com.my.package"
+    deviationsAllowed: "1"
     scope: "WITHIN"
-    trend: "ALL_VALUES"
     
 compare.B:
-    pacakge: "com.my.other.package"
-    percentage: "6"
-    threshold: "percent_change"
+    package: "com.my.other.package"
+    threshold: "PERCENT_CHANGE"
+    percentageAllowed: "10"
+    range: "2"
     
