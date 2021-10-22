@@ -10,21 +10,19 @@ public final class Comparisons {
     private Comparisons() {
     }
 
-    public static Map<String, Double> compareDelta(List<Double> newScores, List<Double> compareScores,
-            Threshold threshold, Trend trend) {
-        int newScoresStopCounter = getStopCounter(newScores, trend);
-        int compareScoresStopCounter = getStopCounter(compareScores, trend);
+    public static Double compareDelta(List<Double> newScores, List<Double> compareScores,
+            Threshold threshold, Range range) {
+        int newScoresStopCounter = getStopCounter(newScores, range);
+        int compareScoresStopCounter = getStopCounter(compareScores, range);
 
         Double newTrend = calculateDeltaTrend(newScores, newScoresStopCounter);
         Double compareTrend = calculateDeltaTrend(compareScores, compareScoresStopCounter);
 
-        return getDifferenceData(newTrend, compareTrend, threshold);
+        return getDifference(newTrend, compareTrend, threshold);
     }
 
-    private static Map<String, Double> getDifferenceData(Double newTrend, Double compareTrend, Threshold threshold) {
-        Map<String, Double> differenceData = new HashMap<>();
-        differenceData.put("benchmarkTrendScore", newTrend);
-        differenceData.put("compareTrendScore", compareTrend);
+    private static Double getDifference(Double newTrend, Double compareTrend, Threshold threshold) {
+
         double difference = 0.0;
 
         switch (threshold) {
@@ -35,10 +33,8 @@ public final class Comparisons {
             difference = calculatePercentChange(newTrend, compareTrend);
             break;
         }
-        System.out.println(newTrend + " " + compareTrend + " " + difference + " CALC: " + (newTrend - compareTrend));
 
-        differenceData.put("difference", difference);
-        return differenceData;
+        return difference;
     }
 
     // returns average delta after calculating delta at each point in the list
@@ -60,15 +56,15 @@ public final class Comparisons {
         }
     }
 
-    public static Map<String, Double> compareMean(List<Double> newScores, List<Double> compareScores,
-            Threshold threshold, Trend trend) {
-        int newScoresStopCounter = getStopCounter(newScores, trend);
-        int compareScoresStopCounter = getStopCounter(compareScores, trend);
+    public static Double compareMean(List<Double> newScores, List<Double> compareScores,
+            Threshold threshold, Range range) {
+        int newScoresStopCounter = getStopCounter(newScores, range);
+        int compareScoresStopCounter = getStopCounter(compareScores, range);
 
         Double newTrend = calculateMeanTrend(newScores, newScoresStopCounter);
         Double compareTrend = calculateMeanTrend(compareScores, compareScoresStopCounter);
 
-        return getDifferenceData(newTrend, compareTrend, threshold);
+        return getDifference(newTrend, compareTrend, threshold);
     }
 
     // returns average mean after calculating mean at each point in the list
@@ -90,15 +86,15 @@ public final class Comparisons {
         }
     }
 
-    public static Map<String, Double> compareSD(List<Double> newScores, List<Double> compareScores, Threshold threshold,
-            Trend trend) {
-        int newScoresStopCounter = getStopCounter(newScores, trend);
-        int compareScoresStopCounter = getStopCounter(compareScores, trend);
+    public static Double compareSD(List<Double> newScores, List<Double> compareScores, Threshold threshold,
+            Range range) {
+        int newScoresStopCounter = getStopCounter(newScores, range);
+        int compareScoresStopCounter = getStopCounter(compareScores, range);
 
         Double newTrend = calculateSDTrend(newScores, newScoresStopCounter);
         Double compareTrend = calculateSDTrend(compareScores, compareScoresStopCounter);
 
-        return getDifferenceData(newTrend, compareTrend, threshold);
+        return getDifference(newTrend, compareTrend, threshold);
     }
 
     // returns average deviation after calculating SD at each point in list
@@ -143,155 +139,17 @@ public final class Comparisons {
         return 100 * ((newTrend - compareTrend) / compareTrend);
     }
 
-    private static int getStopCounter(List<Double> scores, Trend trend) {
+    private static int getStopCounter(List<Double> scores, Range range) {
         int stopCounter = scores.size();
 
-        switch (trend) {
+        switch (range) {
         case ALL_VALUES:
             stopCounter = 0;
-            break;
-        case LAST_5:
-            stopCounter -= 5;
             break;
         }
 
         return stopCounter;
     }
-
-    // public static Double compareSD(List<Double> compareScores, Double recentScore, Range range, Threshold threshold)
-    // {
-    // int stopCounter = getStopCounter(compareScores, range);
-    // Double previousSD = (calculateSD(compareScores, stopCounter));
-    // compareScores.add(recentScore);
-    // Double newSD = (calculateSD(compareScores, stopCounter));
-    //
-    // switch (threshold) {
-    // case GREATER:
-    // return newSD - previousSD;
-    // case PERCENT_CHANGE:
-    // return calculatePerChange(newSD, previousSD);
-    // }
-    // return newSD;
-    // }
-    //
-    // private static int getStopCounter(List<Double> compareScores, Range range) {
-    // int stopCounter = compareScores.size();
-    //
-    // /*
-    // * This switch case isn't used yet, as not sure how Delta should be compared with 3 or more scores.
-    // *
-    // * Possibly: log/print the change in delta that occurred in each test? Compare delta of the newest score and an
-    // * older, specific score? (e.g. return scores.get(totalScores-1) <= scores.get(stopCounter);)
-    // */
-    // switch (range) {
-    // case ALL_VALUES:
-    // stopCounter = 0;
-    // break;
-    // case LAST_5:
-    // stopCounter -= 5;
-    // break;
-    // case LAST_VALUE:
-    // default:
-    // break;
-    // }
-    //
-    // return stopCounter;
-    // }
-    //
-    // public static Double compareMean(List<Double> compareScores, Double recentScore, Range range, Threshold
-    // threshold) {
-    // Double average = 0.0;
-    // int stopCounter = getStopCounter(compareScores, range);
-    // int totalCounter = 0;
-    //
-    // for (int scoreIndex = compareScores.size()-1; scoreIndex >= stopCounter; scoreIndex--, totalCounter++) {
-    // average += compareScores.get(scoreIndex);
-    // }
-    // if (totalCounter != 0) {
-    // average /= (totalCounter);
-    // }
-    // switch (threshold) {
-    // case GREATER:
-    // return (recentScore - average);
-    // case PERCENT_CHANGE:
-    // return (calculatePerChange(average, recentScore));
-    // }
-    // return average;
-    // }
-    //
-    // public static Double compareDelta(List<Double> compareScores, Double recentScore, Range range, Threshold
-    // threshold) {
-    // int stopCounter = getStopCounter(compareScores, range);
-    // Double lastScoreFromPrevious = compareScores.get(compareScores.size() - 1); // gets the latest score
-    //
-    // switch (threshold) {
-    // case GREATER:
-    // return (recentScore - lastScoreFromPrevious);
-    // case PERCENT_CHANGE:
-    // return calculatePerChange(recentScore, lastScoreFromPrevious);
-    // }
-    //
-    // return (recentScore - compareScores.get(compareScores.size() - 1));
-    // }
-    //
-    // /**
-    // * NOTE: Not sure if 'calculate5MA' is still necessary, as it can be achieved by calling compareMean with a LAST_5
-    // * range
-    // *
-    // * 5-day moving average calculator:
-    // *
-    // * <pre>
-    // * public static double calculate5MA(List&lt;Double&gt; scores, int totalScores) {
-    // * double average = 0;
-    // * for (int scoreIndex = 0; scoreIndex < -5; scoreIndex++) {
-    // * average += scores.get(scoreIndex);
-    // * }
-    // * average /= 5;
-    // * return average;
-    // * }
-    // * </pre>
-    // *
-    // * 5-day moving average comparison (OLD):
-    // *
-    // * <pre>
-    // * public static boolean compare5MA(List&lt;Double&gt; scores, int totalScores) {
-    // * return calculate5MA(scores, totalScores = -1) <= calculate5MA(scores, totalScores);
-    // * }
-    // * </pre>
-    // */
-    //
-    // private static Double calculateSD(List<Double> scores, int stopCounter) {
-    // int numCounter = 0;
-    // double total = 0.0, average, sDeviate = 0.0;
-    // List<Double> tempScores = new ArrayList<>();
-    //
-    // for (int i = scores.size() - 1; i >= stopCounter; i--) {
-    // total += scores.get(i);
-    // tempScores.add(scores.get(i));
-    // numCounter++;
-    // }
-    // average = total / numCounter;
-    //
-    // for (Double score : tempScores) {
-    // sDeviate += Math.pow(score - average, 2);
-    // }
-    // return Math.sqrt(sDeviate / numCounter);
-    // }
-    //
-    // // percent change grabbing directly from list
-    // private static Double calculatePerChange(List<Double> scores, Double newestScore) {
-    // Double latestScore = scores.get(scores.size() - 1);
-    // return 100 * ((newestScore - latestScore) / latestScore);
-    // }
-    //
-    // // percent change if you already have the newest and previous score.
-    // private static Double calculatePerChange(Double previousScore, Double newestScore) {
-    // return 100 * ((newestScore - previousScore) / previousScore);
-    // }
-    //
-    // public static enum Range {
-    // ALL_VALUES, LAST_VALUE, LAST_5
-    // }
 
     public static enum Method {
         MEAN, DELTA, SD
@@ -301,8 +159,8 @@ public final class Comparisons {
         WITHIN, BETWEEN
     }
 
-    public static enum Trend {
-        ALL_VALUES, LAST_5, NONE
+    public static enum Range {
+        ALL_VALUES, LAST
     }
 
     public static enum Threshold {
