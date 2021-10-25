@@ -1,17 +1,17 @@
-function compareWithDeltaWithinVersion(withinVersionScores, threshold, range) {
+function deltaCompareWithinVersion(withinVersionScores, threshold, range) {
 	return Comparisons.compareWithDelta(withinVersionScores, threshold, range);
 }
 
-function compareWithSDWithinVersion(withinVersionScores, threshold, range) {
-	return Comparisons.compareWithSD(withinVersionScores, threshold, range);
+function sdCompareWithinVersion(withinVersionScores, range) {
+	return Comparisons.compareWithSD(withinVersionScores, range);
 }
 
-function compareWithDeltaBetweenVersions(currentVersionScores, compareVersionScores, threshold, range) {
+function deltaCompareBetweenVersions(currentVersionScores, compareVersionScores, threshold, range) {
 	return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range);
 }
 
-function compareWithSDBetweenVersions(currentVersionScores, compareVersionScores, threshold, range) {
-	return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, threshold, range);
+function sdCompareBetweenVersions(currentVersionScores, compareVersionScores, range) {
+	return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range);
 }
 
 function calculateDelta(newScore, compareValue, threshold) {
@@ -26,8 +26,8 @@ function calculateSD(scores) {
 	return Comparisons.calculateSD(scores);
 }
 
-function calculatePercentChange(newTrend, compareTrend) {
-	return Comparisons.calculatePercentChange(newTrend, compareTrend);
+function calculatePercentChange(newScore, compareScore) {
+	return Comparisons.calculatePercentChange(newScore, compareScore);
 }
 
 function getAllBenchmarks() {

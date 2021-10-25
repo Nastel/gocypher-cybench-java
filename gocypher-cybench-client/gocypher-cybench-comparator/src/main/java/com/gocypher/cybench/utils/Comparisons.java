@@ -37,11 +37,11 @@ public final class Comparisons {
     	return compareWithDelta(withinVersionScores, compareVersionScores, threshold, rangeString);
     }
     
-    public static Double compareWithSD(List<Double> withinVersionScores, Threshold threshold, String rangeString) {
+    public static Double compareWithSD(List<Double> withinVersionScores, String rangeString) {
     	List<Double> compareVersionScores = new ArrayList<>(withinVersionScores);
     	// remove new score to have a comparative list
     	compareVersionScores.remove(withinVersionScores.size() - 1);
-    	return compareWithSD(withinVersionScores, compareVersionScores, threshold, rangeString);
+    	return compareWithSD(withinVersionScores, compareVersionScores, rangeString);
     }
     
     // BETWEEN versions
@@ -56,8 +56,7 @@ public final class Comparisons {
         return calculateDelta(newScore, compareValue, threshold);
     }
     
-    public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores, 
-    		Threshold threshold, String rangeString) {
+    public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores, String rangeString) {
     	int currentVersionSize = currentVersionScores.size();
     	int compareVersionSize = compareVersionScores.size();
     	Integer range = validateRange(compareVersionScores, rangeString);
@@ -116,8 +115,8 @@ public final class Comparisons {
         return Math.sqrt(calculateMean(temp));
     }
 
-    private static Double calculatePercentChange(Double newTrend, Double compareTrend) {
-        return 100 * ((newTrend - compareTrend) / compareTrend);
+    private static Double calculatePercentChange(Double newScore, Double compareScore) {
+        return 100 * ((newScore - compareScore) / compareScore);
     }
 
     public static enum Method {

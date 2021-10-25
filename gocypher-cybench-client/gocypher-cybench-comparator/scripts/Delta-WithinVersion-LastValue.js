@@ -30,8 +30,8 @@ forEach.call(myFingerprints, function(fingerprint) {
 		currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
 		
 		forEach.call(currentVersionScoreModes, function(mode) {
-			var delta = compareWithDeltaWithinVersion(currentVersionScores.get(mode), threshold, range);
-			print(benchmarkName + ":" + mode + " - Within version " + currentVersion + ", the change in last value recorded was " + delta);
+			var delta = deltaCompareWithinVersion(currentVersionScores.get(mode), threshold, range);
+			print(benchmarkName + " : " + mode + " - Within version " + currentVersion + ", the change in last value recorded was " + delta);
 		});
 	}
 });

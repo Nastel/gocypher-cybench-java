@@ -365,8 +365,7 @@ public class CompareBenchmarks {
         			compareRange);
             break;
         case SD:
-        	COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareThreshold,
-        			compareRange);
+        	COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareRange);
             break;
         }
 
