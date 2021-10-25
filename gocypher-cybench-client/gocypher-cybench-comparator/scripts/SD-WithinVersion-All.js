@@ -32,7 +32,7 @@ forEach.call(myFingerprints, function(fingerprint) {
 		forEach.call(currentVersionScoreModes, function(mode) {
 			var deviationsFromMean = sdCompareWithinVersion(currentVersionScores.get(mode), range);
 			var pass = passAssertionDeviation(deviationsFromMean, deviationsAllowed);
-			print(benchmarkName + " : " + mode + " - Within version " + currentVersion + ", the new score is " + deviationsFromMean + " from the mean of the compared to scores");
+			print(benchmarkName + " : " + mode + " - Within version " + currentVersion + ", the new score is " + deviationsFromMean + " deviations from the mean of the compared scores");
 			if (pass) {
 				print("Passed test\n");
 			} else {
