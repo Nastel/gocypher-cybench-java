@@ -15,7 +15,7 @@ function calculateMean(scores) {
 }
 
 function calculateSD(scores) {
-	return Comparisons.calculateSD(scores, mean);
+	return Comparisons.calculateSD(scores);
 }
 
 function calculatePercentChange(newTrend, compareTrend) {
@@ -30,16 +30,16 @@ function getBenchmarksByFingerprint(benchmarkFingerprint) {
 	return Requests.getBenchmarks(benchmarkFingerprint);
 }
 
-function getBenchmarksByMode(benchmarkFingerprint, version) {
+function getBenchmarksByVersion(benchmarkFingerprint, version) {
 	return Requests.getBenchmarks(benchmarkFingerprint, version);
 }
 
-function getBenchmarksByVersion(benchmarkFingerprint, version, mode) {
+function getBenchmarksByMode(benchmarkFingerprint, version, mode) {
 	return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
 }
 
-function fetchBenchmarks(benchmarkFingerprint, accessToken) {
-	return Requests.getInstance().fetchBenchmarks(benchmarkFingerprint, benchmarkFingerprint, accessToken);
+function fetchBenchmarks(name, benchmarkFingerprint, accessToken) {
+	return Requests.getInstance().fetchBenchmarks(name, benchmarkFingerprint, accessToken);
 }
 
 function getFingerprintsFromReport(report) {

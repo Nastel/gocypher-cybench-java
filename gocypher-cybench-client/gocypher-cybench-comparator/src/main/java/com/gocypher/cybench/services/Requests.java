@@ -140,8 +140,8 @@ public class Requests {
         return true;
     }
     
-    public static List<String> getFingerprintsFromReport(String reportPath) {
-    	Set<String> fingerprintSet = new HashSet<>();
+    public static Map<String, String> getFingerprintsFromReport(String reportPath) {
+    	Map<String, String> fingerprints = new HashMap<>();
     	JSONObject benchmarkReport = null;
     	
         try {
@@ -159,17 +159,17 @@ public class Requests {
                 JSONArray packageBenchmarks = (JSONArray) pckg;
                 for (Object packageBenchmark : packageBenchmarks) {
                     JSONObject benchmark = (JSONObject) packageBenchmark;
+                    String benchmarkName = (String) benchmark.get("name");
                     String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
-                    fingerprintSet.add(benchmarkFingerprint);
+                    fingerprints.put(benchmarkFingerprint, benchmarkName);
                 }
             }
         }
         
-        if (fingerprintSet.isEmpty()) {
+        if (fingerprints.isEmpty()) {
         	log.info("No fingerprints found in passed report");
         }
         
-        List<String> fingerprints = new ArrayList<>(fingerprintSet);
         return fingerprints;
     }
 
