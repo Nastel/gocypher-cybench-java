@@ -50,8 +50,8 @@ compare.default:
     threshold: "greater"
     
 compare.A:
-    method: "SD"
     package: "com.my.package"
+    method: "SD"
     deviationsAllowed: "1"
     scope: "WITHIN"
     
