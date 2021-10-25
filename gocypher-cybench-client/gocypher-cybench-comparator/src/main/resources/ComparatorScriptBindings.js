@@ -38,8 +38,8 @@ function getBenchmarksByVersion(benchmarkFingerprint, version, mode) {
 	return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
 }
 
-function fetchBenchmarks(name, benchmarkFingerprint, accessToken) {
-	return Requests.getInstance().fetchBenchmarks(name, benchmarkFingerprint, accessToken);
+function fetchBenchmarks(benchmarkFingerprint, accessToken) {
+	return Requests.getInstance().fetchBenchmarks(benchmarkFingerprint, benchmarkFingerprint, accessToken);
 }
 
 function getFingerprintsFromReport(report) {
