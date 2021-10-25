@@ -1,5 +1,5 @@
-var myReport = "reports/report-1635189787321-807778.0724691927.cybench"; // report file path
-var myToken = "ws_305a4eb4-cbda-44fb-ba58-e89a7820e115_query"; // CyBench query token
+var myReport = ""; // report file path
+var myToken = ""; // CyBench query token
 
 // get all benchmarks <fingerprint : name> from report
 var myFingerprintsAndNames = new HashMap(getFingerprintsFromReport(myReport));
