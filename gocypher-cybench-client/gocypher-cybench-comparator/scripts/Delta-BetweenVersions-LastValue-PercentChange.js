@@ -34,7 +34,7 @@ forEach.call(myFingerprints, function(fingerprint) {
 		compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
 		forEach.call(currentVersionScoreModes, function(mode) {
 			if (compareVersionScoreModes.contains(mode)) {
-				var delta = deltaCompareWithinVersion(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
+				var delta = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
 				print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the percent change in last value recorded was " + delta + "%\n");
 			}
 		});
