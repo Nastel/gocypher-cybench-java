@@ -16,6 +16,7 @@ forEach.call(myFingerprints, function(fingerprint) {
 // COMPARATOR CONFIGURABLES //
 var currentVersion = "1.0.1";
 var range = "ALL";
+var deviationsAllowed = 3;
 
 var currentVersionScores;
 
@@ -29,8 +30,14 @@ forEach.call(myFingerprints, function(fingerprint) {
 		currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
 		
 		forEach.call(currentVersionScoreModes, function(mode) {
-			var deviations = sdCompareWithinVersion(currentVersionScores.get(mode), range);
-			print(benchmarkName + ":" + mode + " - Within version " + currentVersion + ", the new score is " + deviations + " from the mean of the compared to scores\n");
+			var deviationsFromMean = sdCompareWithinVersion(currentVersionScores.get(mode), range);
+			var pass = passAssertionDeviation(deviationsFromMean, deviationsAllowed);
+			print(benchmarkName + " : " + mode + " - Within version " + currentVersion + ", the new score is " + deviationsFromMean + " from the mean of the compared to scores");
+			if (pass) {
+				print("Passed test\n");
+			} else {
+				print("FAILED test\n");
+			}
 		});
 	}
 });

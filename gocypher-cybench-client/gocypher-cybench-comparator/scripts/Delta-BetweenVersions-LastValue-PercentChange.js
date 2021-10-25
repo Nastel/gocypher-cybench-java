@@ -18,6 +18,7 @@ var currentVersion = "1.0.1";
 var compareVersion = "1.0.0";
 var threshold = Comparisons.Threshold.PERCENT_CHANGE;
 var range = 1;
+var percentChangeAllowed = 10;
 
 var currentVersionScores;
 var compareVersionScores;
@@ -34,8 +35,14 @@ forEach.call(myFingerprints, function(fingerprint) {
 		compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
 		forEach.call(currentVersionScoreModes, function(mode) {
 			if (compareVersionScoreModes.contains(mode)) {
-				var delta = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
-				print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the percent change in last value recorded was " + delta + "%\n");
+				var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
+				var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
+				print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the percent change in last value recorded was " + percentChange + "%");
+				if (pass) {
+					print("Passed test\n");
+				} else {
+					print("FAILED test\n");
+				}
 			}
 		});
 	}

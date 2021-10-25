@@ -31,7 +31,13 @@ forEach.call(myFingerprints, function(fingerprint) {
 		
 		forEach.call(currentVersionScoreModes, function(mode) {
 			var delta = deltaCompareWithinVersion(currentVersionScores.get(mode), threshold, range);
+			var pass = passAssertionPositive(delta);
 			print(benchmarkName + " : " + mode + " - Within version " + currentVersion + ", the change in last value recorded was " + delta);
+			if (pass) {
+				print("Passed test\n");
+			} else {
+				print("FAILED test\n");
+			}
 		});
 	}
 });
