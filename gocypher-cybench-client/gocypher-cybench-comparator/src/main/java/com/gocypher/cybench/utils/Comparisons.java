@@ -1,9 +1,7 @@
 package com.gocypher.cybench.utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public final class Comparisons {
 
@@ -12,37 +10,39 @@ public final class Comparisons {
 
     public static Double compareWithDelta(List<Double> currentVersionScores, List<Double> compareVersionScores,
             Threshold threshold, Integer range) {
-    	int currentVersionSize = currentVersionScores.size();
-    	int compareVersionSize = compareVersionScores.size();
-    	Double newScore = currentVersionScores.get(currentVersionSize - 1);
-    	Double compareValue = calculateMean(compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
-        
+        int currentVersionSize = currentVersionScores.size();
+        int compareVersionSize = compareVersionScores.size();
+        Double newScore = currentVersionScores.get(currentVersionSize - 1);
+        Double compareValue = calculateMean(
+                compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
+
         return calculateDelta(newScore, compareValue, threshold);
     }
-    
-    public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores, 
-    		Threshold threshold, Integer range) {
-    	int currentVersionSize = currentVersionScores.size();
-    	int compareVersionSize = compareVersionScores.size();
-    	Double newScore = currentVersionScores.get(currentVersionSize - 1);
-        Double compareMean = calculateMean(compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
-        
-    	Double compareSD = calculateSD(compareVersionScores.subList(compareVersionSize - range, compareVersionSize), compareMean);
-    	
-    	Double SDfromMean = (Math.abs(newScore) + compareMean) / compareSD;
-    	if (newScore < compareMean) {
-    		compareSD *= -1;
-    	}
-    	return SDfromMean;
+
+    public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores,
+            Threshold threshold, Integer range) {
+        int currentVersionSize = currentVersionScores.size();
+        int compareVersionSize = compareVersionScores.size();
+        Double newScore = currentVersionScores.get(currentVersionSize - 1);
+        Double compareMean = calculateMean(
+                compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
+
+        double compareSD = calculateSD(compareVersionScores.subList(compareVersionSize - range, compareVersionSize),
+                compareMean);
+
+        Double SDfromMean = (Math.abs(newScore) + compareMean) / compareSD;
+        if (newScore < compareMean) {
+            compareSD *= -1;
+        }
+        return SDfromMean;
     }
-    
-    
+
     private static Double calculateDelta(Double newScore, Double compareValue, Threshold threshold) {
 
         Double difference = null;
 
         if (compareValue != null) {
-        	switch (threshold) {
+            switch (threshold) {
             case GREATER:
                 difference = newScore - compareValue;
                 break;
@@ -51,7 +51,7 @@ public final class Comparisons {
                 break;
             }
         }
-        
+
         return difference;
     }
 
@@ -67,9 +67,9 @@ public final class Comparisons {
         Double mean = calculateMean(scores);
         return calculateSD(scores, mean);
     }
-    
+
     public static Double calculateSD(List<Double> scores, Double mean) {
-    	List<Double> temp = new ArrayList<>();
+        List<Double> temp = new ArrayList<>();
 
         for (Double score : scores) {
             temp.add(Math.pow(score - mean, 2));

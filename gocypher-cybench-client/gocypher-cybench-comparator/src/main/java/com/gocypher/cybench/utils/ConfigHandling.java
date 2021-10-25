@@ -135,7 +135,7 @@ public class ConfigHandling {
                     defaultScope = (Comparisons.Scope) defaultVals.get("scope");
                 }
                 if (defaultVals.containsKey("range")) {
-                	defaultRange = (String) defaultVals.get("range");
+                    defaultRange = (String) defaultVals.get("range");
                 }
                 if (defaultVals.containsKey("threshold")) {
                     defaultThreshold = (Comparisons.Threshold) defaultVals.get("threshold");
@@ -144,7 +144,7 @@ public class ConfigHandling {
                     defaultPercentage = (Double) defaultVals.get("percentageAllowed");
                 }
                 if (defaultVals.containsKey("deviationsAllowed")) {
-                	defaultDeviations = (Double) defaultVals.get("deviationsAllowed");
+                    defaultDeviations = (Double) defaultVals.get("deviationsAllowed");
                 }
                 if (defaultVals.containsKey("version")) {
                     defaultVersion = (String) defaultVals.get("version");
@@ -165,13 +165,13 @@ public class ConfigHandling {
                 Comparisons.Method methodEnum = Comparisons.Method.valueOf(method);
                 compareVals.put("method", methodEnum);
             }
-            
+
             Comparisons.Method compareMethod = (Comparisons.Method) compareVals.get("method");
             if (compareMethod.equals(Comparisons.Method.SD)) {
                 if (!compareVals.containsKey("deviationsAllowed")) {
                     compareVals.put("deviationsAllowed", defaultDeviations);
                     log.warn("'{}': Deviations Allowed not specified, will allow: {}", simplifiedIdentifier,
-                    		defaultDeviations);
+                            defaultDeviations);
                 } else {
                     String deviationsStr = (String) compareVals.get("deviationsAllowed");
                     try {
@@ -185,14 +185,13 @@ public class ConfigHandling {
                     }
                 }
             } else {
-            	 if (compareVals.containsKey("deviationsAllowed")) {
-            		 log.warn(
-                             "'{}': Deviations allowed were specified, but method was specified as 'DELTA' - comparison does not require deviation values",
-                             simplifiedIdentifier);
-                     compareVals.remove("deviationsAllowed");
-            	 }
+                if (compareVals.containsKey("deviationsAllowed")) {
+                    log.warn(
+                            "'{}': Deviations allowed were specified, but method was specified as 'DELTA' - comparison does not require deviation values",
+                            simplifiedIdentifier);
+                    compareVals.remove("deviationsAllowed");
+                }
             }
-            
 
             if (!compareVals.containsKey("range")) {
                 log.warn("'{}': Range not defined, will use: {}", simplifiedIdentifier, defaultRange);
@@ -201,13 +200,13 @@ public class ConfigHandling {
                 String range = (String) compareVals.get("range");
                 range = range.toUpperCase();
                 if (!range.equals("ALL")) {
-                	try {
-                		Integer rangeInt = Integer.parseInt(range);
-                	} catch (Exception e) {
-                		log.warn("'{}': '{}' found in config file is not a valid comparison range - will use: {}",
+                    try {
+                        Integer rangeInt = Integer.parseInt(range);
+                    } catch (Exception e) {
+                        log.warn("'{}': '{}' found in config file is not a valid comparison range - will use: {}",
                                 simplifiedIdentifier, range, defaultRange);
-                		range = defaultRange;
-                	}
+                        range = defaultRange;
+                    }
                 }
                 compareVals.put("range", range);
             }
@@ -262,9 +261,8 @@ public class ConfigHandling {
                 }
             }
 
-
-            if(compareMethod.equals(Comparisons.Method.DELTA)) {
-            	if (!compareVals.containsKey("threshold")) {
+            if (compareMethod.equals(Comparisons.Method.DELTA)) {
+                if (!compareVals.containsKey("threshold")) {
                     log.warn("'{}': Threshold not defined, will use: {}", simplifiedIdentifier, defaultThreshold);
                     compareVals.put("threshold", defaultThreshold);
                 } else {
@@ -278,62 +276,64 @@ public class ConfigHandling {
                     Comparisons.Threshold thresholdEnum = Comparisons.Threshold.valueOf(threshold);
                     compareVals.put("threshold", thresholdEnum);
                 }
-            	
-	            Comparisons.Threshold compareThreshold = (Comparisons.Threshold) compareVals.get("threshold");
-	            if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-	                if (!compareVals.containsKey("percentageAllowed")) {
-	                    if (defaultVals.containsKey("percentageAllowed")) {
-	                        compareVals.put("percentageAllowed", defaultPercentage);
-	                        log.warn("'{}': Percentage not specified, will use percentage: {}", simplifiedIdentifier,
-	                                defaultPercentage);
-	                    } else {
-	                        log.warn(
-	                                "'{}': Compare threshold recognized as 'PERCENT_CHANGE' but no compare percentage was specified - please provide a percentage to compare with",
-	                                simplifiedIdentifier);
-	                        log.warn("'{}': Will use threshold: {}", simplifiedIdentifier, defaultThreshold);
-	                        compareVals.put("threshold", defaultThreshold);
-	                        compareVals.remove("percentageAllowed");
-	                    }
-	                } else {
-	                    String percentageStr = (String) compareVals.get("percentageAllowed");
-	                    try {
-	                        Double percentage = Double.parseDouble(percentageStr);
-	                        compareVals.put("percentageAllowed", percentage);
-	                        log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
-	                    } catch (Exception e) {
-	                        log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
-	                                simplifiedIdentifier, percentageStr, defaultPercentage);
-	                        compareVals.put("percentageAllowed", defaultPercentage);
-	                    }
-	                }
-	            } else {
-	                if (compareVals.containsKey("percentageAllowed") && compareThreshold.equals(Comparisons.Threshold.GREATER)) {
-	                    log.warn(
-	                            "'{}': Percentage was specified, but threshold was specified as 'GREATER' - will compare using the 'GREATER' threshold and ignore percentage value",
-	                            simplifiedIdentifier);
-	                    compareVals.remove("percentageAllowed");
-	                } else if (compareVals.containsKey("percentageAllowed")) {
-	                    String percentageStr = (String) compareVals.get("percentageAllowed");
-	                    try {
-	                        Double percentage = Double.parseDouble(percentageStr);
-	                        if (defaultThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-	                            compareVals.put("percentageAllowed", percentage);
-	                            log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
-	                        }
-	                    } catch (Exception e) {
-	                        log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
-	                                simplifiedIdentifier, percentageStr, defaultPercentage);
-	                        compareVals.put("percentageAllowed", defaultPercentage);
-	                    }
-	
-	                }
-	            }
+
+                Comparisons.Threshold compareThreshold = (Comparisons.Threshold) compareVals.get("threshold");
+                if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
+                    if (!compareVals.containsKey("percentageAllowed")) {
+                        if (defaultVals.containsKey("percentageAllowed")) {
+                            compareVals.put("percentageAllowed", defaultPercentage);
+                            log.warn("'{}': Percentage not specified, will use percentage: {}", simplifiedIdentifier,
+                                    defaultPercentage);
+                        } else {
+                            log.warn(
+                                    "'{}': Compare threshold recognized as 'PERCENT_CHANGE' but no compare percentage was specified - please provide a percentage to compare with",
+                                    simplifiedIdentifier);
+                            log.warn("'{}': Will use threshold: {}", simplifiedIdentifier, defaultThreshold);
+                            compareVals.put("threshold", defaultThreshold);
+                            compareVals.remove("percentageAllowed");
+                        }
+                    } else {
+                        String percentageStr = (String) compareVals.get("percentageAllowed");
+                        try {
+                            Double percentage = Double.parseDouble(percentageStr);
+                            compareVals.put("percentageAllowed", percentage);
+                            log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
+                        } catch (Exception e) {
+                            log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
+                                    simplifiedIdentifier, percentageStr, defaultPercentage);
+                            compareVals.put("percentageAllowed", defaultPercentage);
+                        }
+                    }
+                } else {
+                    if (compareVals.containsKey("percentageAllowed")
+                            && compareThreshold.equals(Comparisons.Threshold.GREATER)) {
+                        log.warn(
+                                "'{}': Percentage was specified, but threshold was specified as 'GREATER' - will compare using the 'GREATER' threshold and ignore percentage value",
+                                simplifiedIdentifier);
+                        compareVals.remove("percentageAllowed");
+                    } else if (compareVals.containsKey("percentageAllowed")) {
+                        String percentageStr = (String) compareVals.get("percentageAllowed");
+                        try {
+                            Double percentage = Double.parseDouble(percentageStr);
+                            if (defaultThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
+                                compareVals.put("percentageAllowed", percentage);
+                                log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
+                            }
+                        } catch (Exception e) {
+                            log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
+                                    simplifiedIdentifier, percentageStr, defaultPercentage);
+                            compareVals.put("percentageAllowed", defaultPercentage);
+                        }
+
+                    }
+                }
             } else {
-            	if (compareVals.containsKey("percentageAllowed")) {
-            		log.warn("'{}': Percentage was specified but method was specified as 'SD' - will ignore percentage and only compare using deviations allowed",
-            				simplifiedIdentifier);
-            		compareVals.remove("percentageAllowed");
-            	}
+                if (compareVals.containsKey("percentageAllowed")) {
+                    log.warn(
+                            "'{}': Percentage was specified but method was specified as 'SD' - will ignore percentage and only compare using deviations allowed",
+                            simplifiedIdentifier);
+                    compareVals.remove("percentageAllowed");
+                }
             }
 
             comparatorProps.put(identifier, compareVals);
