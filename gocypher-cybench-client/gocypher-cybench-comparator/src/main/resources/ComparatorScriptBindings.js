@@ -22,19 +22,19 @@ function calculatePercentChange(newTrend, compareTrend) {
 	return Comparisons.calculatePercentChange(newTrend, compareTrend);
 }
 
-function getBenchmarks() {
+function getAllBenchmarks() {
 	return Requests.getBenchmarks();
 }
 
-function getBenchmarks(benchmarkFingerprint) {
+function getBenchmarksByFingerprint(benchmarkFingerprint) {
 	return Requests.getBenchmarks(benchmarkFingerprint);
 }
 
-function getBenchmarks(benchmarkFingerprint, version) {
+function getBenchmarksByMode(benchmarkFingerprint, version) {
 	return Requests.getBenchmarks(benchmarkFingerprint, version);
 }
 
-function getBenchmarks(benchmarkFingerprint, version, mode) {
+function getBenchmarksByVersion(benchmarkFingerprint, version, mode) {
 	return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
 }
 
