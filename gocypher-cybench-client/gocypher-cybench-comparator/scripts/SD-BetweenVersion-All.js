@@ -34,6 +34,11 @@ forEach.call(myFingerprints, function(fingerprint) {
 			if (compareVersionScoreModes.contains(mode)) {
 				var SD = sdCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), range);
 				print(benchmarkName + ":" + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the new score is " + SD + " deviations from the mean.\n");
+			if (pass) {
+				print("Passed test\n");
+			}else {
+				print("FAILED test\n");
+			}
 			}
 		});
 	}
