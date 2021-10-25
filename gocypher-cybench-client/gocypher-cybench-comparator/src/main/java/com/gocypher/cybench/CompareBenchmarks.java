@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
+import javax.script.ScriptEngine;
 
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
@@ -50,7 +51,10 @@ public class CompareBenchmarks {
         
         if (scriptPath != null) {
         	log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
-        	ComparatorScriptEngine cse = new ComparatorScriptEngine(scriptPath);
+        	ComparatorScriptEngine cse = new ComparatorScriptEngine();
+        	File userScript = cse.loadUserScript(scriptPath);
+        	ScriptEngine engine = cse.prepareScriptEngine();
+        	cse.runUserScript(engine, userScript);
         } else if (configFilePath != null) {
         	log.info("Attempting to load comparator configurations at {}\n", configFilePath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configFilePath);

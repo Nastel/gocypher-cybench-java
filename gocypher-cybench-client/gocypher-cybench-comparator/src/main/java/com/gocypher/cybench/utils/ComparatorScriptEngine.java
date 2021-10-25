@@ -2,7 +2,6 @@ package com.gocypher.cybench.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -12,42 +11,36 @@ import javax.script.ScriptEngineManager;
 
 public class ComparatorScriptEngine {
 	
-	public ComparatorScriptEngine(String scriptPath){
-		loadUserScript(scriptPath);
+	public ComparatorScriptEngine(){ }
+	
+	public File loadUserScript(String scriptPath) {
+		File userScript = new File(scriptPath);
+		return userScript;
 	}
 	
-	public void loadUserScript(String scriptPath) {
-		File script = new File(scriptPath);
-		this.runUserScript(script);
-	}
-	
-	private ScriptEngine prepareScriptEngine() {
+	public ScriptEngine prepareScriptEngine() {
 		ScriptEngineManager factory = new ScriptEngineManager();
 		ScriptEngine engine = factory.getEngineByName("nashorn");
 		try {
-			
 			engine.eval("var Comparisons = Java.type('com.gocypher.cybench.utils.Comparisons');");
-			
+			engine.eval("var Requests = Java.type('com.gocypher.cybench.services.Requests');");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/CompareScriptBindings.js")));
 			engine.eval(reader);
-			
 		} catch (Exception se) {
 			se.printStackTrace();
 		}
 		return engine;
 	}
 	
-	private void runUserScript(File script) {
-		ScriptEngine engine = this.prepareScriptEngine();
-		
+	public void runUserScript(ScriptEngine engine, File script) {
 		Reader reader;
+		
 		try {
 			reader = new FileReader(script);
 			engine.eval(reader);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 }

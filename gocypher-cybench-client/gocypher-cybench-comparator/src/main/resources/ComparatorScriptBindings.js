@@ -21,3 +21,23 @@ function calculateSD(scores) {
 function calculatePercentChange(newTrend, compareTrend) {
 	return Comparisons.calculatePercentChange(newTrend, compareTrend);
 }
+
+function getBenchmarks() {
+	return Requests.getBenchmarks();
+}
+
+function getBenchmarks(benchmarkFingerprint) {
+	return Requests.getBenchmarks(benchmarkFingerprint);
+}
+
+function getBenchmarks(benchmarkFingerprint, version) {
+	return Requests.getBenchmarks(benchmarkFingerprint, version);
+}
+
+function getBenchmarks(benchmarkFingerprint, version, mode) {
+	return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
+}
+
+function fetchBenchmarks(name, benchmarkFingerprint, accessToken) {
+	return Requests.getInstance().fetchBenchmarks(name, benchmarkFingerprint, accessToken);
+}
