@@ -24,7 +24,7 @@ public class ComparatorScriptEngine {
 		try {
 			engine.eval("var Comparisons = Java.type('com.gocypher.cybench.utils.Comparisons');");
 			engine.eval("var Requests = Java.type('com.gocypher.cybench.services.Requests');");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/CompareScriptBindings.js")));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/ComparatorScriptBindings.js")));
 			engine.eval(reader);
 		} catch (Exception se) {
 			se.printStackTrace();

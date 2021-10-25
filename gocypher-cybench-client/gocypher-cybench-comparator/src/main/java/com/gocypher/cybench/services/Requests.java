@@ -1,7 +1,9 @@
 package com.gocypher.cybench.services;
 
+import java.io.File;
 import java.util.*;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -136,6 +138,38 @@ public class Requests {
         List<Double> testsWithinVersion = benchTable.get(version).get(mode);
         testsWithinVersion.add(score);
         return true;
+    }
+    
+    public static Set<String> getFingerprintsFromReport(String reportPath) {
+    	Set<String> fingerprints = new HashSet<>();
+    	JSONObject benchmarkReport = null;
+    	
+        try {
+        	File report = new File(reportPath);
+            String str = FileUtils.readFileToString(report, "UTF-8");
+            JSONParser parser = new JSONParser();
+            benchmarkReport = (JSONObject) parser.parse(str);
+        } catch (Exception e) {
+            log.error("* Failed to read report and grab fingerprint data", e);
+        }
+
+        if (benchmarkReport != null) {
+            JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");
+            for (Object pckg : packages.values()) {
+                JSONArray packageBenchmarks = (JSONArray) pckg;
+                for (Object packageBenchmark : packageBenchmarks) {
+                    JSONObject benchmark = (JSONObject) packageBenchmark;
+                    String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
+                    fingerprints.add(benchmarkFingerprint);
+                }
+            }
+        }
+        
+        if (fingerprints.isEmpty()) {
+        	log.info("No fingerprints found in passed report");
+        }
+        
+        return fingerprints;
     }
 
     public void close() {

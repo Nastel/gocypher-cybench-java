@@ -41,3 +41,7 @@ function getBenchmarks(benchmarkFingerprint, version, mode) {
 function fetchBenchmarks(name, benchmarkFingerprint, accessToken) {
 	return Requests.getInstance().fetchBenchmarks(name, benchmarkFingerprint, accessToken);
 }
+
+function getFingerprintsFromReport(report) {
+	return Requests.getFingerprintsFromReport(report);
+}
