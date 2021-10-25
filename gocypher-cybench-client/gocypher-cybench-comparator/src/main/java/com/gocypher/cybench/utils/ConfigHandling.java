@@ -29,8 +29,8 @@ public class ConfigHandling {
     public static final Double DEFAULT_PERCENTAGE_ALLOWED = 5.0;
     public static final String DEFAULT_COMPARE_VERSION = null;
 
-    public static Map<String, Object> loadYaml(String... args) {
-        File configFile = identifyConfigFile(args);
+    public static Map<String, Object> loadYaml(String configFilePath) {
+        File configFile = identifyConfigFile(configFilePath);
         Map<String, Object> comparatorProps = null;
         if (configFile.exists()) {
             Yaml configYaml = new Yaml();
@@ -46,17 +46,7 @@ public class ConfigHandling {
         return comparatorProps;
     }
 
-    public static File identifyConfigFile(String... args) {
-        String configFilePath = null;
-        for (String property : args) {
-            if (property.contains("cfg") || property.contains("config")) {
-                String[] tempConfigPath = property.split("=");
-                if (tempConfigPath.length > 1) {
-                    configFilePath = tempConfigPath[1];
-                    log.info("Attempting to load comparator configurations at {}\n", configFilePath);
-                }
-            }
-        }
+    public static File identifyConfigFile(String configFilePath) {
         if (configFilePath == null) {
             configFilePath = DEFAULT_COMPARATOR_CONFIG_PATH;
         }

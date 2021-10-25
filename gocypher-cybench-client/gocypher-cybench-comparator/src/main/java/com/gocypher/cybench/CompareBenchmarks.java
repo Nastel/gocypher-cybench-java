@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.services.Requests;
+import com.gocypher.cybench.utils.ComparatorScriptEngine;
 import com.gocypher.cybench.utils.Comparisons;
 import com.gocypher.cybench.utils.ConfigHandling;
 
@@ -29,24 +31,48 @@ public class CompareBenchmarks {
     @SuppressWarnings("unchecked")
     public static void main(String... args) throws Exception {
         log.info("* Analyzing benchmark performance...");
+        String scriptPath = null;
+        String configFilePath = null;
 
-        Map<String, Object> allConfigs = ConfigHandling.loadYaml(args);
-
-        Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
-                .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
-        Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
-
-        File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
-        String accessToken = (String) allConfigs.get("token");
-
-        if (recentReport != null && accessToken != null) {
-            analyzeBenchmarks(recentReport, accessToken, defaultConfigs, configuredPackages, allConfigs);
-        } else {
-            if (recentReport == null) {
-                log.error("* No recent report found to compare!");
-            } else if (accessToken == null) {
-                log.error("* Failed to authorize provided access token!");
+        for (String property : args) {
+        	if (property.contains("script")) {
+                String[] tempConfigPath = property.split("=");
+                if (tempConfigPath.length > 1) {
+                	scriptPath = tempConfigPath[1];
+                }
+            } else if (property.contains("cfg") || property.contains("config")) {
+                String[] tempConfigPath = property.split("=");
+                if (tempConfigPath.length > 1) {
+                    configFilePath = tempConfigPath[1];
+                }
             }
+        }
+        
+        if (scriptPath != null) {
+        	log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
+        	ComparatorScriptEngine cse = new ComparatorScriptEngine(scriptPath);
+        } else if (configFilePath != null) {
+        	log.info("Attempting to load comparator configurations at {}\n", configFilePath);
+            Map<String, Object> allConfigs = ConfigHandling.loadYaml(configFilePath);
+            
+            Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
+                    .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
+            Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
+
+            File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
+            String accessToken = (String) allConfigs.get("token");
+
+            if (recentReport != null && accessToken != null) {
+                analyzeBenchmarks(recentReport, accessToken, defaultConfigs, configuredPackages, allConfigs);
+            } else {
+                if (recentReport == null) {
+                    log.error("* No recent report found to compare!");
+                } else if (accessToken == null) {
+                    log.error("* Failed to authorize provided access token!");
+                }
+            }
+        } else {
+        	log.info("Failed to find custom script or configuration file");
         }
     }
 

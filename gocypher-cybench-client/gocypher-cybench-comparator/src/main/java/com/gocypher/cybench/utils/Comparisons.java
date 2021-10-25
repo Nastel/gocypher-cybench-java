@@ -37,7 +37,7 @@ public final class Comparisons {
     }
     
     
-    private static Double calculateDelta(Double newScore, Double compareValue, Threshold threshold) {
+    public static Double calculateDelta(Double newScore, Double compareValue, Threshold threshold) {
 
         Double difference = null;
 
