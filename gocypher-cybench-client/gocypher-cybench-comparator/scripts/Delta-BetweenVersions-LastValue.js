@@ -36,7 +36,7 @@ forEach.call(myFingerprints, function(fingerprint) {
 		forEach.call(currentVersionScoreModes, function(mode) {
 			if (compareVersionScoreModes.contains(mode)) {
 				var delta = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
-				print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the change in last value recorded was " + delta + "\n);
+				print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the change in last value recorded was " + delta + "\n");
 			}
 		});
 	}
