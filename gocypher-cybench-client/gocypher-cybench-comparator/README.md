@@ -189,7 +189,7 @@ forEach.call(myFingerprints, function(fingerprint) {
             * `Comparisons.Threshold.PERCENT_CHANGE` will be used for tests in which you want to measure the percent change of the score in comparison to the compare to scores
                 * If you choose to use these methods, you can use a `percentageAllowed` variable to run assertions and make sure your new score is within X percent of the compared to scores
 
-#### Exposed Methods for Use
+### Exposed Methods for Use
 
 * [Exposed Methods](src/main/resources/ComparatorScriptBindings.js)
     * These methods can be called in your .js script 
@@ -200,6 +200,7 @@ forEach.call(myFingerprints, function(fingerprint) {
 * `deltaCompareWithinVersion`, `sdCompareWithinVersion`, `deltaCompareBetweenVersions`, and `sdCompareBetweenVersions` are compare methods you can call with your scores that run all calculations behind the scenes and return `Double` values
 * `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are simple methods you can quickly access for your own calculations and return `Double` values
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to return `boolean` values that represent pass/fail
+
 
 ## YAML Configuration
 
@@ -286,50 +287,51 @@ A template `comparator.yaml` can be taken from this repository, and can/should b
 
 ### Comparison Configurations ###
 
-# method = how benchmarks will be compared
-### Options {delta, mean, SD, moving_average} ###
-
 # scope = (within or between project versions)
 ## Options {within, between} ##
 ### {within} will compare all benchmarks within the benchmarked version ###
 ### if {between} is chosen, must specify {version} (will compare benchmarked version to the specified version) ###
     ### add {version} to specify which version to compare to ###
 
-# range = the amount of benchmarks within the scope to compare to
-## Options {last_value, last_5, all_values} ##
-### {last_value} will compare to last value, {last_5} will compare to last 5 values, {all_values} will compare to all values within scope ###
+# range = {amount of values to compare against}
+## Options {all, (#)} - can specify the word "all" to compare against all values or any number X to compare against previous X recorded scores ##
+    ### to compare against just the previous score within your version or the most recent score in another version, specify range '1' ###
+    ### otherwise the new score will be compared against the mean of the previous X values ###
 
-# threshold = how to specify a passing benchmark 
-## Options {percent_change, greater} ##
-### {greater} will check to see if new score is simply greater than the compared to score ###
-### if {percent_change} is chosen, must specify {percentage} ###
-    ### percentage = percentage score should be within in order to pass ###
-    ### ex. 5% means the new score should be within 5% of the previous threshold ###
+# method = how benchmarks will be compared
+## Options {delta, SD} ##
+### if {SD} is chosen, must specify {deviationsAllowed} ###
+    ### {deviationsAllowed} = the amount of deviations you will allow your score to be away from the mean of the previous X values (X specified as {range}) ###
+### if {delta} is chosen, must specify {threshold} ###
+    # {threshold} = how to specify a passing benchmark 
+    ## Options {percent_change, greater} ##
+    ### {greater} will check to see if new score is simply greater than the compared to score ###
+    ### if {percent_change} is chosen, must specify {percentageAllowed} ###
+        ### {percentageAllowed} = percentage score should be within in order to pass ###
+        ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
 reports: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/"
 token: "ws_874a4eb4-fzsa-48fb-pr58-g8lwa7820e132_query"
 
 compare.default:
-    method: "MEAN"
-    package: "calctest.CalculatorTest"
+    method: "DELTA"
     scope: "BETWEEN"
-    threshold: "GREATER"
-    percentage: "1"
-    range: "ALL_VALUES"
-    version: "1.0.1"
-compare.A:
-    method: "MEAN"
-    package: "calctest.ClockTest"
-    scope: "WITHIN"
-    threshold: "PERCENT_CHANGE"
-    percentage: "15"
-    range: "LAST_VALUE"
+    version: "1.0.0"
+    range: "ALL"
+    threshold: "greater"
     
-#compare.B:
-  #  pacakge: "com.my.other.package"
-  #  percentage: "6"
-  #  threshold: "percent_change"
+compare.A:
+    package: "com.my.package"
+    method: "SD"
+    deviationsAllowed: "1"
+    scope: "WITHIN"
+    
+compare.B:
+    package: "com.my.other.package"
+    threshold: "PERCENT_CHANGE"
+    percentageAllowed: "10"
+    range: "2"
 ```
 #### Application
 
