@@ -67,8 +67,9 @@ public final class Comparisons {
     	Double compareSD = calculateSD(compareVersionScores.subList(compareVersionSize - range, compareVersionSize), compareMean);
     	
     	Double SDfromMean = (Math.abs(newScore) + compareMean) / compareSD;
+
     	if (newScore < compareMean) {
-    		compareSD *= -1;
+    		SDfromMean *= -1;
     	}
     	return SDfromMean;
     }
@@ -149,7 +150,7 @@ public final class Comparisons {
     }
     
     public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-    	return deviationsFromMean < deviationsAllowed;
+    	return Math.abs(deviationsFromMean) < deviationsAllowed;
     }
     
     public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
