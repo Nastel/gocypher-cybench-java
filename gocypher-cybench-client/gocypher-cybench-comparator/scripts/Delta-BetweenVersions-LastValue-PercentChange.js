@@ -16,7 +16,7 @@ forEach.call(myFingerprints, function(fingerprint) {
 // COMPARATOR CONFIGURABLES //
 var currentVersion = "1.0.1";
 var compareVersion = "1.0.0";
-var threshold = Comparisons.Threshold.GREATER;
+var threshold = Comparisons.Threshold.PERCENT_CHANGE;
 var range = 1;
 
 var currentVersionScores;
@@ -27,16 +27,15 @@ forEach.call(myFingerprints, function(fingerprint) {
 	currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
 	compareVersionScores = getBenchmarksByVersion(fingerprint, compareVersion);
 	var benchmarkName = myFingerprintsAndNames.get(fingerprint);
-	
+
 	if(currentVersionScores != null && compareVersionScores != null) {
 		// loop through each benchmarked mode within this version
 		currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
 		compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
-		
 		forEach.call(currentVersionScoreModes, function(mode) {
 			if (compareVersionScoreModes.contains(mode)) {
-				var delta = compareWithDeltaBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
-				print(benchmarkName + ":" + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the change in last value recorded was " + delta + "\n);
+				var delta = compareWithDelta(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
+				print(benchmarkName + ":" + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the percent change in last value recorded was " + delta + "%\n");
 			}
 		});
 	}

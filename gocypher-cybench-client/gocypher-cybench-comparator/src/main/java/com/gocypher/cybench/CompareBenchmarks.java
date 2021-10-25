@@ -331,8 +331,8 @@ public class CompareBenchmarks {
             }
         }
 
+        // range validation
         Integer range = null;
-        
         if (compareRange.equals("ALL")) {
         	range = compareVersionScores.size();
         } else {
@@ -341,9 +341,10 @@ public class CompareBenchmarks {
         		log.warn("{} - {}: There are not enough values to compare to within version ({}) with specific range ({}), will compare with as many values as possible", 
         				benchmarkName, benchmarkMode, benchmarkVersion, range);
         		range = compareVersionScores.size();
-        		compareRange = range.toString();
+        		
         	}
         }
+        compareRange = range.toString();
         
         if (compareScope.equals(Comparisons.Scope.WITHIN)) {
             compareVersion = benchmarkVersion;
@@ -361,11 +362,11 @@ public class CompareBenchmarks {
         switch (compareMethod) {
         case DELTA:
         	COMPARE_VALUE = Comparisons.compareWithDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
-        			range);
+        			compareRange);
             break;
         case SD:
         	COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareThreshold,
-        			range);
+        			compareRange);
             break;
         }
 

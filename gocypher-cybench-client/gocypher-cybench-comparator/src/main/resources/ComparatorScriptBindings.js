@@ -1,8 +1,16 @@
-function compareWithDelta(currentVersionScores, compareVersionScores, threshold, range) {
+function compareWithDeltaWithinVersion(withinVersionScores, threshold, range) {
+	return Comparisons.compareWithDelta(withinVersionScores, threshold, range);
+}
+
+function compareWithSDWithinVersion(withinVersionScores, threshold, range) {
+	return Comparisons.compareWithSD(withinVersionScores, threshold, range);
+}
+
+function compareWithDeltaBetweenVersions(currentVersionScores, compareVersionScores, threshold, range) {
 	return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range);
 }
 
-function compareWithSD(currentVersionScores, compareVersionScores, threshold, range) {
+function compareWithSDBetweenVersions(currentVersionScores, compareVersionScores, threshold, range) {
 	return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, threshold, range);
 }
 

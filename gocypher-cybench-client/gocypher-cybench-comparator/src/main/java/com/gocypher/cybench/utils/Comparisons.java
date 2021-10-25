@@ -3,15 +3,53 @@ package com.gocypher.cybench.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gocypher.cybench.CompareBenchmarks;
+
 public final class Comparisons {
+	private static final Logger log = LoggerFactory.getLogger(Comparisons.class);
 
     private Comparisons() {
     }
-
+    
+    public static Integer validateRange(List<Double> scores, String compareRange) {
+    	Integer range = null;
+    	int totalScores = scores.size();
+    	if (compareRange.equals("ALL")) {
+        	range = totalScores;
+        } else {
+        	range = Integer.parseInt(compareRange);
+        	if (range > totalScores) {
+        		log.warn("There are less scores to compare to than the specified range, will compare to as many as possible.");
+        		range = totalScores;
+        	}
+        }
+    	return range;
+    }
+    
+    // WITHIN version
+    public static Double compareWithDelta(List<Double> withinVersionScores, Threshold threshold, String rangeString) {
+    	List<Double> compareVersionScores = new ArrayList<>(withinVersionScores);
+    	// remove new score to have a comparative list
+    	compareVersionScores.remove(withinVersionScores.size() - 1);
+    	return compareWithDelta(withinVersionScores, compareVersionScores, threshold, rangeString);
+    }
+    
+    public static Double compareWithSD(List<Double> withinVersionScores, Threshold threshold, String rangeString) {
+    	List<Double> compareVersionScores = new ArrayList<>(withinVersionScores);
+    	// remove new score to have a comparative list
+    	compareVersionScores.remove(withinVersionScores.size() - 1);
+    	return compareWithSD(withinVersionScores, compareVersionScores, threshold, rangeString);
+    }
+    
+    // BETWEEN versions
     public static Double compareWithDelta(List<Double> currentVersionScores, List<Double> compareVersionScores,
-            Threshold threshold, Integer range) {
+            Threshold threshold, String rangeString) {
     	int currentVersionSize = currentVersionScores.size();
     	int compareVersionSize = compareVersionScores.size();
+    	Integer range = validateRange(compareVersionScores, rangeString);
     	Double newScore = currentVersionScores.get(currentVersionSize - 1);
     	Double compareValue = calculateMean(compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
         
@@ -19,9 +57,10 @@ public final class Comparisons {
     }
     
     public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores, 
-    		Threshold threshold, Integer range) {
+    		Threshold threshold, String rangeString) {
     	int currentVersionSize = currentVersionScores.size();
     	int compareVersionSize = compareVersionScores.size();
+    	Integer range = validateRange(compareVersionScores, rangeString);
     	Double newScore = currentVersionScores.get(currentVersionSize - 1);
         Double compareMean = calculateMean(compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
         
