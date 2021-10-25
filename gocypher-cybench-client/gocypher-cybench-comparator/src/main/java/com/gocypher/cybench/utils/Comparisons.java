@@ -130,4 +130,33 @@ public final class Comparisons {
     public static enum Threshold {
         PERCENT_CHANGE, GREATER
     }
+    
+    public static boolean passAssertion(Double COMPARE_VALUE, Method method, 
+    		Threshold threshold, Double percentageAllowed, Double deviationsAllowed) {
+    	
+    	// assert within x SDs from mean
+    	if (method.equals(Method.SD)) {
+    		return passAssertionDeviation(COMPARE_VALUE, deviationsAllowed);
+    	}
+    	
+    	// assert within x Percentage from COMPARE_VALUE
+        if (threshold.equals(Threshold.PERCENT_CHANGE)) {
+        	return passAssertionPercentage(COMPARE_VALUE, percentageAllowed);
+        }
+
+        // assert higher than COMPARE_VALUE
+        return passAssertionPositive(COMPARE_VALUE);
+    }
+    
+    public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
+    	return deviationsFromMean < deviationsAllowed;
+    }
+    
+    public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
+    	 return Math.abs(percentChange) < percentageAllowed;
+    }
+    
+    public static boolean passAssertionPositive(Double val) {
+    	return val >= 0;
+    }
 }

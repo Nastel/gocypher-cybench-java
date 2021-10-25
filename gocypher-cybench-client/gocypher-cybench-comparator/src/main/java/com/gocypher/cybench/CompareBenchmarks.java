@@ -370,7 +370,7 @@ public class CompareBenchmarks {
             break;
         }
 
-        boolean pass = passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentageAllowed, deviationsAllowed);
+        boolean pass = Comparisons.passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentageAllowed, deviationsAllowed);
         if (pass) {
             totalPassedBenchmarks++;
         } else {
@@ -382,34 +382,5 @@ public class CompareBenchmarks {
                 compareRange, compareThreshold, percentageAllowed, deviationsAllowed, compareVersion);
 
         return true;
-    }
-
-    private static boolean passAssertion(Double COMPARE_VALUE, Comparisons.Method method, 
-    		Comparisons.Threshold threshold, Double percentageAllowed, Double deviationsAllowed) {
-    	
-    	// assert within x SDs from mean
-    	if (method.equals(Comparisons.Method.SD)) {
-    		return passAssertionDeviation(COMPARE_VALUE, deviationsAllowed);
-    	}
-    	
-    	// assert within x Percentage from COMPARE_VALUE
-        if (threshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-        	return passAssertionPercentage(COMPARE_VALUE, percentageAllowed);
-        }
-
-        // assert higher than COMPARE_VALUE
-        return passAssertionPositive(COMPARE_VALUE);
-    }
-    
-    private static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-    	return deviationsFromMean < deviationsAllowed;
-    }
-    
-    private static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
-    	 return Math.abs(percentChange) < percentageAllowed;
-    }
-    
-    private static boolean passAssertionPositive(Double val) {
-    	return val >= 0;
     }
 }

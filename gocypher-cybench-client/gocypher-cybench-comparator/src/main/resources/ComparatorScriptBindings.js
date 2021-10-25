@@ -53,3 +53,15 @@ function fetchBenchmarks(name, benchmarkFingerprint, accessToken) {
 function getFingerprintsFromReport(report) {
 	return Requests.getFingerprintsFromReport(report);
 }
+
+function passAssertionDeviation(deviationsFromMean, deviationsAllowed) {
+	return Comparisons.passAssertionDeviation(deviationsFromMean, deviationsAllowed);
+}
+
+function passAssertionPercentage(percentChange, percentageAllowed) {
+	return Comparisons.passAssertionPercentage(percentChange, percentageAllowed);
+}
+
+function passAssertionPositive(val) {
+	return Comparisons.passAssertionPositive(val);
+}
