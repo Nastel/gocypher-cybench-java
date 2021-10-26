@@ -34,11 +34,6 @@ forEach.call(myFingerprints, function (fingerprint) {
         forEach.call(currentVersionScoreModes, function (mode) {
             var delta = deltaCompareWithinVersionWithLogging(currentVersionScores.get(mode), threshold, range, benchmarkName, mode, currentVersion);
             var pass = passAssertionPositive(delta);
-            if (pass) {
-                print("Passed test");
-            } else {
-                print("FAILED test");
-            }
         });
     }
 });

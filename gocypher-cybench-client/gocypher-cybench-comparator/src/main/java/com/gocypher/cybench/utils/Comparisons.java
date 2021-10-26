@@ -88,14 +88,14 @@ public final class Comparisons {
 	// Compare Methods with Logging
 	public static Double compareWithDelta(List<Double> withinVersionScores, Threshold threshold, String rangeString,
 			String benchmarkName, String mode, String currentVersion) {
-		log.info("{} : {} - Within version {} delta comparison running", benchmarkName, mode, currentVersion);
+		log.info("COMPARISON: {} : {} - Within version {} delta running", benchmarkName, mode, currentVersion);
 		Double delta = compareWithDelta(withinVersionScores, threshold, rangeString);
 		return delta;
 	}
 
 	public static Double compareWithSD(List<Double> withinVersionScores, String rangeString, String benchmarkName,
 			String mode, String currentVersion) {
-		log.info("{} : {} - Within version {} SD comparison running", benchmarkName, mode, currentVersion);
+		log.info("COMPARISON: {} : {} - Within version {} SD running", benchmarkName, mode, currentVersion);
 		Double SDfromMean = compareWithSD(withinVersionScores, rangeString);
 		return SDfromMean;
 	}
@@ -103,7 +103,7 @@ public final class Comparisons {
 	public static Double compareWithDelta(List<Double> currentVersionScores, List<Double> compareVersionScores,
 			Threshold threshold, String rangeString, String benchmarkName, String mode, String currentVersion,
 			String previousVersion) {
-		log.info("{} : {} - Between current version {} and previous version {} delta comparison running", benchmarkName,
+		log.info("COMPARISON: {} : {} - Between current version {} and previous version {} delta running", benchmarkName,
 				mode, currentVersion, previousVersion);
 		Double delta = compareWithDelta(currentVersionScores, compareVersionScores, threshold, rangeString);
 		return delta;
@@ -111,7 +111,7 @@ public final class Comparisons {
 
 	public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores,
 			String rangeString, String benchmarkName, String mode, String currentVersion, String previousVersion) {
-		log.info("{} : {} - Between current version {} and previous version {} SD comparison running", benchmarkName,
+		log.info("COMPARISON: {} : {} - Between current version {} and previous version {} SD running", benchmarkName,
 				mode, currentVersion, previousVersion);
 		Double SDfromMean = compareWithSD(currentVersionScores, compareVersionScores, rangeString);
 		return SDfromMean;
@@ -193,14 +193,32 @@ public final class Comparisons {
 	}
 
 	public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-		return Math.abs(deviationsFromMean) < deviationsAllowed;
+		if (Math.abs(deviationsFromMean) < deviationsAllowed) {
+			log.info("Passed test");
+			return true;
+		} else {
+			log.warn("FAILED test");
+			return false;
+		}
 	}
 
 	public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
-		return Math.abs(percentChange) < percentageAllowed;
+		if (Math.abs(percentChange) < percentageAllowed) {
+			log.info("Passed test");
+			return true;
+		} else {
+			log.warn("FAILED test");
+			return false;
+		}
 	}
 
 	public static boolean passAssertionPositive(Double val) {
-		return val >= 0;
+		if (val >= 0) {
+			log.info("Passed test");
+			return true;
+		} else {
+			log.warn("FAILED test");
+			return false;
+		}
 	}
 }

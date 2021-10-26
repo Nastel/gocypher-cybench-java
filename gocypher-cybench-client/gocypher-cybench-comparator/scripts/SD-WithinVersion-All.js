@@ -34,11 +34,6 @@ forEach.call(myFingerprints, function (fingerprint) {
         forEach.call(currentVersionScoreModes, function (mode) {
             var deviationsFromMean = sdCompareWithinVersionWithLogging(currentVersionScores.get(mode), range, benchmarkName, mode, currentVersion);
             var pass = passAssertionDeviation(deviationsFromMean, deviationsAllowed);
-            if (pass) {
-                print("Passed test");
-            } else {
-                print("FAILED test");
-            }
         });
     }
 });

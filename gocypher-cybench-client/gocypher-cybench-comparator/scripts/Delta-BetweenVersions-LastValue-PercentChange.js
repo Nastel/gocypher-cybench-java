@@ -41,11 +41,6 @@ forEach.call(myFingerprints, function (fingerprint) {
             if (compareVersionScoreModes.contains(mode)) {
                 var percentChange = deltaCompareBetweenVersionsWithLogging(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range, benchmarkName, mode, currentVersion, previousVersion);
                 var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
-                if (pass) {
-                    print("Passed test");
-                } else {
-                    print("FAILED test");
-                }
             }
         });
     }
