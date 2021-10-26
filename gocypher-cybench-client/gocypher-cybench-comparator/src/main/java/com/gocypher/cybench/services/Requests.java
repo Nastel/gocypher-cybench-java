@@ -16,6 +16,8 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gocypher.cybench.utils.ConfigHandling;
+
 public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
 
@@ -169,7 +171,14 @@ public class Requests {
         JSONObject benchmarkReport = null;
 
         try {
-            File report = new File(reportPath);
+        	File report = null;
+        	if(reportPath.endsWith(".cybench")) {
+        		// is a file
+        		report = new File(reportPath);
+        	} else {
+        		// is a folder of all reports
+        		report = ConfigHandling.identifyRecentReport(reportPath);
+        	}
             String str = FileUtils.readFileToString(report, "UTF-8");
             JSONParser parser = new JSONParser();
             benchmarkReport = (JSONObject) parser.parse(str);
