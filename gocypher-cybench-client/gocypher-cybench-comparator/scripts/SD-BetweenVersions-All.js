@@ -37,9 +37,8 @@ forEach.call(myFingerprints, function (fingerprint) {
 
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var SD = sdCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), range);
-                var pass = passAssertionPositive(SD);
-                print(benchmarkName + ":" + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the new score is " + SD + " deviations from the mean.");
+                var deviationsFromMean = sdCompareBetweenVersionsWithLogging(currentVersionScores.get(mode), previousVersionScores.get(mode), range, benchmarkName, mode, currentVersion, previousVersion);
+                var pass = passAssertionPositive(deviationsFromMean);
                 if (pass) {
                     print("Passed test");
                 } else {

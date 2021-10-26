@@ -227,6 +227,7 @@ forEach.call(myFingerprints, function (fingerprint) {
 * `deltaCompareWithinVersion`, `sdCompareWithinVersion`, `deltaCompareBetweenVersions`, and `sdCompareBetweenVersions`
   are compare methods you can call with your scores that run all calculations behind the scenes and return `Double`
   values
+	* These methods also have separate logging signatures that allow you to pass more parameters for better logging outputs
 * `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are simple methods you can quickly
   access for your own calculations and return `Double` values
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to

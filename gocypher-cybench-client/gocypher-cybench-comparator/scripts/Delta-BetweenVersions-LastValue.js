@@ -39,9 +39,8 @@ forEach.call(myFingerprints, function (fingerprint) {
 
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var delta = deltaCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range);
+                var delta = deltaCompareBetweenVersionsWithLogging(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range, benchmarkName, mode, currentVersion, previousVersion);
                 var pass = passAssertionPositive(delta);
-                print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the change in last value recorded was " + delta);
                 if (pass) {
                     print("Passed test");
                 } else {
