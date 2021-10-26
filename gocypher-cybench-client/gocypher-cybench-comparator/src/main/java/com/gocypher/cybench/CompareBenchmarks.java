@@ -120,6 +120,7 @@ public class CompareBenchmarks {
                     String benchmarkMode = (String) benchmark.get("mode");
                     String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
                     namesToFingerprints.put(benchmarkName, benchmarkFingerprint);
+                    Requests.fingerprintsToNames.put(benchmarkFingerprint, benchmarkName);
                     // fetch and store data from CyBench UI
                     if (Requests.getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, accessToken)) {
                         // store new data in map if this report hasn't been added already

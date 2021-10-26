@@ -25,11 +25,6 @@ forEach.call(myFingerprints, function (fingerprint) {
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
     previousVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
-	
-	if (currentVersionScores == null)
-		print(benchmarkName + " does not have any benchmarks within version " + currentVersion);
-	if (previousVersionScores == null)
-		print(benchmarkName + " does not have any benchmarks within version " + previousVersion);
 
     if (currentVersionScores != null && previousVersionScores != null) {
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());

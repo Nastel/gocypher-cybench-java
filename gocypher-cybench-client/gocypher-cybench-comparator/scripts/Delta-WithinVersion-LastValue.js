@@ -23,9 +23,6 @@ forEach.call(myFingerprints, function (fingerprint) {
     // get all benchmarks recorded for specified version (possible returns null!)
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
-	
-	if (currentVersionScores == null)
-		print(benchmarkName + " does not have any benchmarks within version " + currentVersion);
 
     if (currentVersionScores != null) {
         // loop through each benchmarked mode within this version

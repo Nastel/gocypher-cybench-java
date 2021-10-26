@@ -28,12 +28,14 @@ public class Requests {
     private String tagFingerprint = "benchmarkTag";
 
     // <Benchmark Fingerprint : <Version : <Mode : <List of Scores in Test Order>>>>
-    public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarkTables;
+    public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarkTables = new HashMap<>();
+    // <fingerprint : name>
+    public static Map<String, String> fingerprintsToNames = new HashMap<>();
     // keep track of reports preventing duplicates
-    public static Set<String> reportIDs;
+    public static Set<String> reportIDs = new HashSet<>();
     
-    private static String currentVersion;
-    private static String previousVersion;
+    private static String currentVersion = null;
+    private static String previousVersion = null;
 
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -43,28 +45,40 @@ public class Requests {
     public static Requests getInstance() {
         if (instance == null) {
             instance = new Requests();
-            allBenchmarkTables = new HashMap<>();
-            reportIDs = new HashSet<>();
-            currentVersion = null;
-            previousVersion = null;
         }
         return instance;
     }
 
     public static Map<String, Map<String, Map<String, List<Double>>>> getBenchmarks() {
-        return allBenchmarkTables;
+    	Map<String, Map<String, Map<String, List<Double>>>> val = allBenchmarkTables;
+    	if (val == null) {
+    		log.warn("There are no benchmarks!");
+    	}
+    	return val;
     }
 
     public static Map<String, Map<String, List<Double>>> getBenchmarks(String benchmarkFingerprint) {
-        return allBenchmarkTables.get(benchmarkFingerprint);
+    	Map<String, Map<String, List<Double>>> val = allBenchmarkTables.get(benchmarkFingerprint);
+        if (val == null) {
+    		log.warn("There are no benchmarks for {}!", fingerprintsToNames.get(benchmarkFingerprint));
+    	}
+    	return val;
     }
 
     public static Map<String, List<Double>> getBenchmarks(String benchmarkFingerprint, String version) {
-        return getBenchmarks(benchmarkFingerprint).get(version);
+    	Map<String, List<Double>> val = getBenchmarks(benchmarkFingerprint).get(version);
+        if (val == null) {
+    		log.warn("There are no benchmarks for {}, version {}!", fingerprintsToNames.get(benchmarkFingerprint), version);
+    	}
+    	return val;
     }
 
     public static List<Double> getBenchmarks(String benchmarkFingerprint, String version, String mode) {
-        return getBenchmarks(benchmarkFingerprint, version).get(mode);
+    	List<Double> val =  getBenchmarks(benchmarkFingerprint, version).get(mode);
+        if (val == null) {
+    		log.warn("There are no benchmarks for {}, version {}, mode {}!", fingerprintsToNames.get(benchmarkFingerprint), version, mode);
+    	}
+    	return val;
     }
 
     public static Set<String> getReports() {
@@ -203,6 +217,8 @@ public class Requests {
             log.info("No fingerprints found in passed report");
         }
 
+        fingerprintsToNames = fingerprints;
+        
         return fingerprints;
     }
     
