@@ -69,21 +69,21 @@ var range = 1;
 var percentChangeAllowed = 10;
 
 var currentVersionScores;
-var compareVersionScores;
+var previousVersionScores;
 
 forEach.call(myFingerprints, function (fingerprint) {
     // get all benchmarks recorded for specified version (possible returns null!)
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    compareVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
+    previousVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
 
-    if (currentVersionScores != null && compareVersionScores != null) {
+    if (currentVersionScores != null && previousVersionScores != null) {
         // loop through each benchmarked mode within this version
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
-        compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
+        compareVersionScoreModes = new ArrayList(previousVersionScores.keySet());
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
+                var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range);
                 var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
                 print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the percent change in last value recorded was " + percentChange + "%");
                 if (pass) {
@@ -125,7 +125,7 @@ var range = 1;
 var percentChangeAllowed = 10;
 
 var currentVersionScores;
-var compareVersionScores;
+var previousVersionScores;
  ```
 
 * This is where you will be able to customize the type of comparison you will run.
@@ -135,16 +135,16 @@ var compareVersionScores;
 forEach.call(myFingerprints, function (fingerprint) {
     // get all benchmarks recorded for specified version (possible returns null!)
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    compareVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
+    previousVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
 
-    if (currentVersionScores != null && compareVersionScores != null) {
+    if (currentVersionScores != null && previousVersionScores != null) {
         // loop through each benchmarked mode within this version
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
-        compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
+        compareVersionScoreModes = new ArrayList(previousVersionScores.keySet());
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
+                var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range);
                 var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
                 print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the percent change in last value recorded was " + percentChange + "%");
                 if (pass) {
@@ -169,15 +169,15 @@ forEach.call(myFingerprints, function (fingerprint) {
         * Note: we have to check to make sure both versions have a test within the mode being looped through for the
           same reason as before
     * Next come the comparisons and assertions
-        * `var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);`
+        * `var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range);`
           calls a `delta` compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
           below
-            * It compares the current verison scores under a specific mode to the compare version scores under the same
+            * It compares the current verison scores under a specific mode to the previous version scores under the same
               mode.
             * The comparison is marked with a threshold of `PERCENT_CHANGE` which means we are looking for a percent
               change in value as opposed to a straight delta value
             * The comparison is marked with a range of `1` which means we are only looking at the last (most recent)
-              value of `compareVersionScores.get(mode)` and comparing it to the most recent score
+              value of `previousVersionScores.get(mode)` and comparing it to the most recent score
               in `currentVersionScores.get(mode)`
         * `var pass = passAssertionPercentage(percentChange, percentChangeAllowed);` calls an assertion method that
           checks to see if the `percent change` is within the `percentChangeAllowed` specified by you

@@ -1,4 +1,4 @@
-var myReport = ""; // report file path
+var myReport = ""; // report file path OR report folder path
 var myToken = ""; // CyBench query token
 
 // get all benchmarks <fingerprint : name> from report

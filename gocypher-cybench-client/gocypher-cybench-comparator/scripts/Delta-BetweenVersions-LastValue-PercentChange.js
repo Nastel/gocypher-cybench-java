@@ -1,4 +1,4 @@
-var myReport = ""; // report file path
+var myReport = ""; // report file path OR report folder path
 var myToken = ""; // CyBench query token
 
 // get all benchmarks <fingerprint : name> from report
@@ -20,21 +20,21 @@ var range = 1;
 var percentChangeAllowed = 10;
 
 var currentVersionScores;
-var compareVersionScores;
+var previousVersionScores;
 
 forEach.call(myFingerprints, function (fingerprint) {
     // get all benchmarks recorded for specified version (possible returns null!)
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    compareVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
+    previousVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
 
-    if (currentVersionScores != null && compareVersionScores != null) {
+    if (currentVersionScores != null && previousVersionScores != null) {
         // loop through each benchmarked mode within this version
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
-        compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
+        compareVersionScoreModes = new ArrayList(previousVersionScores.keySet());
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
+                var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range);
                 var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
                 print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the percent change in last value recorded was " + percentChange + "%");
                 if (pass) {

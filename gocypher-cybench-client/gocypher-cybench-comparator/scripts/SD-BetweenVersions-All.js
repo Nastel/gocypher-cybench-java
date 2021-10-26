@@ -1,4 +1,4 @@
-var myReport = ""; // report file path
+var myReport = ""; // report file path OR report folder path
 var myToken = ""; // CyBench query token
 
 // get all benchmarks <fingerprint : name> from report
@@ -18,21 +18,21 @@ var previousVersion = getPreviousVersion();
 var range = "ALL";
 
 var currentVersionScores;
-var compareVersionScores;
+var previousVersionScores;
 
 
 forEach.call(myFingerprints, function (fingerprint) {
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    compareVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
+    previousVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
 
-    if (currentVersionScores != null && compareVersionScores != null) {
+    if (currentVersionScores != null && previousVersionScores != null) {
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
-        compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
+        compareVersionScoreModes = new ArrayList(previousVersionScores.keySet());
 
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var SD = sdCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), range);
+                var SD = sdCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), range);
                 var pass = passAssertionPositive(SD);
                 print(benchmarkName + ":" + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the new score is " + SD + " deviations from the mean.\n");
                 if (pass) {
