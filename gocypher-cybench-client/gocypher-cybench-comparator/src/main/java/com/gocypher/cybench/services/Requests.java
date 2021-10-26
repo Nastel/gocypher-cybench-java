@@ -29,6 +29,9 @@ public class Requests {
     public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarkTables;
     // keep track of reports preventing duplicates
     public static Set<String> reportIDs;
+    
+    private static String currentVersion;
+    private static String previousVersion;
 
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -40,6 +43,8 @@ public class Requests {
             instance = new Requests();
             allBenchmarkTables = new HashMap<>();
             reportIDs = new HashSet<>();
+            currentVersion = null;
+            previousVersion = null;
         }
         return instance;
     }
@@ -91,6 +96,14 @@ public class Requests {
         }
         return true;
     }
+    
+    public void close() {
+        try {
+            httpClient.close();
+        } catch (Exception e) {
+            log.error("Error closing http client", e);
+        }
+    }
 
     private static boolean storeFetchedBenchmarkData(String benchmarkFingerprint, JSONArray benchmarkList) {
         if (!allBenchmarkTables.containsKey(benchmarkFingerprint)) {
@@ -137,6 +150,17 @@ public class Requests {
         }
         List<Double> testsWithinVersion = benchTable.get(version).get(mode);
         testsWithinVersion.add(score);
+        
+        if (currentVersion == null) {
+        	currentVersion = version;
+        	previousVersion = version;
+        } else if (isNewerVersion(version, currentVersion)) {
+        	previousVersion = currentVersion;
+        	currentVersion = version;
+        }else if (isNewerVersion(version, previousVersion) && isOlderVersion(version, currentVersion)) {
+        	previousVersion = version;
+        }
+        
         return true;
     }
 
@@ -172,12 +196,46 @@ public class Requests {
 
         return fingerprints;
     }
-
-    public void close() {
-        try {
-            httpClient.close();
-        } catch (Exception e) {
-            log.error("Error closing http client", e);
-        }
+    
+    public static boolean isNewerVersion(String newVersion, String currentVersion) {
+    	if (currentVersion.equals(newVersion))
+    		return false;
+    	
+    	List<String> newVersionDotSplit = Arrays.asList(newVersion.split("."));
+    	List<String> currentVersionDotSplit = Arrays.asList(currentVersion.split("."));
+    	int currentVersionDotSize = currentVersionDotSplit.size();
+    	
+    	for (int i = 0; i < newVersionDotSplit.size(); i++) {
+    		if (currentVersionDotSize == i) {
+    			// newVersion has an additional dot and is therefore newer after all previous subversions have been deemed equivalent
+    			return true;
+    		} else {
+    			int comparedValue = newVersionDotSplit.get(i).compareTo(currentVersionDotSplit.get(i));
+    			// if this is positive, the subversion is newer at that dot
+    			// if this is negative, the subversion is older at that dot
+    			// if this is 0, the subversion is the same at that dot
+    			if (comparedValue > 0) {
+    				return true;
+    			} else if (comparedValue < 0) {
+    				return false;
+    			}
+    		}
+    	}
+    	return false;
+    }
+    
+    public static boolean isOlderVersion(String newVersion, String currentVersion) {
+    	if (currentVersion.equals(newVersion))
+    		return false;
+    	// TODO
+    	return false;
+    }
+    
+    public static String getCurrentVersion() {
+    	return currentVersion;
+    }
+    
+    public static String getPreviousVersion() {
+    	return previousVersion;
     }
 }
