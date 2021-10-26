@@ -25,6 +25,11 @@ forEach.call(myFingerprints, function (fingerprint) {
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
     previousVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
+	
+	if (currentVersionScores == null)
+		print(benchmarkName + " does not have any benchmarks within version " + currentVersion);
+	if (previousVersionScores == null)
+		print(benchmarkName + " does not have any benchmarks within version " + previousVersion);
 
     if (currentVersionScores != null && previousVersionScores != null) {
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
@@ -34,11 +39,11 @@ forEach.call(myFingerprints, function (fingerprint) {
             if (compareVersionScoreModes.contains(mode)) {
                 var SD = sdCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), range);
                 var pass = passAssertionPositive(SD);
-                print(benchmarkName + ":" + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the new score is " + SD + " deviations from the mean.\n");
+                print(benchmarkName + ":" + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the new score is " + SD + " deviations from the mean.");
                 if (pass) {
-                    print("Passed test\n");
+                    print("Passed test");
                 } else {
-                    print("FAILED test\n");
+                    print("FAILED test");
                 }
             }
         });
