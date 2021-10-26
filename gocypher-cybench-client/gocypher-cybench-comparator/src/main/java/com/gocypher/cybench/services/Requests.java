@@ -139,13 +139,13 @@ public class Requests {
         testsWithinVersion.add(score);
         return true;
     }
-    
+
     public static Map<String, String> getFingerprintsFromReport(String reportPath) {
-    	Map<String, String> fingerprints = new HashMap<>();
-    	JSONObject benchmarkReport = null;
-    	
+        Map<String, String> fingerprints = new HashMap<>();
+        JSONObject benchmarkReport = null;
+
         try {
-        	File report = new File(reportPath);
+            File report = new File(reportPath);
             String str = FileUtils.readFileToString(report, "UTF-8");
             JSONParser parser = new JSONParser();
             benchmarkReport = (JSONObject) parser.parse(str);
@@ -165,11 +165,11 @@ public class Requests {
                 }
             }
         }
-        
+
         if (fingerprints.isEmpty()) {
-        	log.info("No fingerprints found in passed report");
+            log.info("No fingerprints found in passed report");
         }
-        
+
         return fingerprints;
     }
 

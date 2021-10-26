@@ -36,10 +36,10 @@ public class CompareBenchmarks {
         String configFilePath = null;
 
         for (String property : args) {
-        	if (property.contains("script")) {
+            if (property.contains("script")) {
                 String[] tempConfigPath = property.split("=");
                 if (tempConfigPath.length > 1) {
-                	scriptPath = tempConfigPath[1];
+                    scriptPath = tempConfigPath[1];
                 }
             } else if (property.contains("cfg") || property.contains("config")) {
                 String[] tempConfigPath = property.split("=");
@@ -49,34 +49,34 @@ public class CompareBenchmarks {
             }
         }
         if (scriptPath != null) {
-        	log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
-        	ComparatorScriptEngine cse = new ComparatorScriptEngine();
-        	File userScript = cse.loadUserScript(scriptPath);
-        	ScriptEngine engine = cse.prepareScriptEngine();
-        	cse.runUserScript(engine, userScript);
+            log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
+            ComparatorScriptEngine cse = new ComparatorScriptEngine();
+            File userScript = cse.loadUserScript(scriptPath);
+            ScriptEngine engine = cse.prepareScriptEngine();
+            cse.runUserScript(engine, userScript);
         } else if (configFilePath != null) {
-        	log.info("Attempting to load comparator configurations at {}\n", configFilePath);
+            log.info("Attempting to load comparator configurations at {}\n", configFilePath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configFilePath);
-            
-        Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
-                .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
-        Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
 
-        File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
-        String accessToken = (String) allConfigs.get("token");
+            Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
+                    .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
+            Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
 
-        if (recentReport != null && accessToken != null) {
-            analyzeBenchmarks(recentReport, accessToken, defaultConfigs, configuredPackages, allConfigs);
-        } else {
-            if (recentReport == null) {
-                log.error("* No recent report found to compare!");
-            } else if (accessToken == null) {
-                log.error("* Failed to authorize provided access token!");
+            File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
+            String accessToken = (String) allConfigs.get("token");
+
+            if (recentReport != null && accessToken != null) {
+                analyzeBenchmarks(recentReport, accessToken, defaultConfigs, configuredPackages, allConfigs);
+            } else {
+                if (recentReport == null) {
+                    log.error("* No recent report found to compare!");
+                } else if (accessToken == null) {
+                    log.error("* Failed to authorize provided access token!");
+                }
             }
-        }
         } else {
-        	log.info("Failed to find custom script or configuration file");
-    }
+            log.info("Failed to find custom script or configuration file");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -343,7 +343,7 @@ public class CompareBenchmarks {
                         "{} - {}: There are not enough values to compare to within version ({}) with specific range ({}), will compare with as many values as possible",
                         benchmarkName, benchmarkMode, benchmarkVersion, range);
                 range = compareVersionScores.size();
-        		
+
             }
         }
         compareRange = range.toString();
@@ -364,14 +364,15 @@ public class CompareBenchmarks {
         switch (compareMethod) {
         case DELTA:
             COMPARE_VALUE = Comparisons.compareWithDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
-        			compareRange);
+                    compareRange);
             break;
         case SD:
-        	COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareRange);
+            COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareRange);
             break;
         }
 
-        boolean pass = Comparisons.passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentageAllowed, deviationsAllowed);
+        boolean pass = Comparisons.passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentageAllowed,
+                deviationsAllowed);
         if (pass) {
             totalPassedBenchmarks++;
         } else {
@@ -384,4 +385,4 @@ public class CompareBenchmarks {
 
         return true;
     }
-        }
+}

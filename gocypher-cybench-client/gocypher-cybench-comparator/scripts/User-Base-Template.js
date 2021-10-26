@@ -6,9 +6,9 @@ var myFingerprintsAndNames = new HashMap(getFingerprintsFromReport(myReport));
 var myFingerprints = new ArrayList(myFingerprintsAndNames.keySet());
 
 // fetch all previous benchmarks from those fingerprints
-forEach.call(myFingerprints, function(fingerprint) {
-	var benchmarkName = myFingerprintsAndNames.get(fingerprint);
-	fetchBenchmarks(benchmarkName, fingerprint, myToken); 
+forEach.call(myFingerprints, function (fingerprint) {
+    var benchmarkName = myFingerprintsAndNames.get(fingerprint);
+    fetchBenchmarks(benchmarkName, fingerprint, myToken);
 });
 
 // prints all fetched benchmarks
