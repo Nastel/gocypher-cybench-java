@@ -13,7 +13,7 @@ forEach.call(myFingerprints, function (fingerprint) {
 
 
 // COMPARATOR CONFIGURABLES //
-var currentVersion = "1.0.1";
+var currentVersion = getCurrentVersion();
 var range = "ALL";
 var deviationsAllowed = 3;
 

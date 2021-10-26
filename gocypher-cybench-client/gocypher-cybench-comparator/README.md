@@ -62,8 +62,8 @@ forEach.call(myFingerprints, function (fingerprint) {
 
 
 // COMPARATOR CONFIGURABLES //
-var currentVersion = "1.0.1";
-var compareVersion = "1.0.0";
+var currentVersion = getCurrentVersion();
+var previousVersion = getPreviousVersion();
 var threshold = Comparisons.Threshold.PERCENT_CHANGE;
 var range = 1;
 var percentChangeAllowed = 10;
@@ -74,7 +74,7 @@ var compareVersionScores;
 forEach.call(myFingerprints, function (fingerprint) {
     // get all benchmarks recorded for specified version (possible returns null!)
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    compareVersionScores = getBenchmarksByVersion(fingerprint, compareVersion);
+    compareVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
 
     if (currentVersionScores != null && compareVersionScores != null) {
@@ -85,7 +85,7 @@ forEach.call(myFingerprints, function (fingerprint) {
             if (compareVersionScoreModes.contains(mode)) {
                 var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
                 var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
-                print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the percent change in last value recorded was " + percentChange + "%");
+                print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the percent change in last value recorded was " + percentChange + "%");
                 if (pass) {
                     print("Passed test\n");
                 } else {
@@ -118,8 +118,8 @@ forEach.call(myFingerprints, function (fingerprint) {
 
  ```js
  // COMPARATOR CONFIGURABLES //
-var currentVersion = "1.0.1";
-var compareVersion = "1.0.0";
+var currentVersion = getCurrentVersion();
+var previousVersion = getPreviousVersion();
 var threshold = Comparisons.Threshold.PERCENT_CHANGE;
 var range = 1;
 var percentChangeAllowed = 10;
@@ -135,7 +135,7 @@ var compareVersionScores;
 forEach.call(myFingerprints, function (fingerprint) {
     // get all benchmarks recorded for specified version (possible returns null!)
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    compareVersionScores = getBenchmarksByVersion(fingerprint, compareVersion);
+    compareVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
 
     if (currentVersionScores != null && compareVersionScores != null) {
@@ -146,7 +146,7 @@ forEach.call(myFingerprints, function (fingerprint) {
             if (compareVersionScoreModes.contains(mode)) {
                 var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), compareVersionScores.get(mode), threshold, range);
                 var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
-                print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + compareVersion + ", the percent change in last value recorded was " + percentChange + "%");
+                print(benchmarkName + " : " + mode + " - Between version " + currentVersion + " and " + previousVersion + ", the percent change in last value recorded was " + percentChange + "%");
                 if (pass) {
                     print("Passed test\n");
                 } else {
@@ -162,7 +162,7 @@ forEach.call(myFingerprints, function (fingerprint) {
     * First, we loop through the versions of each fingerprint
         * `getBenchmarksByVersion(fingerprint, currentVersion)` will return a Java HashMap that maps the 'benchmark
           version' to another Java HashMap of 'benchmark modes' that have been run
-        * Note: we have to check to make sure there are benchmarks for both the current version and compare version of
+        * Note: we have to check to make sure there are benchmarks for both the current version and previous version of
           the currently looped fingerprint (Null Pointer Exception exception). It is possible that you have benchmarks
           that only have tests in one of the two versions being compared (for this between version test).
     * So, we loop through the modes of each version
@@ -191,8 +191,8 @@ forEach.call(myFingerprints, function (fingerprint) {
     * You will be able to define different variables that you can pass to
       the [exposed methods](#exposed-methods-for-use)
 * `SCOPE`
-    * Comparator gives you the ability to compare WITHIN and BETWEEN versions, just specify a second version and pass
-      the value accordingly if you are doing BETWEEN comparisons
+    * Comparator gives you the ability to compare WITHIN and BETWEEN (current and previous) versions, just grab the versions with the
+	`getCurrentVersion()` and `getPreviousVersion()` methods and pass the values accordingly
 * `RANGE`
     * You can specify the amount of values you want to compare to. This can be any integer, or the String `ALL` to
       compare against all possible values in the version. There is handling behind the scenes if your range is too high
@@ -220,9 +220,10 @@ forEach.call(myFingerprints, function (fingerprint) {
 
 * `getFingerprintsFromReport` will give you a `Java Map` of the fingerprints within your provided report (used for
   fetching more benchmarks) - maps to benchmark names
-* After you call `fetchBenchmarks`
+* After you call `fetchBenchmarks` which fetches all benchmarks from the CyBench database
     * `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different
       ways to access the benchmarks stored in `Java Maps`
+* `getCurrentVersion` and `getPreviousVersion` fetch the most recent version found in your benchmarks the previous version you used to that
 * `deltaCompareWithinVersion`, `sdCompareWithinVersion`, `deltaCompareBetweenVersions`, and `sdCompareBetweenVersions`
   are compare methods you can call with your scores that run all calculations behind the scenes and return `Double`
   values
