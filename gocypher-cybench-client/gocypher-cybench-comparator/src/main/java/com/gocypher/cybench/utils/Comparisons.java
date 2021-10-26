@@ -55,9 +55,15 @@ public final class Comparisons {
 
 		double delta = calculateDelta(newScore, compareValue, threshold);
 
-		log.info("comparison=delta, recentScore={}, range={}, compareMean={}, delta={}", newScore, rangeString,
-				compareValue, delta);
-
+		if (threshold.equals(Threshold.GREATER)) {
+			double deltaPercentChange = calculatePercentChange(newScore, compareValue);
+			log.info("comparison=delta, recentScore={}, range={}, compareMean={}, delta={}, percentChange={}%", newScore, rangeString,
+				compareValue, delta, deltaPercentChange);
+		} else {
+			log.info("comparison=delta, recentScore={}, range={}, compareMean={}, percentChange={}%", newScore, rangeString,
+					compareValue, delta);
+		}
+		
 		return delta;
 	}
 
