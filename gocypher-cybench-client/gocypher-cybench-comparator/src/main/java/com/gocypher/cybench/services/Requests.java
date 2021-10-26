@@ -157,7 +157,7 @@ public class Requests {
         } else if (isNewerVersion(version, currentVersion)) {
         	previousVersion = currentVersion;
         	currentVersion = version;
-        }else if (isNewerVersion(version, previousVersion) && isOlderVersion(version, currentVersion)) {
+        }else if (isNewerVersion(version, previousVersion) && isNewerVersion(currentVersion, version)) {
         	previousVersion = version;
         }
         
@@ -221,13 +221,6 @@ public class Requests {
     			}
     		}
     	}
-    	return false;
-    }
-    
-    public static boolean isOlderVersion(String newVersion, String currentVersion) {
-    	if (currentVersion.equals(newVersion))
-    		return false;
-    	// TODO
     	return false;
     }
     
