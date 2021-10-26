@@ -180,44 +180,66 @@ public class Requests {
         return true;
     }
 
-    public static Map<String, String> getFingerprintsFromReport(String reportPath) {
+    // for scripting, will fetch and store recent report info, then pass back a Map of <Fingerprint : Name>
+    public static Map<String, String> getFingerprintsFromReport(String reportPath, String accessToken) {
         Map<String, String> fingerprints = new HashMap<>();
-        JSONObject benchmarkReport = null;
-
-        try {
-        	File report = null;
-        	if(reportPath.endsWith(".cybench")) {
-        		// is a file
-        		report = new File(reportPath);
-        	} else {
-        		// is a folder of all reports
-        		report = ConfigHandling.identifyRecentReport(reportPath);
-        	}
-            String str = FileUtils.readFileToString(report, "UTF-8");
-            JSONParser parser = new JSONParser();
-            benchmarkReport = (JSONObject) parser.parse(str);
-        } catch (Exception e) {
-            log.error("* Failed to read report and grab fingerprint data", e);
+        
+        if (accessToken != null && !accessToken.isEmpty() && !accessToken.isBlank() && !accessToken.equals("undefined")) {
+	        JSONObject benchmarkReport = null;
+	        try {
+	        	File report = null;
+	        	if(reportPath.endsWith(".cybench")) {
+	        		// is a file
+	        		report = new File(reportPath);
+	        	} else {
+	        		// is a folder of all reports
+	        		report = ConfigHandling.identifyRecentReport(reportPath);
+	        	}
+	            String str = FileUtils.readFileToString(report, "UTF-8");
+	            JSONParser parser = new JSONParser();
+	            benchmarkReport = (JSONObject) parser.parse(str);
+	        } catch (Exception e) {
+	            log.error("* Failed to read report and grab fingerprint data", e);
+	        }
+	
+	        if (benchmarkReport != null) {
+	        	String reportID = null;
+	            String reportURL = (String) benchmarkReport.get("reportURL");
+	            if (reportURL != null) {
+	                String[] parsedURL = reportURL.split("https://app.cybench.io/cybench/benchmark/");
+	                reportID = parsedURL[1].split("/")[0];
+	            }
+	            JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");
+	            for (Object pckg : packages.values()) {
+	                JSONArray packageBenchmarks = (JSONArray) pckg;
+	                for (Object packageBenchmark : packageBenchmarks) {
+	                    JSONObject benchmark = (JSONObject) packageBenchmark;
+	                    String benchmarkName = (String) benchmark.get("name");
+	                    String benchmarkVersion = (String) benchmark.get("version");
+	                    Double benchmarkScore = (Double) benchmark.get("score");
+	                    String benchmarkMode = (String) benchmark.get("mode");
+	                    String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
+	                    fingerprints.put(benchmarkFingerprint, benchmarkName);
+	                    
+	                    if (getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, accessToken)) {
+	                        // store new data in map if this report hasn't been added already
+	                        if (reportID != null && !getReports().contains(reportID)) {
+	                            Map<String, Map<String, List<Double>>> benchTable = getBenchmarks(benchmarkFingerprint);
+	                            storeBenchmarkData(benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	
+	        if (fingerprints.isEmpty()) {
+	            log.info("No fingerprints found in passed report");
+	        }
+	
+	        fingerprintsToNames = fingerprints;
+        } else {
+        	log.warn("No access token provided!");
         }
-
-        if (benchmarkReport != null) {
-            JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");
-            for (Object pckg : packages.values()) {
-                JSONArray packageBenchmarks = (JSONArray) pckg;
-                for (Object packageBenchmark : packageBenchmarks) {
-                    JSONObject benchmark = (JSONObject) packageBenchmark;
-                    String benchmarkName = (String) benchmark.get("name");
-                    String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
-                    fingerprints.put(benchmarkFingerprint, benchmarkName);
-                }
-            }
-        }
-
-        if (fingerprints.isEmpty()) {
-            log.info("No fingerprints found in passed report");
-        }
-
-        fingerprintsToNames = fingerprints;
         
         return fingerprints;
     }

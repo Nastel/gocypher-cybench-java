@@ -74,10 +74,11 @@ function calculatePercentChange(newScore, compareScore) {
 	return Comparisons.calculatePercentChange(newScore, compareScore);
 }
 
+
 // return Map<String, String> that maps the method CyBench fingerprints in the report to the method names
 // params: {String reportPath}
-function getFingerprintsFromReport(report) {
-	return Requests.getFingerprintsFromReport(report);
+function getFingerprintsFromReport(report, accessToken) {
+	return Requests.getFingerprintsFromReport(report, accessToken);
 }
 
 // runs a fetch command in the background to prepare benchmark data to be accesed with the get methods below
