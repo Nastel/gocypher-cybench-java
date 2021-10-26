@@ -85,6 +85,16 @@ function getBenchmarksByMode(benchmarkFingerprint, version, mode) {
 	return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
 }
 
+// returns the most current version benchmarked with
+function getCurrentVersion() {
+	return Requests.getCurrentVersion();
+}
+
+// returns the previous version to the current version found in your benchmarks
+function getPreviousVersion() {
+	return Requests.getPreviousVersion();
+}
+
 // returns boolean that represents whether or not deviationsFromMean is within deviationsAllowed
 // params: {Double, Double}
 function passAssertionDeviation(deviationsFromMean, deviationsAllowed) {

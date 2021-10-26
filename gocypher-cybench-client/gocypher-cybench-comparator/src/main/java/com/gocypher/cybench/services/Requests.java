@@ -143,6 +143,16 @@ public class Requests {
             HashMap<String, List<Double>> scoresPerMode = new HashMap<>();
             scoresPerMode.put(mode, testScores);
             benchTable.put(version, scoresPerMode);
+            
+            if (currentVersion == null) {
+            	currentVersion = version;
+            	previousVersion = version;
+            } else if (isNewerVersion(version, currentVersion)) {
+            	previousVersion = currentVersion;
+            	currentVersion = version;
+            }else if (isNewerVersion(version, previousVersion) && isNewerVersion(currentVersion, version)) {
+            	previousVersion = version;
+            }
         }
         if (!benchTable.get(version).containsKey(mode)) {
             List<Double> testScores = new ArrayList<>();
@@ -150,16 +160,6 @@ public class Requests {
         }
         List<Double> testsWithinVersion = benchTable.get(version).get(mode);
         testsWithinVersion.add(score);
-        
-        if (currentVersion == null) {
-        	currentVersion = version;
-        	previousVersion = version;
-        } else if (isNewerVersion(version, currentVersion)) {
-        	previousVersion = currentVersion;
-        	currentVersion = version;
-        }else if (isNewerVersion(version, previousVersion) && isNewerVersion(currentVersion, version)) {
-        	previousVersion = version;
-        }
         
         return true;
     }
@@ -201,8 +201,8 @@ public class Requests {
     	if (currentVersion.equals(newVersion))
     		return false;
     	
-    	List<String> newVersionDotSplit = Arrays.asList(newVersion.split("."));
-    	List<String> currentVersionDotSplit = Arrays.asList(currentVersion.split("."));
+    	List<String> newVersionDotSplit = Arrays.asList(newVersion.split("\\."));
+    	List<String> currentVersionDotSplit = Arrays.asList(currentVersion.split("\\."));
     	int currentVersionDotSize = currentVersionDotSplit.size();
     	
     	for (int i = 0; i < newVersionDotSplit.size(); i++) {
