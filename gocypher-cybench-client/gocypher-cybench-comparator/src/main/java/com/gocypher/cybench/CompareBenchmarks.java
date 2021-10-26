@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.script.ScriptEngine;
+
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.services.Requests;
+import com.gocypher.cybench.utils.ComparatorScriptEngine;
 import com.gocypher.cybench.utils.Comparisons;
 import com.gocypher.cybench.utils.ConfigHandling;
 
@@ -29,8 +32,32 @@ public class CompareBenchmarks {
     @SuppressWarnings("unchecked")
     public static void main(String... args) throws Exception {
         log.info("* Analyzing benchmark performance...");
+        String scriptPath = null;
+        String configFilePath = null;
 
-        Map<String, Object> allConfigs = ConfigHandling.loadYaml(args);
+        for (String property : args) {
+        	if (property.contains("script")) {
+                String[] tempConfigPath = property.split("=");
+                if (tempConfigPath.length > 1) {
+                	scriptPath = tempConfigPath[1];
+                }
+            } else if (property.contains("cfg") || property.contains("config")) {
+                String[] tempConfigPath = property.split("=");
+                if (tempConfigPath.length > 1) {
+                    configFilePath = tempConfigPath[1];
+                }
+            }
+        }
+        if (scriptPath != null) {
+        	log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
+        	ComparatorScriptEngine cse = new ComparatorScriptEngine();
+        	File userScript = cse.loadUserScript(scriptPath);
+        	ScriptEngine engine = cse.prepareScriptEngine();
+        	cse.runUserScript(engine, userScript);
+        } else if (configFilePath != null) {
+        	log.info("Attempting to load comparator configurations at {}\n", configFilePath);
+            Map<String, Object> allConfigs = ConfigHandling.loadYaml(configFilePath);
+            
         Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
                 .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
         Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
@@ -47,6 +74,9 @@ public class CompareBenchmarks {
                 log.error("* Failed to authorize provided access token!");
             }
         }
+        } else {
+        	log.info("Failed to find custom script or configuration file");
+    }
     }
 
     @SuppressWarnings("unchecked")
@@ -302,8 +332,8 @@ public class CompareBenchmarks {
             }
         }
 
+        // range validation
         Integer range = null;
-
         if (compareRange.equals("ALL")) {
             range = compareVersionScores.size();
         } else {
@@ -313,9 +343,10 @@ public class CompareBenchmarks {
                         "{} - {}: There are not enough values to compare to within version ({}) with specific range ({}), will compare with as many values as possible",
                         benchmarkName, benchmarkMode, benchmarkVersion, range);
                 range = compareVersionScores.size();
-                compareRange = range.toString();
+        		
             }
         }
+        compareRange = range.toString();
 
         if (compareScope.equals(Comparisons.Scope.WITHIN)) {
             compareVersion = benchmarkVersion;
@@ -333,16 +364,14 @@ public class CompareBenchmarks {
         switch (compareMethod) {
         case DELTA:
             COMPARE_VALUE = Comparisons.compareWithDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
-                    range);
+        			compareRange);
             break;
         case SD:
-            COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareThreshold,
-                    range);
+        	COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareRange);
             break;
         }
 
-        boolean pass = passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentageAllowed,
-                deviationsAllowed);
+        boolean pass = Comparisons.passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentageAllowed, deviationsAllowed);
         if (pass) {
             totalPassedBenchmarks++;
         } else {
@@ -355,33 +384,4 @@ public class CompareBenchmarks {
 
         return true;
     }
-
-    private static boolean passAssertion(Double COMPARE_VALUE, Comparisons.Method method,
-            Comparisons.Threshold threshold, Double percentageAllowed, Double deviationsAllowed) {
-
-        // assert within x SDs from mean
-        if (method.equals(Comparisons.Method.SD)) {
-            return passAssertionDeviation(COMPARE_VALUE, deviationsAllowed);
         }
-
-        // assert within x Percentage from COMPARE_VALUE
-        if (threshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-            return passAssertionPercentage(COMPARE_VALUE, percentageAllowed);
-        }
-
-        // assert higher than COMPARE_VALUE
-        return passAssertionPositive(COMPARE_VALUE);
-    }
-
-    private static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-        return deviationsFromMean < deviationsAllowed;
-    }
-
-    private static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
-        return Math.abs(percentChange) < percentageAllowed;
-    }
-
-    private static boolean passAssertionPositive(Double val) {
-        return val >= 0;
-    }
-}
