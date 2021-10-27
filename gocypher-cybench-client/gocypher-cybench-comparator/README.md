@@ -210,8 +210,7 @@ forEach.call(myFingerprints, function (fingerprint) {
               deltas
             * `Comparisons.Threshold.PERCENT_CHANGE` will be used for tests in which you want to measure the percent
               change of the score in comparison to the compare to scores
-                * If you choose to use these methods, you can use a `percentageAllowed` variable to run assertions and
-                  make sure your new score is within X percent of the compared to scores
+                * If you choose to use these methods, you can use a `percentChangeAllowed` variable to run assertions and make sure your new score is within X percent of the compared to scores
 
 ### Exposed Methods for Use
 
@@ -261,15 +260,15 @@ compare.default:
   method: "DELTA"
   scope: "BETWEEN"
   threshold: "GREATER"
-  percentage: "1"
+  percentChangeAllowed: "1"
   range: "LAST_VALUE"
-  version: "1.0.1"
+  compareVersion: "1.0.1"
 compare.A:
   method: "MEAN"
   package: "calctest.ClockTest"
   scope: "WITHIN"
   threshold: "percent_change"
-  percentage: "15"
+  percentChangeAllowed: "15"
   range: "ALL_VALUES"
 ```
 
@@ -279,7 +278,7 @@ packages will refer to the `compare.default` since they are not explicitly defin
 other packages in your Comparator run will test for the change in score between your most recent score, and the previous
 score. In this case, `threshold:` is set to `"GREATER"`, which means the most recent score must be greater than the
 previous in order to pass. As opposed to `compare.A`, `compare.default` will check scores from a different version (in
-this example, it'll compare scores between the current version, and `version: "1.0.1"`.
+this example, it'll compare scores between the current version, and `compareVersion: "1.0.1"`.
 
 * Inside these `compare.X` branches exists various configurations you can set.
 
@@ -309,8 +308,7 @@ this example, it'll compare scores between the current version, and `version: "1
 * Possible values are `"WITHIN"` or `"BETWEEN"`
     * `"WITHIN"` = Compare scores within the same version of your project
     * `"BETWEEN"` = Compare scores between different versions of your project
-* **NOTE:** When using the `"BETWEEN"` scope, make sure to also set `version:` to whichever version you wish to compare
-  to
+* **NOTE:** When using the `"BETWEEN"` scope, make sure to also set `compareVersion:` to whichever version you wish to compare to
 
 #### Comparison Threshold
 
@@ -321,8 +319,7 @@ this example, it'll compare scores between the current version, and `version: "1
       whether it's MEAN, DELTA, etc.)
     * `"PERCENT_CHANGE"` = More flexible, allows the build/test to pass even if the score was lower, as long as it is
       within a given percentage
-* **NOTE:** When using `"PERCENT_CHANGE"`, make sure to define `percentage:"X"`, where X is the percent change allowed,
-  even if the comparison results in a negative number
+* **NOTE:** When using `"PERCENT_CHANGE"`, make sure to define `percentChangeAllowed:"X"`, where X is the percent change allowed, even if the comparison results in a negative number
 
 #### Comparison Range
 
@@ -362,8 +359,8 @@ out `comparator.yaml`
 # scope = (within or between project versions)
 ## Options {within, between} ##
 ### {within} will compare all benchmarks within the benchmarked version ###
-### if {between} is chosen, must specify {version} (will compare benchmarked version to the specified version) ###
-### add {version} to specify which version to compare to ###
+### if {between} is chosen, must specify {compareVersion} (will compare benchmarked version to the specified version) ###
+### add {compareVersion} to specify which version to compare to ###
 
 # range = {amount of values to compare against}
 ## Options {all, (#)} - can specify the word "all" to compare against all values or any number X to compare against previous X recorded scores ##
@@ -378,8 +375,8 @@ out `comparator.yaml`
 # {threshold} = how to specify a passing benchmark 
 ## Options {percent_change, greater} ##
 ### {greater} will check to see if new score is simply greater than the compared to score ###
-### if {percent_change} is chosen, must specify {percentageAllowed} ###
-### {percentageAllowed} = percentage score should be within in order to pass ###
+### if {percent_change} is chosen, must specify {percentChangeAllowed} ###
+### {percentChangeAllowed} = percentage score should be within in order to pass ###
 ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
@@ -389,7 +386,7 @@ token: "ws_874a4eb4-fzsa-48fb-pr58-g8lwa7820e132_query"
 compare.default:
   method: "DELTA"
   scope: "BETWEEN"
-  version: "1.0.0"
+  compareVersion: "1.0.0"
   range: "ALL"
   threshold: "greater"
 
@@ -402,7 +399,7 @@ compare.A:
 compare.B:
   package: "com.my.other.package"
   threshold: "PERCENT_CHANGE"
-  percentageAllowed: "10"
+  percentChangeAllowed: "10"
   range: "2"
 ```
 
