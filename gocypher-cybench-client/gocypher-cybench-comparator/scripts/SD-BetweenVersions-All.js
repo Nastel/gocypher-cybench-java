@@ -1,3 +1,6 @@
+var currentVersionScores;
+var previousVersionScores;
+
 forEach.call(myFingerprints, function (fingerprint) {
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
     previousVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
