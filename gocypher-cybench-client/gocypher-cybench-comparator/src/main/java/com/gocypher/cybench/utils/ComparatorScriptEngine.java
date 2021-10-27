@@ -96,6 +96,7 @@ public class ComparatorScriptEngine {
             engine.put("myFingerprints", myFingerprints);
             engine.put("logConfigs", passedProps);
             engine.put("method", passedProps.get("method"));
+            engine.put("scope", passedProps.get("scope"));
             engine.put("range", passedProps.get("range"));
             engine.put("threshold", passedProps.get("threshold"));
             engine.put("percentChangeAllowed", passedProps.get("percentChangeAllowed"));

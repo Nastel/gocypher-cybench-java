@@ -29,23 +29,7 @@ public final class Comparisons {
         }
         return range;
     }
-
-    // WITHIN version
-    public static Double compareWithDelta(List<Double> withinVersionScores, Threshold threshold, String rangeString) {
-        List<Double> compareVersionScores = new ArrayList<>(withinVersionScores);
-        // remove new score to have a comparative list
-        compareVersionScores.remove(withinVersionScores.size() - 1);
-        return compareWithDelta(withinVersionScores, compareVersionScores, threshold, rangeString);
-    }
-
-    public static Double compareWithSD(List<Double> withinVersionScores, String rangeString) {
-        List<Double> compareVersionScores = new ArrayList<>(withinVersionScores);
-        // remove new score to have a comparative list
-        compareVersionScores.remove(withinVersionScores.size() - 1);
-        return compareWithSD(withinVersionScores, compareVersionScores, rangeString);
-    }
-
-    // BETWEEN versions
+    
     public static Double compareWithDelta(List<Double> currentVersionScores, List<Double> compareVersionScores,
             Threshold threshold, String rangeString) {
         int currentVersionSize = currentVersionScores.size();

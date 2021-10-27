@@ -1,30 +1,31 @@
+// help log the comparison being ran
+// params: {Map<String, Object> that is created in background, String, String}
 function logComparison(logConfigs, benchmarkName, mode) {
 	return Comparisons.logComparison(logConfigs, benchmarkName, mode);
 }
 
-// return change in value within a version
-// params: {List<Double>, Comparisons.Threshold, String}
-function deltaCompareWithinVersion(withinVersionScores, threshold, range) {
-    return Comparisons.compareWithDelta(withinVersionScores, threshold, range);
-}
-
-// returns deviations from mean within a version
-// params: {List<Double>, String}
-function sdCompareWithinVersion(withinVersionScores, range) {
-    return Comparisons.compareWithSD(withinVersionScores, range);
-}
-
-// returns change in value between versions
-// params: {List<Double>, List<Double>, Comparisons.Threshold, String}
-function deltaCompareBetweenVersions(currentVersionScores, compareVersionScores, threshold, range) {
+// returns change in value within/between versions
+// params: {Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
+function compareDelta(threshold, range, currentVersionScores, compareVersionScores) {
+	if(!compareVersionScores) {
+		compareVersionScores = new ArrayList(currentVersionScores);
+        // remove new score to have a comparative list
+        compareVersionScores.remove(currentVersionScores.size() - 1);
+	}
     return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range);
 }
 
-// returns deviations from mean of compareVersion
-// params: {List<Double>, List<Double>, String}
-function sdCompareBetweenVersions(currentVersionScores, compareVersionScores, range) {
+// returns deviations from mean within/between versions
+// params: {String, List<Double>, List<Double> (optional)}
+function compareSD(range, currentVersionScores, compareVersionScores) {
+	if(!compareVersionScores) {
+		compareVersionScores = new ArrayList(currentVersionScores);
+        // remove new score to have a comparative list
+        compareVersionScores.remove(currentVersionScores.size() - 1);
+	}
     return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range);
 }
+
 
 
 // return change in value
