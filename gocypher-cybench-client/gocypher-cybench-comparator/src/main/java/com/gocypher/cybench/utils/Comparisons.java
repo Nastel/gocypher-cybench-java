@@ -83,7 +83,7 @@ public final class Comparisons {
     	Scope scope = (Scope) logConfigs.get("scope");
     	String currentVersion = (String) logConfigs.get("currentVersion");
     	String compareVersion = (String) logConfigs.get("compareVersion");
-    	sb.append("COOMPARISON - {} : {} - {} running {} current version {}");
+    	sb.append("COMPARISON - {} : {} - {} running {} current version {}");
     	if (scope.equals(Scope.BETWEEN))
     		sb.append(" and version ").append(compareVersion);
     	log.info(sb.toString(), benchmarkName, mode, method, scope, currentVersion);
