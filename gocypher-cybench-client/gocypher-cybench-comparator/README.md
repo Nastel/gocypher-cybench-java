@@ -172,7 +172,7 @@ forEach.call(myFingerprints, function (fingerprint) {
         * `var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range);`
           calls a `delta` compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
           below
-            * It compares the current verison scores under a specific mode to the previous version scores under the same
+            * It compares the current version scores under a specific mode to the previous version scores under the same
               mode.
             * The comparison is marked with a threshold of `PERCENT_CHANGE` which means we are looking for a percent
               change in value as opposed to a straight delta value
@@ -191,8 +191,8 @@ forEach.call(myFingerprints, function (fingerprint) {
     * You will be able to define different variables that you can pass to
       the [exposed methods](#exposed-methods-for-use)
 * `SCOPE`
-    * Comparator gives you the ability to compare WITHIN and BETWEEN (current and previous) versions, just grab the versions with the
-	`getCurrentVersion()` and `getPreviousVersion()` methods and pass the values accordingly
+    * Comparator gives you the ability to compare WITHIN and BETWEEN (current and previous) versions, just grab the
+      versions with the `getCurrentVersion()` and `getPreviousVersion()` methods and pass the values accordingly
 * `RANGE`
     * You can specify the amount of values you want to compare to. This can be any integer, or the String `ALL` to
       compare against all possible values in the version. There is handling behind the scenes if your range is too high
@@ -223,11 +223,13 @@ forEach.call(myFingerprints, function (fingerprint) {
 * After you call `fetchBenchmarks` which fetches all benchmarks from the CyBench database
     * `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different
       ways to access the benchmarks stored in `Java Maps`
-* `getCurrentVersion` and `getPreviousVersion` fetch the most recent version found in your benchmarks the previous version you used to that
+* `getCurrentVersion` and `getPreviousVersion` fetch the most recent version found in your benchmarks the previous
+  version you used to that
 * `deltaCompareWithinVersion`, `sdCompareWithinVersion`, `deltaCompareBetweenVersions`, and `sdCompareBetweenVersions`
   are compare methods you can call with your scores that run all calculations behind the scenes and return `Double`
   values
-	* These methods also have separate logging signatures that allow you to pass more parameters for better logging outputs
+    * These methods also have separate logging signatures that allow you to pass more parameters for better logging
+      outputs
 * `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are simple methods you can quickly
   access for your own calculations and return `Double` values
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to

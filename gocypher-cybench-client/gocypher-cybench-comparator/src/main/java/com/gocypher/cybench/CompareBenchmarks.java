@@ -364,14 +364,14 @@ public class CompareBenchmarks {
 
         switch (compareMethod) {
         case DELTA:
-        	log.info("COMPARISON: {} : {} - Between versions {} and {} delta running", benchmarkName,
-    				benchmarkMode, benchmarkVersion, compareVersion);
+            log.info("COMPARISON: {} : {} - Between versions {} and {} delta running", benchmarkName, benchmarkMode,
+                    benchmarkVersion, compareVersion);
             COMPARE_VALUE = Comparisons.compareWithDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
                     compareRange);
             break;
         case SD:
-        	log.info("COMPARISON: {} : {} - Between versions {} and {} SD running", benchmarkName,
-        			benchmarkMode, benchmarkVersion, compareVersion);
+            log.info("COMPARISON: {} : {} - Between versions {} and {} SD running", benchmarkName, benchmarkMode,
+                    benchmarkVersion, compareVersion);
             COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareRange);
             break;
         }

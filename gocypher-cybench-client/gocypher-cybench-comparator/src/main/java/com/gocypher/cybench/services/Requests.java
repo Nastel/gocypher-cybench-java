@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -33,7 +34,7 @@ public class Requests {
     public static Map<String, String> fingerprintsToNames = new HashMap<>();
     // keep track of reports preventing duplicates
     public static Set<String> reportIDs = new HashSet<>();
-    
+
     private static String currentVersion = null;
     private static String previousVersion = null;
 
@@ -50,35 +51,37 @@ public class Requests {
     }
 
     public static Map<String, Map<String, Map<String, List<Double>>>> getBenchmarks() {
-    	Map<String, Map<String, Map<String, List<Double>>>> val = allBenchmarkTables;
-    	if (val == null) {
-    		log.warn("There are no benchmarks!");
-    	}
-    	return val;
+        Map<String, Map<String, Map<String, List<Double>>>> val = allBenchmarkTables;
+        if (val == null) {
+            log.warn("There are no benchmarks!");
+        }
+        return val;
     }
 
     public static Map<String, Map<String, List<Double>>> getBenchmarks(String benchmarkFingerprint) {
-    	Map<String, Map<String, List<Double>>> val = allBenchmarkTables.get(benchmarkFingerprint);
+        Map<String, Map<String, List<Double>>> val = allBenchmarkTables.get(benchmarkFingerprint);
         if (val == null) {
-    		log.warn("There are no benchmarks for {}!", fingerprintsToNames.get(benchmarkFingerprint));
-    	}
-    	return val;
+            log.warn("There are no benchmarks for {}!", fingerprintsToNames.get(benchmarkFingerprint));
+        }
+        return val;
     }
 
     public static Map<String, List<Double>> getBenchmarks(String benchmarkFingerprint, String version) {
-    	Map<String, List<Double>> val = getBenchmarks(benchmarkFingerprint).get(version);
+        Map<String, List<Double>> val = getBenchmarks(benchmarkFingerprint).get(version);
         if (val == null) {
-    		log.warn("There are no benchmarks for {}, version {}!", fingerprintsToNames.get(benchmarkFingerprint), version);
-    	}
-    	return val;
+            log.warn("There are no benchmarks for {}, version {}!", fingerprintsToNames.get(benchmarkFingerprint),
+                    version);
+        }
+        return val;
     }
 
     public static List<Double> getBenchmarks(String benchmarkFingerprint, String version, String mode) {
-    	List<Double> val =  getBenchmarks(benchmarkFingerprint, version).get(mode);
+        List<Double> val = getBenchmarks(benchmarkFingerprint, version).get(mode);
         if (val == null) {
-    		log.warn("There are no benchmarks for {}, version {}, mode {}!", fingerprintsToNames.get(benchmarkFingerprint), version, mode);
-    	}
-    	return val;
+            log.warn("There are no benchmarks for {}, version {}, mode {}!",
+                    fingerprintsToNames.get(benchmarkFingerprint), version, mode);
+        }
+        return val;
     }
 
     public static Set<String> getReports() {
@@ -112,7 +115,7 @@ public class Requests {
         }
         return true;
     }
-    
+
     public void close() {
         try {
             httpClient.close();
@@ -159,15 +162,15 @@ public class Requests {
             HashMap<String, List<Double>> scoresPerMode = new HashMap<>();
             scoresPerMode.put(mode, testScores);
             benchTable.put(version, scoresPerMode);
-            
+
             if (currentVersion == null) {
-            	currentVersion = version;
-            	previousVersion = version;
+                currentVersion = version;
+                previousVersion = version;
             } else if (isNewerVersion(version, currentVersion)) {
-            	previousVersion = currentVersion;
-            	currentVersion = version;
-            }else if (isNewerVersion(version, previousVersion) && isNewerVersion(currentVersion, version)) {
-            	previousVersion = version;
+                previousVersion = currentVersion;
+                currentVersion = version;
+            } else if (isNewerVersion(version, previousVersion) && isNewerVersion(currentVersion, version)) {
+                previousVersion = version;
             }
         }
         if (!benchTable.get(version).containsKey(mode)) {
@@ -176,106 +179,108 @@ public class Requests {
         }
         List<Double> testsWithinVersion = benchTable.get(version).get(mode);
         testsWithinVersion.add(score);
-        
+
         return true;
     }
 
     // for scripting, will fetch and store recent report info, then pass back a Map of <Fingerprint : Name>
     public static Map<String, String> getFingerprintsFromReport(String reportPath, String accessToken) {
         Map<String, String> fingerprints = new HashMap<>();
-        
-        if (accessToken != null && !accessToken.isEmpty() && !accessToken.isBlank() && !accessToken.equals("undefined")) {
-	        JSONObject benchmarkReport = null;
-	        try {
-	        	File report = null;
-	        	if(reportPath.endsWith(".cybench")) {
-	        		// is a file
-	        		report = new File(reportPath);
-	        	} else {
-	        		// is a folder of all reports
-	        		report = ConfigHandling.identifyRecentReport(reportPath);
-	        	}
-	            String str = FileUtils.readFileToString(report, "UTF-8");
-	            JSONParser parser = new JSONParser();
-	            benchmarkReport = (JSONObject) parser.parse(str);
-	        } catch (Exception e) {
-	            log.error("* Failed to read report and grab fingerprint data", e);
-	        }
-	
-	        if (benchmarkReport != null) {
-	        	String reportID = null;
-	            String reportURL = (String) benchmarkReport.get("reportURL");
-	            if (reportURL != null) {
-	                String[] parsedURL = reportURL.split("https://app.cybench.io/cybench/benchmark/");
-	                reportID = parsedURL[1].split("/")[0];
-	            }
-	            JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");
-	            for (Object pckg : packages.values()) {
-	                JSONArray packageBenchmarks = (JSONArray) pckg;
-	                for (Object packageBenchmark : packageBenchmarks) {
-	                    JSONObject benchmark = (JSONObject) packageBenchmark;
-	                    String benchmarkName = (String) benchmark.get("name");
-	                    String benchmarkVersion = (String) benchmark.get("version");
-	                    Double benchmarkScore = (Double) benchmark.get("score");
-	                    String benchmarkMode = (String) benchmark.get("mode");
-	                    String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
-	                    fingerprints.put(benchmarkFingerprint, benchmarkName);
-	                    
-	                    if (getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, accessToken)) {
-	                        // store new data in map if this report hasn't been added already
-	                        if (reportID != null && !getReports().contains(reportID)) {
-	                            Map<String, Map<String, List<Double>>> benchTable = getBenchmarks(benchmarkFingerprint);
-	                            storeBenchmarkData(benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	
-	        if (fingerprints.isEmpty()) {
-	            log.info("No fingerprints found in passed report");
-	        }
-	
-	        fingerprintsToNames = fingerprints;
+
+        if (StringUtils.isNotEmpty(accessToken) && !accessToken.equals("undefined")) {
+            JSONObject benchmarkReport = null;
+            try {
+                File report = null;
+                if (reportPath.endsWith(".cybench")) {
+                    // is a file
+                    report = new File(reportPath);
+                } else {
+                    // is a folder of all reports
+                    report = ConfigHandling.identifyRecentReport(reportPath);
+                }
+                String str = FileUtils.readFileToString(report, "UTF-8");
+                JSONParser parser = new JSONParser();
+                benchmarkReport = (JSONObject) parser.parse(str);
+            } catch (Exception e) {
+                log.error("* Failed to read report and grab fingerprint data", e);
+            }
+
+            if (benchmarkReport != null) {
+                String reportID = null;
+                String reportURL = (String) benchmarkReport.get("reportURL");
+                if (reportURL != null) {
+                    String[] parsedURL = reportURL.split("https://app.cybench.io/cybench/benchmark/");
+                    reportID = parsedURL[1].split("/")[0];
+                }
+                JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");
+                for (Object pckg : packages.values()) {
+                    JSONArray packageBenchmarks = (JSONArray) pckg;
+                    for (Object packageBenchmark : packageBenchmarks) {
+                        JSONObject benchmark = (JSONObject) packageBenchmark;
+                        String benchmarkName = (String) benchmark.get("name");
+                        String benchmarkVersion = (String) benchmark.get("version");
+                        Double benchmarkScore = (Double) benchmark.get("score");
+                        String benchmarkMode = (String) benchmark.get("mode");
+                        String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
+                        fingerprints.put(benchmarkFingerprint, benchmarkName);
+
+                        if (getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, accessToken)) {
+                            // store new data in map if this report hasn't been added already
+                            if (reportID != null && !reportIDs.contains(reportID)) {
+                                Map<String, Map<String, List<Double>>> benchTable = getBenchmarks(benchmarkFingerprint);
+                                storeBenchmarkData(benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (fingerprints.isEmpty()) {
+                log.info("No fingerprints found in passed report");
+            }
+
+            fingerprintsToNames = fingerprints;
         } else {
-        	log.warn("No access token provided!");
+            log.warn("No access token provided!");
         }
-        
+
         return fingerprints;
     }
-    
+
     public static boolean isNewerVersion(String newVersion, String currentVersion) {
-    	if (currentVersion.equals(newVersion))
-    		return false;
-    	
-    	List<String> newVersionDotSplit = Arrays.asList(newVersion.split("\\."));
-    	List<String> currentVersionDotSplit = Arrays.asList(currentVersion.split("\\."));
-    	int currentVersionDotSize = currentVersionDotSplit.size();
-    	
-    	for (int i = 0; i < newVersionDotSplit.size(); i++) {
-    		if (currentVersionDotSize == i) {
-    			// newVersion has an additional dot and is therefore newer after all previous subversions have been deemed equivalent
-    			return true;
-    		} else {
-    			int comparedValue = newVersionDotSplit.get(i).compareTo(currentVersionDotSplit.get(i));
-    			// if this is positive, the subversion is newer at that dot
-    			// if this is negative, the subversion is older at that dot
-    			// if this is 0, the subversion is the same at that dot
-    			if (comparedValue > 0) {
-    				return true;
-    			} else if (comparedValue < 0) {
-    				return false;
-    			}
-    		}
-    	}
-    	return false;
+        if (currentVersion.equals(newVersion)) {
+            return false;
+        }
+
+        List<String> newVersionDotSplit = Arrays.asList(newVersion.split("\\."));
+        List<String> currentVersionDotSplit = Arrays.asList(currentVersion.split("\\."));
+        int currentVersionDotSize = currentVersionDotSplit.size();
+
+        for (int i = 0; i < newVersionDotSplit.size(); i++) {
+            if (currentVersionDotSize == i) {
+                // newVersion has an additional dot and is therefore newer after all previous subversions have been
+                // deemed equivalent
+                return true;
+            } else {
+                int comparedValue = newVersionDotSplit.get(i).compareTo(currentVersionDotSplit.get(i));
+                // if this is positive, the subversion is newer at that dot
+                // if this is negative, the subversion is older at that dot
+                // if this is 0, the subversion is the same at that dot
+                if (comparedValue > 0) {
+                    return true;
+                } else if (comparedValue < 0) {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
-    
+
     public static String getCurrentVersion() {
-    	return currentVersion;
+        return currentVersion;
     }
-    
+
     public static String getPreviousVersion() {
-    	return previousVersion;
+        return previousVersion;
     }
 }
