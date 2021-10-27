@@ -90,20 +90,31 @@ public class ConfigHandling {
                     "Default compare values not configured properly, check the example comparator.yaml on the Cybench Wiki");
             log.warn("Using predefined defaults (method: {}, scope: {}, range: {}, threshold: {})",
                     DEFAULT_COMPARE_METHOD, DEFAULT_COMPARE_SCOPE, DEFAULT_COMPARE_RANGE, DEFAULT_COMPARE_THRESHOLD);
-            Map<String, Object> defaultValues = new HashMap<>();
-            defaultValues.put("method", DEFAULT_COMPARE_METHOD);
-            defaultValues.put("scope", DEFAULT_COMPARE_SCOPE);
-            defaultValues.put("range", DEFAULT_COMPARE_RANGE);
-            defaultValues.put("threshold", DEFAULT_COMPARE_THRESHOLD);
-            comparatorProps.put(DEFAULT_IDENTIFIER_HEADER, defaultValues);
+            
+            comparatorProps.put(DEFAULT_IDENTIFIER_HEADER, loadDefaults());
         } else {
             checkConfigValidity(DEFAULT_IDENTIFIER_HEADER, comparatorProps);
         }
     }
+    
+    public static Map<String, Object> loadDefaults() {
+    	Map<String, Object> defaultValues = new HashMap<>();
+        defaultValues.put("method", DEFAULT_COMPARE_METHOD);
+        defaultValues.put("scope", DEFAULT_COMPARE_SCOPE);
+        defaultValues.put("range", DEFAULT_COMPARE_RANGE);
+        defaultValues.put("threshold", DEFAULT_COMPARE_THRESHOLD);
+        return defaultValues;
+    }
 
     @SuppressWarnings("unchecked")
-    private static String checkConfigValidity(String identifier, Map<String, Object> comparatorProps) {
-        String simplifiedIdentifier = identifier.split(IDENTIFIER_HEADER)[1];
+    protected static String checkConfigValidity(String identifier, Map<String, Object> comparatorProps) {
+        String simplifiedIdentifier = identifier;
+        try {
+        	if (!identifier.equals("MyScript"))
+        		simplifiedIdentifier = identifier.split(IDENTIFIER_HEADER)[1];
+        } catch (Exception e) {
+        	log.error("{} not defined correctly! Identifier needs to start with 'compare.'");
+        }
         String packageName = null;
         if (comparatorProps.get(identifier) instanceof Map<?, ?>) {
             Map<String, Object> compareVals = (HashMap<String, Object>) comparatorProps.get(identifier);
@@ -130,14 +141,14 @@ public class ConfigHandling {
                 if (defaultVals.containsKey("threshold")) {
                     defaultThreshold = (Comparisons.Threshold) defaultVals.get("threshold");
                 }
-                if (defaultVals.containsKey("percentageAllowed")) {
-                    defaultPercentage = (Double) defaultVals.get("percentageAllowed");
+                if (defaultVals.containsKey("percentChangeAllowed")) {
+                    defaultPercentage = (Double) defaultVals.get("percentChangeAllowed");
                 }
                 if (defaultVals.containsKey("deviationsAllowed")) {
                     defaultDeviations = (Double) defaultVals.get("deviationsAllowed");
                 }
-                if (defaultVals.containsKey("version")) {
-                    defaultVersion = (String) defaultVals.get("version");
+                if (defaultVals.containsKey("compareVersion")) {
+                    defaultVersion = (String) defaultVals.get("compareVersion");
                 }
             }
 
@@ -218,10 +229,10 @@ public class ConfigHandling {
 
             Comparisons.Scope compareScope = (Comparisons.Scope) compareVals.get("scope");
             if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
-                if (!compareVals.containsKey("version")) {
-                    if (defaultVals.containsKey("version")) {
-                        compareVals.put("version", defaultVersion);
-                        log.warn("'{}': Version not specified, will compare to version: {}", simplifiedIdentifier,
+                if (!compareVals.containsKey("compareVersion")) {
+                    if (defaultVals.containsKey("compareVersion")) {
+                        compareVals.put("compareVersion", defaultVersion);
+                        log.warn("'{}': Compare version not specified, will compare to version: {}", simplifiedIdentifier,
                                 defaultVersion);
                     } else {
                         log.warn(
@@ -229,23 +240,23 @@ public class ConfigHandling {
                                 simplifiedIdentifier);
                         log.warn("'{}': Will use scope: {}", simplifiedIdentifier, defaultScope);
                         compareVals.put("scope", defaultScope);
-                        compareVals.remove("version");
+                        compareVals.remove("compareVersion");
                     }
                 } else {
-                    String version = (String) compareVals.get("version");
-                    compareVals.put("version", version);
+                    String version = (String) compareVals.get("compareVersion");
+                    compareVals.put("compareVersion", version);
                     log.info("'{}': Will compare to version: {}", simplifiedIdentifier, version);
                 }
             } else {
-                if (compareVals.containsKey("version") && compareScope.equals(Comparisons.Scope.WITHIN)) {
+                if (compareVals.containsKey("compareVersion") && compareScope.equals(Comparisons.Scope.WITHIN)) {
                     log.warn(
                             "'{}': Version was specified, but scope was specified as 'WITHIN' - will compare within benchmarked version",
                             simplifiedIdentifier);
-                    compareVals.remove("version");
-                } else if (compareVals.containsKey("version")) {
-                    String version = (String) compareVals.get("version");
+                    compareVals.remove("compareVersion");
+                } else if (compareVals.containsKey("compareVersion")) {
+                    String version = (String) compareVals.get("compareVersion");
                     if (defaultScope.equals(Comparisons.Scope.BETWEEN)) {
-                        compareVals.put("version", version);
+                        compareVals.put("compareVersion", version);
                         log.info("'{}': Will compare to version: {}", simplifiedIdentifier, version);
                     }
                 }
@@ -269,9 +280,9 @@ public class ConfigHandling {
 
                 Comparisons.Threshold compareThreshold = (Comparisons.Threshold) compareVals.get("threshold");
                 if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-                    if (!compareVals.containsKey("percentageAllowed")) {
-                        if (defaultVals.containsKey("percentageAllowed")) {
-                            compareVals.put("percentageAllowed", defaultPercentage);
+                    if (!compareVals.containsKey("percentChangeAllowed")) {
+                        if (defaultVals.containsKey("percentChangeAllowed")) {
+                            compareVals.put("percentChangeAllowed", defaultPercentage);
                             log.warn("'{}': Percentage not specified, will use percentage: {}", simplifiedIdentifier,
                                     defaultPercentage);
                         } else {
@@ -280,54 +291,57 @@ public class ConfigHandling {
                                     simplifiedIdentifier);
                             log.warn("'{}': Will use threshold: {}", simplifiedIdentifier, defaultThreshold);
                             compareVals.put("threshold", defaultThreshold);
-                            compareVals.remove("percentageAllowed");
+                            compareVals.remove("percentChangeAllowed");
                         }
                     } else {
-                        String percentageStr = (String) compareVals.get("percentageAllowed");
+                        String percentageStr = (String) compareVals.get("percentChangeAllowed");
                         try {
                             Double percentage = Double.parseDouble(percentageStr);
-                            compareVals.put("percentageAllowed", percentage);
+                            compareVals.put("percentChangeAllowed", percentage);
                             log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
                         } catch (Exception e) {
                             log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
                                     simplifiedIdentifier, percentageStr, defaultPercentage);
-                            compareVals.put("percentageAllowed", defaultPercentage);
+                            compareVals.put("percentChangeAllowed", defaultPercentage);
                         }
                     }
                 } else {
-                    if (compareVals.containsKey("percentageAllowed")
+                    if (compareVals.containsKey("percentChangeAllowed")
                             && compareThreshold.equals(Comparisons.Threshold.GREATER)) {
                         log.warn(
                                 "'{}': Percentage was specified, but threshold was specified as 'GREATER' - will compare using the 'GREATER' threshold and ignore percentage value",
                                 simplifiedIdentifier);
-                        compareVals.remove("percentageAllowed");
-                    } else if (compareVals.containsKey("percentageAllowed")) {
-                        String percentageStr = (String) compareVals.get("percentageAllowed");
+                        compareVals.remove("percentChangeAllowed");
+                    } else if (compareVals.containsKey("percentChangeAllowed")) {
+                        String percentageStr = (String) compareVals.get("percentChangeAllowed");
                         try {
                             Double percentage = Double.parseDouble(percentageStr);
                             if (defaultThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-                                compareVals.put("percentageAllowed", percentage);
+                                compareVals.put("percentChangeAllowed", percentage);
                                 log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
                             }
                         } catch (Exception e) {
                             log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
                                     simplifiedIdentifier, percentageStr, defaultPercentage);
-                            compareVals.put("percentageAllowed", defaultPercentage);
+                            compareVals.put("percentChangeAllowed", defaultPercentage);
                         }
 
                     }
                 }
             } else {
-                if (compareVals.containsKey("percentageAllowed")) {
+                if (compareVals.containsKey("percentChangeAllowed")) {
                     log.warn(
                             "'{}': Percentage was specified but method was specified as 'SD' - will ignore percentage and only compare using deviations allowed",
                             simplifiedIdentifier);
-                    compareVals.remove("percentageAllowed");
+                    compareVals.remove("percentChangeAllowed");
                 }
             }
 
             comparatorProps.put(identifier, compareVals);
-            if (compareVals.containsKey("package")) {
+            if (identifier.equals("MyScript")) {
+            	packageName = "MyScript";
+            }
+            else if (compareVals.containsKey("package")) {
                 packageName = (String) compareVals.get("package");
             } else if (simplifiedIdentifier.equals("default")) {
                 packageName = "default";

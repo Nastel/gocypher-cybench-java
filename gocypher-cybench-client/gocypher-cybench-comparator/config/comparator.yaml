@@ -18,8 +18,8 @@
 # scope = (within or between project versions)
 ## Options {within, between} ##
 ### {within} will compare all benchmarks within the benchmarked version ###
-### if {between} is chosen, must specify {version} (will compare benchmarked version to the specified version) ###
-    ### add {version} to specify which version to compare to ###
+### if {between} is chosen, must specify {compareVersion} (will compare benchmarked version to the specified version) ###
+    ### add {compareVersion} to specify which version to compare to ###
 
 # range = {amount of values to compare against}
 ## Options {all, (#)} - can specify the word "all" to compare against all values or any number X to compare against previous X recorded scores ##
@@ -34,8 +34,8 @@
     # {threshold} = how to specify a passing benchmark 
     ## Options {percent_change, greater} ##
     ### {greater} will check to see if new score is simply greater than the compared to score ###
-    ### if {percent_change} is chosen, must specify {percentageAllowed} ###
-        ### {percentageAllowed} = percentage score should be within in order to pass ###
+    ### if {percent_change} is chosen, must specify {percentChangeAllowed} ###
+        ### {percentChangeAllowed} = percentage score should be within in order to pass ###
         ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
@@ -45,7 +45,7 @@ token: "MY TOKEN"
 compare.default:
     method: "DELTA"
     scope: "BETWEEN"
-    version: "1.0.0"
+    compareVersion: "1.0.0"
     range: "ALL"
     threshold: "greater"
     
@@ -58,6 +58,6 @@ compare.A:
 compare.B:
     package: "com.my.other.package"
     threshold: "PERCENT_CHANGE"
-    percentageAllowed: "10"
+    percentChangeAllowed: "10"
     range: "2"
     
