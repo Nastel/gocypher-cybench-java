@@ -11,6 +11,7 @@ forEach.call(myFingerprints, function (fingerprint) {
         // loop through each benchmarked mode within this version
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
         compareVersionScoreModes = new ArrayList(previousVersionScores.keySet());
+		
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
 				logComparison(logConfigs, benchmarkName, mode);
