@@ -1,18 +1,3 @@
-var myReport = ""; // report file path OR report folder path
-var myToken = ""; // CyBench query token
-
-// get all benchmarks <fingerprint : name> from report
-var myFingerprintsAndNames = new HashMap(getFingerprintsFromReport(myReport, myToken));
-var myFingerprints = new ArrayList(myFingerprintsAndNames.keySet());
-
-
-// COMPARATOR CONFIGURABLES //
-var currentVersion = getCurrentVersion();
-var previousVersion = getPreviousVersion();
-var threshold = Comparisons.Threshold.PERCENT_CHANGE;
-var range = 1;
-var percentChangeAllowed = 10;
-
 var currentVersionScores;
 var previousVersionScores;
 

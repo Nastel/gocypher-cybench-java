@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import javax.script.ScriptEngine;
@@ -32,29 +33,33 @@ public class CompareBenchmarks {
     @SuppressWarnings("unchecked")
     public static void main(String... args) throws Exception {
         log.info("* Analyzing benchmark performance...");
-        String scriptPath = null;
-        String configFilePath = null;
 
+        Properties passedProps = new Properties();
         for (String property : args) {
-            if (property.contains("script")) {
-                String[] tempConfigPath = property.split("=");
-                if (tempConfigPath.length > 1) {
-                    scriptPath = tempConfigPath[1];
-                }
-            } else if (property.contains("cfg") || property.contains("config")) {
-                String[] tempConfigPath = property.split("=");
-                if (tempConfigPath.length > 1) {
-                    configFilePath = tempConfigPath[1];
-                }
-            }
+        	String[] keyVal = property.split("=");
+        	if (keyVal.length > 1) {
+        		passedProps.put(keyVal[0], keyVal[1]);
+        	}
         }
+        
+        String scriptPath = passedProps.containsKey("script") ? passedProps.getProperty("script") : null;
+        String configFilePath = passedProps.containsKey("cfg") ? passedProps.getProperty("cfg") : ConfigHandling.DEFAULT_COMPARATOR_CONFIG_PATH;
+
         if (scriptPath != null) {
             log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
-            ComparatorScriptEngine cse = new ComparatorScriptEngine();
+            
+            String token = passedProps.getProperty("token");
+            String report = passedProps.getProperty("report");
+            String range = passedProps.getProperty("range");
+            String scope = passedProps.getProperty("scope");
+            String threshold = passedProps.getProperty("threshold");
+            String percentChangeAllowed = passedProps.getProperty("percentChangeAllowed");
+            String deviationsAllowed = passedProps.getProperty("deviationsAllowed");
+            ComparatorScriptEngine cse = new ComparatorScriptEngine(token, report, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
             File userScript = cse.loadUserScript(scriptPath);
             ScriptEngine engine = cse.prepareScriptEngine();
             cse.runUserScript(engine, userScript);
-        } else if (configFilePath != null) {
+        } else {
             log.info("Attempting to load comparator configurations at {}\n", configFilePath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configFilePath);
 
@@ -74,8 +79,6 @@ public class CompareBenchmarks {
                     log.error("* Failed to authorize provided access token!");
                 }
             }
-        } else {
-            log.info("Failed to find custom script or configuration file");
         }
     }
 
@@ -341,7 +344,7 @@ public class CompareBenchmarks {
             range = Integer.parseInt(compareRange);
             if (range > compareVersionScores.size()) {
                 log.warn(
-                        "{} - {}: There are not enough values to compare to within version ({}) with specific range ({}), will compare with as many values as possible",
+                        "{} - {}: There are not enough values to compare to in version ({}) with specific range ({}), will compare with as many values as possible",
                         benchmarkName, benchmarkMode, benchmarkVersion, range);
                 range = compareVersionScores.size();
 

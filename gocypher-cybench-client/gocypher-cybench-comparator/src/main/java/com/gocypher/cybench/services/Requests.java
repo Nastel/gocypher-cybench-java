@@ -184,8 +184,8 @@ public class Requests {
     }
 
     // for scripting, will fetch and store recent report info, then pass back a Map of <Fingerprint : Name>
-    public static Map<String, String> getFingerprintsFromReport(String reportPath, String accessToken) {
-        Map<String, String> fingerprints = new HashMap<>();
+    public static HashMap<String, String> getFingerprintsFromReport(String reportPath, String accessToken) {
+        HashMap<String, String> fingerprints = new HashMap<>();
 
         if (StringUtils.isNotEmpty(accessToken) && !accessToken.equals("undefined")) {
             JSONObject benchmarkReport = null;
