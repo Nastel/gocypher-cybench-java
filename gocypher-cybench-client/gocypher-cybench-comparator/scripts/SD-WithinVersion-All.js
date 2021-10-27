@@ -10,7 +10,8 @@ forEach.call(myFingerprints, function (fingerprint) {
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
 
         forEach.call(currentVersionScoreModes, function (mode) {
-            var deviationsFromMean = sdCompareWithinVersionWithLogging(currentVersionScores.get(mode), range, benchmarkName, mode, currentVersion);
+			logComparison(logConfigs, benchmarkName, mode);
+            var deviationsFromMean = sdCompareWithinVersion(currentVersionScores.get(mode), range);
             var pass = passAssertionDeviation(deviationsFromMean, deviationsAllowed);
         });
     }

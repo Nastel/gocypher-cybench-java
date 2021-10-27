@@ -27,9 +27,9 @@ public class ComparatorScriptEngine {
     private ArrayList<String> myFingerprints;
     private Map<String, Object> passedProps;
 
-    public ComparatorScriptEngine(String token, String report, String range, String scope, String threshold, String percentChangeAllowed, String deviationsAllowed) {
+    public ComparatorScriptEngine(String token, String report, String method, String range, String scope, String threshold, String percentChangeAllowed, String deviationsAllowed) {
     	initiateFetch(token, report);
-    	handleComparatorConfigs(range, scope, threshold, percentChangeAllowed, deviationsAllowed);
+    	handleComparatorConfigs(method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
     }
     
     private void initiateFetch(String token, String report) {
@@ -51,11 +51,13 @@ public class ComparatorScriptEngine {
         	log.info("Found previous version: {}", previousVersion);
     }
     
-    private void handleComparatorConfigs(String range, String scope, String threshold, String percentChangeAllowed, String deviationsAllowed) {
+    @SuppressWarnings("unchecked")
+	private void handleComparatorConfigs(String method, String range, String scope, String threshold, String percentChangeAllowed, String deviationsAllowed) {
     	Map<String, Object> comparatorProps = new HashMap<String, Object>();
     	comparatorProps.put(ConfigHandling.DEFAULT_IDENTIFIER_HEADER, ConfigHandling.loadDefaults());
     	
     	passedProps = new HashMap<String, Object>();
+    	passedProps.put("currentVersion", currentVersion);
     	
     	if (StringUtils.isNotEmpty(scope)) {
     		passedProps.put("scope", scope);
@@ -63,6 +65,8 @@ public class ComparatorScriptEngine {
 	    		passedProps.put("compareVersion", previousVersion);
 	    	}
     	}
+    	if (StringUtils.isNotEmpty(method))
+    		passedProps.put("method", method);
     	if (StringUtils.isNotEmpty(range))
     		passedProps.put("range", range);
     	if (StringUtils.isNotEmpty(threshold))
@@ -88,12 +92,14 @@ public class ComparatorScriptEngine {
                 engine.eval(engineDef);
             }
             
+            engine.put("myFingerprintsAndNames", myFingerprintsAndNames);
+            engine.put("myFingerprints", myFingerprints);
+            engine.put("logConfigs", passedProps);
+            engine.put("method", passedProps.get("method"));
             engine.put("range", passedProps.get("range"));
             engine.put("threshold", passedProps.get("threshold"));
             engine.put("percentChangeAllowed", passedProps.get("percentChangeAllowed"));
             engine.put("deviationsAllowed", passedProps.get("deviationsAllowed"));
-            engine.put("myFingerprintsAndNames", myFingerprintsAndNames);
-            engine.put("myFingerprints", myFingerprints);
             engine.put("currentVersion", currentVersion);
             engine.put("previousVersion", previousVersion);
             

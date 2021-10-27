@@ -13,7 +13,8 @@ forEach.call(myFingerprints, function (fingerprint) {
         compareVersionScoreModes = new ArrayList(previousVersionScores.keySet());
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var percentChange = deltaCompareBetweenVersionsWithLogging(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range, benchmarkName, mode, currentVersion, previousVersion);
+				logComparison(logConfigs, benchmarkName, mode);
+                var percentChange = deltaCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range);
                 var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
             }
         });

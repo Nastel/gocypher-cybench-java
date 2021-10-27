@@ -10,7 +10,8 @@ forEach.call(myFingerprints, function (fingerprint) {
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
 
         forEach.call(currentVersionScoreModes, function (mode) {
-            var delta = deltaCompareWithinVersionWithLogging(currentVersionScores.get(mode), threshold, range, benchmarkName, mode, currentVersion);
+			logComparison(logConfigs, benchmarkName, mode);
+            var delta = deltaCompareWithinVersion(currentVersionScores.get(mode), threshold, range);
             var pass = passAssertionPositive(delta);
         });
     }

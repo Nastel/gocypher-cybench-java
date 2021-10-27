@@ -50,12 +50,13 @@ public class CompareBenchmarks {
             
             String token = passedProps.getProperty("token");
             String report = passedProps.getProperty("report");
+            String method = passedProps.getProperty("method");
             String range = passedProps.getProperty("range");
             String scope = passedProps.getProperty("scope");
             String threshold = passedProps.getProperty("threshold");
             String percentChangeAllowed = passedProps.getProperty("percentChangeAllowed");
             String deviationsAllowed = passedProps.getProperty("deviationsAllowed");
-            ComparatorScriptEngine cse = new ComparatorScriptEngine(token, report, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
+            ComparatorScriptEngine cse = new ComparatorScriptEngine(token, report, method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
             File userScript = cse.loadUserScript(scriptPath);
             ScriptEngine engine = cse.prepareScriptEngine();
             cse.runUserScript(engine, userScript);

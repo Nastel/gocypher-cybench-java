@@ -1,15 +1,12 @@
+function logComparison(logConfigs, benchmarkName, mode) {
+	return Comparisons.logComparison(logConfigs, benchmarkName, mode);
+}
+
 // return change in value within a version
 // params: {List<Double>, Comparisons.Threshold, String}
 function deltaCompareWithinVersion(withinVersionScores, threshold, range) {
     return Comparisons.compareWithDelta(withinVersionScores, threshold, range);
 }
-
-// same as above but with extra logging
-// params: {List<Double>, Comparisons.Threshold, String, String, String, String}
-function deltaCompareWithinVersionWithLogging(withinVersionScores, threshold, range, benchmarkName, mode, currentVersion) {
-    return Comparisons.compareWithDelta(withinVersionScores, threshold, range, benchmarkName, mode, currentVersion);
-}
-
 
 // returns deviations from mean within a version
 // params: {List<Double>, String}
@@ -17,36 +14,16 @@ function sdCompareWithinVersion(withinVersionScores, range) {
     return Comparisons.compareWithSD(withinVersionScores, range);
 }
 
-// same as above but with extra logging
-// params: {List<Double>, String, String, String, String}
-function sdCompareWithinVersionWithLogging(withinVersionScores, range, benchmarkName, mode, currentVersion) {
-    return Comparisons.compareWithSD(withinVersionScores, range, benchmarkName, mode, currentVersion);
-}
-
-
 // returns change in value between versions
 // params: {List<Double>, List<Double>, Comparisons.Threshold, String}
 function deltaCompareBetweenVersions(currentVersionScores, compareVersionScores, threshold, range) {
     return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range);
 }
 
-// returns change in value between versions
-// params: {List<Double>, List<Double>, Comparisons.Threshold, String, String, String, String, String}
-function deltaCompareBetweenVersionsWithLogging(currentVersionScores, compareVersionScores, threshold, range, benchmarkName, mode, currentVersion, previousVersion) {
-    return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range, benchmarkName, mode, currentVersion, previousVersion);
-}
-
-
 // returns deviations from mean of compareVersion
 // params: {List<Double>, List<Double>, String}
 function sdCompareBetweenVersions(currentVersionScores, compareVersionScores, range) {
     return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range);
-}
-
-// returns deviations from mean of compareVersion
-// params: {List<Double>, List<Double>, String, String, String, String, String}
-function sdCompareBetweenVersionsWithLogging(currentVersionScores, compareVersionScores, range, benchmarkName, mode, currentVersion, previousVersion) {
-    return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range, benchmarkName, mode, currentVersion, previousVersion);
 }
 
 

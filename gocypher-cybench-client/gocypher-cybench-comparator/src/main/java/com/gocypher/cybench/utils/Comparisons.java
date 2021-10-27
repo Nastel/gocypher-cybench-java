@@ -2,7 +2,9 @@ package com.gocypher.cybench.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,6 +123,18 @@ public final class Comparisons {
                 mode, currentVersion, previousVersion);
         Double SDfromMean = compareWithSD(currentVersionScores, compareVersionScores, rangeString);
         return SDfromMean;
+    }
+    
+    public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String mode) {
+    	StringBuilder sb = new StringBuilder();
+    	Method method = (Method) logConfigs.get("method");
+    	Scope scope = (Scope) logConfigs.get("scope");
+    	String currentVersion = (String) logConfigs.get("currentVersion");
+    	String compareVersion = (String) logConfigs.get("compareVersion");
+    	sb.append("COOMPARISON - {} : {} - {} running {} current version {}");
+    	if (scope.equals(Scope.BETWEEN))
+    		sb.append(" and version ").append(compareVersion);
+    	log.info(sb.toString(), benchmarkName, mode, method, scope, currentVersion);
     }
 
     // Calculate Methods

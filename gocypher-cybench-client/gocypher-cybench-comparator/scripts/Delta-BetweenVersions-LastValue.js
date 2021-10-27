@@ -14,7 +14,8 @@ forEach.call(myFingerprints, function (fingerprint) {
 
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var delta = deltaCompareBetweenVersionsWithLogging(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range, benchmarkName, mode, currentVersion, previousVersion);
+				logComparison(logConfigs, benchmarkName, mode);
+                var delta = deltaCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), threshold, range);
                 var pass = passAssertionPositive(delta);
             }
         });

@@ -12,7 +12,8 @@ forEach.call(myFingerprints, function (fingerprint) {
 
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
-                var deviationsFromMean = sdCompareBetweenVersionsWithLogging(currentVersionScores.get(mode), previousVersionScores.get(mode), range, benchmarkName, mode, currentVersion, previousVersion);
+				logComparison(logConfigs, benchmarkName, mode);
+                var deviationsFromMean = sdCompareBetweenVersions(currentVersionScores.get(mode), previousVersionScores.get(mode), range);
                 var pass = passAssertionPositive(deviationsFromMean);
             }
         });
