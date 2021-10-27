@@ -1,5 +1,5 @@
 // help log the comparison being ran
-// params: {Map<String, Object> that is created in background, String, String}
+// params: {Map<String, Object> created in background, String, String}
 function logComparison(logConfigs, benchmarkName, mode) {
 	return Comparisons.logComparison(logConfigs, benchmarkName, mode);
 }
@@ -26,8 +26,6 @@ function compareSD(range, currentVersionScores, compareVersionScores) {
     return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range);
 }
 
-
-
 // return change in value
 // params: {Double, Double, Comparisons.Threshold}
 function calculateDelta(newScore, compareValue, threshold) {
@@ -50,19 +48,6 @@ function calculateSD(scores) {
 // params: {Double, Double}
 function calculatePercentChange(newScore, compareScore) {
     return Comparisons.calculatePercentChange(newScore, compareScore);
-}
-
-
-// return Map<String, String> that maps the method CyBench fingerprints in the report to the method names
-// params: {String reportPath}
-function getFingerprintsFromReport(report, accessToken) {
-    return Requests.getFingerprintsFromReport(report, accessToken);
-}
-
-// runs a fetch command in the background to prepare benchmark data to be accesed with the get methods below
-// params: {String, String, String}
-function fetchBenchmarks(name, benchmarkFingerprint, accessToken) {
-    return Requests.getInstance().fetchBenchmarks(name, benchmarkFingerprint, accessToken);
 }
 
 // returns Map<String, Map<String, Map<String, List<Double>>>> 
@@ -90,16 +75,6 @@ function getBenchmarksByVersion(benchmarkFingerprint, version) {
 // params: {String, String, String}
 function getBenchmarksByMode(benchmarkFingerprint, version, mode) {
     return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
-}
-
-// returns the most current version benchmarked with
-function getCurrentVersion() {
-    return Requests.getCurrentVersion();
-}
-
-// returns the previous version to the current version found in your benchmarks
-function getPreviousVersion() {
-    return Requests.getPreviousVersion();
 }
 
 // returns boolean that represents whether or not deviationsFromMean is within deviationsAllowed
