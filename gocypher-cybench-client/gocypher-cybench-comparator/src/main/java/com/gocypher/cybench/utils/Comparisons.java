@@ -92,38 +92,6 @@ public final class Comparisons {
 
         return SDfromMean;
     }
-
-    // Compare Methods with Logging
-    public static Double compareWithDelta(List<Double> withinVersionScores, Threshold threshold, String rangeString,
-            String benchmarkName, String mode, String currentVersion) {
-        log.info("COMPARISON: {} : {} - Within version {} delta running", benchmarkName, mode, currentVersion);
-        Double delta = compareWithDelta(withinVersionScores, threshold, rangeString);
-        return delta;
-    }
-
-    public static Double compareWithSD(List<Double> withinVersionScores, String rangeString, String benchmarkName,
-            String mode, String currentVersion) {
-        log.info("COMPARISON: {} : {} - Within version {} SD running", benchmarkName, mode, currentVersion);
-        Double SDfromMean = compareWithSD(withinVersionScores, rangeString);
-        return SDfromMean;
-    }
-
-    public static Double compareWithDelta(List<Double> currentVersionScores, List<Double> compareVersionScores,
-            Threshold threshold, String rangeString, String benchmarkName, String mode, String currentVersion,
-            String previousVersion) {
-        log.info("COMPARISON: {} : {} - Between current version {} and previous version {} delta running",
-                benchmarkName, mode, currentVersion, previousVersion);
-        Double delta = compareWithDelta(currentVersionScores, compareVersionScores, threshold, rangeString);
-        return delta;
-    }
-
-    public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores,
-            String rangeString, String benchmarkName, String mode, String currentVersion, String previousVersion) {
-        log.info("COMPARISON: {} : {} - Between current version {} and previous version {} SD running", benchmarkName,
-                mode, currentVersion, previousVersion);
-        Double SDfromMean = compareWithSD(currentVersionScores, compareVersionScores, rangeString);
-        return SDfromMean;
-    }
     
     public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String mode) {
     	StringBuilder sb = new StringBuilder();
