@@ -109,11 +109,11 @@ forEach.call(myFingerprints, function (fingerprint) {
 
 ### Script Configuration Args
 
-* `SCRIPT` passed with `-S` or `-script`
+* `SCRIPT` passed with `-S` or `-scriptPath`
     * Specifies the file path to your script
 * `TOKEN` passed with `-T` or `-token`
     * Specifies your CyBench query access token
-* `REPORT` passed with `-R` or `-report`
+* `REPORT` passed with `-R` or `-reportPath`
     * Specifies the report you want to analyze and run comparisons on, this can be the path to a single report, or the path to the full report directory (in which case the most recently ran report will be used)   
 * `SCOPE` passed with `-s` or `-scope`
     * Options: `WITHIN` or `BETWEEN`
@@ -160,7 +160,7 @@ forEach.call(myFingerprints, function (fingerprint) {
 ## YAML Configuration
 
 * Pass configuration file path via args
-* Passed with `-C` or `-config`
+* Passed with `-C` or `-configPath`
 
 ### Cybench Comparator configuration
 
@@ -531,7 +531,7 @@ java -jar gocypher-cybench-comparator.jar [args]
   repo `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
 
   **Note:** you may need configuration file
-  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it with flag `-C` or `-config`
+  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it with flag `-C` or `-configPath`
   property:
     ```cmd
     "-C config/comparator.yaml"

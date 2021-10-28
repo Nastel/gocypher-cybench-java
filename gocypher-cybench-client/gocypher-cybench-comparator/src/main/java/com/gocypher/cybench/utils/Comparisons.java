@@ -45,7 +45,7 @@ public final class Comparisons {
             log.info("comparison=delta, recentScore={}, range={}, compareMean={}, delta={}, percentChange={}%",
                     newScore, rangeString, compareValue, delta, deltaPercentChange);
         } else {
-            log.info("comparison=delta, recentScore={}, range={}, compareMean={}, percentChange={}%", newScore,
+            log.info("comparison=DELTA, recentScore={}, range={}, compareMean={}, percentChange={}%", newScore,
                     rangeString, compareValue, delta);
         }
 

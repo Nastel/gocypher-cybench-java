@@ -27,14 +27,14 @@ public class ComparatorScriptEngine {
     private Map<String, Object> passedProps;
 
     public ComparatorScriptEngine(Map<String, String> passedProps) {
-    	String token = passedProps.get("token");
-    	String report = passedProps.get("report");
-    	String method = passedProps.get("method");
-    	String range = passedProps.get("range");
-    	String scope = passedProps.get("scope");
-    	String threshold = passedProps.get("threshold");
-    	String percentChangeAllowed = passedProps.get("percentChangeAllowed");
-    	String deviationsAllowed = passedProps.get("deviationsAllowed");
+    	String token = passedProps.get(ConfigHandling.TOKEN);
+    	String report = passedProps.get(ConfigHandling.REPORT_PATH);
+    	String method = passedProps.get(ConfigHandling.METHOD);
+    	String range = passedProps.get(ConfigHandling.RANGE);
+    	String scope = passedProps.get(ConfigHandling.SCOPE);
+    	String threshold = passedProps.get(ConfigHandling.THRESHOLD);
+    	String percentChangeAllowed = passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
+    	String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
     	initiateFetch(token, report);
     	handleComparatorConfigs(method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
     }
@@ -68,25 +68,25 @@ public class ComparatorScriptEngine {
         passedProps.put("currentVersion", currentVersion);
 
         if (StringUtils.isNotEmpty(scope)) {
-            passedProps.put("scope", scope);
+            passedProps.put(ConfigHandling.SCOPE, scope);
             if (scope.equalsIgnoreCase("BETWEEN")) {
                 passedProps.put("compareVersion", previousVersion);
             }
         }
         if (StringUtils.isNotEmpty(method)) {
-            passedProps.put("method", method);
+            passedProps.put(ConfigHandling.METHOD, method);
         }
         if (StringUtils.isNotEmpty(range)) {
-            passedProps.put("range", range);
+            passedProps.put(ConfigHandling.RANGE, range);
         }
         if (StringUtils.isNotEmpty(threshold)) {
-            passedProps.put("threshold", threshold);
+            passedProps.put(ConfigHandling.THRESHOLD, threshold);
         }
         if (StringUtils.isNotEmpty(percentChangeAllowed)) {
-            passedProps.put("percentChangeAllowed", percentChangeAllowed);
+            passedProps.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, percentChangeAllowed);
         }
         if (StringUtils.isNotEmpty(deviationsAllowed)) {
-            passedProps.put("deviationsAllowed", deviationsAllowed);
+            passedProps.put(ConfigHandling.DEVIATIONS_ALLOWED, deviationsAllowed);
         }
         comparatorProps.put("MyScript", passedProps);
         ConfigHandling.checkConfigValidity("MyScript", comparatorProps);
@@ -108,14 +108,14 @@ public class ComparatorScriptEngine {
             engine.put("myFingerprintsAndNames", myFingerprintsAndNames);
             engine.put("myFingerprints", myFingerprints);
             engine.put("logConfigs", passedProps);
-            engine.put("method", passedProps.get("method"));
-            engine.put("scope", passedProps.get("scope"));
-            engine.put("range", passedProps.get("range"));
-            engine.put("threshold", passedProps.get("threshold"));
-            engine.put("percentChangeAllowed", passedProps.get("percentChangeAllowed"));
-            engine.put("deviationsAllowed", passedProps.get("deviationsAllowed"));
             engine.put("currentVersion", currentVersion);
             engine.put("previousVersion", previousVersion);
+            engine.put(ConfigHandling.METHOD, passedProps.get(ConfigHandling.METHOD));
+            engine.put(ConfigHandling.SCOPE, passedProps.get(ConfigHandling.SCOPE));
+            engine.put(ConfigHandling.RANGE, passedProps.get(ConfigHandling.RANGE));
+            engine.put(ConfigHandling.THRESHOLD, passedProps.get(ConfigHandling.THRESHOLD));
+            engine.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED));
+            engine.put(ConfigHandling.DEVIATIONS_ALLOWED, passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED));
 
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream("/ComparatorScriptBindings.js")));

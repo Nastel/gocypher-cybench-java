@@ -35,32 +35,32 @@ public class CompareBenchmarks {
         log.info("* Analyzing benchmark performance...");
         
         Options options = new Options();
-        options.addOption("S", "script", true, "User JS script");
-        options.addOption("C", "config", true, "YAML config file");
-        options.addOption("T", "token", true, "CyBench access token");
-        options.addOption("R", "report", true, "Report file/Report directory");
-        options.addOption("m", "method", true, "Comparison method");
-        options.addOption("r", "range", true, "Comparison range");        
-        options.addOption("s", "scope", true, "Comparison scope");
-        options.addOption("t", "threshold", true, "Comparison threshold");
-        options.addOption("p", "percentChangeAllowed", true, "Comparison percent change allowed");
-        options.addOption("d", "deviationsAllowed", true, "Comparison deviations allowed");
+        options.addOption("S", ConfigHandling.SCRIPT_PATH, true, "User JS script");
+        options.addOption("C", ConfigHandling.CONFIG_PATH, true, "YAML config file");
+        options.addOption("T", ConfigHandling.TOKEN, true, "CyBench access token");
+        options.addOption("R", ConfigHandling.REPORT_PATH, true, "Report file/Report directory");
+        options.addOption("m", ConfigHandling.METHOD, true, "Comparison method");
+        options.addOption("r", ConfigHandling.RANGE, true, "Comparison range");        
+        options.addOption("s", ConfigHandling.SCOPE, true, "Comparison scope");
+        options.addOption("t", ConfigHandling.THRESHOLD, true, "Comparison threshold");
+        options.addOption("p", ConfigHandling.PERCENT_CHANGE_ALLOWED, true, "Comparison percent change allowed");
+        options.addOption("d", ConfigHandling.DEVIATIONS_ALLOWED, true, "Comparison deviations allowed");
         
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
         
         Map<String, String> passedProps = new HashMap<>();
         
-        passedProps.put("scriptPath", cmd.getOptionValue("S"));
-        passedProps.put("configFilePath", cmd.getOptionValue("C"));
-        passedProps.put("token", cmd.getOptionValue("T"));
-        passedProps.put("report", cmd.getOptionValue("R"));
-        passedProps.put("method", cmd.getOptionValue("m"));
-        passedProps.put("range", cmd.getOptionValue("r"));
-        passedProps.put("scope", cmd.getOptionValue("s"));
-        passedProps.put("threshold", cmd.getOptionValue("t"));
-        passedProps.put("percentChangeAllowed", cmd.getOptionValue("p"));
-        passedProps.put("deviationsAllowed", cmd.getOptionValue("d"));
+        passedProps.put(ConfigHandling.SCRIPT_PATH, cmd.getOptionValue("S"));
+        passedProps.put(ConfigHandling.CONFIG_PATH, cmd.getOptionValue("C"));
+        passedProps.put(ConfigHandling.TOKEN, cmd.getOptionValue("T"));
+        passedProps.put(ConfigHandling.REPORT_PATH, cmd.getOptionValue("R"));
+        passedProps.put(ConfigHandling.METHOD, cmd.getOptionValue("m"));
+        passedProps.put(ConfigHandling.RANGE, cmd.getOptionValue("r"));
+        passedProps.put(ConfigHandling.SCOPE, cmd.getOptionValue("s"));
+        passedProps.put(ConfigHandling.THRESHOLD, cmd.getOptionValue("t"));
+        passedProps.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, cmd.getOptionValue("p"));
+        passedProps.put(ConfigHandling.DEVIATIONS_ALLOWED, cmd.getOptionValue("d"));
         
         for (String propKey : passedProps.keySet()) {
         	String prop = passedProps.get(propKey);
@@ -70,8 +70,8 @@ public class CompareBenchmarks {
         	}
         }
         
-        String scriptPath = passedProps.get("scriptPath");
-        String configFilePath = passedProps.get("configFilePath");
+        String scriptPath = passedProps.get(ConfigHandling.SCRIPT_PATH);
+        String configPath = passedProps.get(ConfigHandling.CONFIG_PATH);
         
         if (scriptPath != null) {
             log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
@@ -81,20 +81,20 @@ public class CompareBenchmarks {
             ScriptEngine engine = cse.prepareScriptEngine();
             cse.runUserScript(engine, userScript);
         } else {
-        	if (configFilePath == null) {
+        	if (configPath == null) {
         		log.info("No script or config file specified, looking for comparator.yaml in default location");
-        		configFilePath = ConfigHandling.DEFAULT_COMPARATOR_CONFIG_PATH;
+        		configPath = ConfigHandling.DEFAULT_COMPARATOR_CONFIG_PATH;
         	}
         	
-            log.info("Attempting to load comparator configurations at {}\n", configFilePath);
-            Map<String, Object> allConfigs = ConfigHandling.loadYaml(configFilePath);
+            log.info("Attempting to load comparator configurations at {}\n", configPath);
+            Map<String, Object> allConfigs = ConfigHandling.loadYaml(configPath);
 
             Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
                     .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
             Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
 
             File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
-            String accessToken = (String) allConfigs.get("token");
+            String accessToken = (String) allConfigs.get(ConfigHandling.TOKEN);
 
             if (recentReport != null && accessToken != null) {
                 analyzeBenchmarks(recentReport, accessToken, defaultConfigs, configuredPackages, allConfigs);
@@ -159,31 +159,31 @@ public class CompareBenchmarks {
                             Requests.storeBenchmarkData(benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
                         }
 
-                        Comparisons.Method compareMethod = (Comparisons.Method) defaultConfigs.get("method");
-                        Comparisons.Scope compareScope = (Comparisons.Scope) defaultConfigs.get("scope");
-                        String compareRange = (String) defaultConfigs.get("range");
+                        Comparisons.Method compareMethod = (Comparisons.Method) defaultConfigs.get(ConfigHandling.METHOD);
+                        Comparisons.Scope compareScope = (Comparisons.Scope) defaultConfigs.get(ConfigHandling.SCOPE);
+                        String compareRange = (String) defaultConfigs.get(ConfigHandling.RANGE);
                         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) defaultConfigs
-                                .get("threshold");
-                        Double percentChangeAllowed = (Double) defaultConfigs.get("percentChangeAllowed");
-                        String compareVersion = (String) defaultConfigs.get("compareVersion");
-                        Double deviationsAllowed = (Double) defaultConfigs.get("deviationsAllowed");
+                                .get(ConfigHandling.THRESHOLD);
+                        Double percentChangeAllowed = (Double) defaultConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
+                        String compareVersion = (String) defaultConfigs.get(ConfigHandling.COMPARE_VERSION);
+                        Double deviationsAllowed = (Double) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED);
 
                         for (Map.Entry<String, String> entry : configuredPackages.entrySet()) {
                             if (entry.getKey() != null && benchmarkName.startsWith(entry.getKey())) {
                                 String identifier = entry.getValue();
                                 Map<String, Object> specificConfigs = (Map<String, Object>) allConfigs.get(identifier);
-                                compareMethod = (Comparisons.Method) specificConfigs.get("method");
-                                compareScope = (Comparisons.Scope) specificConfigs.get("scope");
-                                compareRange = (String) specificConfigs.get("range");
-                                compareThreshold = (Comparisons.Threshold) specificConfigs.get("threshold");
-                                compareVersion = (String) specificConfigs.get("compareVersion");
-                                if (specificConfigs.containsKey("percentChangeAllowed")) {
+                                compareMethod = (Comparisons.Method) specificConfigs.get(ConfigHandling.METHOD);
+                                compareScope = (Comparisons.Scope) specificConfigs.get(ConfigHandling.SCOPE);
+                                compareRange = (String) specificConfigs.get(ConfigHandling.RANGE);
+                                compareThreshold = (Comparisons.Threshold) specificConfigs.get(ConfigHandling.THRESHOLD);
+                                compareVersion = (String) specificConfigs.get(ConfigHandling.COMPARE_VERSION);
+                                if (specificConfigs.containsKey(ConfigHandling.PERCENT_CHANGE_ALLOWED)) {
                                     percentChangeAllowed = Double
-                                            .parseDouble(specificConfigs.get("percentChangeAllowed").toString());
+                                            .parseDouble(specificConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
                                 }
-                                if (specificConfigs.containsKey("deviationsAllowed")) {
+                                if (specificConfigs.containsKey(ConfigHandling.DEVIATIONS_ALLOWED)) {
                                     deviationsAllowed = Double
-                                            .parseDouble(specificConfigs.get("deviationsAllowed").toString());
+                                            .parseDouble(specificConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
                                 }
                                 break;
                             }
@@ -252,13 +252,13 @@ public class CompareBenchmarks {
         Map<String, Object> data = scoresPerMode.get(benchmarkMode);
         data.put("benchmarkScore", benchmarkScore);
         data.put("COMPARE_VALUE", COMPARE_VALUE);
-        data.put("compareMethod", compareMethod);
-        data.put("compareScope", compareScope);
-        data.put("compareRange", compareRange);
-        data.put("compareThreshold", compareThreshold);
-        data.put("compareVersion", compareVersion);
-        data.put("percentChangeAllowed", percentChangeAllowed);
-        data.put("deviationsAllowed", deviationsAllowed);
+        data.put(ConfigHandling.METHOD, compareMethod);
+        data.put(ConfigHandling.SCOPE, compareScope);
+        data.put(ConfigHandling.RANGE, compareRange);
+        data.put(ConfigHandling.THRESHOLD, compareThreshold);
+        data.put(ConfigHandling.COMPARE_VERSION, compareVersion);
+        data.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, percentChangeAllowed);
+        data.put(ConfigHandling.DEVIATIONS_ALLOWED, deviationsAllowed);
     }
 
     private static void printBenchmarkResults(int totalComparedBenchmarks, int totalPassedBenchmarks,
@@ -291,10 +291,10 @@ public class CompareBenchmarks {
                     String benchmarkMode = e.getKey();
                     Double benchmarkScore = (Double) e.getValue().get("benchmarkScore");
                     Double COMPARE_VALUE = (Double) e.getValue().get("COMPARE_VALUE");
-                    Comparisons.Method compareMethod = (Comparisons.Method) e.getValue().get("compareMethod");
-                    Comparisons.Scope compareScope = (Comparisons.Scope) e.getValue().get("compareScope");
-                    String compareRange = (String) e.getValue().get("compareRange");
-                    String compareVersion = (String) e.getValue().get("compareVersion");
+                    Comparisons.Method compareMethod = (Comparisons.Method) e.getValue().get(ConfigHandling.METHOD);
+                    Comparisons.Scope compareScope = (Comparisons.Scope) e.getValue().get(ConfigHandling.SCOPE);
+                    String compareRange = (String) e.getValue().get(ConfigHandling.RANGE);
+                    String compareVersion = (String) e.getValue().get(ConfigHandling.COMPARE_VERSION);
 
                     String compareStr = "";
                     if (compareMethod == Comparisons.Method.DELTA) {
@@ -310,14 +310,14 @@ public class CompareBenchmarks {
 
                     if (compareMethod.equals(Comparisons.Method.DELTA)) {
                         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) e.getValue()
-                                .get("compareThreshold");
+                                .get(ConfigHandling.THRESHOLD);
                         logReport.append("test.compare.threshold=").append(compareThreshold).append(", ");
                         if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-                            Double percentChangeAllowed = (Double) e.getValue().get("percentChangeAllowed");
+                            Double percentChangeAllowed = (Double) e.getValue().get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
                             logReport.append("test.percentChangeAllowed=").append(percentChangeAllowed).append(", ");
                         }
                     } else {
-                        Double deviationsAllowed = (Double) e.getValue().get("deviationsAllowed");
+                        Double deviationsAllowed = (Double) e.getValue().get(ConfigHandling.DEVIATIONS_ALLOWED);
                         logReport.append("test.deviationsAllowed=").append(deviationsAllowed).append(", ");
                     }
 
