@@ -271,7 +271,7 @@ public class ConfigHandling {
                     String threshold = (String) compareVals.get("threshold");
                     threshold = threshold.toUpperCase();
                     if (!EnumUtils.isValidEnum(Comparisons.Threshold.class, threshold)) {
-                        log.warn("'{}': '{}' passed file is not a valid comparison threshold - will use: {}",
+                        log.warn("'{}': '{}' passed is not a valid comparison threshold - will use: {}",
                                 simplifiedIdentifier, threshold, defaultThreshold);
                         threshold = defaultThreshold.toString();
                     }
