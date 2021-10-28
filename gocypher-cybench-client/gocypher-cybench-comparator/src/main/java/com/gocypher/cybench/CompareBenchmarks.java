@@ -3,13 +3,19 @@ package com.gocypher.cybench;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.script.ScriptEngine;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -33,34 +39,58 @@ public class CompareBenchmarks {
     @SuppressWarnings("unchecked")
     public static void main(String... args) throws Exception {
         log.info("* Analyzing benchmark performance...");
-
-        Properties passedProps = new Properties();
-        for (String property : args) {
-        	String[] keyVal = property.split("=");
-        	if (keyVal.length > 1) {
-        		passedProps.put(keyVal[0], keyVal[1]);
+        
+        Options options = new Options();
+        options.addOption("S", "script", true, "User JS script");
+        options.addOption("C", "config", true, "YAML config file");
+        options.addOption("T", "token", true, "CyBench access token");
+        options.addOption("R", "report", true, "Report file/Report directory");
+        options.addOption("m", "method", true, "Comparison method");
+        options.addOption("r", "range", true, "Comparison range");        
+        options.addOption("s", "scope", true, "Comparison scope");
+        options.addOption("t", "threshold", true, "Comparison threshold");
+        options.addOption("p", "percentChangeAllowed", true, "Comparison percent change allowed");
+        options.addOption("d", "deviationsAllowed", true, "Comparison deviations allowed");
+        
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(options, args);
+        
+        Map<String, String> passedProps = new HashMap<>();
+        
+        passedProps.put("scriptPath", cmd.getOptionValue("S"));
+        passedProps.put("configFilePath", cmd.getOptionValue("C"));
+        passedProps.put("token", cmd.getOptionValue("T"));
+        passedProps.put("report", cmd.getOptionValue("R"));
+        passedProps.put("method", cmd.getOptionValue("m"));
+        passedProps.put("range", cmd.getOptionValue("r"));
+        passedProps.put("scope", cmd.getOptionValue("s"));
+        passedProps.put("threshold", cmd.getOptionValue("t"));
+        passedProps.put("percentChangeAllowed", cmd.getOptionValue("p"));
+        passedProps.put("deviationsAllowed", cmd.getOptionValue("d"));
+        
+        for (String propKey : passedProps.keySet()) {
+        	String prop = passedProps.get(propKey);
+        	if (prop != null) {
+        		prop.replaceAll("\\s+", "");
         	}
         }
         
-        String scriptPath = passedProps.containsKey("script") ? passedProps.getProperty("script") : null;
-        String configFilePath = passedProps.containsKey("cfg") ? passedProps.getProperty("cfg") : ConfigHandling.DEFAULT_COMPARATOR_CONFIG_PATH;
-
+        String scriptPath = passedProps.get("scriptPath");
+        String configFilePath = passedProps.get("configFilePath");
+        
         if (scriptPath != null) {
             log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
-            
-            String token = passedProps.getProperty("token");
-            String report = passedProps.getProperty("report");
-            String method = passedProps.getProperty("method");
-            String range = passedProps.getProperty("range");
-            String scope = passedProps.getProperty("scope");
-            String threshold = passedProps.getProperty("threshold");
-            String percentChangeAllowed = passedProps.getProperty("percentChangeAllowed");
-            String deviationsAllowed = passedProps.getProperty("deviationsAllowed");
-            ComparatorScriptEngine cse = new ComparatorScriptEngine(token, report, method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
+         
+            ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps);
             File userScript = cse.loadUserScript(scriptPath);
             ScriptEngine engine = cse.prepareScriptEngine();
             cse.runUserScript(engine, userScript);
         } else {
+        	if (configFilePath == null) {
+        		log.info("No script or config file specified, looking for comparator.yaml in default location");
+        		configFilePath = ConfigHandling.DEFAULT_COMPARATOR_CONFIG_PATH;
+        	}
+        	
             log.info("Attempting to load comparator configurations at {}\n", configFilePath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configFilePath);
 

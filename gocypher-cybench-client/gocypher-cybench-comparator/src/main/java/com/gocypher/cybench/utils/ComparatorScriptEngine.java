@@ -26,7 +26,15 @@ public class ComparatorScriptEngine {
     private ArrayList<String> myFingerprints;
     private Map<String, Object> passedProps;
 
-    public ComparatorScriptEngine(String token, String report, String method, String range, String scope, String threshold, String percentChangeAllowed, String deviationsAllowed) {
+    public ComparatorScriptEngine(Map<String, String> passedProps) {
+    	String token = passedProps.get("token");
+    	String report = passedProps.get("report");
+    	String method = passedProps.get("method");
+    	String range = passedProps.get("range");
+    	String scope = passedProps.get("scope");
+    	String threshold = passedProps.get("threshold");
+    	String percentChangeAllowed = passedProps.get("percentChangeAllowed");
+    	String deviationsAllowed = passedProps.get("deviationsAllowed");
     	initiateFetch(token, report);
     	handleComparatorConfigs(method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
     }
