@@ -90,15 +90,15 @@ public class ConfigHandling {
                     "Default compare values not configured properly, check the example comparator.yaml on the Cybench Wiki");
             log.warn("Using predefined defaults (method: {}, scope: {}, range: {}, threshold: {})",
                     DEFAULT_COMPARE_METHOD, DEFAULT_COMPARE_SCOPE, DEFAULT_COMPARE_RANGE, DEFAULT_COMPARE_THRESHOLD);
-            
+
             comparatorProps.put(DEFAULT_IDENTIFIER_HEADER, loadDefaults());
         } else {
             checkConfigValidity(DEFAULT_IDENTIFIER_HEADER, comparatorProps);
         }
     }
-    
+
     public static Map<String, Object> loadDefaults() {
-    	Map<String, Object> defaultValues = new HashMap<>();
+        Map<String, Object> defaultValues = new HashMap<>();
         defaultValues.put("method", DEFAULT_COMPARE_METHOD);
         defaultValues.put("scope", DEFAULT_COMPARE_SCOPE);
         defaultValues.put("range", DEFAULT_COMPARE_RANGE);
@@ -110,10 +110,11 @@ public class ConfigHandling {
     protected static String checkConfigValidity(String identifier, Map<String, Object> comparatorProps) {
         String simplifiedIdentifier = identifier;
         try {
-        	if (!identifier.equals("MyScript"))
-        		simplifiedIdentifier = identifier.split(IDENTIFIER_HEADER)[1];
+            if (!identifier.equals("MyScript")) {
+                simplifiedIdentifier = identifier.split(IDENTIFIER_HEADER)[1];
+            }
         } catch (Exception e) {
-        	log.error("{} not defined correctly! Identifier needs to start with 'compare.'");
+            log.error("{} not defined correctly! Identifier needs to start with 'compare.'", identifier);
         }
         String packageName = null;
         if (comparatorProps.get(identifier) instanceof Map<?, ?>) {
@@ -232,8 +233,8 @@ public class ConfigHandling {
                 if (!compareVals.containsKey("compareVersion")) {
                     if (defaultVals.containsKey("compareVersion")) {
                         compareVals.put("compareVersion", defaultVersion);
-                        log.warn("'{}': Compare version not specified, will compare to version: {}", simplifiedIdentifier,
-                                defaultVersion);
+                        log.warn("'{}': Compare version not specified, will compare to version: {}",
+                                simplifiedIdentifier, defaultVersion);
                     } else {
                         log.warn(
                                 "'{}': Compare scope recognized as 'BETWEEN' but no compare version was specified - please provide a version to compare to",
@@ -339,9 +340,8 @@ public class ConfigHandling {
 
             comparatorProps.put(identifier, compareVals);
             if (identifier.equals("MyScript")) {
-            	packageName = "MyScript";
-            }
-            else if (compareVals.containsKey("package")) {
+                packageName = "MyScript";
+            } else if (compareVals.containsKey("package")) {
                 packageName = (String) compareVals.get("package");
             } else if (simplifiedIdentifier.equals("default")) {
                 packageName = "default";

@@ -1,11 +1,7 @@
 package com.gocypher.cybench;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.script.ScriptEngine;
@@ -36,18 +32,19 @@ public class CompareBenchmarks {
 
         Properties passedProps = new Properties();
         for (String property : args) {
-        	String[] keyVal = property.split("=");
-        	if (keyVal.length > 1) {
-        		passedProps.put(keyVal[0], keyVal[1]);
-        	}
+            String[] keyVal = property.split("=");
+            if (keyVal.length > 1) {
+                passedProps.put(keyVal[0], keyVal[1]);
+            }
         }
-        
+
         String scriptPath = passedProps.containsKey("script") ? passedProps.getProperty("script") : null;
-        String configFilePath = passedProps.containsKey("cfg") ? passedProps.getProperty("cfg") : ConfigHandling.DEFAULT_COMPARATOR_CONFIG_PATH;
+        String configFilePath = passedProps.containsKey("cfg") ? passedProps.getProperty("cfg")
+                : ConfigHandling.DEFAULT_COMPARATOR_CONFIG_PATH;
 
         if (scriptPath != null) {
             log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
-            
+
             String token = passedProps.getProperty("token");
             String report = passedProps.getProperty("report");
             String method = passedProps.getProperty("method");
@@ -56,7 +53,8 @@ public class CompareBenchmarks {
             String threshold = passedProps.getProperty("threshold");
             String percentChangeAllowed = passedProps.getProperty("percentChangeAllowed");
             String deviationsAllowed = passedProps.getProperty("deviationsAllowed");
-            ComparatorScriptEngine cse = new ComparatorScriptEngine(token, report, method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
+            ComparatorScriptEngine cse = new ComparatorScriptEngine(token, report, method, range, scope, threshold,
+                    percentChangeAllowed, deviationsAllowed);
             File userScript = cse.loadUserScript(scriptPath);
             ScriptEngine engine = cse.prepareScriptEngine();
             cse.runUserScript(engine, userScript);
@@ -153,7 +151,7 @@ public class CompareBenchmarks {
                                 compareThreshold = (Comparisons.Threshold) specificConfigs.get("threshold");
                                 compareVersion = (String) specificConfigs.get("compareVersion");
                                 if (specificConfigs.containsKey("percentChangeAllowed")) {
-                                	percentChangeAllowed = Double
+                                    percentChangeAllowed = Double
                                             .parseDouble(specificConfigs.get("percentChangeAllowed").toString());
                                 }
                                 if (specificConfigs.containsKey("deviationsAllowed")) {
@@ -360,8 +358,8 @@ public class CompareBenchmarks {
                         benchmarkMode, benchmarkVersion);
                 totalPassedBenchmarks++;
                 addPassFailBenchData(passedBenchmarks, benchmarkScore, COMPARE_VALUE, benchmarkName, benchmarkVersion,
-                        benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold, percentChangeAllowed,
-                        deviationsAllowed, compareVersion);
+                        benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
+                        percentChangeAllowed, deviationsAllowed, compareVersion);
                 return false;
             }
         }

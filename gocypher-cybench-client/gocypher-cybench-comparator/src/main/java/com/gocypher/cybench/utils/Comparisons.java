@@ -28,7 +28,7 @@ public final class Comparisons {
         }
         return range;
     }
-    
+
     public static Double compareWithDelta(List<Double> currentVersionScores, List<Double> compareVersionScores,
             Threshold threshold, String rangeString) {
         int currentVersionSize = currentVersionScores.size();
@@ -75,17 +75,18 @@ public final class Comparisons {
 
         return SDfromMean;
     }
-    
+
     public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String mode) {
-    	StringBuilder sb = new StringBuilder();
-    	Method method = (Method) logConfigs.get("method");
-    	Scope scope = (Scope) logConfigs.get("scope");
-    	String currentVersion = (String) logConfigs.get("currentVersion");
-    	String compareVersion = (String) logConfigs.get("compareVersion");
-    	sb.append("COMPARISON - {} : {} - {} running {} current version {}");
-    	if (scope.equals(Scope.BETWEEN))
-    		sb.append(" and version ").append(compareVersion);
-    	log.info(sb.toString(), benchmarkName, mode, method, scope, currentVersion);
+        StringBuilder sb = new StringBuilder();
+        Method method = (Method) logConfigs.get("method");
+        Scope scope = (Scope) logConfigs.get("scope");
+        String currentVersion = (String) logConfigs.get("currentVersion");
+        String compareVersion = (String) logConfigs.get("compareVersion");
+        sb.append("COMPARISON - {} : {} - {} running {} current version {}");
+        if (scope.equals(Scope.BETWEEN)) {
+            sb.append(" and version ").append(compareVersion);
+        }
+        log.info(sb.toString(), benchmarkName, mode, method, scope, currentVersion);
     }
 
     // Calculate Methods
