@@ -150,12 +150,12 @@ forEach.call(myFingerprints, function (fingerprint) {
 * `logComparison` will allow you to receive more log output regarding what is being tested during comparison runs
 * `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different
   ways to access the benchmarks stored in `Java Maps`
-* `compareDelta` and `compareSD` are compare methods you can call with your scores that run all calculations behind the scenes and return `Double`
+* `compareDelta` and `compareSD` are compare methods you can call with your scores that run all calculations behind the scenes and return Double
   values
 * `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are simple methods you can quickly
   access for your own calculations and return `Double` values
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to
-  return `boolean` values that represent pass/fail
+  return boolean values that represent pass/fail
 
 ## YAML Configuration
 
