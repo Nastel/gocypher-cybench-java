@@ -75,12 +75,12 @@ public class ConfigHandling {
 
     public static void configHandling(Map<String, Object> comparatorProps) {
         if (!comparatorProps.containsKey("reports")) {
-            log.warn("Reports key not found in config file - using default reports location: {}",
+            log.warn("Reports key not passed - using default reports location: {}",
                     DEFAULT_REPORTS_LOCATION);
             comparatorProps.put("reports", DEFAULT_REPORTS_LOCATION);
         }
         if (!comparatorProps.containsKey("token")) {
-            log.warn("Token key not found in config file - will not be able to access private workspaces");
+            log.warn("Token key not passed - will not be able to access private workspaces");
             comparatorProps.put("token", DEFAULT_TOKEN);
         }
 
@@ -160,7 +160,7 @@ public class ConfigHandling {
                 String method = (String) compareVals.get("method");
                 method = method.toUpperCase();
                 if (!EnumUtils.isValidEnum(Comparisons.Method.class, method)) {
-                    log.warn("'{}': '{}' found in config file is not a valid comparison method - will use: {}",
+                    log.warn("'{}': '{}' passed is not a valid comparison method - will use: {}",
                             simplifiedIdentifier, method, defaultMethod);
                     method = defaultMethod.toString();
                 }
@@ -181,7 +181,7 @@ public class ConfigHandling {
                         compareVals.put("deviationsAllowed", deviationsStr);
                         log.info("'{}': Will compare allowing deviations: {}", simplifiedIdentifier, deviations);
                     } catch (Exception e) {
-                        log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
+                        log.warn("'{}': '{}' passed is not a valid number - will use: {}",
                                 simplifiedIdentifier, deviationsStr, defaultDeviations);
                         compareVals.put("deviationsAllowed", defaultDeviations);
                     }
@@ -205,7 +205,7 @@ public class ConfigHandling {
                     try {
                         Integer rangeInt = Integer.parseInt(range);
                     } catch (Exception e) {
-                        log.warn("'{}': '{}' found in config file is not a valid comparison range - will use: {}",
+                        log.warn("'{}': '{}' passed is not a valid comparison range - will use: {}",
                                 simplifiedIdentifier, range, defaultRange);
                         range = defaultRange;
                     }
@@ -220,7 +220,7 @@ public class ConfigHandling {
                 String scope = (String) compareVals.get("scope");
                 scope = scope.toUpperCase();
                 if (!EnumUtils.isValidEnum(Comparisons.Scope.class, scope)) {
-                    log.warn("'{}': '{}' found in config file is not a valid comparison scope - will use: {}",
+                    log.warn("'{}': '{}' passed is not a valid comparison scope - will use: {}",
                             simplifiedIdentifier, scope, defaultScope);
                     scope = defaultScope.toString();
                 }
@@ -271,7 +271,7 @@ public class ConfigHandling {
                     String threshold = (String) compareVals.get("threshold");
                     threshold = threshold.toUpperCase();
                     if (!EnumUtils.isValidEnum(Comparisons.Threshold.class, threshold)) {
-                        log.warn("'{}': '{}' found in config file is not a valid comparison threshold - will use: {}",
+                        log.warn("'{}': '{}' passed file is not a valid comparison threshold - will use: {}",
                                 simplifiedIdentifier, threshold, defaultThreshold);
                         threshold = defaultThreshold.toString();
                     }
@@ -301,7 +301,7 @@ public class ConfigHandling {
                             compareVals.put("percentChangeAllowed", percentage);
                             log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
                         } catch (Exception e) {
-                            log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
+                            log.warn("'{}': '{}' passed is not a valid number - will use: {}",
                                     simplifiedIdentifier, percentageStr, defaultPercentage);
                             compareVals.put("percentChangeAllowed", defaultPercentage);
                         }
@@ -322,7 +322,7 @@ public class ConfigHandling {
                                 log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
                             }
                         } catch (Exception e) {
-                            log.warn("'{}': '{}' found in config file is not a valid number - will use: {}",
+                            log.warn("'{}': '{}' passed is not a valid number - will use: {}",
                                     simplifiedIdentifier, percentageStr, defaultPercentage);
                             compareVals.put("percentChangeAllowed", defaultPercentage);
                         }
