@@ -187,13 +187,12 @@ compare.default:
   scope: "BETWEEN"
   threshold: "GREATER"
   percentChangeAllowed: "1"
-  range: "LAST_VALUE"
+  range: "1"
   compareVersion: "1.0.1"
 compare.A:
-  method: "MEAN"
   package: "calctest.ClockTest"
   scope: "WITHIN"
-  threshold: "percent_change"
+  threshold: "PERCENT_CHANGE"
   percentChangeAllowed: "15"
   range: "ALL_VALUES"
 ```
@@ -283,24 +282,24 @@ out `comparator.yaml`
 ## Options {within, between} ##
 ### {within} will compare all benchmarks within the benchmarked version ###
 ### if {between} is chosen, must specify {compareVersion} (will compare benchmarked version to the specified version) ###
-### add {compareVersion} to specify which version to compare to ###
+    ### add {compareVersion} to specify which version to compare to ###
 
 # range = {amount of values to compare against}
 ## Options {all, (#)} - can specify the word "all" to compare against all values or any number X to compare against previous X recorded scores ##
-### to compare against just the previous score within your version or the most recent score in another version, specify range '1' ###
-### otherwise the new score will be compared against the mean of the previous X values ###
+    ### to compare against just the previous score within your version or the most recent score in another version, specify range '1' ###
+    ### otherwise the new score will be compared against the mean of the previous X values ###
 
 # method = how benchmarks will be compared
 ## Options {delta, SD} ##
 ### if {SD} is chosen, must specify {deviationsAllowed} ###
-### {deviationsAllowed} = the amount of deviations you will allow your score to be away from the mean of the previous X values (X specified as {range}) ###
+    ### {deviationsAllowed} = the amount of deviations you will allow your score to be away from the mean of the previous X values (X specified as {range}) ###
 ### if {delta} is chosen, must specify {threshold} ###
-# {threshold} = how to specify a passing benchmark 
-## Options {percent_change, greater} ##
-### {greater} will check to see if new score is simply greater than the compared to score ###
-### if {percent_change} is chosen, must specify {percentChangeAllowed} ###
-### {percentChangeAllowed} = percentage score should be within in order to pass ###
-### ex. 5% means the new score should be within 5% of the previous threshold ###
+    # {threshold} = how to specify a passing benchmark 
+    ## Options {percent_change, greater} ##
+    ### {greater} will check to see if new score is simply greater than the compared to score ###
+    ### if {percent_change} is chosen, must specify {percentChangeAllowed} ###
+        ### {percentChangeAllowed} = percentage score should be within in order to pass ###
+        ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
 reports: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/"
