@@ -186,7 +186,6 @@ compare.default:
   method: "DELTA"
   scope: "BETWEEN"
   threshold: "GREATER"
-  percentChangeAllowed: "1"
   range: "1"
   compareVersion: "1.0.1"
 compare.A:
