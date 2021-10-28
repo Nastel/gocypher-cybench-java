@@ -65,7 +65,8 @@ public class CompareBenchmarks {
         for (String propKey : passedProps.keySet()) {
         	String prop = passedProps.get(propKey);
         	if (prop != null) {
-        		prop.replaceAll("\\s+", "");
+        		prop = prop.replaceAll("\\s+", "");
+        		passedProps.put(propKey, prop);
         	}
         }
         
