@@ -326,11 +326,18 @@ compare.B:
   range: "2"
 ```
 
-#### Application
+## Running Cybench Comparator
+
+### Application
 
 * Main class: `com.gocypher.cybench.CompareBenchmarks`
 
-## Running Cybench Comparator
+### From CMD
+
+
+```cmd
+java -jar gocypher-cybench-comparator.jar [args]
+```
 
 ### From Maven
 
@@ -431,7 +438,7 @@ compare.B:
   [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it over `comp.class.args`
   property:
     ```xml
-    <comp.class.args>cfg=config/comparator.yaml</comp.class.args>
+    <comp.class.args>-C config/comparator.yaml</comp.class.args>
     ```
 
 * Step 2: run your Maven script with `compareBenchmarks` profile enabled:
@@ -526,10 +533,10 @@ compare.B:
   repo `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
 
   **Note:** you may need configuration file
-  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it over `cfg`
+  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it with flag `-C` or `-config`
   property:
     ```cmd
-    "cfg=config/comparator.yaml"
+    "-C config/comparator.yaml"
     ```
 
 * Step 2: run your Gradle script:
