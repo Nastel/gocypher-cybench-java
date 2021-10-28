@@ -160,7 +160,7 @@ forEach.call(myFingerprints, function (fingerprint) {
 ## YAML Configuration
 
 * Pass configuration file path via args
-* Passed with `-C` or `-config
+* Passed with `-C` or `-config`
 
 ### Cybench Comparator configuration
 
