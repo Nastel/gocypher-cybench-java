@@ -1,13 +1,7 @@
 package com.gocypher.cybench;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.script.ScriptEngine;
@@ -183,7 +177,7 @@ public class CompareBenchmarks {
                                 compareThreshold = (Comparisons.Threshold) specificConfigs.get("threshold");
                                 compareVersion = (String) specificConfigs.get("compareVersion");
                                 if (specificConfigs.containsKey("percentChangeAllowed")) {
-                                	percentChangeAllowed = Double
+                                    percentChangeAllowed = Double
                                             .parseDouble(specificConfigs.get("percentChangeAllowed").toString());
                                 }
                                 if (specificConfigs.containsKey("deviationsAllowed")) {
@@ -390,8 +384,8 @@ public class CompareBenchmarks {
                         benchmarkMode, benchmarkVersion);
                 totalPassedBenchmarks++;
                 addPassFailBenchData(passedBenchmarks, benchmarkScore, COMPARE_VALUE, benchmarkName, benchmarkVersion,
-                        benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold, percentChangeAllowed,
-                        deviationsAllowed, compareVersion);
+                        benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
+                        percentChangeAllowed, deviationsAllowed, compareVersion);
                 return false;
             }
         }

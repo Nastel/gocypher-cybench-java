@@ -1,28 +1,28 @@
 // help log the comparison being ran
 // params: {Map<String, Object> created in background, String, String}
 function logComparison(logConfigs, benchmarkName, mode) {
-	return Comparisons.logComparison(logConfigs, benchmarkName, mode);
+    return Comparisons.logComparison(logConfigs, benchmarkName, mode);
 }
 
 // returns change in value within/between versions
 // params: {Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
 function compareDelta(threshold, range, currentVersionScores, compareVersionScores) {
-	if(!compareVersionScores) {
-		compareVersionScores = new ArrayList(currentVersionScores);
+    if (!compareVersionScores) {
+        compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
-	}
+    }
     return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range);
 }
 
 // returns deviations from mean within/between versions
 // params: {String, List<Double>, List<Double> (optional)}
 function compareSD(range, currentVersionScores, compareVersionScores) {
-	if(!compareVersionScores) {
-		compareVersionScores = new ArrayList(currentVersionScores);
+    if (!compareVersionScores) {
+        compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
-	}
+    }
     return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range);
 }
 
