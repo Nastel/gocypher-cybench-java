@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import com.gocypher.cybench.services.Requests;
 import com.gocypher.cybench.utils.ComparatorScriptEngine;
 import com.gocypher.cybench.utils.Comparisons;
+import com.gocypher.cybench.utils.Comparisons.Method;
+import com.gocypher.cybench.utils.Comparisons.Scope;
+import com.gocypher.cybench.utils.Comparisons.Threshold;
 import com.gocypher.cybench.utils.ConfigHandling;
 
 public class CompareBenchmarks {
@@ -93,16 +96,17 @@ public class CompareBenchmarks {
 
             log.info("Attempting to load comparator configurations at {}\n", configPath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configPath);
-
-            Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
-                    .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
             Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
 
             File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
             String accessToken = (String) allConfigs.get(ConfigHandling.TOKEN);
 
+            
+            System.out.println(allConfigs);
+            System.out.println(configuredPackages);
+            
             if (recentReport != null && accessToken != null) {
-                analyzeBenchmarks(recentReport, accessToken, defaultConfigs, configuredPackages, allConfigs);
+                analyzeBenchmarks(recentReport, accessToken, allConfigs, configuredPackages);
             } else {
                 if (recentReport == null) {
                     log.error("* No recent report found to compare!");
@@ -113,11 +117,8 @@ public class CompareBenchmarks {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static void analyzeBenchmarks(File recentReport, String accessToken, Map<String, Object> defaultConfigs,
-            Map<String, String> configuredPackages, Map<String, Object> allConfigs) throws Exception {
-        // < BenchmarkName, < BenchmarkVersion, < BenchmarkMode, < Data >>>
-
+    private static void analyzeBenchmarks(File recentReport, String accessToken, Map<String, Object> allConfigs,
+            Map<String, String> configuredPackages) throws Exception {
         JSONObject benchmarkReport = null;
         int totalComparedBenchmarks = 0;
         boolean failFetch = false;
@@ -164,42 +165,8 @@ public class CompareBenchmarks {
                             Requests.storeFetchedBenchmarkHelper(benchmarkFingerprint, benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
                         }
 
-                        Comparisons.Method compareMethod = (Comparisons.Method) defaultConfigs
-                                .get(ConfigHandling.METHOD);
-                        Comparisons.Scope compareScope = (Comparisons.Scope) defaultConfigs.get(ConfigHandling.SCOPE);
-                        String compareRange = (String) defaultConfigs.get(ConfigHandling.RANGE);
-                        Comparisons.Threshold compareThreshold = (Comparisons.Threshold) defaultConfigs
-                                .get(ConfigHandling.THRESHOLD);
-                        Double percentChangeAllowed = (Double) defaultConfigs
-                                .get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
-                        String compareVersion = (String) defaultConfigs.get(ConfigHandling.COMPARE_VERSION);
-                        Double deviationsAllowed = (Double) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED);
-
-                        for (Map.Entry<String, String> entry : configuredPackages.entrySet()) {
-                            if (entry.getKey() != null && benchmarkName.startsWith(entry.getKey())) {
-                                String identifier = entry.getValue();
-                                Map<String, Object> specificConfigs = (Map<String, Object>) allConfigs.get(identifier);
-                                compareMethod = (Comparisons.Method) specificConfigs.get(ConfigHandling.METHOD);
-                                compareScope = (Comparisons.Scope) specificConfigs.get(ConfigHandling.SCOPE);
-                                compareRange = (String) specificConfigs.get(ConfigHandling.RANGE);
-                                compareThreshold = (Comparisons.Threshold) specificConfigs
-                                        .get(ConfigHandling.THRESHOLD);
-                                compareVersion = (String) specificConfigs.get(ConfigHandling.COMPARE_VERSION);
-                                if (specificConfigs.containsKey(ConfigHandling.PERCENT_CHANGE_ALLOWED)) {
-                                    percentChangeAllowed = Double.parseDouble(
-                                            specificConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
-                                }
-                                if (specificConfigs.containsKey(ConfigHandling.DEVIATIONS_ALLOWED)) {
-                                    deviationsAllowed = Double.parseDouble(
-                                            specificConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
-                                }
-                                break;
-                            }
-                        }
-
                         compareBenchmark(benchmarkName, benchmarkFingerprint, benchmarkVersion, benchmarkMode,
-                                benchmarkScore, compareMethod, compareScope, compareRange, compareThreshold,
-                                compareVersion, percentChangeAllowed, deviationsAllowed);
+                                benchmarkScore, allConfigs, configuredPackages);
                     } else {
                         failFetch = true;
                         break;
@@ -338,94 +305,177 @@ public class CompareBenchmarks {
             }
         }
     }
-
-    private static boolean compareBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
-            String benchmarkMode, Double benchmarkScore, Comparisons.Method compareMethod,
-            Comparisons.Scope compareScope, String compareRange, Comparisons.Threshold compareThreshold,
-            String compareVersion, Double percentChangeAllowed, Double deviationsAllowed) {
-
-        Double COMPARE_VALUE = null;
-
-        List<Double> benchmarkVersionScores = Requests.getBenchmarks(benchmarkFingerprint, benchmarkVersion,
-                benchmarkMode);
-
-        // default the comparison scores to the current version without the newly added
-        // benchmark
-        List<Double> compareVersionScores = new ArrayList<>(benchmarkVersionScores);
-        compareVersionScores.remove(benchmarkVersionScores.size() - 1);
-
-        if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
-            if (benchmarkVersion.equals(compareVersion)) {
-                log.warn(
-                        "{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
-                        benchmarkName, benchmarkMode, compareVersion, benchmarkVersion);
-                compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
-            } else if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(compareVersion)
-                    && Requests.getBenchmarks(benchmarkFingerprint, compareVersion).containsKey(benchmarkMode)) {
-                compareVersionScores = Requests.getBenchmarks(benchmarkFingerprint, compareVersion, benchmarkMode);
-            } else {
-                log.warn(
-                        "{} - {}: There are no benchmarks for the specified compare version ({}), will perform WITHIN VERSION comparisons",
-                        benchmarkName, benchmarkMode, compareVersion);
-                compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
+    
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> getConfigs(String benchmarkName, Map<String, Object> allConfigs,
+            Map<String, String> configuredPackages) {
+    	Map<String, Object> configs = null;
+    	
+    	Comparisons.Method compareMethod = null;
+    	Comparisons.Scope compareScope = null;
+    	String compareRange = null;
+    	Comparisons.Threshold compareThreshold = null;
+    	Double percentChangeAllowed = null;
+    	String compareVersion = null;
+    	Double deviationsAllowed = null; 
+    	
+    	if (allConfigs.containsKey(ConfigHandling.DEFAULT_IDENTIFIER_HEADER)) {
+    		Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
+                    .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
+        	compareMethod = (Comparisons.Method) defaultConfigs.get(ConfigHandling.METHOD);
+            compareScope = (Comparisons.Scope) defaultConfigs.get(ConfigHandling.SCOPE);
+            compareRange = (String) defaultConfigs.get(ConfigHandling.RANGE);
+            compareThreshold = (Comparisons.Threshold) defaultConfigs.get(ConfigHandling.THRESHOLD);
+            percentChangeAllowed = (Double) defaultConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
+            compareVersion = (String) defaultConfigs.get(ConfigHandling.COMPARE_VERSION);
+            deviationsAllowed = (Double) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED);
+            configs = createConfigMap(compareMethod, compareScope, compareRange, 
+            		compareThreshold, percentChangeAllowed, compareVersion, deviationsAllowed);
+    	}
+    	
+        for (Map.Entry<String, String> entry : configuredPackages.entrySet()) {
+            if (entry.getKey() != null && benchmarkName.startsWith(entry.getKey())) {
+                String identifier = entry.getValue();
+                Map<String, Object> specificConfigs = (Map<String, Object>) allConfigs.get(identifier);
+                compareMethod = (Comparisons.Method) specificConfigs.get(ConfigHandling.METHOD);
+                compareScope = (Comparisons.Scope) specificConfigs.get(ConfigHandling.SCOPE);
+                compareRange = (String) specificConfigs.get(ConfigHandling.RANGE);
+                compareThreshold = (Comparisons.Threshold) specificConfigs
+                        .get(ConfigHandling.THRESHOLD);
+                compareVersion = (String) specificConfigs.get(ConfigHandling.COMPARE_VERSION);
+                if (specificConfigs.containsKey(ConfigHandling.PERCENT_CHANGE_ALLOWED)) {
+                    percentChangeAllowed = Double.parseDouble(
+                            specificConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
+                }
+                if (specificConfigs.containsKey(ConfigHandling.DEVIATIONS_ALLOWED)) {
+                    deviationsAllowed = Double.parseDouble(
+                            specificConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
+                }
+                configs = createConfigMap(compareMethod, compareScope, compareRange, 
+                		compareThreshold, percentChangeAllowed, compareVersion, deviationsAllowed);
+                break;
             }
         }
+        return configs;
+    }
+    
+    private static Map<String, Object> createConfigMap(Comparisons.Method compareMethod, Comparisons.Scope compareScope, 
+    		String compareRange, Comparisons.Threshold compareThreshold, Double percentChangeAllowed, 
+    		String compareVersion, Double deviationsAllowed) {
+    	Map<String, Object> configs = new HashMap<>();
+    	configs.put(ConfigHandling.METHOD, compareMethod);
+    	configs.put(ConfigHandling.SCOPE, compareScope);
+    	configs.put(ConfigHandling.RANGE, compareRange);
+    	configs.put(ConfigHandling.THRESHOLD, compareThreshold);
+    	configs.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, percentChangeAllowed);
+    	configs.put(ConfigHandling.COMPARE_VERSION, compareVersion);
+    	configs.put(ConfigHandling.DEVIATIONS_ALLOWED, deviationsAllowed);
+    	return configs;
+    }
 
-        // range validation
-        int range;
-        if (compareRange.equals("ALL")) {
-            range = compareVersionScores.size();
-        } else {
-            range = Integer.parseInt(compareRange);
-            if (range > compareVersionScores.size()) {
-                log.warn(
-                        "{} - {}: There are not enough values to compare to in version ({}) with specific range ({}), will compare with as many values as possible",
-                        benchmarkName, benchmarkMode, benchmarkVersion, range);
+	private static boolean compareBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
+            String benchmarkMode, Double benchmarkScore, Map<String, Object> allConfigs,
+            Map<String, String> configuredPackages) {
+
+    	
+    	Map<String, Object> configMap = getConfigs(benchmarkName, allConfigs, configuredPackages);
+    	
+    	if (configMap != null) {
+    		Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
+        	Comparisons.Scope compareScope = (Scope) configMap.get(ConfigHandling.SCOPE);
+        	String compareRange = (String) configMap.get(ConfigHandling.RANGE);
+        	Comparisons.Threshold compareThreshold = (Threshold) configMap.get(ConfigHandling.THRESHOLD);
+        	Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
+        	String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
+        	Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
+        	
+    		Double COMPARE_VALUE = null;
+
+            List<Double> benchmarkVersionScores = Requests.getBenchmarks(benchmarkFingerprint, benchmarkVersion,
+                    benchmarkMode);
+
+            // default the comparison scores to the current version without the newly added
+            // benchmark
+            List<Double> compareVersionScores = new ArrayList<>(benchmarkVersionScores);
+            compareVersionScores.remove(benchmarkVersionScores.size() - 1);
+
+            if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
+                if (benchmarkVersion.equals(compareVersion)) {
+                    log.warn(
+                            "{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
+                            benchmarkName, benchmarkMode, compareVersion, benchmarkVersion);
+                    compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
+                } else if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(compareVersion)
+                        && Requests.getBenchmarks(benchmarkFingerprint, compareVersion).containsKey(benchmarkMode)) {
+                    compareVersionScores = Requests.getBenchmarks(benchmarkFingerprint, compareVersion, benchmarkMode);
+                } else {
+                    log.warn(
+                            "{} - {}: There are no benchmarks for the specified compare version ({}), will perform WITHIN VERSION comparisons",
+                            benchmarkName, benchmarkMode, compareVersion);
+                    compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
+                }
+            }
+
+            // range validation
+            int range;
+            if (compareRange.equals("ALL")) {
                 range = compareVersionScores.size();
+            } else {
+                range = Integer.parseInt(compareRange);
+                if (range > compareVersionScores.size()) {
+                    log.warn(
+                            "{} - {}: There are not enough values to compare to in version ({}) with specific range ({}), will compare with as many values as possible",
+                            benchmarkName, benchmarkMode, benchmarkVersion, range);
+                    range = compareVersionScores.size();
 
+                }
             }
-        }
-        compareRange = String.valueOf(range);
+            compareRange = String.valueOf(range);
 
-        if (compareScope.equals(Comparisons.Scope.WITHIN)) {
-            compareVersion = benchmarkVersion;
-            if (benchmarkVersionScores.size() <= 1) {
-                log.warn("{} - {}: There are no previously tested benchmarks within the version ({})", benchmarkName,
-                        benchmarkMode, benchmarkVersion);
+            if (compareScope.equals(Comparisons.Scope.WITHIN)) {
+                compareVersion = benchmarkVersion;
+                if (benchmarkVersionScores.size() <= 1) {
+                    log.warn("{} - {}: There are no previously tested benchmarks within the version ({})", benchmarkName,
+                            benchmarkMode, benchmarkVersion);
+                    totalPassedBenchmarks++;
+                    addPassFailBenchData(passedBenchmarks, benchmarkScore, COMPARE_VALUE, benchmarkName, benchmarkVersion,
+                            benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
+                            percentChangeAllowed, deviationsAllowed, compareVersion);
+                    return false;
+                }
+            }
+
+            switch (compareMethod) {
+            case DELTA:
+                log.info("COMPARISON: {} : {} - Between versions {} and {} delta running", benchmarkName, benchmarkMode,
+                        benchmarkVersion, compareVersion);
+                COMPARE_VALUE = Comparisons.compareWithDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
+                        compareRange);
+                break;
+            case SD:
+                log.info("COMPARISON: {} : {} - Between versions {} and {} SD running", benchmarkName, benchmarkMode,
+                        benchmarkVersion, compareVersion);
+                COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareRange);
+                break;
+            }
+
+            boolean pass = Comparisons.passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentChangeAllowed,
+                    deviationsAllowed);
+            if (pass) {
                 totalPassedBenchmarks++;
-                addPassFailBenchData(passedBenchmarks, benchmarkScore, COMPARE_VALUE, benchmarkName, benchmarkVersion,
-                        benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
-                        percentChangeAllowed, deviationsAllowed, compareVersion);
-                return false;
+            } else {
+                totalFailedBenchmarks++;
             }
-        }
 
-        switch (compareMethod) {
-        case DELTA:
-            log.info("COMPARISON: {} : {} - Between versions {} and {} delta running", benchmarkName, benchmarkMode,
-                    benchmarkVersion, compareVersion);
-            COMPARE_VALUE = Comparisons.compareWithDelta(benchmarkVersionScores, compareVersionScores, compareThreshold,
-                    compareRange);
-            break;
-        case SD:
-            log.info("COMPARISON: {} : {} - Between versions {} and {} SD running", benchmarkName, benchmarkMode,
-                    benchmarkVersion, compareVersion);
-            COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareRange);
-            break;
-        }
+            addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, benchmarkScore, COMPARE_VALUE, benchmarkName,
+                    benchmarkVersion, benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
+                    percentChangeAllowed, deviationsAllowed, compareVersion);
 
-        boolean pass = Comparisons.passAssertion(COMPARE_VALUE, compareMethod, compareThreshold, percentChangeAllowed,
-                deviationsAllowed);
-        if (pass) {
-            totalPassedBenchmarks++;
-        } else {
-            totalFailedBenchmarks++;
-        }
-
-        addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, benchmarkScore, COMPARE_VALUE, benchmarkName,
-                benchmarkVersion, benchmarkMode, compareMethod, compareScope, compareRange, compareThreshold,
-                percentChangeAllowed, deviationsAllowed, compareVersion);
-
-        return true;
+            return true;
+    	} else {
+    		// NO COMPARISON SHOULD BE DONE
+    		// TODO PASS TEST AND LOGGING
+    	}
+    		return false;
     }
 }

@@ -91,7 +91,9 @@ public class Requests {
     }
 
     public static String getLatestVersion(String fingerprint) {
-    	return allVersions.get(fingerprint).get("latestVersion");
+    	if (allVersions.containsKey(fingerprint))
+    		return allVersions.get(fingerprint).get("latestVersion");
+    	return null;
     }
     
     public static void setLatestVersion(String fingerprint, String version) {
@@ -103,7 +105,9 @@ public class Requests {
     }
 
     public static String getCurrentVersion(String fingerprint) {
-        return allVersions.get(fingerprint).get("currentVersion");
+    	if (allVersions.containsKey(fingerprint))
+    		return allVersions.get(fingerprint).get("currentVersion");
+    	return null;
     }
     
     public static void setCurrentVersion(String fingerprint, String version) {
@@ -115,7 +119,9 @@ public class Requests {
     }
 
     public static String getPreviousVersion(String fingerprint) {
-        return allVersions.get(fingerprint).get("previousVersion");
+    	if (allVersions.containsKey(fingerprint))
+    		return allVersions.get(fingerprint).get("previousVersion");
+    	return null;
     }
     
     public static void setPreviousVersion(String fingerprint, String version) {
