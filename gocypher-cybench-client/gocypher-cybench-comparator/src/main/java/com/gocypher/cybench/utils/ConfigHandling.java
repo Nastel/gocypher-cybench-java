@@ -199,9 +199,8 @@ public class ConfigHandling {
 	                        compareVals.put(DEVIATIONS_ALLOWED, deviationsStr);
 	                        log.info("'{}': Will compare allowing deviations: {}", simplifiedIdentifier, deviations);
 	                    } catch (Exception e) {
-	                        log.warn("'{}': '{}' passed is not a valid number - will use: {}", simplifiedIdentifier,
-	                                deviationsStr, defaultDeviations);
-	                        compareVals.put(DEVIATIONS_ALLOWED, defaultDeviations);
+	                        log.warn("'{}': '{}' passed is not a valid number!", simplifiedIdentifier,deviationsStr);
+	                        throw(new Exception());
 	                    }
 	                }
 	            } else {
@@ -223,9 +222,8 @@ public class ConfigHandling {
 	                    try {
 	                        Integer rangeInt = Integer.parseInt(range);
 	                    } catch (Exception e) {
-	                        log.warn("'{}': '{}' passed is not a valid comparison range - will use: {}",
-	                                simplifiedIdentifier, range, defaultRange);
-	                        range = defaultRange;
+	                        log.warn("'{}': '{}' passed is not a valid comparison range!", simplifiedIdentifier, range);
+	                        throw(new Exception());
 	                    }
 	                }
 	                compareVals.put(RANGE, range);
@@ -238,9 +236,8 @@ public class ConfigHandling {
 	                String scope = (String) compareVals.get(SCOPE);
 	                scope = scope.toUpperCase();
 	                if (!EnumUtils.isValidEnum(Comparisons.Scope.class, scope)) {
-	                    log.warn("'{}': '{}' passed is not a valid comparison scope - will use: {}", simplifiedIdentifier,
-	                            scope, defaultScope);
-	                    scope = defaultScope.toString();
+	                    log.warn("'{}': '{}' passed is not a valid comparison scope!", simplifiedIdentifier, scope);
+	                    throw(new Exception());
 	                }
 	                Comparisons.Scope scopeEnum = Comparisons.Scope.valueOf(scope);
 	                compareVals.put(SCOPE, scopeEnum);
@@ -251,15 +248,12 @@ public class ConfigHandling {
 	                if (!compareVals.containsKey(COMPARE_VERSION)) {
 	                    if (defaultVals.containsKey(COMPARE_VERSION)) {
 	                        compareVals.put(COMPARE_VERSION, defaultVersion);
-	                        log.warn("'{}': Compare version not specified, will compare to version: {}",
+	                        log.warn("'{}': Compare version not defined, will compare to version: {}",
 	                                simplifiedIdentifier, defaultVersion);
 	                    } else {
 	                        log.warn(
-	                                "'{}': Compare scope recognized as 'BETWEEN' but no compare version was specified - please provide a version to compare to",
-	                                simplifiedIdentifier);
-	                        log.warn("'{}': Will use scope: {}", simplifiedIdentifier, defaultScope);
-	                        compareVals.put(SCOPE, defaultScope);
-	                        compareVals.remove(COMPARE_VERSION);
+	                                "'{}': Compare scope recognized as 'BETWEEN' but no compare version was specified!", simplifiedIdentifier);
+	                        throw(new Exception());
 	                    }
 	                } else {
 	                    String version = (String) compareVals.get(COMPARE_VERSION);
@@ -272,13 +266,7 @@ public class ConfigHandling {
 	                            "'{}': Version was specified, but scope was specified as 'WITHIN' - will compare within benchmarked version",
 	                            simplifiedIdentifier);
 	                    compareVals.remove(COMPARE_VERSION);
-	                } else if (compareVals.containsKey(COMPARE_VERSION)) {
-	                    String version = (String) compareVals.get(COMPARE_VERSION);
-	                    if (defaultScope.equals(Comparisons.Scope.BETWEEN)) {
-	                        compareVals.put(COMPARE_VERSION, version);
-	                        log.info("'{}': Will compare to version: {}", simplifiedIdentifier, version);
-	                    }
-	                }
+	                } 
 	            }
 	
 	            if (compareMethod.equals(Comparisons.Method.DELTA)) {
@@ -289,9 +277,8 @@ public class ConfigHandling {
 	                    String threshold = (String) compareVals.get(THRESHOLD);
 	                    threshold = threshold.toUpperCase();
 	                    if (!EnumUtils.isValidEnum(Comparisons.Threshold.class, threshold)) {
-	                        log.warn("'{}': '{}' passed is not a valid comparison threshold - will use: {}",
-	                                simplifiedIdentifier, threshold, defaultThreshold);
-	                        threshold = defaultThreshold.toString();
+	                        log.warn("'{}': '{}' passed is not a valid comparison threshold!", simplifiedIdentifier, threshold);
+	                        throw(new Exception());
 	                    }
 	                    Comparisons.Threshold thresholdEnum = Comparisons.Threshold.valueOf(threshold);
 	                    compareVals.put(THRESHOLD, thresholdEnum);
@@ -306,11 +293,8 @@ public class ConfigHandling {
 	                                    defaultPercentage);
 	                        } else {
 	                            log.warn(
-	                                    "'{}': Compare threshold recognized as 'PERCENT_CHANGE' but no compare percentage was specified - please provide a percentage to compare with",
-	                                    simplifiedIdentifier);
-	                            log.warn("'{}': Will use threshold: {}", simplifiedIdentifier, defaultThreshold);
-	                            compareVals.put(THRESHOLD, defaultThreshold);
-	                            compareVals.remove(PERCENT_CHANGE_ALLOWED);
+	                                    "'{}': Compare threshold recognized as 'PERCENT_CHANGE' but no compare percentage was specified!", simplifiedIdentifier);
+	                            throw(new Exception());
 	                        }
 	                    } else {
 	                        String percentageStr = (String) compareVals.get(PERCENT_CHANGE_ALLOWED);
@@ -319,9 +303,8 @@ public class ConfigHandling {
 	                            compareVals.put(PERCENT_CHANGE_ALLOWED, percentage);
 	                            log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
 	                        } catch (Exception e) {
-	                            log.warn("'{}': '{}' passed is not a valid number - will use: {}", simplifiedIdentifier,
-	                                    percentageStr, defaultPercentage);
-	                            compareVals.put(PERCENT_CHANGE_ALLOWED, defaultPercentage);
+	                            log.warn("'{}': '{}' passed is not a valid number!", simplifiedIdentifier, percentageStr);
+	                            throw(new Exception());
 	                        }
 	                    }
 	                } else {
@@ -331,20 +314,6 @@ public class ConfigHandling {
 	                                "'{}': Percentage was specified, but threshold was specified as 'GREATER' - will compare using the 'GREATER' threshold and ignore percentage value",
 	                                simplifiedIdentifier);
 	                        compareVals.remove(PERCENT_CHANGE_ALLOWED);
-	                    } else if (compareVals.containsKey(PERCENT_CHANGE_ALLOWED)) {
-	                        String percentageStr = (String) compareVals.get(PERCENT_CHANGE_ALLOWED);
-	                        try {
-	                            Double percentage = Double.parseDouble(percentageStr);
-	                            if (defaultThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
-	                                compareVals.put(PERCENT_CHANGE_ALLOWED, percentage);
-	                                log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
-	                            }
-	                        } catch (Exception e) {
-	                            log.warn("'{}': '{}' passed is not a valid number - will use: {}", simplifiedIdentifier,
-	                                    percentageStr, defaultPercentage);
-	                            compareVals.put(PERCENT_CHANGE_ALLOWED, defaultPercentage);
-	                        }
-	
 	                    }
 	                }
 	            } else {
@@ -374,7 +343,7 @@ public class ConfigHandling {
 	            log.info("{}={}\n", packageName, compareVals);
 	        } 
 	    } catch (Exception e) {
-            log.error("'{}' is not defined properly!", simplifiedIdentifier);
+            log.error("'{}' is not defined properly!\n", simplifiedIdentifier);
             return false;
         }
         return true;

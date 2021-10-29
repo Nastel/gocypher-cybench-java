@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.gocypher.cybench.services.Requests;
 import com.gocypher.cybench.utils.ComparatorScriptEngine;
 import com.gocypher.cybench.utils.Comparisons;
-import com.gocypher.cybench.utils.Comparisons.Method;
 import com.gocypher.cybench.utils.Comparisons.Scope;
 import com.gocypher.cybench.utils.Comparisons.Threshold;
 import com.gocypher.cybench.utils.ConfigHandling;
@@ -36,7 +35,6 @@ public class CompareBenchmarks {
     private static int totalFailedBenchmarks;
     private static final Map<String, String> namesToFingerprints = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
     public static void main(String... args) throws Exception {
         log.info("* Analyzing benchmark performance...");
 
