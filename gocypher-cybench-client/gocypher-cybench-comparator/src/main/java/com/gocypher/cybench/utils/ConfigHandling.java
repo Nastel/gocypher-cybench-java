@@ -122,7 +122,6 @@ public class ConfigHandling {
         return defaultValues;
     }
     
-    // TODO FINISH THROWING ERRORS INSTEAD OF DEFAULTING FOR CONFIG ISSUES
     @SuppressWarnings("unchecked")
     protected static boolean checkConfigValidity(String identifier, Map<String, Object> comparatorProps) {
         String simplifiedIdentifier = identifier;

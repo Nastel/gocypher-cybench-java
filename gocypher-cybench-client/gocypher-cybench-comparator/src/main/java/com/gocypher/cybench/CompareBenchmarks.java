@@ -98,10 +98,6 @@ public class CompareBenchmarks {
 
             File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
             String accessToken = (String) allConfigs.get(ConfigHandling.TOKEN);
-
-            
-            System.out.println(allConfigs);
-            System.out.println(configuredPackages);
             
             if (recentReport != null && accessToken != null) {
                 analyzeBenchmarks(recentReport, accessToken, allConfigs, configuredPackages);
