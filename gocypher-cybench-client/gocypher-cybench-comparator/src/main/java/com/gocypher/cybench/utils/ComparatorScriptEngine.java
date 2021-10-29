@@ -22,7 +22,7 @@ public class ComparatorScriptEngine {
             "var Requests = Java.type('com.gocypher.cybench.services.Requests');",
             "var forEach = Array.prototype.forEach;", "var HashMap = Java.type('java.util.HashMap');",
             "var ArrayList = Java.type('java.util.ArrayList');" };
-    private Map<String, Map<String, List<String>>> myBenchmarks;
+    private Map<String, Map<String, Map<String, Double>>> myBenchmarks;
     private ArrayList<String> myFingerprints;
     private Map<String, Object> passedProps;
 
@@ -50,7 +50,7 @@ public class ComparatorScriptEngine {
             log.warn("No report location provided, using default: {}", ConfigHandling.DEFAULT_REPORTS_LOCATION);
             reportPath = ConfigHandling.DEFAULT_REPORTS_LOCATION;
         }
-        myBenchmarks = Requests.getBenchmarksFromReport(token, reportPath);
+        myBenchmarks = Requests.getBenchmarksFromReport(token, ConfigHandling.identifyRecentReport(reportPath));
         myFingerprints = new ArrayList<>(myBenchmarks.keySet());
     }
 

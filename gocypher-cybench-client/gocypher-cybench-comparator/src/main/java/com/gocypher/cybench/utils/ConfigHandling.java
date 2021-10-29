@@ -71,6 +71,10 @@ public class ConfigHandling {
     }
 
     public static File identifyRecentReport(String reportFolder) {
+        if (reportFolder.endsWith(".cybench")) {
+            // is a file
+        	return new File(reportFolder);
+        } 
         File allReports = new File(reportFolder);
         File recentReport = null;
         if (allReports.exists()) {

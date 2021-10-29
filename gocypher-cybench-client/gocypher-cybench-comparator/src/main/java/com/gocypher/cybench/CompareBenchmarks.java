@@ -33,7 +33,6 @@ public class CompareBenchmarks {
     private static int totalPassedBenchmarks;
     private static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
     private static int totalFailedBenchmarks;
-    private static final Map<String, String> namesToFingerprints = new HashMap<>();
 
     public static void main(String... args) throws Exception {
         log.info("* Analyzing benchmark performance...");
@@ -100,7 +99,7 @@ public class CompareBenchmarks {
             String accessToken = (String) allConfigs.get(ConfigHandling.TOKEN);
             
             if (recentReport != null && accessToken != null) {
-                analyzeBenchmarks(recentReport, accessToken, allConfigs, configuredPackages);
+                analyzeBenchmarks(accessToken, recentReport, allConfigs, configuredPackages);
             } else {
                 if (recentReport == null) {
                     log.error("* No recent report found to compare!");
@@ -111,82 +110,44 @@ public class CompareBenchmarks {
         }
     }
 
-    private static void analyzeBenchmarks(File recentReport, String accessToken, Map<String, Object> allConfigs,
+    private static void analyzeBenchmarks(String accessToken, File recentReport, Map<String, Object> allConfigs,
             Map<String, String> configuredPackages) throws Exception {
-        JSONObject benchmarkReport = null;
-        int totalComparedBenchmarks = 0;
-        boolean failFetch = false;
-        try {
-            String str = FileUtils.readFileToString(recentReport, "UTF-8");
-            JSONParser parser = new JSONParser();
-            benchmarkReport = (JSONObject) parser.parse(str);
-        } catch (Exception e) {
-            log.error("* Failed to fetch benchmark data from recent report for analysis", e);
-        }
-
-        if (benchmarkReport != null) {
-            String reportID = null;
-            String reportURL = (String) benchmarkReport.get("reportURL");
-            if (reportURL != null) {
-                String[] parsedURL = reportURL.split("https://app.cybench.io/cybench/benchmark/");
-                reportID = parsedURL[1].split("/")[0];
-            }
-            JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");
-
-            // loop through packages (com.x, com.x2, ...)
-            for (Object pckg : packages.values()) {
-                JSONArray packageBenchmarks = (JSONArray) pckg;
-                if (failFetch) {
-                    break;
-                }
-                // loop through benchmarks in package (com.x.bench1, com.x.bench2, ...)
-                for (Object packageBenchmark : packageBenchmarks) {
-                    totalComparedBenchmarks++;
-                    JSONObject benchmark = (JSONObject) packageBenchmark;
-                    String benchmarkName = (String) benchmark.get("name");
-                    String benchmarkVersion = (String) benchmark.get("version");
-                    Double benchmarkScore = (Double) benchmark.get("score");
-                    String benchmarkMode = (String) benchmark.get("mode");
-                    String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
-                    namesToFingerprints.put(benchmarkName, benchmarkFingerprint);
-                    Requests.fingerprintsToNames.put(benchmarkFingerprint, benchmarkName);
-                    // fetch and store data from CyBench UI
-                    if (Requests.getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, accessToken)) {
-                        // store new data in map if this report hasn't been added already
-                        if (reportID != null && !Requests.getReports().contains(reportID)) {
-                            Map<String, Map<String, List<Double>>> benchTable = Requests
-                                    .getBenchmarks(benchmarkFingerprint);
-                            Requests.storeFetchedBenchmarkHelper(benchmarkFingerprint, benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
-                        }
-
-                        compareBenchmark(benchmarkName, benchmarkFingerprint, benchmarkVersion, benchmarkMode,
+        
+    	Map<String, Map<String, Map<String, Double>>> recentReports = Requests.getBenchmarksFromReport(accessToken, recentReport);
+            
+        if (recentReports != null) {
+        	int totalComparedBenchmarks = 0;
+        	for(String benchmarkFingerprint : recentReports.keySet()) {
+        		Map<String, Map<String, Double>> versionsTested = recentReports.get(benchmarkFingerprint);
+        		for(String benchmarkVersion : versionsTested.keySet()) {
+        			Map<String, Double> modesTested = versionsTested.get(benchmarkVersion);
+        			for(String benchmarkMode : modesTested.keySet()) {
+                    	totalComparedBenchmarks++;
+        				Double benchmarkScore = modesTested.get(benchmarkMode);
+        				String benchmarkName = Requests.fingerprintsToNames.get(benchmarkFingerprint);
+        				
+        				compareBenchmark(benchmarkName, benchmarkFingerprint, benchmarkVersion, benchmarkMode,
                                 benchmarkScore, allConfigs, configuredPackages);
-                    } else {
-                        failFetch = true;
-                        break;
-                    }
-                }
-            }
-            if (!failFetch) {
-                Requests.getInstance().close();
-                System.out.print("\n\n");
-                log.info("compared={}, passed={}, failed={}", totalComparedBenchmarks, totalPassedBenchmarks,
-                        totalFailedBenchmarks);
-                System.out.print("\n");
-                printBenchmarkResults(totalComparedBenchmarks, totalPassedBenchmarks, passedBenchmarks,
-                        totalFailedBenchmarks, failedBenchmarks, namesToFingerprints);
-                if (totalFailedBenchmarks > 0) {
-                    String error = "* Build failed due to scores being too low *";
-                    log.error(error + "\n");
+        			}
+        		}
+        	}
+        	
+            System.out.print("\n\n");
+            log.info("compared={}, passed={}, failed={}", totalComparedBenchmarks, totalPassedBenchmarks,
+                    totalFailedBenchmarks);
+            System.out.print("\n");
+            printBenchmarkResults(totalComparedBenchmarks, totalPassedBenchmarks, passedBenchmarks,
+                    totalFailedBenchmarks, failedBenchmarks, Requests.namesToFingerprints);
+            if (totalFailedBenchmarks > 0) {
+                String error = "* Build failed due to scores being too low *";
+                log.error(error + "\n");
 
-                    // helps logs finish before exception is thrown
-                    TimeUnit.MILLISECONDS.sleep(500);
-                    throw new Exception(error);
-                }
-            } else {
-                log.error("* Fetching and storing benchmark data for analysis failed *");
+                // helps logs finish before exception is thrown
+                TimeUnit.MILLISECONDS.sleep(500);
+                throw new Exception(error);
             }
         }
+        
     }
 
     private static void addPassFailBenchData(Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks,

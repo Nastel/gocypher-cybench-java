@@ -30,10 +30,13 @@ public class Requests {
 
     // <Benchmark Fingerprint : <Version : <Mode : <List of Scores in Test Order>>>>
     public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarks = new HashMap<>();
-    // <Fingerprint : <Version : <Mode>>> (all tests ran in scanned report - scores stored in allBenchmarks along with any other fetch data)
-    public static Map<String, Map<String, List<String>>> recentBenchmarks = new HashMap<>();
+    // <Benchmark Fingerprint : <Version : <Mode : <Score>>>>
+    public static Map<String, Map<String, Map<String, Double>>> recentBenchmarks = new HashMap<>();
+    
     // <fingerprint : name>
     public static Map<String, String> fingerprintsToNames = new HashMap<>();
+    // <name : fingerprint>
+    public static Map<String, String> namesToFingerprints = new HashMap<>();
     // keep track of reports preventing duplicates
     public static Set<String> reportIDs = new HashSet<>();
 
@@ -221,41 +224,32 @@ public class Requests {
         return true;
     }
     
-    public static void storeRecentBenchmark(String fingerprint, String version, String mode) {
+    public static void storeRecentBenchmark(String fingerprint, String version, String mode, Double score) {
     	if (!recentBenchmarks.containsKey(fingerprint)) {
-        	Map<String, List<String>> versionsTested = new HashMap<>();
+        	Map<String, Map<String, Double>> versionsTested = new HashMap<>();
         	recentBenchmarks.put(fingerprint, versionsTested);
         }
-        Map<String, List<String>> versionsTested = recentBenchmarks.get(fingerprint);
+    	Map<String, Map<String, Double>> versionsTested = recentBenchmarks.get(fingerprint);
         if (!versionsTested.containsKey(version)) {
-        	List<String> modesTested = new ArrayList<>();
+        	Map<String, Double> modesTested = new HashMap<>();
         	versionsTested.put(version, modesTested);
         }
-        List<String> modesTested = versionsTested.get(version);
-        if (!modesTested.contains(mode)) {
-        	modesTested.add(mode);
-        }
+        Map<String, Double> modesTested = versionsTested.get(version);
+        
+        modesTested.put(mode, score);
         
         if (getCurrentVersion(fingerprint) == null || isNewerVersion(version, getCurrentVersion(fingerprint))) {
             setCurrentVersion(fingerprint, version);
         }
     }
+    
 
-    // for scripting, will fetch and store recent report info, then pass back a Map of <Fingerprint : <Versions : <Modes>>>
-    public static Map<String, Map<String, List<String>>> getBenchmarksFromReport(String accessToken, String reportPath) {
-
+    public static Map<String, Map<String, Map<String, Double>>> getBenchmarksFromReport(String accessToken, File recentReport) {
         if (StringUtils.isNotEmpty(accessToken) && !accessToken.equals("undefined")) {
+        	
             JSONObject benchmarkReport = null;
             try {
-                File report;
-                if (reportPath.endsWith(".cybench")) {
-                    // is a file
-                    report = new File(reportPath);
-                } else {
-                    // is a folder of all reports
-                    report = ConfigHandling.identifyRecentReport(reportPath);
-                }
-                String str = FileUtils.readFileToString(report, "UTF-8");
+                String str = FileUtils.readFileToString(recentReport, "UTF-8");
                 JSONParser parser = new JSONParser();
                 benchmarkReport = (JSONObject) parser.parse(str);
             } catch (Exception e) {
@@ -270,8 +264,12 @@ public class Requests {
                     reportID = parsedURL[1].split("/")[0];
                 }
                 JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");
+                
+                // loop through packages (com.x, com.x2, ...)
                 for (Object pckg : packages.values()) {
                     JSONArray packageBenchmarks = (JSONArray) pckg;
+                    
+                    // loop through benchmarks in package (com.x.bench1, com.x.bench2, ...)
                     for (Object packageBenchmark : packageBenchmarks) {
                         JSONObject benchmark = (JSONObject) packageBenchmark;
                         String benchmarkName = (String) benchmark.get("name");
@@ -280,18 +278,27 @@ public class Requests {
                         String benchmarkMode = (String) benchmark.get("mode");
                         String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
                         fingerprintsToNames.put(benchmarkFingerprint, benchmarkName);
+                        namesToFingerprints.put(benchmarkName, benchmarkFingerprint);
                         
-                        storeRecentBenchmark(benchmarkFingerprint, benchmarkVersion, benchmarkMode);
+                        // report data handling
+                        storeRecentBenchmark(benchmarkFingerprint, benchmarkVersion, benchmarkMode, benchmarkScore);
                         
+                        // fetch CyBench data handling
                         if (getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, accessToken)) {
                             // store new data in map if this report hasn't been added already
                             if (reportID != null && !reportIDs.contains(reportID)) {
                                 Map<String, Map<String, List<Double>>> benchTable = getBenchmarks(benchmarkFingerprint);
                                 storeFetchedBenchmarkHelper(benchmarkFingerprint, benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
                             }
+                        } else {
+                        	log.error("* Fetching and storing benchmark data for analysis failed *");
+                        	return null;
                         }
                     }
                 }
+                
+                
+                
             }
             
             if (recentBenchmarks.isEmpty()) {
@@ -300,6 +307,7 @@ public class Requests {
         } else {
             log.warn("No access token provided!");
         }
+        getInstance().close();
 
         return recentBenchmarks;
     }
