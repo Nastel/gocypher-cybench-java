@@ -3,6 +3,7 @@ package com.gocypher.cybench.utils;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
@@ -21,63 +22,56 @@ public class ComparatorScriptEngine {
             "var Requests = Java.type('com.gocypher.cybench.services.Requests');",
             "var forEach = Array.prototype.forEach;", "var HashMap = Java.type('java.util.HashMap');",
             "var ArrayList = Java.type('java.util.ArrayList');" };
-    private String currentVersion, previousVersion;
-    private HashMap<String, String> myFingerprintsAndNames;
+    private Map<String, Map<String, List<String>>> myBenchmarks;
     private ArrayList<String> myFingerprints;
     private Map<String, Object> passedProps;
 
     public ComparatorScriptEngine(Map<String, String> passedProps) {
         String token = passedProps.get(ConfigHandling.TOKEN);
-        String report = passedProps.get(ConfigHandling.REPORT_PATH);
+        String reportPath = passedProps.get(ConfigHandling.REPORT_PATH);
         String method = passedProps.get(ConfigHandling.METHOD);
         String range = passedProps.get(ConfigHandling.RANGE);
         String scope = passedProps.get(ConfigHandling.SCOPE);
+        String compareVersion = passedProps.get(ConfigHandling.COMPARE_VERSION);
         String threshold = passedProps.get(ConfigHandling.THRESHOLD);
         String percentChangeAllowed = passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
         String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
-        initiateFetch(token, report);
-        handleComparatorConfigs(method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
+        initiateFetch(token, reportPath);
+        handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed, deviationsAllowed);
     }
 
-    private void initiateFetch(String token, String report) {
+    private void initiateFetch(String token, String reportPath) {
         if (token == null) {
             log.warn("No access token provided!");
             token = ConfigHandling.DEFAULT_TOKEN;
         }
 
-        if (report == null) {
+        if (reportPath == null) {
             log.warn("No report location provided, using default: {}", ConfigHandling.DEFAULT_REPORTS_LOCATION);
-            report = ConfigHandling.DEFAULT_REPORTS_LOCATION;
+            reportPath = ConfigHandling.DEFAULT_REPORTS_LOCATION;
         }
-        myFingerprintsAndNames = Requests.getFingerprintsFromReport(token, report);
-        myFingerprints = new ArrayList<>(myFingerprintsAndNames.keySet());
-        currentVersion = Requests.getCurrentVersion();
-        previousVersion = Requests.getPreviousVersion();
-        log.info("Found current version: {}", currentVersion);
-        if (!previousVersion.equals(currentVersion)) {
-            log.info("Found previous version: {}", previousVersion);
-        }
+        myBenchmarks = Requests.getBenchmarksFromReport(token, reportPath);
+        myFingerprints = new ArrayList<>(myBenchmarks.keySet());
     }
 
-    private void handleComparatorConfigs(String method, String range, String scope, String threshold,
-            String percentChangeAllowed, String deviationsAllowed) {
+    private void handleComparatorConfigs(String method, String range, String scope, String compareVersion, 
+    		String threshold, String percentChangeAllowed, String deviationsAllowed) {
         Map<String, Object> comparatorProps = new HashMap<>();
         comparatorProps.put(ConfigHandling.DEFAULT_IDENTIFIER_HEADER, ConfigHandling.loadDefaults());
 
         passedProps = new HashMap<>();
-        passedProps.put("currentVersion", currentVersion);
 
-        if (StringUtils.isNotEmpty(scope)) {
-            passedProps.put(ConfigHandling.SCOPE, scope);
-            if (scope.equalsIgnoreCase("BETWEEN")) {
-                passedProps.put("compareVersion", previousVersion);
-            }
-        }
         if (StringUtils.isNotEmpty(method)) {
             passedProps.put(ConfigHandling.METHOD, method);
         }
         if (StringUtils.isNotEmpty(range)) {
             passedProps.put(ConfigHandling.RANGE, range);
+        }
+        if (StringUtils.isNotEmpty(scope)) {
+            passedProps.put(ConfigHandling.SCOPE, scope);
+        }
+        if(StringUtils.isNotEmpty(compareVersion)) {
+        	passedProps.put(ConfigHandling.COMPARE_VERSION, compareVersion);
         }
         if (StringUtils.isNotEmpty(threshold)) {
             passedProps.put(ConfigHandling.THRESHOLD, threshold);
@@ -105,11 +99,10 @@ public class ComparatorScriptEngine {
                 engine.eval(engineDef);
             }
 
-            engine.put("myFingerprintsAndNames", myFingerprintsAndNames);
+            engine.put("myBenchmarks", myBenchmarks);
             engine.put("myFingerprints", myFingerprints);
+            engine.put("fingerprintsToNames", Requests.fingerprintsToNames);
             engine.put("logConfigs", passedProps);
-            engine.put("currentVersion", currentVersion);
-            engine.put("previousVersion", previousVersion);
             engine.put(ConfigHandling.METHOD, passedProps.get(ConfigHandling.METHOD));
             engine.put(ConfigHandling.SCOPE, passedProps.get(ConfigHandling.SCOPE));
             engine.put(ConfigHandling.RANGE, passedProps.get(ConfigHandling.RANGE));

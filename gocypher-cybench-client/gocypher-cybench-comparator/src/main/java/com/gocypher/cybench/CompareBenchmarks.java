@@ -45,6 +45,7 @@ public class CompareBenchmarks {
         options.addOption("m", ConfigHandling.METHOD, true, "Comparison method");
         options.addOption("r", ConfigHandling.RANGE, true, "Comparison range");
         options.addOption("s", ConfigHandling.SCOPE, true, "Comparison scope");
+        options.addOption("v", ConfigHandling.COMPARE_VERSION, true, "Comparison version");
         options.addOption("t", ConfigHandling.THRESHOLD, true, "Comparison threshold");
         options.addOption("p", ConfigHandling.PERCENT_CHANGE_ALLOWED, true, "Comparison percent change allowed");
         options.addOption("d", ConfigHandling.DEVIATIONS_ALLOWED, true, "Comparison deviations allowed");
@@ -61,6 +62,7 @@ public class CompareBenchmarks {
         passedProps.put(ConfigHandling.METHOD, cmd.getOptionValue("m"));
         passedProps.put(ConfigHandling.RANGE, cmd.getOptionValue("r"));
         passedProps.put(ConfigHandling.SCOPE, cmd.getOptionValue("s"));
+        passedProps.put(ConfigHandling.COMPARE_VERSION, cmd.getOptionValue("v"));
         passedProps.put(ConfigHandling.THRESHOLD, cmd.getOptionValue("t"));
         passedProps.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, cmd.getOptionValue("p"));
         passedProps.put(ConfigHandling.DEVIATIONS_ALLOWED, cmd.getOptionValue("d"));
@@ -159,7 +161,7 @@ public class CompareBenchmarks {
                         if (reportID != null && !Requests.getReports().contains(reportID)) {
                             Map<String, Map<String, List<Double>>> benchTable = Requests
                                     .getBenchmarks(benchmarkFingerprint);
-                            Requests.storeBenchmarkData(benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
+                            Requests.storeFetchedBenchmarkHelper(benchmarkFingerprint, benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
                         }
 
                         Comparisons.Method compareMethod = (Comparisons.Method) defaultConfigs

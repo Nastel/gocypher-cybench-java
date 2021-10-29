@@ -28,7 +28,7 @@ public class ConfigHandling {
     public static final Comparisons.Threshold DEFAULT_COMPARE_THRESHOLD = Comparisons.Threshold.GREATER;
     public static final Double DEFAULT_DEVIATIONS_ALLOWED = 1.0;
     public static final Double DEFAULT_PERCENTAGE_ALLOWED = 5.0;
-    public static final String DEFAULT_COMPARE_VERSION = null;
+    public static final String DEFAULT_COMPARE_VERSION = "previous";
 
     // FINAL STRING KEYS
     public static final String TOKEN = "token";
@@ -135,22 +135,25 @@ public class ConfigHandling {
             Map<String, Object> defaultVals = (HashMap<String, Object>) comparatorProps.get(DEFAULT_IDENTIFIER_HEADER);
 
             Comparisons.Method defaultMethod = DEFAULT_COMPARE_METHOD;
-            Comparisons.Scope defaultScope = DEFAULT_COMPARE_SCOPE;
             String defaultRange = DEFAULT_COMPARE_RANGE;
+            Comparisons.Scope defaultScope = DEFAULT_COMPARE_SCOPE;
+            String defaultVersion = DEFAULT_COMPARE_VERSION;
             Comparisons.Threshold defaultThreshold = DEFAULT_COMPARE_THRESHOLD;
             Double defaultPercentage = DEFAULT_PERCENTAGE_ALLOWED;
             Double defaultDeviations = DEFAULT_DEVIATIONS_ALLOWED;
-            String defaultVersion = DEFAULT_COMPARE_VERSION;
 
             if (!simplifiedIdentifier.equals("default")) {
                 if (defaultVals.containsKey(METHOD)) {
                     defaultMethod = (Comparisons.Method) defaultVals.get(METHOD);
                 }
+                if (defaultVals.containsKey(RANGE)) {
+                    defaultRange = (String) defaultVals.get(RANGE);
+                }
                 if (defaultVals.containsKey(SCOPE)) {
                     defaultScope = (Comparisons.Scope) defaultVals.get(SCOPE);
                 }
-                if (defaultVals.containsKey(RANGE)) {
-                    defaultRange = (String) defaultVals.get(RANGE);
+                if (defaultVals.containsKey(COMPARE_VERSION)) {
+                    defaultVersion = (String) defaultVals.get(COMPARE_VERSION);
                 }
                 if (defaultVals.containsKey(THRESHOLD)) {
                     defaultThreshold = (Comparisons.Threshold) defaultVals.get(THRESHOLD);
@@ -160,9 +163,6 @@ public class ConfigHandling {
                 }
                 if (defaultVals.containsKey(DEVIATIONS_ALLOWED)) {
                     defaultDeviations = (Double) defaultVals.get(DEVIATIONS_ALLOWED);
-                }
-                if (defaultVals.containsKey(COMPARE_VERSION)) {
-                    defaultVersion = (String) defaultVals.get(COMPARE_VERSION);
                 }
             }
 
