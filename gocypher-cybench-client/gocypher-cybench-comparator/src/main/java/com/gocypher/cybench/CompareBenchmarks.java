@@ -174,7 +174,8 @@ public class CompareBenchmarks {
                                 .get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
                         String compareVersion = (String) defaultConfigs.get(ConfigHandling.COMPARE_VERSION);
                         Double deviationsAllowed = (Double) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED);
-
+                        String previousVersion = (String) defaultConfigs.get(ConfigHandling.PREVIOUS_VERSION);
+                        
                         for (Map.Entry<String, String> entry : configuredPackages.entrySet()) {
                             if (entry.getKey() != null && benchmarkName.startsWith(entry.getKey())) {
                                 String identifier = entry.getValue();
@@ -185,6 +186,7 @@ public class CompareBenchmarks {
                                 compareThreshold = (Comparisons.Threshold) specificConfigs
                                         .get(ConfigHandling.THRESHOLD);
                                 compareVersion = (String) specificConfigs.get(ConfigHandling.COMPARE_VERSION);
+                                previousVersion = (String) specificConfigs.get(ConfigHandling.PREVIOUS_VERSION);
                                 if (specificConfigs.containsKey(ConfigHandling.PERCENT_CHANGE_ALLOWED)) {
                                     percentChangeAllowed = Double.parseDouble(
                                             specificConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
@@ -199,7 +201,7 @@ public class CompareBenchmarks {
 
                         compareBenchmark(benchmarkName, benchmarkFingerprint, benchmarkVersion, benchmarkMode,
                                 benchmarkScore, compareMethod, compareScope, compareRange, compareThreshold,
-                                compareVersion, percentChangeAllowed, deviationsAllowed);
+                                compareVersion, percentChangeAllowed, deviationsAllowed, previousVersion);
                     } else {
                         failFetch = true;
                         break;
@@ -303,7 +305,6 @@ public class CompareBenchmarks {
                     Comparisons.Scope compareScope = (Comparisons.Scope) e.getValue().get(ConfigHandling.SCOPE);
                     String compareRange = (String) e.getValue().get(ConfigHandling.RANGE);
                     String compareVersion = (String) e.getValue().get(ConfigHandling.COMPARE_VERSION);
-
                     String compareStr;
                     if (compareMethod == Comparisons.Method.DELTA) {
                         compareStr = "test.delta={}, ";
@@ -342,7 +343,7 @@ public class CompareBenchmarks {
     private static boolean compareBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
             String benchmarkMode, Double benchmarkScore, Comparisons.Method compareMethod,
             Comparisons.Scope compareScope, String compareRange, Comparisons.Threshold compareThreshold,
-            String compareVersion, Double percentChangeAllowed, Double deviationsAllowed) {
+            String compareVersion, Double percentChangeAllowed, Double deviationsAllowed, String previousVersion) {
 
         Double COMPARE_VALUE = null;
 
@@ -360,6 +361,9 @@ public class CompareBenchmarks {
                         "{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
                         benchmarkName, benchmarkMode, compareVersion, benchmarkVersion);
                 compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
+            } else if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(previousVersion)
+            		&& Requests.getBenchmarks(benchmarkFingerprint, previousVersion).containsKey(benchmarkMode)){
+            	compareVersionScores = Requests.getBenchmarks(benchmarkFingerprint, previousVersion, benchmarkMode);
             } else if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(compareVersion)
                     && Requests.getBenchmarks(benchmarkFingerprint, compareVersion).containsKey(benchmarkMode)) {
                 compareVersionScores = Requests.getBenchmarks(benchmarkFingerprint, compareVersion, benchmarkMode);
