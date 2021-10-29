@@ -354,7 +354,8 @@ public class ConfigHandling {
         for (String identifier : comparatorProps.keySet()) {
             if (identifier.contains(IDENTIFIER_HEADER) && !identifier.equals(DEFAULT_IDENTIFIER_HEADER)) {
             	if(checkConfigValidity(identifier, comparatorProps)) {
-                	String packageName = (String) comparatorProps.get("package");
+            		Map<String, Object> identifierVals = (HashMap<String, Object>) comparatorProps.get(identifier);
+            		String packageName = (String) identifierVals.get("package");
                 	specificIdentifiers.put(packageName, identifier);
             	} else {
             		failedIdentifiers.add(identifier);

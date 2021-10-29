@@ -371,7 +371,6 @@ public class CompareBenchmarks {
             String benchmarkMode, Double benchmarkScore, Map<String, Object> allConfigs,
             Map<String, String> configuredPackages) {
 
-    	
     	Map<String, Object> configMap = getConfigs(benchmarkName, allConfigs, configuredPackages);
     	
     	if (configMap != null) {
