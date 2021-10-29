@@ -112,9 +112,7 @@ public class CompareBenchmarks {
 
     private static void analyzeBenchmarks(String accessToken, File recentReport, Map<String, Object> allConfigs,
             Map<String, String> configuredPackages) throws Exception {
-        
     	Map<String, Map<String, Map<String, Double>>> recentReports = Requests.getBenchmarksFromReport(accessToken, recentReport);
-            
         if (recentReports != null) {
         	int totalComparedBenchmarks = 0;
         	for(String benchmarkFingerprint : recentReports.keySet()) {
@@ -147,7 +145,6 @@ public class CompareBenchmarks {
                 throw new Exception(error);
             }
         }
-        
     }
 
     private static void addPassFailBenchData(Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks,

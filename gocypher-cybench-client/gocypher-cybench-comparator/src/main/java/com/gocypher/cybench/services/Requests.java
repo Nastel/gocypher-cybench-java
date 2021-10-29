@@ -246,7 +246,6 @@ public class Requests {
 
     public static Map<String, Map<String, Map<String, Double>>> getBenchmarksFromReport(String accessToken, File recentReport) {
         if (StringUtils.isNotEmpty(accessToken) && !accessToken.equals("undefined")) {
-        	
             JSONObject benchmarkReport = null;
             try {
                 String str = FileUtils.readFileToString(recentReport, "UTF-8");
@@ -296,13 +295,9 @@ public class Requests {
                         }
                     }
                 }
-                
-                
-                
             }
-            
             if (recentBenchmarks.isEmpty()) {
-                log.info("No benchmarks found in passed report");
+                log.warn("No benchmarks found in passed report");
             }
         } else {
             log.warn("No access token provided!");
