@@ -26,7 +26,10 @@ public class Requests {
     private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-reports-1.0-SNAPSHOT/services/v1/reports/benchmark/view/";
 
     private static Requests instance;
-    private String tagFingerprint = "benchmarkTag";
+    private final String tagFingerprint = "benchmarkTag";
+    private static final String LATEST_VERSION = "latestVersion";
+    private static final String CURRENT_VERSION = "currentVersion";
+    private static final String PREVIOUS_VERSION = "previousVersion";
 
     // <Benchmark Fingerprint : <Version : <Mode : <List of Scores in Test Order>>>>
     public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarks = new HashMap<>();
@@ -92,47 +95,43 @@ public class Requests {
     public static Set<String> getReports() {
         return reportIDs;
     }
+    
+    private static String getSpecificVersion(String fingerprint, String versionType) {
+    	if (allVersions.containsKey(fingerprint))
+    		return allVersions.get(fingerprint).get(versionType);
+    	return null;
+    }
+    
+    private static void setSpecificVersion(String fingerprint, String versionType, String version) {
+    	if (!allVersions.containsKey(fingerprint)) {
+    		HashMap<String, String> versionData = new HashMap<>();
+    		allVersions.put(fingerprint, versionData);
+    	}
+    	allVersions.get(fingerprint).put(versionType, version);
+    }
 
     public static String getLatestVersion(String fingerprint) {
-    	if (allVersions.containsKey(fingerprint))
-    		return allVersions.get(fingerprint).get("latestVersion");
-    	return null;
+    	return getSpecificVersion(fingerprint, LATEST_VERSION);
     }
     
     public static void setLatestVersion(String fingerprint, String version) {
-    	if (!allVersions.containsKey("fingerprint")) {
-    		HashMap<String, String> versionData = new HashMap<>();
-    		allVersions.put(fingerprint, versionData);
-    	}
-    	allVersions.get(fingerprint).put("latestVersion", version);
+    	setSpecificVersion(fingerprint, LATEST_VERSION, version);
     }
 
     public static String getCurrentVersion(String fingerprint) {
-    	if (allVersions.containsKey(fingerprint))
-    		return allVersions.get(fingerprint).get("currentVersion");
-    	return null;
+    	return getSpecificVersion(fingerprint, CURRENT_VERSION);
     }
     
     public static void setCurrentVersion(String fingerprint, String version) {
-    	if (!allVersions.containsKey("fingerprint")) {
-    		HashMap<String, String> versionData = new HashMap<>();
-    		allVersions.put(fingerprint, versionData);
-    	}
-    	allVersions.get(fingerprint).put("currentVersion", version);
+    	setSpecificVersion(fingerprint, CURRENT_VERSION, version);
     }
 
     public static String getPreviousVersion(String fingerprint) {
-    	if (allVersions.containsKey(fingerprint))
-    		return allVersions.get(fingerprint).get("previousVersion");
-    	return null;
+    	return getSpecificVersion(fingerprint, PREVIOUS_VERSION);
     }
     
     public static void setPreviousVersion(String fingerprint, String version) {
-    	if (!allVersions.containsKey("fingerprint")) {
-    		HashMap<String, String> versionData = new HashMap<>();
-    		allVersions.put(fingerprint, versionData);
-    	}
-    	allVersions.get(fingerprint).put("previousVersion", version);
+    	setSpecificVersion(fingerprint, PREVIOUS_VERSION, version);
     }
 
     public boolean fetchBenchmarks(String name, String benchmarkFingerprint, String accessToken) {
