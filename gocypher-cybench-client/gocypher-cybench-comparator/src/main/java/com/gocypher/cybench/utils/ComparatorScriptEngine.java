@@ -27,16 +27,16 @@ public class ComparatorScriptEngine {
     private Map<String, Object> passedProps;
 
     public ComparatorScriptEngine(Map<String, String> passedProps) {
-    	String token = passedProps.get(ConfigHandling.TOKEN);
-    	String report = passedProps.get(ConfigHandling.REPORT_PATH);
-    	String method = passedProps.get(ConfigHandling.METHOD);
-    	String range = passedProps.get(ConfigHandling.RANGE);
-    	String scope = passedProps.get(ConfigHandling.SCOPE);
-    	String threshold = passedProps.get(ConfigHandling.THRESHOLD);
-    	String percentChangeAllowed = passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
-    	String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
-    	initiateFetch(token, report);
-    	handleComparatorConfigs(method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
+        String token = passedProps.get(ConfigHandling.TOKEN);
+        String report = passedProps.get(ConfigHandling.REPORT_PATH);
+        String method = passedProps.get(ConfigHandling.METHOD);
+        String range = passedProps.get(ConfigHandling.RANGE);
+        String scope = passedProps.get(ConfigHandling.SCOPE);
+        String threshold = passedProps.get(ConfigHandling.THRESHOLD);
+        String percentChangeAllowed = passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
+        String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
+        initiateFetch(token, report);
+        handleComparatorConfigs(method, range, scope, threshold, percentChangeAllowed, deviationsAllowed);
     }
 
     private void initiateFetch(String token, String report) {

@@ -13,8 +13,8 @@ public final class Comparisons {
     private Comparisons() {
     }
 
-    public static Integer validateRange(List<Double> scores, String compareRange) {
-        Integer range = null;
+    public static int validateRange(List<Double> scores, String compareRange) {
+        int range;
         int totalScores = scores.size();
         if (compareRange.equals("ALL")) {
             range = totalScores;
@@ -33,7 +33,7 @@ public final class Comparisons {
             Threshold threshold, String rangeString) {
         int currentVersionSize = currentVersionScores.size();
         int compareVersionSize = compareVersionScores.size();
-        Integer range = validateRange(compareVersionScores, rangeString);
+        int range = validateRange(compareVersionScores, rangeString);
         Double newScore = currentVersionScores.get(currentVersionSize - 1);
         Double compareValue = calculateMean(
                 compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
@@ -56,7 +56,7 @@ public final class Comparisons {
             String rangeString) {
         int currentVersionSize = currentVersionScores.size();
         int compareVersionSize = compareVersionScores.size();
-        Integer range = validateRange(compareVersionScores, rangeString);
+        int range = validateRange(compareVersionScores, rangeString);
         Double newScore = currentVersionScores.get(currentVersionSize - 1);
         Double compareMean = calculateMean(
                 compareVersionScores.subList(compareVersionSize - range, compareVersionSize));

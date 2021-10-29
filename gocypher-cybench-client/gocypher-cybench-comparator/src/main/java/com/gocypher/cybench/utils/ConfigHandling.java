@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import com.gocypher.cybench.CompareBenchmarks;
-
 public class ConfigHandling {
     private static final Logger log = LoggerFactory.getLogger(ConfigHandling.class);
 
@@ -31,19 +29,19 @@ public class ConfigHandling {
     public static final Double DEFAULT_DEVIATIONS_ALLOWED = 1.0;
     public static final Double DEFAULT_PERCENTAGE_ALLOWED = 5.0;
     public static final String DEFAULT_COMPARE_VERSION = null;
-    
+
     // FINAL STRING KEYS
     public static final String TOKEN = "token";
     public static final String REPORT_PATH = "reportPath";
     public static final String CONFIG_PATH = "configPath";
     public static final String SCRIPT_PATH = "scriptPath";
- 	public static final String METHOD = "method";
- 	public static final String SCOPE = "scope";
- 	public static final String RANGE = "range";
- 	public static final String THRESHOLD = "threshold";
- 	public static final String COMPARE_VERSION = "compareVersion";
- 	public static final String PERCENT_CHANGE_ALLOWED = "percentChangeAllowed";
- 	public static final String DEVIATIONS_ALLOWED = "deviationsAllowed";
+    public static final String METHOD = "method";
+    public static final String SCOPE = "scope";
+    public static final String RANGE = "range";
+    public static final String THRESHOLD = "threshold";
+    public static final String COMPARE_VERSION = "compareVersion";
+    public static final String PERCENT_CHANGE_ALLOWED = "percentChangeAllowed";
+    public static final String DEVIATIONS_ALLOWED = "deviationsAllowed";
 
     public static Map<String, Object> loadYaml(String configFilePath) {
         File configFile = identifyConfigFile(configFilePath);
@@ -91,8 +89,7 @@ public class ConfigHandling {
 
     public static void configHandling(Map<String, Object> comparatorProps) {
         if (!comparatorProps.containsKey("reports")) {
-            log.warn("Reports key not passed - using default reports location: {}",
-                    DEFAULT_REPORTS_LOCATION);
+            log.warn("Reports key not passed - using default reports location: {}", DEFAULT_REPORTS_LOCATION);
             comparatorProps.put("reports", DEFAULT_REPORTS_LOCATION);
         }
         if (!comparatorProps.containsKey(TOKEN)) {
@@ -176,8 +173,8 @@ public class ConfigHandling {
                 String method = (String) compareVals.get(METHOD);
                 method = method.toUpperCase();
                 if (!EnumUtils.isValidEnum(Comparisons.Method.class, method)) {
-                    log.warn("'{}': '{}' passed is not a valid comparison method - will use: {}",
-                            simplifiedIdentifier, method, defaultMethod);
+                    log.warn("'{}': '{}' passed is not a valid comparison method - will use: {}", simplifiedIdentifier,
+                            method, defaultMethod);
                     method = defaultMethod.toString();
                 }
                 Comparisons.Method methodEnum = Comparisons.Method.valueOf(method);
@@ -197,8 +194,8 @@ public class ConfigHandling {
                         compareVals.put(DEVIATIONS_ALLOWED, deviationsStr);
                         log.info("'{}': Will compare allowing deviations: {}", simplifiedIdentifier, deviations);
                     } catch (Exception e) {
-                        log.warn("'{}': '{}' passed is not a valid number - will use: {}",
-                                simplifiedIdentifier, deviationsStr, defaultDeviations);
+                        log.warn("'{}': '{}' passed is not a valid number - will use: {}", simplifiedIdentifier,
+                                deviationsStr, defaultDeviations);
                         compareVals.put(DEVIATIONS_ALLOWED, defaultDeviations);
                     }
                 }
@@ -236,8 +233,8 @@ public class ConfigHandling {
                 String scope = (String) compareVals.get(SCOPE);
                 scope = scope.toUpperCase();
                 if (!EnumUtils.isValidEnum(Comparisons.Scope.class, scope)) {
-                    log.warn("'{}': '{}' passed is not a valid comparison scope - will use: {}",
-                            simplifiedIdentifier, scope, defaultScope);
+                    log.warn("'{}': '{}' passed is not a valid comparison scope - will use: {}", simplifiedIdentifier,
+                            scope, defaultScope);
                     scope = defaultScope.toString();
                 }
                 Comparisons.Scope scopeEnum = Comparisons.Scope.valueOf(scope);
@@ -317,8 +314,8 @@ public class ConfigHandling {
                             compareVals.put(PERCENT_CHANGE_ALLOWED, percentage);
                             log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
                         } catch (Exception e) {
-                            log.warn("'{}': '{}' passed is not a valid number - will use: {}",
-                                    simplifiedIdentifier, percentageStr, defaultPercentage);
+                            log.warn("'{}': '{}' passed is not a valid number - will use: {}", simplifiedIdentifier,
+                                    percentageStr, defaultPercentage);
                             compareVals.put(PERCENT_CHANGE_ALLOWED, defaultPercentage);
                         }
                     }
@@ -338,8 +335,8 @@ public class ConfigHandling {
                                 log.info("'{}': Will compare with percentage: {}", simplifiedIdentifier, percentage);
                             }
                         } catch (Exception e) {
-                            log.warn("'{}': '{}' passed is not a valid number - will use: {}",
-                                    simplifiedIdentifier, percentageStr, defaultPercentage);
+                            log.warn("'{}': '{}' passed is not a valid number - will use: {}", simplifiedIdentifier,
+                                    percentageStr, defaultPercentage);
                             compareVals.put(PERCENT_CHANGE_ALLOWED, defaultPercentage);
                         }
 

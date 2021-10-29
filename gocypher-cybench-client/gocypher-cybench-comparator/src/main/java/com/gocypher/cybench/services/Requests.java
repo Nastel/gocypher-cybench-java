@@ -190,7 +190,7 @@ public class Requests {
         if (StringUtils.isNotEmpty(accessToken) && !accessToken.equals("undefined")) {
             JSONObject benchmarkReport = null;
             try {
-                File report = null;
+                File report;
                 if (reportPath.endsWith(".cybench")) {
                     // is a file
                     report = new File(reportPath);

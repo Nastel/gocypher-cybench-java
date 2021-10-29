@@ -40,15 +40,17 @@ Template scripts located in the scripts folder [scripts](scripts/)
 * The CyBench Comparator tool allows you to build your own customized .js files that hit benchmark fetch methods,
   comparison methods, and assertion methods.
     * This allows you more flexibility in what you do with your benchmark scores and comparison statistics.
-* All variables you will need are set for you to use already (fetch for benchmarks happens in the background after you pass [configuration args](#script-configuration-args) to the main class via launch)
+* All variables you will need are set for you to use already (fetch for benchmarks happens in the background after you
+  pass [configuration args](#script-configuration-args) to the main class via launch)
     * Vars accessible in the scripts:
         * `myFingerprints`: Java ArrayList containing all method CyBench fingerprints
         * `myFingerprintsAndNames`: Java HashMap that maps your method CyBench fingerprints to the method name
         * `currentVersion`: The most recent version found in your benchmarks
         * `previousVersion`: If there is one, the previous version in your benchmarks to the current
-        * `logConfigs`: Java HashMap containing configurables neccesary for logging information; pass to `logComparison` method
+        * `logConfigs`: Java HashMap containing configurables neccesary for logging information; pass to `logComparison`
+          method
         * Comparison configurable var args passed by you as arg flags to the main class
-            * `method`, `scope`, `range`, `threshold`, `percentChangeAllowed`, `deviationsAllowed`  
+            * `method`, `scope`, `range`, `threshold`, `percentChangeAllowed`, `deviationsAllowed`
 
 ### Example Template
 
@@ -82,30 +84,31 @@ forEach.call(myFingerprints, function (fingerprint) {
 ```
 
 #### Template Walkthrough
-            
+
 * First, we loop through the versions of each fingerprint
-    * `getBenchmarksByVersion(fingerprint, currentVersion)` will return a Java HashMap that maps the 'benchmark
-      version' to another Java HashMap of 'benchmark modes' that have been run
-    * Note: we have to check to make sure there are benchmarks for both the current version and previous version of
-      the currently looped fingerprint (Null Pointer Exception exception). It is possible that you have benchmarks
-      that only have tests in one of the two versions being compared (for this between version test).
+    * `getBenchmarksByVersion(fingerprint, currentVersion)` will return a Java HashMap that maps the 'benchmark version'
+      to another Java HashMap of 'benchmark modes' that have been run
+    * Note: we have to check to make sure there are benchmarks for both the current version and previous version of the
+      currently looped fingerprint (Null Pointer Exception exception). It is possible that you have benchmarks that only
+      have tests in one of the two versions being compared (for this between version test).
 * So, we loop through the modes of each version
-    * Note: we have to check to make sure both versions have a test within the mode being looped through for the
-      same reason as before
+    * Note: we have to check to make sure both versions have a test within the mode being looped through for the same
+      reason as before
 * Next come the comparisons and assertions
-    * `logComparison(logConfigs, benchmarkName, mode);` calls a log method that takes your comparison configurables, the benchmarkName, and the mode currently being looped through in order to give you more log outputs 
+    * `logComparison(logConfigs, benchmarkName, mode);` calls a log method that takes your comparison configurables, the
+      benchmarkName, and the mode currently being looped through in order to give you more log outputs
     * `var percentChange = compareDelta(threshold, range, currentVersionScores.get(mode), previousVersionScores.get(mode));`
       calls a `delta` compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
       below
         * It compares the current version scores under a specific mode to the previous version scores under the same
           mode.
-        * The comparison is marked with a threshold of `PERCENT_CHANGE` which means we are looking for a percent
-          change in value as opposed to a straight delta value
+        * The comparison is marked with a threshold of `PERCENT_CHANGE` which means we are looking for a percent change
+          in value as opposed to a straight delta value
         * The comparison is marked with a range of `1` which means we are only looking at the last (most recent)
           value of `previousVersionScores.get(mode)` and comparing it to the most recent score
           in `currentVersionScores.get(mode)`
-    * `var pass = passAssertionPercentage(percentChange, percentChangeAllowed);` calls an assertion method that
-      checks to see if the `percent change` is within the `percentChangeAllowed` specified by you
+    * `var pass = passAssertionPercentage(percentChange, percentChangeAllowed);` calls an assertion method that checks
+      to see if the `percent change` is within the `percentChangeAllowed` specified by you
 
 ### Script Configuration Args
 
@@ -114,7 +117,8 @@ forEach.call(myFingerprints, function (fingerprint) {
 * `TOKEN` passed with `-T` or `-token`
     * Specifies your CyBench query access token
 * `REPORT` passed with `-R` or `-reportPath`
-    * Specifies the report you want to analyze and run comparisons on, this can be the path to a single report, or the path to the full report directory (in which case the most recently ran report will be used)   
+    * Specifies the report you want to analyze and run comparisons on, this can be the path to a single report, or the
+      path to the full report directory (in which case the most recently ran report will be used)
 * `SCOPE` passed with `-s` or `-scope`
     * Options: `WITHIN` or `BETWEEN`
     * Comparator gives you the ability to compare WITHIN or BETWEEN (current and previous) versions
@@ -126,7 +130,7 @@ forEach.call(myFingerprints, function (fingerprint) {
     * If range is `1`, then only the last value will be compared to
         * If range is higher than 1, then the mean of the last X specified values will be taken and used for comparison
 * `METHOD` passed with `-m` or `-method`
-    * Options: `MEAN` or `SD` 
+    * Options: `MEAN` or `SD`
     * The comparison methods you have access to are delta methods and standard deviations methods
         * For standard deviation methods, you can specify a `deviationsAllowed` for assertions. This will check to make
           sure the new score is within that amount of deviations from the mean of the scores being compared to
@@ -136,9 +140,10 @@ forEach.call(myFingerprints, function (fingerprint) {
             * `THRESHOLD` passed with `-t` or `-threshold`
             * Options: `GREATER` or `PERCENT_CHANGE`
             * `GREATER` will be used for tests in which you want raw score comparisons and strict deltas
-            * `PERCENT_CHANGE` will be used for tests in which you want to measure the percent
-              change of the score in comparison to the compare to scores
-                * If you choose to use these methods, you can use a `percentChangeAllowed` variable to run assertions and make sure your new score is within X percent of the compared to scores
+            * `PERCENT_CHANGE` will be used for tests in which you want to measure the percent change of the score in
+              comparison to the compare to scores
+                * If you choose to use these methods, you can use a `percentChangeAllowed` variable to run assertions
+                  and make sure your new score is within X percent of the compared to scores
                     * `PERCENT CHANGE ALLOWED` passed with `-p` or `-percentChangeAllowed`
                     * Options: Any Double value
 
@@ -148,10 +153,10 @@ forEach.call(myFingerprints, function (fingerprint) {
     * These methods can be called in your .js script
 
 * `logComparison` will allow you to receive more log output regarding what is being tested during comparison runs
-* `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different
-  ways to access the benchmarks stored in `Java Maps`
-* `compareDelta` and `compareSD` are compare methods you can call with your scores that run all calculations behind the scenes and return Double
-  values
+* `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different ways
+  to access the benchmarks stored in `Java Maps`
+* `compareDelta` and `compareSD` are compare methods you can call with your scores that run all calculations behind the
+  scenes and return Double values
 * `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are simple methods you can quickly
   access for your own calculations and return `Double` values
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to
@@ -211,7 +216,8 @@ this example, it'll compare scores between the current version, and `compareVers
 * The first configuration you should decide is the method to compare
 * Comparison method is defined by `method:`
 * The possible values for `method:` are listed below
-    * `DELTA` = Tests if newest benchmark scores higher than the previous X scores (if X is more than 1, will compare to mean of X)
+    * `DELTA` = Tests if newest benchmark scores higher than the previous X scores (if X is more than 1, will compare to
+      mean of X)
     * `SD` = Tests if the newest score is within the standard deviation of X previous scores (where X is defined
       by `range:`)
 
@@ -230,7 +236,8 @@ this example, it'll compare scores between the current version, and `compareVers
 * Possible values are `"WITHIN"` or `"BETWEEN"`
     * `"WITHIN"` = Compare scores within the same version of your project
     * `"BETWEEN"` = Compare scores between different versions of your project
-* **NOTE:** When using the `"BETWEEN"` scope, make sure to also set `compareVersion:` to whichever version you wish to compare to
+* **NOTE:** When using the `"BETWEEN"` scope, make sure to also set `compareVersion:` to whichever version you wish to
+  compare to
 
 #### Comparison Threshold
 
@@ -240,7 +247,8 @@ this example, it'll compare scores between the current version, and `compareVers
     * `"GREATER"` = Passes/fails depending on if your current score was higher than the score getting compared against
     * `"PERCENT_CHANGE"` = More flexible, allows the build/test to pass even if the score was lower, as long as it is
       within a given percentage
-* **NOTE:** When using `"PERCENT_CHANGE"`, make sure to define `percentChangeAllowed:"X"`, where X is the percent change allowed, even if the comparison results in a negative number
+* **NOTE:** When using `"PERCENT_CHANGE"`, make sure to define `percentChangeAllowed:"X"`, where X is the percent change
+  allowed, even if the comparison results in a negative number
 
 #### Comparison Range
 
@@ -281,24 +289,24 @@ out `comparator.yaml`
 ## Options {within, between} ##
 ### {within} will compare all benchmarks within the benchmarked version ###
 ### if {between} is chosen, must specify {compareVersion} (will compare benchmarked version to the specified version) ###
-    ### add {compareVersion} to specify which version to compare to ###
+### add {compareVersion} to specify which version to compare to ###
 
 # range = {amount of values to compare against}
 ## Options {all, (#)} - can specify the word "all" to compare against all values or any number X to compare against previous X recorded scores ##
-    ### to compare against just the previous score within your version or the most recent score in another version, specify range '1' ###
-    ### otherwise the new score will be compared against the mean of the previous X values ###
+### to compare against just the previous score within your version or the most recent score in another version, specify range '1' ###
+### otherwise the new score will be compared against the mean of the previous X values ###
 
 # method = how benchmarks will be compared
 ## Options {delta, SD} ##
 ### if {SD} is chosen, must specify {deviationsAllowed} ###
-    ### {deviationsAllowed} = the amount of deviations you will allow your score to be away from the mean of the previous X values (X specified as {range}) ###
+### {deviationsAllowed} = the amount of deviations you will allow your score to be away from the mean of the previous X values (X specified as {range}) ###
 ### if {delta} is chosen, must specify {threshold} ###
-    # {threshold} = how to specify a passing benchmark 
-    ## Options {percent_change, greater} ##
-    ### {greater} will check to see if new score is simply greater than the compared to score ###
-    ### if {percent_change} is chosen, must specify {percentChangeAllowed} ###
-        ### {percentChangeAllowed} = percentage score should be within in order to pass ###
-        ### ex. 5% means the new score should be within 5% of the previous threshold ###
+# {threshold} = how to specify a passing benchmark 
+## Options {percent_change, greater} ##
+### {greater} will check to see if new score is simply greater than the compared to score ###
+### if {percent_change} is chosen, must specify {percentChangeAllowed} ###
+### {percentChangeAllowed} = percentage score should be within in order to pass ###
+### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
 reports: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/"
@@ -331,7 +339,6 @@ compare.B:
 * Main class: `com.gocypher.cybench.CompareBenchmarks`
 
 ### From CMD
-
 
 ```cmd
 java -jar gocypher-cybench-comparator.jar [args]
@@ -531,8 +538,8 @@ java -jar gocypher-cybench-comparator.jar [args]
   repo `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
 
   **Note:** you may need configuration file
-  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it with flag `-C` or `-configPath`
-  property:
+  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it with flag `-C`
+  or `-configPath` property:
     ```cmd
     "-C config/comparator.yaml"
     ```
