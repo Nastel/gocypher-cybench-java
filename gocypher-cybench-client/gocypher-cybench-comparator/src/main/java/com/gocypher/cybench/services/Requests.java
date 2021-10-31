@@ -17,8 +17,6 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gocypher.cybench.utils.ConfigHandling;
-
 public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
 
@@ -26,7 +24,7 @@ public class Requests {
     private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-reports-1.0-SNAPSHOT/services/v1/reports/benchmark/view/";
 
     private static Requests instance;
-    private final String tagFingerprint = "benchmarkTag";
+    private static final String tagFingerprint = "benchmarkTag";
     private static final String LATEST_VERSION = "latestVersion";
     private static final String CURRENT_VERSION = "currentVersion";
     private static final String PREVIOUS_VERSION = "previousVersion";
@@ -35,7 +33,7 @@ public class Requests {
     public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarks = new HashMap<>();
     // <Benchmark Fingerprint : <Version : <Mode : <Score>>>>
     public static Map<String, Map<String, Map<String, Double>>> recentBenchmarks = new HashMap<>();
-    
+
     // <fingerprint : name>
     public static Map<String, String> fingerprintsToNames = new HashMap<>();
     // <name : fingerprint>
@@ -44,7 +42,7 @@ public class Requests {
     public static Set<String> reportIDs = new HashSet<>();
 
     // <Fingerprint: (latestVersion, currentVersion, previousVersion)>
-    private static Map<String, Map<String, String>> allVersions = new HashMap<>();
+    private static final Map<String, Map<String, String>> allVersions = new HashMap<>();
 
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -95,43 +93,44 @@ public class Requests {
     public static Set<String> getReports() {
         return reportIDs;
     }
-    
+
     private static String getSpecificVersion(String fingerprint, String versionType) {
-    	if (allVersions.containsKey(fingerprint))
-    		return allVersions.get(fingerprint).get(versionType);
-    	return null;
+        if (allVersions.containsKey(fingerprint)) {
+            return allVersions.get(fingerprint).get(versionType);
+        }
+        return null;
     }
-    
+
     private static void setSpecificVersion(String fingerprint, String versionType, String version) {
-    	if (!allVersions.containsKey(fingerprint)) {
-    		HashMap<String, String> versionData = new HashMap<>();
-    		allVersions.put(fingerprint, versionData);
-    	}
-    	allVersions.get(fingerprint).put(versionType, version);
+        if (!allVersions.containsKey(fingerprint)) {
+            HashMap<String, String> versionData = new HashMap<>();
+            allVersions.put(fingerprint, versionData);
+        }
+        allVersions.get(fingerprint).put(versionType, version);
     }
 
     public static String getLatestVersion(String fingerprint) {
-    	return getSpecificVersion(fingerprint, LATEST_VERSION);
+        return getSpecificVersion(fingerprint, LATEST_VERSION);
     }
-    
+
     public static void setLatestVersion(String fingerprint, String version) {
-    	setSpecificVersion(fingerprint, LATEST_VERSION, version);
+        setSpecificVersion(fingerprint, LATEST_VERSION, version);
     }
 
     public static String getCurrentVersion(String fingerprint) {
-    	return getSpecificVersion(fingerprint, CURRENT_VERSION);
+        return getSpecificVersion(fingerprint, CURRENT_VERSION);
     }
-    
+
     public static void setCurrentVersion(String fingerprint, String version) {
-    	setSpecificVersion(fingerprint, CURRENT_VERSION, version);
+        setSpecificVersion(fingerprint, CURRENT_VERSION, version);
     }
 
     public static String getPreviousVersion(String fingerprint) {
-    	return getSpecificVersion(fingerprint, PREVIOUS_VERSION);
+        return getSpecificVersion(fingerprint, PREVIOUS_VERSION);
     }
-    
+
     public static void setPreviousVersion(String fingerprint, String version) {
-    	setSpecificVersion(fingerprint, PREVIOUS_VERSION, version);
+        setSpecificVersion(fingerprint, PREVIOUS_VERSION, version);
     }
 
     public boolean fetchBenchmarks(String name, String benchmarkFingerprint, String accessToken) {
@@ -198,8 +197,8 @@ public class Requests {
         return true;
     }
 
-    public static boolean storeFetchedBenchmarkHelper(String fingerprint, 
-    		Map<String, Map<String, List<Double>>> benchTable, String mode, String version, Double score) {
+    public static boolean storeFetchedBenchmarkHelper(String fingerprint,
+            Map<String, Map<String, List<Double>>> benchTable, String mode, String version, Double score) {
         if (benchTable == null) {
             return false;
         }
@@ -222,28 +221,28 @@ public class Requests {
 
         return true;
     }
-    
+
     public static void storeRecentBenchmark(String fingerprint, String version, String mode, Double score) {
-    	if (!recentBenchmarks.containsKey(fingerprint)) {
-        	Map<String, Map<String, Double>> versionsTested = new HashMap<>();
-        	recentBenchmarks.put(fingerprint, versionsTested);
+        if (!recentBenchmarks.containsKey(fingerprint)) {
+            Map<String, Map<String, Double>> versionsTested = new HashMap<>();
+            recentBenchmarks.put(fingerprint, versionsTested);
         }
-    	Map<String, Map<String, Double>> versionsTested = recentBenchmarks.get(fingerprint);
+        Map<String, Map<String, Double>> versionsTested = recentBenchmarks.get(fingerprint);
         if (!versionsTested.containsKey(version)) {
-        	Map<String, Double> modesTested = new HashMap<>();
-        	versionsTested.put(version, modesTested);
+            Map<String, Double> modesTested = new HashMap<>();
+            versionsTested.put(version, modesTested);
         }
         Map<String, Double> modesTested = versionsTested.get(version);
-        
+
         modesTested.put(mode, score);
-        
+
         if (getCurrentVersion(fingerprint) == null || isNewerVersion(version, getCurrentVersion(fingerprint))) {
             setCurrentVersion(fingerprint, version);
         }
     }
-    
 
-    public static Map<String, Map<String, Map<String, Double>>> getBenchmarksFromReport(String accessToken, File recentReport) {
+    public static Map<String, Map<String, Map<String, Double>>> getBenchmarksFromReport(String accessToken,
+            File recentReport) {
         if (StringUtils.isNotEmpty(accessToken) && !accessToken.equals("undefined")) {
             JSONObject benchmarkReport = null;
             try {
@@ -262,11 +261,11 @@ public class Requests {
                     reportID = parsedURL[1].split("/")[0];
                 }
                 JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");
-                
+
                 // loop through packages (com.x, com.x2, ...)
                 for (Object pckg : packages.values()) {
                     JSONArray packageBenchmarks = (JSONArray) pckg;
-                    
+
                     // loop through benchmarks in package (com.x.bench1, com.x.bench2, ...)
                     for (Object packageBenchmark : packageBenchmarks) {
                         JSONObject benchmark = (JSONObject) packageBenchmark;
@@ -277,20 +276,21 @@ public class Requests {
                         String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
                         fingerprintsToNames.put(benchmarkFingerprint, benchmarkName);
                         namesToFingerprints.put(benchmarkName, benchmarkFingerprint);
-                        
+
                         // report data handling
                         storeRecentBenchmark(benchmarkFingerprint, benchmarkVersion, benchmarkMode, benchmarkScore);
-                        
+
                         // fetch CyBench data handling
                         if (getInstance().fetchBenchmarks(benchmarkName, benchmarkFingerprint, accessToken)) {
                             // store new data in map if this report hasn't been added already
                             if (reportID != null && !reportIDs.contains(reportID)) {
                                 Map<String, Map<String, List<Double>>> benchTable = getBenchmarks(benchmarkFingerprint);
-                                storeFetchedBenchmarkHelper(benchmarkFingerprint, benchTable, benchmarkMode, benchmarkVersion, benchmarkScore);
+                                storeFetchedBenchmarkHelper(benchmarkFingerprint, benchTable, benchmarkMode,
+                                        benchmarkVersion, benchmarkScore);
                             }
                         } else {
-                        	log.error("* Fetching and storing benchmark data for analysis failed *");
-                        	return null;
+                            log.error("* Fetching and storing benchmark data for analysis failed *");
+                            return null;
                         }
                     }
                 }

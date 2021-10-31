@@ -3,7 +3,6 @@ package com.gocypher.cybench.utils;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
@@ -37,7 +36,8 @@ public class ComparatorScriptEngine {
         String percentChangeAllowed = passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
         String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
         initiateFetch(token, reportPath);
-        handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed, deviationsAllowed);
+        handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed,
+                deviationsAllowed);
     }
 
     private void initiateFetch(String token, String reportPath) {
@@ -54,8 +54,8 @@ public class ComparatorScriptEngine {
         myFingerprints = new ArrayList<>(myBenchmarks.keySet());
     }
 
-    private void handleComparatorConfigs(String method, String range, String scope, String compareVersion, 
-    		String threshold, String percentChangeAllowed, String deviationsAllowed) {
+    private void handleComparatorConfigs(String method, String range, String scope, String compareVersion,
+            String threshold, String percentChangeAllowed, String deviationsAllowed) {
         Map<String, Object> comparatorProps = new HashMap<>();
         comparatorProps.put(ConfigHandling.DEFAULT_IDENTIFIER_HEADER, ConfigHandling.loadDefaults());
 
@@ -70,8 +70,8 @@ public class ComparatorScriptEngine {
         if (StringUtils.isNotEmpty(scope)) {
             passedProps.put(ConfigHandling.SCOPE, scope);
         }
-        if(StringUtils.isNotEmpty(compareVersion)) {
-        	passedProps.put(ConfigHandling.COMPARE_VERSION, compareVersion);
+        if (StringUtils.isNotEmpty(compareVersion)) {
+            passedProps.put(ConfigHandling.COMPARE_VERSION, compareVersion);
         }
         if (StringUtils.isNotEmpty(threshold)) {
             passedProps.put(ConfigHandling.THRESHOLD, threshold);
