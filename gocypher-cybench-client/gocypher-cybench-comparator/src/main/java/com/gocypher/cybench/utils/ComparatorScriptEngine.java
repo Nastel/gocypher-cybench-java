@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gocypher.cybench.CompareBenchmarks;
 import com.gocypher.cybench.services.Requests;
 
 public class ComparatorScriptEngine {
@@ -25,7 +26,7 @@ public class ComparatorScriptEngine {
     private ArrayList<String> myFingerprints;
     private Map<String, Object> passedProps;
 
-    public ComparatorScriptEngine(Map<String, String> passedProps, String scriptPath) {
+    public ComparatorScriptEngine(Map<String, String> passedProps, String scriptPath) throws Exception {
         String token = passedProps.get(ConfigHandling.TOKEN);
         String reportPath = passedProps.get(ConfigHandling.REPORT_PATH);
         String method = passedProps.get(ConfigHandling.METHOD);
@@ -96,12 +97,12 @@ public class ComparatorScriptEngine {
         return false;
     }
 
-    public File loadUserScript(String scriptPath) {
+    private File loadUserScript(String scriptPath) {
         File userScript = new File(scriptPath);
         return userScript;
     }
 
-    public ScriptEngine prepareScriptEngine() {
+    private ScriptEngine prepareScriptEngine() {
         ScriptEngineManager factory = new ScriptEngineManager();
         ScriptEngine engine = factory.getEngineByName("nashorn");
         try {
@@ -130,7 +131,7 @@ public class ComparatorScriptEngine {
         return engine;
     }
 
-    public void runUserScript(ScriptEngine engine, File script) {
+    private void runUserScript(ScriptEngine engine, File script) throws Exception {
         Reader reader;
 
         try {
@@ -139,6 +140,15 @@ public class ComparatorScriptEngine {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        logPassFailData();
     }
-
+    
+    private void logPassFailData() throws Exception {
+    	System.out.print("\n");
+        log.info("compared={}, passed={}, failed={}", CompareBenchmarks.totalComparedBenchmarks, CompareBenchmarks.totalPassedBenchmarks,
+        		CompareBenchmarks.totalFailedBenchmarks);
+        System.out.print("\n");
+        CompareBenchmarks.buildFailureCheck();
+    }
 }

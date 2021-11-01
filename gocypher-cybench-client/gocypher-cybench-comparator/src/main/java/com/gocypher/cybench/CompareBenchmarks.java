@@ -25,7 +25,7 @@ import com.gocypher.cybench.utils.ConfigHandling;
 
 public class CompareBenchmarks {
     private static final Logger log = LoggerFactory.getLogger(CompareBenchmarks.class);
-    private static int totalComparedBenchmarks = 0;
+    public static int totalComparedBenchmarks = 0;
     private static final Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
     public static int totalPassedBenchmarks = 0;
     private static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
@@ -117,7 +117,6 @@ public class CompareBenchmarks {
                 for (Map.Entry<String, Map<String, Double>> vEntry : versionsTested.entrySet()) {
                     Map<String, Double> modesTested = vEntry.getValue();
                     for (Map.Entry<String, Double> stringDoubleEntry : modesTested.entrySet()) {
-                        totalComparedBenchmarks++;
                         Double benchmarkScore = stringDoubleEntry.getValue();
                         String benchmarkName = Requests.fingerprintsToNames.get(benchmarkFingerprint);
 
@@ -132,14 +131,7 @@ public class CompareBenchmarks {
                     totalFailedBenchmarks);
             System.out.print("\n");
             printBenchmarkResults(Requests.namesToFingerprints);
-            if (totalFailedBenchmarks > 0) {
-                String error = "* Build failed due to scores being too low *";
-                log.error(error + "\n");
-
-                // helps logs finish before exception is thrown
-                TimeUnit.MILLISECONDS.sleep(500);
-                throw new Exception(error);
-            }
+            buildFailureCheck();
         }
     }
     
@@ -359,14 +351,14 @@ public class CompareBenchmarks {
             List<Double> compareVersionScores = new ArrayList<>(benchmarkVersionScores);
             compareVersionScores.remove(benchmarkVersionScores.size() - 1);
 
-            
-            if(compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
-            	log.info("Compare Version was set to 'previous', setting compare version to previous benchmarked version..");
-            	compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
-            	log.info("New compare version set to: {}", compareVersion);
-            }
                  
             if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
+            	if(compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
+                	log.info("Compare Version was set to 'previous', setting compare version to previous benchmarked version..");
+                	compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
+                	log.info("New compare version set to: {}", compareVersion);
+                }
+            	
                 if (benchmarkVersion.equals(compareVersion)) {
                     log.warn(
                             "{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
@@ -437,8 +429,20 @@ public class CompareBenchmarks {
     
     // NO COMPARISON SHOULD BE RUN, PASS TEST
     private static boolean autoPass(Double benchmarkScore, String benchmarkName, String benchmarkVersion, String benchmarkMode) {
+    	totalComparedBenchmarks++;
     	totalPassedBenchmarks++;
         addAutoPassBenchData(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         return false;
+    }
+    
+    public static void buildFailureCheck() throws Exception{
+    	if (totalFailedBenchmarks > 0) {
+            String error = "* Build failed due to scores being too low *";
+            log.error(error + "\n");
+
+            // helps logs finish before exception is thrown
+            TimeUnit.MILLISECONDS.sleep(500);
+            throw new Exception(error);
+        }
     }
 }

@@ -156,7 +156,6 @@ public final class Comparisons {
 
     public static boolean passAssertion(Double COMPARE_VALUE, Method method, Threshold threshold,
             Double percentageAllowed, Double deviationsAllowed) {
-
         // assert within x SDs from mean
         if (method.equals(Method.SD)) {
             return passAssertionDeviation(COMPARE_VALUE, deviationsAllowed);
@@ -172,6 +171,7 @@ public final class Comparisons {
     }
 
     public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
+    	CompareBenchmarks.totalComparedBenchmarks++;
         if (Math.abs(deviationsFromMean) < deviationsAllowed) {
             log.info("Passed test");
             CompareBenchmarks.totalPassedBenchmarks++;
@@ -184,6 +184,7 @@ public final class Comparisons {
     }
 
     public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
+    	CompareBenchmarks.totalComparedBenchmarks++;
         if (Math.abs(percentChange) < percentageAllowed) {
             log.info("Passed test");
             CompareBenchmarks.totalPassedBenchmarks++;
@@ -196,6 +197,7 @@ public final class Comparisons {
     }
 
     public static boolean passAssertionPositive(Double val) {
+    	CompareBenchmarks.totalComparedBenchmarks++;
         if (val >= 0) {
             log.info("Passed test");
             CompareBenchmarks.totalPassedBenchmarks++;
