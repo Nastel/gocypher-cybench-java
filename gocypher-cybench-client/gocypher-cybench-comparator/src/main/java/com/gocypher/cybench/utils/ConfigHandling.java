@@ -15,11 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import com.gocypher.cybench.CompareBenchmarks;
+
 public class ConfigHandling {
     private static final Logger log = LoggerFactory.getLogger(ConfigHandling.class);
 
     // DEFAULT VALUES
     public static final String DEFAULT_COMPARATOR_CONFIG_PATH = "config/comparator.yaml";
+    public static final boolean DEFAULT_FAIL_BUILD_FLAG = false;
     public static final String DEFAULT_REPORTS_LOCATION = "reports/";
     public static final String DEFAULT_TOKEN = "";
     public static final String IDENTIFIER_HEADER = "compare.";
@@ -33,6 +36,7 @@ public class ConfigHandling {
     public static final String DEFAULT_COMPARE_VERSION = "PREVIOUS";
 
     // FINAL STRING KEYS
+    public static final String FAIL_BUILD_FLAG = "failBuild";
     public static final String TOKEN = "token";
     public static final String REPORT_PATH = "reportPath";
     public static final String CONFIG_PATH = "configPath";
@@ -94,10 +98,18 @@ public class ConfigHandling {
     }
 
     public static void configHandling(Map<String, Object> comparatorProps) {
-        if (!comparatorProps.containsKey("reports")) {
+    	if (comparatorProps.containsKey(FAIL_BUILD_FLAG)) {
+    		if (comparatorProps.get(FAIL_BUILD_FLAG).equals(true)) {
+    			log.warn("Build will fail if any benchmark comparison assertions fail\n");
+        		CompareBenchmarks.failBuildFlag = true;
+    		}
+    	}
+    	
+        if (!comparatorProps.containsKey(REPORT_PATH)) {
             log.warn("Reports key not passed - using default reports location: {}", DEFAULT_REPORTS_LOCATION);
-            comparatorProps.put("reports", DEFAULT_REPORTS_LOCATION);
+            comparatorProps.put(REPORT_PATH, DEFAULT_REPORTS_LOCATION);
         }
+        
         if (!comparatorProps.containsKey(TOKEN)) {
             log.warn("Token key not passed - will not be able to access private workspaces");
             comparatorProps.put(TOKEN, DEFAULT_TOKEN);

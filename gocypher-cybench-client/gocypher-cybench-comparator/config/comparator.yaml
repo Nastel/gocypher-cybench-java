@@ -1,6 +1,11 @@
 ### Property File for Cybench Comparator Tool ###
 
-# reports = location of CyBench reports folder
+# failBuild = whether or not you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
+## Options {true, false} ##
+
+# reportPath = 
+    # location of CyBench reports folder (automatically takes the most recent report) 
+    # OR the location of the specific report you want to run Comparator on
 
 # token = CyBench Access Token with View Permissions
 ### Token can be found on the CyBench site by clicking on your username ###
@@ -39,7 +44,8 @@
         ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
-reports: "reports/"
+failBuild: true
+reportPath: "reports/report-1633702919786-14.35352973095467.cybnech"
 token: "MY TOKEN"
 
 compare.default:

@@ -30,6 +30,7 @@ public class CompareBenchmarks {
     public static int totalPassedBenchmarks = 0;
     private static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
     public static int totalFailedBenchmarks = 0;
+    public static boolean failBuildFlag = false;
     
     private static final String AUTO_PASS_KEY = "autoPass";
     
@@ -37,6 +38,7 @@ public class CompareBenchmarks {
         log.info("* Analyzing benchmark performance...");
 
         Options options = new Options();
+        options.addOption("F", ConfigHandling.FAIL_BUILD_FLAG, false, "Fail build on failed comparisons");
         options.addOption("S", ConfigHandling.SCRIPT_PATH, true, "User JS script");
         options.addOption("C", ConfigHandling.CONFIG_PATH, true, "YAML config file");
         options.addOption("T", ConfigHandling.TOKEN, true, "CyBench access token");
@@ -52,6 +54,11 @@ public class CompareBenchmarks {
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
 
+        if (cmd.hasOption("F")) {
+        	log.warn("Build will fail if any benchmark comparison assertions fail\n");
+        	failBuildFlag = true;
+        }
+        
         Map<String, String> passedProps = new HashMap<>();
 
         passedProps.put(ConfigHandling.SCRIPT_PATH, cmd.getOptionValue("S"));
@@ -91,7 +98,7 @@ public class CompareBenchmarks {
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configPath);
             Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
 
-            File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get("reports"));
+            File recentReport = ConfigHandling.identifyRecentReport((String) allConfigs.get(ConfigHandling.REPORT_PATH));
             String accessToken = (String) allConfigs.get(ConfigHandling.TOKEN);
 
             if (recentReport != null && accessToken != null) {
@@ -437,12 +444,14 @@ public class CompareBenchmarks {
     
     public static void buildFailureCheck() throws Exception{
     	if (totalFailedBenchmarks > 0) {
-            String error = "* Build failed due to scores being too low *";
-            log.error(error + "\n");
-
-            // helps logs finish before exception is thrown
-            TimeUnit.MILLISECONDS.sleep(500);
-            throw new Exception(error);
+            log.warn("* There are benchmark comparison failures! *");
+            if (failBuildFlag) {
+            	String error = "* Build failed due to scores being too low *";
+                log.error(error + "\n");
+	            // helps logs finish before exception is thrown
+	            TimeUnit.MILLISECONDS.sleep(500);
+	            throw new Exception(error);
+            }
         }
     }
 }
