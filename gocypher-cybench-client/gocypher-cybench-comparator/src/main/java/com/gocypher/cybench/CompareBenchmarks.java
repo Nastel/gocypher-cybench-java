@@ -359,6 +359,13 @@ public class CompareBenchmarks {
             List<Double> compareVersionScores = new ArrayList<>(benchmarkVersionScores);
             compareVersionScores.remove(benchmarkVersionScores.size() - 1);
 
+            
+            if(compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
+            	log.info("Compare Version was set to 'previous', setting compare version to previous benchmarked version..");
+            	compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
+            	log.info("New compare version set to: {}", compareVersion);
+            }
+                 
             if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
                 if (benchmarkVersion.equals(compareVersion)) {
                     log.warn(
