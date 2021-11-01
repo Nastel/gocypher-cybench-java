@@ -93,7 +93,7 @@ Detailed below is a walkthrough of the script above, explaining what each line o
     *  First, a check is made to ensure that compareVersionScores was populated with at least one score, so a comparison can be made
     * `logComparison(logConfigs, benchmarkName, mode);` calls a log method that takes your comparison configurables, the benchmarkName, and the mode currently being looped through in order to give you more log outputs
     * `var percentChange = compareDelta(threshold, range, currentVersionScores, compareVersionScores);`
-      calls a `delta` compare method that has been defined by [exposed methods](#Exposed-methods-for-scripting) mentioned
+      calls a `delta` compare method that has been defined by [exposed methods](#Exposed-methods-for-use) mentioned
       below
         * It compares the current version scores under a specific mode to the previous version scores under the same
           mode. (`currentVersionScores`, `compareVersionScores`)
