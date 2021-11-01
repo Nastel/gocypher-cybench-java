@@ -80,10 +80,7 @@ public class CompareBenchmarks {
         if (scriptPath != null) {
             log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
 
-            ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps);
-            File userScript = cse.loadUserScript(scriptPath);
-            ScriptEngine engine = cse.prepareScriptEngine();
-            cse.runUserScript(engine, userScript);
+            ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps, scriptPath);
         } else {
             if (configPath == null) {
                 log.info("No script or config file specified, looking for comparator.yaml in default location");

@@ -25,7 +25,7 @@ public class ComparatorScriptEngine {
     private ArrayList<String> myFingerprints;
     private Map<String, Object> passedProps;
 
-    public ComparatorScriptEngine(Map<String, String> passedProps) {
+    public ComparatorScriptEngine(Map<String, String> passedProps, String scriptPath) {
         String token = passedProps.get(ConfigHandling.TOKEN);
         String reportPath = passedProps.get(ConfigHandling.REPORT_PATH);
         String method = passedProps.get(ConfigHandling.METHOD);
@@ -35,9 +35,16 @@ public class ComparatorScriptEngine {
         String threshold = passedProps.get(ConfigHandling.THRESHOLD);
         String percentChangeAllowed = passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
         String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
+        
         initiateFetch(token, reportPath);
-        handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed,
-                deviationsAllowed);
+        if (handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed,
+                deviationsAllowed)) {
+	        File userScript = loadUserScript(scriptPath);
+	        ScriptEngine engine = prepareScriptEngine();
+	        runUserScript(engine, userScript);
+        } else {
+        	log.warn("No comparisons can be run with invalid configurations!");
+        }
     }
 
     private void initiateFetch(String token, String reportPath) {
@@ -54,7 +61,7 @@ public class ComparatorScriptEngine {
         myFingerprints = new ArrayList<>(myBenchmarks.keySet());
     }
 
-    private void handleComparatorConfigs(String method, String range, String scope, String compareVersion,
+    private boolean handleComparatorConfigs(String method, String range, String scope, String compareVersion,
             String threshold, String percentChangeAllowed, String deviationsAllowed) {
         Map<String, Object> comparatorProps = new HashMap<>();
         comparatorProps.put(ConfigHandling.DEFAULT_IDENTIFIER_HEADER, ConfigHandling.loadDefaults());
@@ -83,7 +90,10 @@ public class ComparatorScriptEngine {
             passedProps.put(ConfigHandling.DEVIATIONS_ALLOWED, deviationsAllowed);
         }
         comparatorProps.put("MyScript", passedProps);
-        ConfigHandling.checkConfigValidity("MyScript", comparatorProps);
+        
+        if (ConfigHandling.checkConfigValidity("MyScript", comparatorProps))
+        	return true;
+        return false;
     }
 
     public File loadUserScript(String scriptPath) {
