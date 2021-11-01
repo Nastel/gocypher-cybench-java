@@ -112,6 +112,9 @@ forEach.call(myFingerprints, function (fingerprint) {
 
 ### Script Configuration Args
 
+* `FAIL BUILD` passed with `-F` or `-failBuild`
+    * Passed as flag (no variable needed along with the flag)
+    * Specifies whether or not you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
 * `SCRIPT` passed with `-S` or `-scriptPath`
     * Specifies the file path to your script
 * `TOKEN` passed with `-T` or `-token`
@@ -173,12 +176,14 @@ forEach.call(myFingerprints, function (fingerprint) {
 
 * Configuration file [comparator.yaml](config/comparator.yaml)
 * The first two configurations are vital to fetching the previous benchmark scores correctly
-    * `reports:` The location of the CyBench reports folder for your repository
-        * If running the Comparator from the root of your project, `reports: "reports/"` shall suffice as reports are by
+    * `reportPath:` The location of the CyBench reports folder for your repository OR the location of the specific report you want to run Comparator on
+        * If running the Comparator from the root of your project, `reportPath: "reports/"` shall suffice as reports are by
           default generated into `~/reports`
+        * If report folder is passed, Comparator will use the most recent report in the folder
     * `token:` Set this to your CyBench Access token, specifically a 'query' one. You can generate an access token for
       your private workspace on the CyBench website. More details and a guide is
       provided [here](https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-private-workspaces).
+* Additionally, you can pass a `failBuild` variable which will instruct Comparator to fail your build (ie. fail your CI/CD pipeline) in the presence of failed comparisons
 * The following branches of `comparator.yaml` are used for configuring values exclusive to a certain package. i.e. If
   you'd like to test for change in Delta between the last benchmark for one package, and then test for change in average
   compared to ALL previous benchmarks in another package, you can! Multiple branches are defined by `compare.X`
@@ -270,7 +275,12 @@ out `comparator.yaml`
 ```yaml
 ### Property File for Cybench Comparator Tool ###
 
-# reports = location of CyBench reports folder
+# failBuild = whether or not you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
+## Options {true, false} ##
+
+# reportPath = 
+    # location of CyBench reports folder (automatically takes the most recent report) 
+    # OR the location of the specific report you want to run Comparator on
 
 # token = CyBench Access Token with View Permissions
 ### Token can be found on the CyBench site by clicking on your username ###
@@ -309,7 +319,8 @@ out `comparator.yaml`
 ### ex. 5% means the new score should be within 5% of the previous threshold ###
 
 
-reports: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/"
+failBuild: true
+reportPath: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/report-1633702919786-14.35352973095467.cybnech"
 token: "ws_874a4eb4-fzsa-48fb-pr58-g8lwa7820e132_query"
 
 compare.default:
