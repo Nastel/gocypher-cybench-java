@@ -7,6 +7,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gocypher.cybench.CompareBenchmarks;
+
 public final class Comparisons {
     private static final Logger log = LoggerFactory.getLogger(Comparisons.class);
 
@@ -167,9 +169,11 @@ public final class Comparisons {
     public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
         if (Math.abs(deviationsFromMean) < deviationsAllowed) {
             log.info("Passed test");
+            CompareBenchmarks.totalPassedBenchmarks++;
             return true;
         } else {
             log.warn("FAILED test");
+            CompareBenchmarks.totalFailedBenchmarks++;
             return false;
         }
     }
@@ -177,9 +181,11 @@ public final class Comparisons {
     public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
         if (Math.abs(percentChange) < percentageAllowed) {
             log.info("Passed test");
+            CompareBenchmarks.totalPassedBenchmarks++;
             return true;
         } else {
             log.warn("FAILED test");
+            CompareBenchmarks.totalFailedBenchmarks++;
             return false;
         }
     }
@@ -187,9 +193,11 @@ public final class Comparisons {
     public static boolean passAssertionPositive(Double val) {
         if (val >= 0) {
             log.info("Passed test");
+            CompareBenchmarks.totalPassedBenchmarks++;
             return true;
         } else {
             log.warn("FAILED test");
+            CompareBenchmarks.totalFailedBenchmarks++;
             return false;
         }
     }

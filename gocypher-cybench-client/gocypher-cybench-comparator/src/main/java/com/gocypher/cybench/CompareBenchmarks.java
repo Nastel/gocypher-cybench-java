@@ -25,13 +25,14 @@ import com.gocypher.cybench.utils.ConfigHandling;
 
 public class CompareBenchmarks {
     private static final Logger log = LoggerFactory.getLogger(CompareBenchmarks.class);
+    private static int totalComparedBenchmarks = 0;
     private static final Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
-    private static int totalPassedBenchmarks;
+    public static int totalPassedBenchmarks = 0;
     private static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
-    private static int totalFailedBenchmarks;
+    public static int totalFailedBenchmarks = 0;
     
     private static final String AUTO_PASS_KEY = "autoPass";
-
+    
     public static void main(String... args) throws Exception {
         log.info("* Analyzing benchmark performance...");
 
@@ -113,7 +114,6 @@ public class CompareBenchmarks {
         Map<String, Map<String, Map<String, Double>>> recentReports = Requests.getBenchmarksFromReport(accessToken,
                 recentReport);
         if (recentReports != null) {
-            int totalComparedBenchmarks = 0;
             for (Map.Entry<String, Map<String, Map<String, Double>>> repEntry : recentReports.entrySet()) {
                 String benchmarkFingerprint = repEntry.getKey();
                 Map<String, Map<String, Double>> versionsTested = repEntry.getValue();
@@ -134,8 +134,7 @@ public class CompareBenchmarks {
             log.info("compared={}, passed={}, failed={}", totalComparedBenchmarks, totalPassedBenchmarks,
                     totalFailedBenchmarks);
             System.out.print("\n");
-            printBenchmarkResults(totalComparedBenchmarks, totalPassedBenchmarks, passedBenchmarks,
-                    totalFailedBenchmarks, failedBenchmarks, Requests.namesToFingerprints);
+            printBenchmarkResults(Requests.namesToFingerprints);
             if (totalFailedBenchmarks > 0) {
                 String error = "* Build failed due to scores being too low *";
                 log.error(error + "\n");
@@ -198,25 +197,22 @@ public class CompareBenchmarks {
     	data.put(AUTO_PASS_KEY, "true");
     }
 
-    private static void printBenchmarkResults(int totalComparedBenchmarks, int totalPassedBenchmarks,
-            Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks, int totalFailedBenchmarks,
-            Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks,
-            Map<String, String> namesToFingerprints) {
+    private static void printBenchmarkResults(Map<String, String> namesToFingerprints) {
         if (totalPassedBenchmarks > 0) {
-            printBenchmarkResultsHelper("PASSED", totalComparedBenchmarks, totalPassedBenchmarks, passedBenchmarks,
+            printBenchmarkResultsHelper("PASSED", totalPassedBenchmarks, passedBenchmarks,
                     namesToFingerprints);
         }
         System.out.print("\n");
         if (totalFailedBenchmarks > 0) {
-            printBenchmarkResultsHelper("FAILED", totalComparedBenchmarks, totalFailedBenchmarks, failedBenchmarks,
+            printBenchmarkResultsHelper("FAILED", totalFailedBenchmarks, failedBenchmarks,
                     namesToFingerprints);
         }
         System.out.print("\n");
         log.info("* Completed benchmark analysis\n");
     }
 
-    private static void printBenchmarkResultsHelper(String passfail, int totalComparedBenchmarks,
-            int totalBenchmarksToReport, Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarksToReport,
+    private static void printBenchmarkResultsHelper(String passfail,
+    		int totalBenchmarksToReport, Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarksToReport,
             Map<String, String> namesToFingerprints) {
         log.info("** {}/{} benchmarks {}:", totalBenchmarksToReport, totalComparedBenchmarks, passfail);
         for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> brEntry : benchmarksToReport.entrySet()) {
@@ -423,11 +419,6 @@ public class CompareBenchmarks {
 
             boolean pass = Comparisons.passAssertion(COMPARE_VALUE, compareMethod, compareThreshold,
                     percentChangeAllowed, deviationsAllowed);
-            if (pass) {
-                totalPassedBenchmarks++;
-            } else {
-                totalFailedBenchmarks++;
-            }
 
             addPassFailBenchData(pass ? passedBenchmarks : failedBenchmarks, benchmarkScore, COMPARE_VALUE,
                     benchmarkName, benchmarkVersion, benchmarkMode, compareMethod, compareScope, compareRange,
