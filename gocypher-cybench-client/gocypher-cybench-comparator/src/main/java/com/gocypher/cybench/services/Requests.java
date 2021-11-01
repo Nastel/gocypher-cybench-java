@@ -79,21 +79,29 @@ public class Requests {
     		log.info("Attempting to find previous version for {}", fingerprintsToNames.get(benchmarkFingerprint));
     		version = getPreviousVersion(benchmarkFingerprint);
     	}
-        Map<String, List<Double>> val = getBenchmarks(benchmarkFingerprint).get(version);
-        if (val == null) {
-            log.warn("There are no benchmarks for {}, version {}!", fingerprintsToNames.get(benchmarkFingerprint),
-                    version);
+        Map<String, Map<String, List<Double>>> benchmarksByFingerprint = getBenchmarks(benchmarkFingerprint);
+        if (benchmarksByFingerprint != null) {
+        	Map<String, List<Double>> val = benchmarksByFingerprint.get(version);
+        	if (val == null) {
+                log.warn("There are no benchmarks for {}, version {}!", fingerprintsToNames.get(benchmarkFingerprint),
+                        version);
+            }
+        	return val;
         }
-        return val;
+        return null;
     }
 
     public static List<Double> getBenchmarks(String benchmarkFingerprint, String version, String mode) {
-        List<Double> val = getBenchmarks(benchmarkFingerprint, version).get(mode);
-        if (val == null) {
-            log.warn("There are no benchmarks for {}, version {}, mode {}!",
-                    fingerprintsToNames.get(benchmarkFingerprint), version, mode);
-        }
-        return val;
+    	Map<String, List<Double>> benchmarksByVersion = getBenchmarks(benchmarkFingerprint, version);
+    	if (benchmarksByVersion != null) {
+    		List<Double> val = benchmarksByVersion.get(mode);
+    		if (val == null) {
+                log.warn("There are no benchmarks for {}, version {}, mode {}!",
+                        fingerprintsToNames.get(benchmarkFingerprint), version, mode);
+            }
+    		return val;
+    	}
+        return null;
     }
 
     public static Set<String> getReports() {

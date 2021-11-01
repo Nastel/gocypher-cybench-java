@@ -1,20 +1,16 @@
-var currentVersionScores;
-
+// loop through the fingerprints in my report
 forEach.call(myFingerprints, function (fingerprint) {
 	var currentVersion = getCurrentVersion(fingerprint);
-    // get all benchmarks recorded for specified version (possible returns null!)
-    currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    var benchmarkName = myFingerprintsAndNames.get(fingerprint);
+	var benchmarkName = fingerprintsToNames.get(fingerprint);
+	var benchmarkedModes = new ArrayList(myBenchmarks.get(fingerprint).get(currentVersion).keySet());
 
-    if (currentVersionScores != null) {
-        // loop through each benchmarked mode within this version
-        currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
-
-        forEach.call(currentVersionScoreModes, function (mode) {
-            logComparison(logConfigs, benchmarkName, mode);
-            var delta = compareDelta(threshold, range, currentVersionScores.get(mode));
-            var pass = passAssertionPositive(delta);
-        });
-    }
+	// loop through the modes tested within the current version of the fingerprint (current version = version benchmarked with)
+	forEach.call(benchmarkedModes, function (mode) {
+		currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
+		
+		logComparison(logConfigs, benchmarkName, mode);
+        var delta = compareDelta(threshold, range, currentVersionScores);
+        var pass = passAssertionPositive(delta);
+	});
 });
 

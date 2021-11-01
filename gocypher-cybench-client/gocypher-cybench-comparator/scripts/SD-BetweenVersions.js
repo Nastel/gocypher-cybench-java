@@ -1,23 +1,19 @@
-var currentVersionScores;
-var compareVersionScores;
-
+// loop through the fingerprints in my report
 forEach.call(myFingerprints, function (fingerprint) {
 	var currentVersion = getCurrentVersion(fingerprint);
-    // get all benchmarks recorded for specified version (possible returns null!)
-    currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    compareVersionScores = getBenchmarksByVersion(fingerprint, compareVersion);
-    var benchmarkName = myFingerprintsAndNames.get(fingerprint);
-
-    if (currentVersionScores != null && compareVersionScores != null) {
-        currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
-        compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
-
-        forEach.call(currentVersionScoreModes, function (mode) {
-            if (compareVersionScoreModes.contains(mode)) {
-                logComparison(logConfigs, benchmarkName, mode);
-                var deviationsFromMean = compareSD(range, currentVersionScores.get(mode), compareVersionScores.get(mode));
-                var pass = passAssertionPositive(deviationsFromMean);
-            }
-        });
-    }
+	var benchmarkName = fingerprintsToNames.get(fingerprint);
+	var benchmarkedModes = new ArrayList(myBenchmarks.get(fingerprint).get(currentVersion).keySet());
+	
+	// loop through the modes tested within the current version of the fingerprint (current version = version benchmarked with)
+	forEach.call(benchmarkedModes, function (mode) {
+		currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
+		compareVersionScores = getBenchmarksByMode(fingerprint, compareVersion, mode);
+		
+		// check to make sure there are benchmarks to compare to 
+		if (compareVersionScores != null) {
+			logComparison(logConfigs, benchmarkName, mode);
+			var deviationsFromMean = compareSD(range, currentVersionScores, compareVersionScores);
+			var pass = passAssertionPositive(deviationsFromMean);
+		}
+	});
 });
