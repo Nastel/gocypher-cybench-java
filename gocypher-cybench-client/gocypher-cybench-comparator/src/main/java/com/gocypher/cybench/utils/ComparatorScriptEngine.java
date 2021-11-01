@@ -119,6 +119,7 @@ public class ComparatorScriptEngine {
             engine.put(ConfigHandling.THRESHOLD, passedProps.get(ConfigHandling.THRESHOLD));
             engine.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED));
             engine.put(ConfigHandling.DEVIATIONS_ALLOWED, passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED));
+            engine.put(ConfigHandling.COMPARE_VERSION, passedProps.get(ConfigHandling.COMPARE_VERSION));
 
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(getClass().getResourceAsStream("/ComparatorScriptBindings.js")));

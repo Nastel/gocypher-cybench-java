@@ -80,11 +80,15 @@ public final class Comparisons {
     }
 
     public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String mode) {
-        String currentVersion = Requests.getCurrentVersion(Requests.namesToFingerprints.get(benchmarkName));
+    	String benchmarkFingerprint = Requests.namesToFingerprints.get(benchmarkName);
+        String currentVersion = Requests.getCurrentVersion(benchmarkFingerprint);
     	StringBuilder sb = new StringBuilder();
         Method method = (Method) logConfigs.get("method");
         Scope scope = (Scope) logConfigs.get("scope");
         String compareVersion = (String) logConfigs.get("compareVersion");
+        if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
+        	compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
+        }
         sb.append("COMPARISON - {} : {} - {} running {} current version {}");
         if (scope.equals(Scope.BETWEEN)) {
             sb.append(" and version ").append(compareVersion);

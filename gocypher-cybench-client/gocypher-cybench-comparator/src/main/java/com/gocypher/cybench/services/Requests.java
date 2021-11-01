@@ -17,6 +17,8 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gocypher.cybench.utils.ConfigHandling;
+
 public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
 
@@ -73,6 +75,10 @@ public class Requests {
     }
 
     public static Map<String, List<Double>> getBenchmarks(String benchmarkFingerprint, String version) {
+    	if (version.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
+    		log.info("Attempting to find previous version for {}", fingerprintsToNames.get(benchmarkFingerprint));
+    		version = getPreviousVersion(benchmarkFingerprint);
+    	}
         Map<String, List<Double>> val = getBenchmarks(benchmarkFingerprint).get(version);
         if (val == null) {
             log.warn("There are no benchmarks for {}, version {}!", fingerprintsToNames.get(benchmarkFingerprint),

@@ -30,7 +30,7 @@ public class ConfigHandling {
     public static final Comparisons.Threshold DEFAULT_COMPARE_THRESHOLD = Comparisons.Threshold.GREATER;
     public static final Double DEFAULT_DEVIATIONS_ALLOWED = 1.0;
     public static final Double DEFAULT_PERCENTAGE_ALLOWED = 5.0;
-    public static final String DEFAULT_COMPARE_VERSION = "previous";
+    public static final String DEFAULT_COMPARE_VERSION = "PREVIOUS";
 
     // FINAL STRING KEYS
     public static final String TOKEN = "token";
@@ -260,7 +260,8 @@ public class ConfigHandling {
                         }
                     } else {
                         String version = (String) compareVals.get(COMPARE_VERSION);
-                        compareVals.put(COMPARE_VERSION, version);
+                        if (version.toUpperCase().equals(DEFAULT_COMPARE_VERSION))
+                        	compareVals.put(COMPARE_VERSION, DEFAULT_COMPARE_VERSION);
                         log.info("'{}': Will compare to version: {}", simplifiedIdentifier, version);
                     }
                 } else {
