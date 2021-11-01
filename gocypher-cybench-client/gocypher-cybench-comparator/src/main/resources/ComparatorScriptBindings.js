@@ -94,3 +94,16 @@ function passAssertionPercentage(percentChange, percentageAllowed) {
 function passAssertionPositive(val) {
     return Comparisons.passAssertionPositive(val);
 }
+
+
+// returns current version of the fingerprint
+// params: {String}
+function getCurrentVersion(fingerprint) {
+	return Requests.getCurrentVersion(fingerprint);
+}
+
+// returns previous version of the fingerprint
+// params: {String}
+function getPreviousVersion(fingerprint) {
+	return Requests.getPreviousVersion(fingerprint);
+}

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.CompareBenchmarks;
+import com.gocypher.cybench.services.Requests;
 
 public final class Comparisons {
     private static final Logger log = LoggerFactory.getLogger(Comparisons.class);
@@ -79,10 +80,10 @@ public final class Comparisons {
     }
 
     public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String mode) {
-        StringBuilder sb = new StringBuilder();
+        String currentVersion = Requests.getCurrentVersion(Requests.namesToFingerprints.get(benchmarkName));
+    	StringBuilder sb = new StringBuilder();
         Method method = (Method) logConfigs.get("method");
         Scope scope = (Scope) logConfigs.get("scope");
-        String currentVersion = (String) logConfigs.get("currentVersion");
         String compareVersion = (String) logConfigs.get("compareVersion");
         sb.append("COMPARISON - {} : {} - {} running {} current version {}");
         if (scope.equals(Scope.BETWEEN)) {

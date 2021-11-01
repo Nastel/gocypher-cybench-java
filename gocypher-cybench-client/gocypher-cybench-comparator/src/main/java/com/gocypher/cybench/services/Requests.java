@@ -211,6 +211,13 @@ public class Requests {
             if (getLatestVersion(fingerprint) == null || isNewerVersion(version, getLatestVersion(fingerprint))) {
                 setLatestVersion(fingerprint, version);
             }
+            if (getPreviousVersion(fingerprint) == null) {
+            	setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
+            }
+            if(isNewerVersion(getCurrentVersion(fingerprint), version) && 
+            		(isNewerVersion(version, getPreviousVersion(fingerprint)) || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
+            	setPreviousVersion(fingerprint, version);
+            }
         }
         if (!benchTable.get(version).containsKey(mode)) {
             List<Double> testScores = new ArrayList<>();
@@ -238,6 +245,13 @@ public class Requests {
 
         if (getCurrentVersion(fingerprint) == null || isNewerVersion(version, getCurrentVersion(fingerprint))) {
             setCurrentVersion(fingerprint, version);
+        }
+        if (getPreviousVersion(fingerprint) == null) {
+        	setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
+        }
+        if(isNewerVersion(getCurrentVersion(fingerprint), version) && 
+        		(isNewerVersion(version, getPreviousVersion(fingerprint)) || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
+        	setPreviousVersion(fingerprint, version);
         }
     }
 
@@ -306,13 +320,16 @@ public class Requests {
         return recentBenchmarks;
     }
 
-    public static boolean isNewerVersion(String newVersion, String currentVersion) {
-        if (currentVersion.equals(newVersion)) {
+    public static boolean isNewerVersion(String newVersion, String compareVersion) {
+    	if (compareVersion == null) {
+    		return true;
+    	}
+        if (compareVersion.equals(newVersion)) {
             return false;
         }
 
         List<String> newVersionDotSplit = Arrays.asList(newVersion.split("\\."));
-        List<String> currentVersionDotSplit = Arrays.asList(currentVersion.split("\\."));
+        List<String> currentVersionDotSplit = Arrays.asList(compareVersion.split("\\."));
         int currentVersionDotSize = currentVersionDotSplit.size();
 
         for (int i = 0; i < newVersionDotSplit.size(); i++) {
