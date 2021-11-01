@@ -1,20 +1,21 @@
 var currentVersionScores;
-var previousVersionScores;
+var compareVersionScores;
 
 forEach.call(myFingerprints, function (fingerprint) {
+	var currentVersion = getCurrentVersion(fingerprint);
     // get all benchmarks recorded for specified version (possible returns null!)
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
-    previousVersionScores = getBenchmarksByVersion(fingerprint, previousVersion);
+    compareVersionScores = getBenchmarksByVersion(fingerprint, compareVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
 
-    if (currentVersionScores != null && previousVersionScores != null) {
+    if (currentVersionScores != null && compareVersionScores != null) {
         currentVersionScoreModes = new ArrayList(currentVersionScores.keySet());
-        compareVersionScoreModes = new ArrayList(previousVersionScores.keySet());
+        compareVersionScoreModes = new ArrayList(compareVersionScores.keySet());
 
         forEach.call(currentVersionScoreModes, function (mode) {
             if (compareVersionScoreModes.contains(mode)) {
                 logComparison(logConfigs, benchmarkName, mode);
-                var deviationsFromMean = compareSD(range, currentVersionScores.get(mode), previousVersionScores.get(mode));
+                var deviationsFromMean = compareSD(range, currentVersionScores.get(mode), compareVersionScores.get(mode));
                 var pass = passAssertionPositive(deviationsFromMean);
             }
         });

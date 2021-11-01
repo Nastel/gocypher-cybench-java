@@ -1,6 +1,7 @@
 var currentVersionScores;
 
 forEach.call(myFingerprints, function (fingerprint) {
+	var currentVersion = getCurrentVersion(fingerprint);
     // get all benchmarks recorded for specified version (possible returns null!)
     currentVersionScores = getBenchmarksByVersion(fingerprint, currentVersion);
     var benchmarkName = myFingerprintsAndNames.get(fingerprint);
