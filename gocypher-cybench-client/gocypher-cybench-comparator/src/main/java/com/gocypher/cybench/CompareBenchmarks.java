@@ -361,9 +361,9 @@ public class CompareBenchmarks {
                  
             if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
             	if(compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
-                	log.info("Compare Version was set to 'previous', setting compare version to previous benchmarked version..");
-                	compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
-                	log.info("New compare version set to: {}", compareVersion);
+            		compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
+                	log.info("{} - {}: Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version {}", 
+                			benchmarkName, benchmarkMode, compareVersion);
                 }
             	
                 if (benchmarkVersion.equals(compareVersion)) {
