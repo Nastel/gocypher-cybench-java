@@ -74,7 +74,6 @@ Template scripts located in the scripts folder [scripts](scripts/)
       report. `
     * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
       method's name
-    * `compareVersion` - a `String` that contains the version you may have specified to compare to as a passed argument to the main class
     * `logConfigs` - a `HashMap` that contains configurables necessary for logging information (contains most of the arguments passed to the main class); gets passed
       to `logComparison` method
 
