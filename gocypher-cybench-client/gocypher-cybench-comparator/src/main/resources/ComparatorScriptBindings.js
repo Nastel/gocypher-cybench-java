@@ -4,6 +4,21 @@ function logComparison(logConfigs, benchmarkName, mode) {
     return Comparisons.logComparison(logConfigs, benchmarkName, mode);
 }
 
+// depending on compare method set (DELTA / SD), returns (change in value within/between versions OR deviations from mean within/between versions)
+// params: {List<Double>, List<Double> (optional)}
+function compareScores(currentVersionScores, compareVersionScores) {
+	if (!compareVersionScores) {
+        compareVersionScores = new ArrayList(currentVersionScores);
+        // remove new score to have a comparative list
+        compareVersionScores.remove(currentVersionScores.size() - 1);
+    }
+	if (method === Comparisons.Method.DELTA) {
+		return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range);
+	} else {
+		return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range);
+	}
+}
+
 // returns change in value within/between versions
 // params: {Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
 function compareDelta(threshold, range, currentVersionScores, compareVersionScores) {
@@ -75,6 +90,21 @@ function getBenchmarksByVersion(benchmarkFingerprint, version) {
 // params: {String, String, String}
 function getBenchmarksByMode(benchmarkFingerprint, version, mode) {
     return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
+}
+
+// depending on deviationsAllowed test, percentChangeAllowed test, or GREATER test, returns boolean representing a passed test
+// params: {Double}
+function passAssertion(val) {
+	if (method === Comparisons.Method.SD){
+		// val = deviationsFromMean
+		return Comparisons.passAssertionDeviation(val, deviationsAllowed);
+	} else if (threshold === Comparisons.Threshold.PERCENT_CHANGE) {
+		// val = percentChange
+		return Comparisons.passAssertionPercentage(percentChange, percentageAllowed);
+	} else {
+		// val = simple delta value
+		return Comparisons.passAssertionPositive(val);
+	}
 }
 
 // returns boolean that represents whether or not deviationsFromMean is within deviationsAllowed
