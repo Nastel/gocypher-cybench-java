@@ -43,7 +43,7 @@ Dependencies for your project:
 
 | Argument Flag |  `.yaml` Equivalent | Valid Options | Description
 | --- | --- | --- | --- |
-| -f, -failBuild | `failBuild:` | N/A | This argument is unique in that you don't need to pass a value with it. Default value is `false`, meaning your build will **not** fail even if one more multiple benchmark comparison tests fail. By passing the (-f) flag, this value gets set to `true`, meaning your build **will** fail if even just one benchmark comparison test fails. | 
+| -F, -failBuild | `failBuild:` | N/A | This argument is unique in that you don't need to pass a value with it. Default value is `false`, meaning your build will **not** fail even if one more multiple benchmark comparison tests fail. By passing the (-f) flag, this value gets set to `true`, meaning your build **will** fail if even just one benchmark comparison test fails. | 
 | -C, -configPath | N/A | An existing `comparator.yaml` config file | Allows you to forgo scripting and specify the path of a valid `comparator.yaml` configuration file | 
 | -S, -scriptPath | N/A | An existing `.js` script | Specify file path/name of the script | 
 | -T, -token | `token:` | An existing CyBench query access token | Specify your CyBench Workspace's query access token | 
