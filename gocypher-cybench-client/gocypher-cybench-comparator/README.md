@@ -74,8 +74,6 @@ Template scripts located in the scripts folder [scripts](scripts/)
       report. `
     * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
       method's name
-    * `logConfigs` - a `HashMap` that contains configurables necessary for logging information (contains most of the arguments passed to the main class); gets passed
-      to `logComparison` method
 
 The configuration arguments you pass via command line or build instructions (
 see: [Configuration Args](#configuration-args)) are also accessible:
@@ -153,7 +151,7 @@ forEach.call(myFingerprints, function (fingerprint) {
 
         // check to make sure there are benchmarks to compare to
         if (compareVersionScores != null) {
-            logComparison(logConfigs, benchmarkName, mode);
+            logComparison(benchmarkName, mode);
             var percentChange = compareScores(currentVersionScores, compareVersionScores);
             var pass = passAssertion(percentChange);
         }
@@ -185,8 +183,8 @@ the background as you execute the script.
 * Next come the comparisons and assertions
     * First, a check is made to ensure that compareVersionScores was populated with at least one score, so a comparison
       can be made
-    * `logComparison(logConfigs, benchmarkName, mode);` calls a log method that takes your comparison configurables, the
-      benchmarkName, and the mode currently being looped through in order to give you more log outputs
+    * `logComparison(benchmarkName, mode);` calls a log method that takes the
+      benchmarkName and the mode currently being looped through in order to give you more log outputs
     * `var percentChange = compareScores(currentVersionScores, compareVersionScores);`
       calls a generalized compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
       below
