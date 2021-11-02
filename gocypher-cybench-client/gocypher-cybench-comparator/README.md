@@ -69,7 +69,7 @@ Template scripts located in the scripts folder [scripts](scripts/)
   variables accessible in the scripts:
     * `myBenchmarks` - a Java `Map` of all the benchmarks from your report. `myBenchmarks` is
       a `Map<String, Map<String, Map<String, Double>>>` object, which maps
-      to `<Benchmark Fingerprint: <Version : : <Mode : <Score>>>`
+      to `<Benchmark Fingerprint: <Version : <Mode : <Score>>>`
     * `myFingerprints` - an `ArrayList<String>` that contains every method's unique CyBench fingerprints in your
       report. `
     * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
