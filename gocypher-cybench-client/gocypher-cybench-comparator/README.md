@@ -195,7 +195,7 @@ the background as you execute the script.
     * `var pass = passAssertionPercentage(percentChange, percentChangeAllowed);` calls an assertion method that checks
       to see if the calculated `percent_change` is within the `percentChangeAllowed` (-p) specified by
       you. `percentChangeAllowed` is another argument that you pass through the command line.
-* **NOTE:** As a reminder, a table of [passable arguments](#script-configuration-args)
+* **NOTE:** As a reminder, a table of [passable arguments](#configuration-args)
   and [exposed methods](#exposed-methods-for-use) can be found below in their corresponding sections.
   
 
