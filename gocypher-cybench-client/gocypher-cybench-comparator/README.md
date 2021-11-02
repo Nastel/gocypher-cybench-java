@@ -142,7 +142,7 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 forEach.call(myFingerprints, function (fingerprint) {
     var currentVersion = getCurrentVersion(fingerprint);
     var benchmarkName = fingerprintsToNames.get(fingerprint);
-    var benchmarkedModes = new ArrayList(myBenchmarks.get(fingerprint).get(currentVersion).keySet());
+    var benchmarkedModes = getRecentlyBenchmarkedModes(fingerprint, currentVersion);
 
     // loop through the modes tested within the current version of the fingerprint (current version = version benchmarked with)
     forEach.call(benchmarkedModes, function (mode) {
@@ -169,10 +169,8 @@ the background as you execute the script.
       variable `currentVersion`. The variable `fingerprint` is automatically set for you in the background.
     * The next line sets `benchmarkName` to the method name corresponding to the given fingerprint, it reads from
       the `fingerprintsToNames` HashMap.
-    * After that, we create an ArrayList `benchmarkedModes`, which stores the modes benchmarked. This ArrayList is
-      populated by accessing the mode keySet of variable `myBenchmarks`, by specifying the `fingerprint`
-      and `currentVersion`.
-    * **NOTE:** `fingerprint` and `myBenchmarks` are automatically defined for you, you do not have to set them
+    * After that, we call a function `getRecentlyBenchmarkedModes` that grabs an ArrayList `benchmarkedModes`, which contains the modes benchmarked by the specific fingerprint in the recent report.
+    * **NOTE:** `myBenchmarks` is automatically defined for you, you do not have to set it
       manually.
 * After these variables are set, another loop is ran that cycles through the modes tested within the current version
     * Two `List<Double>` objects are created, `currentVersionScores` and `compareVersionScores`. These lists of scores
@@ -213,6 +211,7 @@ the background as you execute the script.
 * `logComparison` will allow you to receive more log output regarding what is being tested during comparison runs
 * `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different ways
   to access the benchmarks stored in `Java Maps`
+* `getRecentlyBenchmarkedModes` will allow you to grab the modes benchmarked by the passed fingerprint and the version (currentVersion). It grabs from myBenchmarks which contains benchmark information from only your recent report (not including fetched information).  
 * `getCurrentVerison` and `getPreviousVersion` are methods that return version Strings of the fingerprint being compared. Current Version represents the current version of the fingerprint being benchmarked, and previous version will be passed back as the most previous version found in the fingerprint fetch based on dot notation. It is possible previous version returns null.
 * `compareScores` is a generalized compare method which collects information from the command line flag arguments to decide which comparison method to run, for more specific comparisons, you can use the functions below
 * `compareDelta` and `compareSD` are specific compare methods you can call with your scores that run all calculations behind the

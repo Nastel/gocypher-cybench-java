@@ -6,7 +6,7 @@
 forEach.call(myFingerprints, function (fingerprint) {
     var currentVersion = getCurrentVersion(fingerprint);
     var benchmarkName = fingerprintsToNames.get(fingerprint);
-    var benchmarkedModes = new ArrayList(myBenchmarks.get(fingerprint).get(currentVersion).keySet());
+    var benchmarkedModes = getRecentlyBenchmarkedModes(fingerprint, currentVersion);
 
     // loop through the modes tested within the current version of the fingerprint (current version = version benchmarked with)
     forEach.call(benchmarkedModes, function (mode) {

@@ -92,6 +92,13 @@ function getBenchmarksByMode(benchmarkFingerprint, version, mode) {
     return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
 }
 
+// returns all the recently benchmarked modes within the current report by the passed fingerprint
+// List represents list of modes 
+// params: {String, String}
+function getRecentlyBenchmarkedModes(benchmarkFingerprint, currentVersion) {
+	return new ArrayList(myBenchmarks.get(benchmarkFingerprint).get(currentVersion).keySet());
+}
+
 // depending on deviationsAllowed test, percentChangeAllowed test, or GREATER test, returns boolean representing a passed test
 // params: {Double}
 function passAssertion(val) {
