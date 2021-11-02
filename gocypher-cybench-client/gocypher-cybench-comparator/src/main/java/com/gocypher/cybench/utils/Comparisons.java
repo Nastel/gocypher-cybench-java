@@ -80,14 +80,14 @@ public final class Comparisons {
     }
 
     public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String mode) {
-    	String benchmarkFingerprint = Requests.namesToFingerprints.get(benchmarkName);
+        String benchmarkFingerprint = Requests.namesToFingerprints.get(benchmarkName);
         String currentVersion = Requests.getCurrentVersion(benchmarkFingerprint);
-    	StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         Method method = (Method) logConfigs.get("method");
         Scope scope = (Scope) logConfigs.get("scope");
         String compareVersion = (String) logConfigs.get("compareVersion");
         if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
-        	compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
+            compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
         }
         sb.append("COMPARISON - {} : {} - {} running {} current version {}");
         if (scope.equals(Scope.BETWEEN)) {
@@ -171,7 +171,7 @@ public final class Comparisons {
     }
 
     public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-    	CompareBenchmarks.totalComparedBenchmarks++;
+        CompareBenchmarks.totalComparedBenchmarks++;
         if (Math.abs(deviationsFromMean) < deviationsAllowed) {
             log.info("Passed test");
             CompareBenchmarks.totalPassedBenchmarks++;
@@ -184,7 +184,7 @@ public final class Comparisons {
     }
 
     public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
-    	CompareBenchmarks.totalComparedBenchmarks++;
+        CompareBenchmarks.totalComparedBenchmarks++;
         if (Math.abs(percentChange) < percentageAllowed) {
             log.info("Passed test");
             CompareBenchmarks.totalPassedBenchmarks++;
@@ -197,7 +197,7 @@ public final class Comparisons {
     }
 
     public static boolean passAssertionPositive(Double val) {
-    	CompareBenchmarks.totalComparedBenchmarks++;
+        CompareBenchmarks.totalComparedBenchmarks++;
         if (val >= 0) {
             log.info("Passed test");
             CompareBenchmarks.totalPassedBenchmarks++;

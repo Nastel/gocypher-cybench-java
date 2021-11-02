@@ -36,15 +36,15 @@ public class ComparatorScriptEngine {
         String threshold = passedProps.get(ConfigHandling.THRESHOLD);
         String percentChangeAllowed = passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
         String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
-        
+
         initiateFetch(token, reportPath);
         if (handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed,
                 deviationsAllowed)) {
-	        File userScript = loadUserScript(scriptPath);
-	        ScriptEngine engine = prepareScriptEngine();
-	        runUserScript(engine, userScript);
+            File userScript = loadUserScript(scriptPath);
+            ScriptEngine engine = prepareScriptEngine();
+            runUserScript(engine, userScript);
         } else {
-        	log.warn("No comparisons can be run with invalid configurations!");
+            log.warn("No comparisons can be run with invalid configurations!");
         }
     }
 
@@ -91,10 +91,8 @@ public class ComparatorScriptEngine {
             passedProps.put(ConfigHandling.DEVIATIONS_ALLOWED, deviationsAllowed);
         }
         comparatorProps.put("MyScript", passedProps);
-        
-        if (ConfigHandling.checkConfigValidity("MyScript", comparatorProps))
-        	return true;
-        return false;
+
+        return ConfigHandling.checkConfigValidity("MyScript", comparatorProps);
     }
 
     private File loadUserScript(String scriptPath) {
@@ -140,14 +138,14 @@ public class ComparatorScriptEngine {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         logPassFailData();
     }
-    
+
     private void logPassFailData() throws Exception {
-    	System.out.print("\n");
-        log.info("compared={}, passed={}, failed={}", CompareBenchmarks.totalComparedBenchmarks, CompareBenchmarks.totalPassedBenchmarks,
-        		CompareBenchmarks.totalFailedBenchmarks);
+        System.out.print("\n");
+        log.info("compared={}, passed={}, failed={}", CompareBenchmarks.totalComparedBenchmarks,
+                CompareBenchmarks.totalPassedBenchmarks, CompareBenchmarks.totalFailedBenchmarks);
         System.out.print("\n");
         CompareBenchmarks.buildFailureCheck();
     }

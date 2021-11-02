@@ -1,7 +1,10 @@
 # gocypher-cybench-comparator
 
 This app is designed to compare recent CyBench reports in your project to previously ran CyBench benchmarks hosted on
-the CyBench site. The following README information will help you get started in understanding and using the CyBench Comparator. For a more in-depth overview, review the [Comparator Page](https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-Comparator) on the [CyBench Wiki](https://github.com/K2NIO/gocypher-cybench-java/wiki)
+the CyBench site. The following README information will help you get started in understanding and using the CyBench
+Comparator. For a more in-depth overview, review
+the [Comparator Page](https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-Comparator) on
+the [CyBench Wiki](https://github.com/K2NIO/gocypher-cybench-java/wiki)
 
 Dependencies for your project:
 
@@ -40,73 +43,105 @@ Template scripts located in the scripts folder [scripts](scripts/)
 * The CyBench Comparator tool allows you to build your own customized .js files that hit benchmark fetch methods,
   comparison methods, and assertion methods.
     * This allows you more flexibility in what you do with your benchmark scores and comparison statistics.
-* Certain variables are required for the Comparator to work. When you use a custom script, these variables are already set for you. Benchmarks are fetched in the background immediately once configuration arguments are passed to the main class. Refer to the [exposed methods](#Exposed-methods-for-use) section to view accessible methods. Below is a list of variables accessible in the scripts:
-  * `myBenchmarks` - a Java `Map` of all the benchmarks from your report. `myBenchmarks` is a `Map<String, Map<String, Map<String, Double>>>` object, which maps to `<Benchmark Fingerprint: <Version : : <Mode : <Score>>>`
-  * `myFingerprints` - an `ArrayList<String>` that contains every method's unique CyBench fingerprints in your report. `
-  * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding method's name
-  * `compareVersion` - a `String` that contains the previous version to `currentVersion`, if a previous version exists
-  * `logConfigs` - a `HashMap` that contains configurables necessary for logging information; gets passed to `logComparison` method
+* Certain variables are required for the Comparator to work. When you use a custom script, these variables are already
+  set for you. Benchmarks are fetched in the background immediately once configuration arguments are passed to the main
+  class. Refer to the [exposed methods](#exposed-methods-for-use) section to view accessible methods. Below is a list of
+  variables accessible in the scripts:
+    * `myBenchmarks` - a Java `Map` of all the benchmarks from your report. `myBenchmarks` is
+      a `Map<String, Map<String, Map<String, Double>>>` object, which maps
+      to `<Benchmark Fingerprint: <Version : : <Mode : <Score>>>`
+    * `myFingerprints` - an `ArrayList<String>` that contains every method's unique CyBench fingerprints in your
+      report. `
+    * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
+      method's name
+    * `compareVersion` - a `String` that contains the previous version to `currentVersion`, if a previous version exists
+    * `logConfigs` - a `HashMap` that contains configurables necessary for logging information; gets passed
+      to `logComparison` method
 
-The configuration arguments you pass via command line or build instructions (see: [Script Configuration Args](#Script-Configuration-Args)) are also accessible:
-  * `method` - the comparison method to be used
-  * `scope` - comparing between or within versions
-  * `range` - the amount of scores to compare to
-  * `threshold` - specify what constitues a pass/fail in your test
-  * `percentChangeAllowed` - used with threshold `percent_change`, dictates how much percent change is allowed to pass/fail the test
-  * `deviationsAllowed` - used with `SD` `method` of comparison, amount of deviations allowed from the mean to pass/fail the test
-  * `compareVersion` - used when scope is `BETWEEN`, the version to compare to
+The configuration arguments you pass via command line or build instructions (
+see: [Script Configuration Args](#script-configuration-args)) are also accessible:
+
+* `method` - the comparison method to be used
+* `scope` - comparing between or within versions
+* `range` - the amount of scores to compare to
+* `threshold` - specify what constitutes a pass/fail in your test
+* `percentChangeAllowed` - used with threshold `percent_change`, dictates how much percent change is allowed to
+  pass/fail the test
+* `deviationsAllowed` - used with `SD` `method` of comparison, amount of deviations allowed from the mean to pass/fail
+  the test
+* `compareVersion` - used when scope is `BETWEEN`, the version to compare to
 
 ## Example Script
+
 ```javascript
 forEach.call(myFingerprints, function (fingerprint) {
-	var currentVersion = getCurrentVersion(fingerprint);
-	var benchmarkName = fingerprintsToNames.get(fingerprint);
-	var benchmarkedModes = new ArrayList(myBenchmarks.get(fingerprint).get(currentVersion).keySet());
+    var currentVersion = getCurrentVersion(fingerprint);
+    var benchmarkName = fingerprintsToNames.get(fingerprint);
+    var benchmarkedModes = new ArrayList(myBenchmarks.get(fingerprint).get(currentVersion).keySet());
 
-	// loop through the modes tested within the current version of the fingerprint (current version = version benchmarked with)
-	forEach.call(benchmarkedModes, function (mode) {
-		currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
-		compareVersionScores = getBenchmarksByMode(fingerprint, compareVersion, mode);
-		
-		// check to make sure there are benchmarks to compare to 
-		if (compareVersionScores != null) {
-			logComparison(logConfigs, benchmarkName, mode);
-			var percentChange = compareDelta(threshold, range, currentVersionScores, compareVersionScores);
-			var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
-		}
-	});
+    // loop through the modes tested within the current version of the fingerprint (current version = version benchmarked with)
+    forEach.call(benchmarkedModes, function (mode) {
+        currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
+        compareVersionScores = getBenchmarksByMode(fingerprint, compareVersion, mode);
+
+        // check to make sure there are benchmarks to compare to 
+        if (compareVersionScores != null) {
+            logComparison(logConfigs, benchmarkName, mode);
+            var percentChange = compareDelta(threshold, range, currentVersionScores, compareVersionScores);
+            var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
+        }
+    });
 });
 ```
-Detailed below is a walkthrough of the script above, explaining what each line of code means, and what is happening in the background as you execute the script.
+
+Detailed below is a walkthrough of the script above, explaining what each line of code means, and what is happening in
+the background as you execute the script.
 
 ### Template Walkthrough
-            
+
 * First, we loop through the fingerprints for each report
-    * `getCurrentVersion(fingerprint)` is called first to establish the current version and set it to a variable `currentVersion`. The variable `fingerprint` is automatically set for you in the background.
-    * The next line sets `benchmarkName` to the method name corresponding to the given fingerprint, it reads from the `fingerprintsToNames` HashMap.
-    * After that, we create an ArrayList `benchmarkedModes`, which stores the modes benchmarked. This ArrayList is populated by accessing the mode keySet of variable `myBenchmarks`, by specifying the `fingerprint` and `currentVersion`. 
-    * **NOTE:** `fingerprint` and `myBenchmarks` are automatically defined for you, you do not have to set them manually. 
+    * `getCurrentVersion(fingerprint)` is called first to establish the current version and set it to a
+      variable `currentVersion`. The variable `fingerprint` is automatically set for you in the background.
+    * The next line sets `benchmarkName` to the method name corresponding to the given fingerprint, it reads from
+      the `fingerprintsToNames` HashMap.
+    * After that, we create an ArrayList `benchmarkedModes`, which stores the modes benchmarked. This ArrayList is
+      populated by accessing the mode keySet of variable `myBenchmarks`, by specifying the `fingerprint`
+      and `currentVersion`.
+    * **NOTE:** `fingerprint` and `myBenchmarks` are automatically defined for you, you do not have to set them
+      manually.
 * After these variables are set, another loop is ran that cycles through the modes tested within the current version
-    * Two `List<Double>` objects are created, `currentVersionScores` and `compareVersionScores`. These lists of scores get populated via multiple calls of `getBenchmarksByMode(fingerprint, currentVersion/compareVersion, mode)`
-    * **NOTE:** While `currentVersion` is set within the script, `compareVersion` has to be passed via arguments. The default compare version is the previous version of `currentVersion`. You can pass the compare version with the (-v) flag. 
+    * Two `List<Double>` objects are created, `currentVersionScores` and `compareVersionScores`. These lists of scores
+      get populated via multiple calls of `getBenchmarksByMode(fingerprint, currentVersion/compareVersion, mode)`
+    * **NOTE:** While `currentVersion` is set within the script, `compareVersion` has to be passed via arguments. The
+      default compare version is the previous version of `currentVersion`. You can pass the compare version with the (
+      -v) flag.
 * Next come the comparisons and assertions
-    *  First, a check is made to ensure that compareVersionScores was populated with at least one score, so a comparison can be made
-    * `logComparison(logConfigs, benchmarkName, mode);` calls a log method that takes your comparison configurables, the benchmarkName, and the mode currently being looped through in order to give you more log outputs
+    * First, a check is made to ensure that compareVersionScores was populated with at least one score, so a comparison
+      can be made
+    * `logComparison(logConfigs, benchmarkName, mode);` calls a log method that takes your comparison configurables, the
+      benchmarkName, and the mode currently being looped through in order to give you more log outputs
     * `var percentChange = compareDelta(threshold, range, currentVersionScores, compareVersionScores);`
-      calls a `delta` compare method that has been defined by [exposed methods](#Exposed-methods-for-use) mentioned
+      calls a `delta` compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
       below
         * It compares the current version scores under a specific mode to the previous version scores under the same
           mode. (`currentVersionScores`, `compareVersionScores`)
-        * Threshold ('threshold') is an argument that is passed, similar to `compareVersion`. It is passed via the (-t) flag. In this example, threshold was set to `percent_change` which will allow the test to pass even if it performs slower, as long as it is within a given `percentChangeAllowed` (-p)
-        * Range (`range`) is an argument that is passed, similar to `compareVersion`. It is passed via the (-r) flag. The default range is `1` which means in this example, we are looking at the last (most recent) value of `currentVersionScores` and comparing it to the most recent score in `compareVersionScores`
-    * `var pass = passAssertionPercentage(percentChange, percentChangeAllowed);` calls an assertion method that checks to see if the calculated `percent_change` is within the `percentChangeAllowed` (-p) specified by you. `percentChangeAllowed` is another argument that you pass through the command line.
-* **NOTE:** As a reminder, a table of [passable arguments](#Script-Configuration-Args) and [exposed methods](#Exposed-methods-for-use) can be found below in their corresponding sections.
+        * Threshold ('threshold') is an argument that is passed, similar to `compareVersion`. It is passed via the (-t)
+          flag. In this example, threshold was set to `percent_change` which will allow the test to pass even if it
+          performs slower, as long as it is within a given `percentChangeAllowed` (-p)
+        * Range (`range`) is an argument that is passed, similar to `compareVersion`. It is passed via the (-r) flag.
+          The default range is `1` which means in this example, we are looking at the last (most recent) value
+          of `currentVersionScores` and comparing it to the most recent score in `compareVersionScores`
+    * `var pass = passAssertionPercentage(percentChange, percentChangeAllowed);` calls an assertion method that checks
+      to see if the calculated `percent_change` is within the `percentChangeAllowed` (-p) specified by
+      you. `percentChangeAllowed` is another argument that you pass through the command line.
+* **NOTE:** As a reminder, a table of [passable arguments](#script-configuration-args)
+  and [exposed methods](#exposed-methods-for-use) can be found below in their corresponding sections.
 
 ## Script Configuration Args
 
 * `FAIL BUILD` passed with `-F` or `-failBuild`
     * Passed as flag (no variable needed along with the flag)
-    * Specifies whether or not you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
+    * Specifies whether you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
 * `SCRIPT` passed with `-S` or `-scriptPath`
     * Specifies the file path to your script
 * `TOKEN` passed with `-T` or `-token`
@@ -168,14 +203,16 @@ Detailed below is a walkthrough of the script above, explaining what each line o
 
 * Configuration file [comparator.yaml](config/comparator.yaml)
 * The first two configurations are vital to fetching the previous benchmark scores correctly
-    * `reportPath:` The location of the CyBench reports folder for your repository OR the location of the specific report you want to run Comparator on
-        * If running the Comparator from the root of your project, `reportPath: "reports/"` shall suffice as reports are by
-          default generated into `~/reports`
+    * `reportPath:` The location of the CyBench reports folder for your repository OR the location of the specific
+      report you want to run Comparator on
+        * If running the Comparator from the root of your project, `reportPath: "reports/"` shall suffice as reports are
+          by default generated into `~/reports`
         * If report folder is passed, Comparator will use the most recent report in the folder
     * `token:` Set this to your CyBench Access token, specifically a 'query' one. You can generate an access token for
       your private workspace on the CyBench website. More details and a guide is
       provided [here](https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-private-workspaces).
-* Additionally, you can pass a `failBuild` variable which will instruct Comparator to fail your build (ie. fail your CI/CD pipeline) in the presence of failed comparisons
+* Additionally, you can pass a `failBuild` variable which will instruct Comparator to fail your build (ie. fail your
+  CI/CD pipeline) in the presence of failed comparisons
 * The following branches of `comparator.yaml` are used for configuring values exclusive to a certain package. i.e. If
   you'd like to test for change in Delta between the last benchmark for one package, and then test for change in average
   compared to ALL previous benchmarks in another package, you can! Multiple branches are defined by `compare.X`
@@ -271,8 +308,8 @@ out `comparator.yaml`
 ## Options {true, false} ##
 
 # reportPath = 
-    # location of CyBench reports folder (automatically takes the most recent report) 
-    # OR the location of the specific report you want to run Comparator on
+# location of CyBench reports folder (automatically takes the most recent report) 
+# OR the location of the specific report you want to run Comparator on
 
 # token = CyBench Access Token with View Permissions
 ### Token can be found on the CyBench site by clicking on your username ###

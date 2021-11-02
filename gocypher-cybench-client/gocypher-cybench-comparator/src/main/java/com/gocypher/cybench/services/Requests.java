@@ -75,32 +75,32 @@ public class Requests {
     }
 
     public static Map<String, List<Double>> getBenchmarks(String benchmarkFingerprint, String version) {
-    	if (version.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
-    		log.info("Attempting to find previous version for {}", fingerprintsToNames.get(benchmarkFingerprint));
-    		version = getPreviousVersion(benchmarkFingerprint);
-    	}
+        if (version.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
+            log.info("Attempting to find previous version for {}", fingerprintsToNames.get(benchmarkFingerprint));
+            version = getPreviousVersion(benchmarkFingerprint);
+        }
         Map<String, Map<String, List<Double>>> benchmarksByFingerprint = getBenchmarks(benchmarkFingerprint);
         if (benchmarksByFingerprint != null) {
-        	Map<String, List<Double>> val = benchmarksByFingerprint.get(version);
-        	if (val == null) {
+            Map<String, List<Double>> val = benchmarksByFingerprint.get(version);
+            if (val == null) {
                 log.warn("There are no benchmarks for {}, version {}!", fingerprintsToNames.get(benchmarkFingerprint),
                         version);
             }
-        	return val;
+            return val;
         }
         return null;
     }
 
     public static List<Double> getBenchmarks(String benchmarkFingerprint, String version, String mode) {
-    	Map<String, List<Double>> benchmarksByVersion = getBenchmarks(benchmarkFingerprint, version);
-    	if (benchmarksByVersion != null) {
-    		List<Double> val = benchmarksByVersion.get(mode);
-    		if (val == null) {
+        Map<String, List<Double>> benchmarksByVersion = getBenchmarks(benchmarkFingerprint, version);
+        if (benchmarksByVersion != null) {
+            List<Double> val = benchmarksByVersion.get(mode);
+            if (val == null) {
                 log.warn("There are no benchmarks for {}, version {}, mode {}!",
                         fingerprintsToNames.get(benchmarkFingerprint), version, mode);
             }
-    		return val;
-    	}
+            return val;
+        }
         return null;
     }
 
@@ -226,11 +226,12 @@ public class Requests {
                 setLatestVersion(fingerprint, version);
             }
             if (getPreviousVersion(fingerprint) == null) {
-            	setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
+                setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
             }
-            if(isNewerVersion(getCurrentVersion(fingerprint), version) && 
-            		(isNewerVersion(version, getPreviousVersion(fingerprint)) || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
-            	setPreviousVersion(fingerprint, version);
+            if (isNewerVersion(getCurrentVersion(fingerprint), version)
+                    && (isNewerVersion(version, getPreviousVersion(fingerprint))
+                            || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
+                setPreviousVersion(fingerprint, version);
             }
         }
         if (!benchTable.get(version).containsKey(mode)) {
@@ -261,11 +262,12 @@ public class Requests {
             setCurrentVersion(fingerprint, version);
         }
         if (getPreviousVersion(fingerprint) == null) {
-        	setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
+            setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
         }
-        if(isNewerVersion(getCurrentVersion(fingerprint), version) && 
-        		(isNewerVersion(version, getPreviousVersion(fingerprint)) || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
-        	setPreviousVersion(fingerprint, version);
+        if (isNewerVersion(getCurrentVersion(fingerprint), version)
+                && (isNewerVersion(version, getPreviousVersion(fingerprint))
+                        || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
+            setPreviousVersion(fingerprint, version);
         }
     }
 
@@ -335,9 +337,9 @@ public class Requests {
     }
 
     public static boolean isNewerVersion(String newVersion, String compareVersion) {
-    	if (compareVersion == null) {
-    		return true;
-    	}
+        if (compareVersion == null) {
+            return true;
+        }
         if (compareVersion.equals(newVersion)) {
             return false;
         }

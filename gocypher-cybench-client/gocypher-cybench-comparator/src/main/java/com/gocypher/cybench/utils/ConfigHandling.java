@@ -98,18 +98,18 @@ public class ConfigHandling {
     }
 
     public static void configHandling(Map<String, Object> comparatorProps) {
-    	if (comparatorProps.containsKey(FAIL_BUILD_FLAG)) {
-    		if (comparatorProps.get(FAIL_BUILD_FLAG).equals(true)) {
-    			log.warn("Build will fail if any benchmark comparison assertions fail\n");
-        		CompareBenchmarks.failBuildFlag = true;
-    		}
-    	}
-    	
+        if (comparatorProps.containsKey(FAIL_BUILD_FLAG)) {
+            if (comparatorProps.get(FAIL_BUILD_FLAG).equals(true)) {
+                log.warn("Build will fail if any benchmark comparison assertions fail\n");
+                CompareBenchmarks.failBuildFlag = true;
+            }
+        }
+
         if (!comparatorProps.containsKey(REPORT_PATH)) {
             log.warn("Reports key not passed - using default reports location: {}", DEFAULT_REPORTS_LOCATION);
             comparatorProps.put(REPORT_PATH, DEFAULT_REPORTS_LOCATION);
         }
-        
+
         if (!comparatorProps.containsKey(TOKEN)) {
             log.warn("Token key not passed - will not be able to access private workspaces");
             comparatorProps.put(TOKEN, DEFAULT_TOKEN);
@@ -272,8 +272,9 @@ public class ConfigHandling {
                         }
                     } else {
                         String version = (String) compareVals.get(COMPARE_VERSION);
-                        if (version.toUpperCase().equals(DEFAULT_COMPARE_VERSION))
-                        	compareVals.put(COMPARE_VERSION, DEFAULT_COMPARE_VERSION);
+                        if (version.equalsIgnoreCase(DEFAULT_COMPARE_VERSION)) {
+                            compareVals.put(COMPARE_VERSION, DEFAULT_COMPARE_VERSION);
+                        }
                         log.info("'{}': Will compare to version: {}", simplifiedIdentifier, version);
                     }
                 } else {
