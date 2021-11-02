@@ -71,7 +71,7 @@ Template scripts located in the scripts folder [scripts](scripts/)
       a `Map<String, Map<String, Map<String, Double>>>` object, which maps
       to `<Benchmark Fingerprint: <Version : <Mode : <Score>>>`
     * `myFingerprints` - an `ArrayList<String>` that contains every method's unique CyBench fingerprints in your
-      report. `
+      report.
     * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
       method's name
 
