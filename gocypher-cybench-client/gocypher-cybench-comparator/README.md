@@ -54,8 +54,8 @@ Template scripts located in the scripts folder [scripts](scripts/)
       report. `
     * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
       method's name
-    * `compareVersion` - a `String` that contains the previous version to `currentVersion`, if a previous version exists
-    * `logConfigs` - a `HashMap` that contains configurables necessary for logging information; gets passed
+    * `compareVersion` - a `String` that contains the version you may have specified to compare to as a passed argument to the main class
+    * `logConfigs` - a `HashMap` that contains configurables necessary for logging information (contains most of the arguments passed to the main class); gets passed
       to `logComparison` method
 
 The configuration arguments you pass via command line or build instructions (
@@ -71,7 +71,48 @@ see: [Script Configuration Args](#script-configuration-args)) are also accessibl
   the test
 * `compareVersion` - used when scope is `BETWEEN`, the version to compare to
 
-## Example Script
+
+### Script Configuration Args
+
+* `FAIL BUILD` passed with `-F` or `-failBuild`
+    * Passed as flag (no variable needed along with the flag)
+    * Specifies whether you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
+* `SCRIPT` passed with `-S` or `-scriptPath`
+    * Specifies the file path to your script
+* `TOKEN` passed with `-T` or `-token`
+    * Specifies your CyBench query access token
+* `REPORT` passed with `-R` or `-reportPath`
+    * Specifies the report you want to analyze and run comparisons on, this can be the path to a single report, or the
+      path to the full report directory (in which case the most recently ran report will be used)
+* `SCOPE` passed with `-s` or `-scope`
+    * Options: `WITHIN` or `BETWEEN`
+    * Comparator gives you the ability to compare WITHIN or BETWEEN (current and previous) versions
+* `RANGE` passed with `-r` or `-range`
+    * Options: `ALL` or any Integer value
+    * You can specify the amount of values you want to compare to. This can be any integer, or the String `ALL` to
+      compare against all possible values in the version. There is handling behind the scenes if your range is too high
+        * If it is too high, Comparator will compare against as many values as possible and treat range as `ALL`
+    * If range is `1`, then only the last value will be compared to
+        * If range is higher than 1, then the mean of the last X specified values will be taken and used for comparison
+* `METHOD` passed with `-m` or `-method`
+    * Options: `MEAN` or `SD`
+    * The comparison methods you have access to are delta methods and standard deviations methods
+        * For standard deviation methods, you can specify a `deviationsAllowed` for assertions. This will check to make
+          sure the new score is within that amount of deviations from the mean of the scores being compared to
+            * `DEVIATIONS ALLOWED` passed with `-d` or `-deviationsAllowed`
+            * Options: Any Double value
+        * For delta methods, you can specify a `threshold`
+            * `THRESHOLD` passed with `-t` or `-threshold`
+            * Options: `GREATER` or `PERCENT_CHANGE`
+            * `GREATER` will be used for tests in which you want raw score comparisons and strict deltas
+            * `PERCENT_CHANGE` will be used for tests in which you want to measure the percent change of the score in
+              comparison to the compare to scores
+                * If you choose to use these methods, you can use a `percentChangeAllowed` variable to run assertions
+                  and make sure your new score is within X percent of the compared to scores
+                    * `PERCENT CHANGE ALLOWED` passed with `-p` or `-percentChangeAllowed`
+                    * Options: Any Double value
+
+### Example Script
 
 ```javascript
 forEach.call(myFingerprints, function (fingerprint) {
@@ -136,46 +177,7 @@ the background as you execute the script.
       you. `percentChangeAllowed` is another argument that you pass through the command line.
 * **NOTE:** As a reminder, a table of [passable arguments](#script-configuration-args)
   and [exposed methods](#exposed-methods-for-use) can be found below in their corresponding sections.
-
-## Script Configuration Args
-
-* `FAIL BUILD` passed with `-F` or `-failBuild`
-    * Passed as flag (no variable needed along with the flag)
-    * Specifies whether you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
-* `SCRIPT` passed with `-S` or `-scriptPath`
-    * Specifies the file path to your script
-* `TOKEN` passed with `-T` or `-token`
-    * Specifies your CyBench query access token
-* `REPORT` passed with `-R` or `-reportPath`
-    * Specifies the report you want to analyze and run comparisons on, this can be the path to a single report, or the
-      path to the full report directory (in which case the most recently ran report will be used)
-* `SCOPE` passed with `-s` or `-scope`
-    * Options: `WITHIN` or `BETWEEN`
-    * Comparator gives you the ability to compare WITHIN or BETWEEN (current and previous) versions
-* `RANGE` passed with `-r` or `-range`
-    * Options: `ALL` or any Integer value
-    * You can specify the amount of values you want to compare to. This can be any integer, or the String `ALL` to
-      compare against all possible values in the version. There is handling behind the scenes if your range is too high
-        * If it is too high, Comparator will compare against as many values as possible and treat range as `ALL`
-    * If range is `1`, then only the last value will be compared to
-        * If range is higher than 1, then the mean of the last X specified values will be taken and used for comparison
-* `METHOD` passed with `-m` or `-method`
-    * Options: `MEAN` or `SD`
-    * The comparison methods you have access to are delta methods and standard deviations methods
-        * For standard deviation methods, you can specify a `deviationsAllowed` for assertions. This will check to make
-          sure the new score is within that amount of deviations from the mean of the scores being compared to
-            * `DEVIATIONS ALLOWED` passed with `-d` or `-deviationsAllowed`
-            * Options: Any Double value
-        * For delta methods, you can specify a `threshold`
-            * `THRESHOLD` passed with `-t` or `-threshold`
-            * Options: `GREATER` or `PERCENT_CHANGE`
-            * `GREATER` will be used for tests in which you want raw score comparisons and strict deltas
-            * `PERCENT_CHANGE` will be used for tests in which you want to measure the percent change of the score in
-              comparison to the compare to scores
-                * If you choose to use these methods, you can use a `percentChangeAllowed` variable to run assertions
-                  and make sure your new score is within X percent of the compared to scores
-                    * `PERCENT CHANGE ALLOWED` passed with `-p` or `-percentChangeAllowed`
-                    * Options: Any Double value
+  
 
 ### Exposed Methods for Use
 
@@ -191,15 +193,60 @@ the background as you execute the script.
   access for your own calculations and return `Double` values
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to
   return boolean values that represent pass/fail
+* `getCurrentVerison` and `getPreviousVersion` are methods that return version Strings of the fingerprint being compared. Current Version represents the current version of the fingerprint being benchmarked, and previous version will be passed back as the most previous version found in the fingerprint fetch based on dot notation. It is possible previous version returns null.
 
 ## YAML Configuration
 
 * Pass configuration file path via args
 * Passed with `-C` or `-configPath`
+* The rest of the flags defined previously for scripting are all defined within the actual YAML file
 
-### Cybench Comparator configuration
+### Configuration Variables
 
-#### Configuration Variables
+```yaml
+# failBuild = whether or not you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
+## Options {true, false} ##
+
+# reportPath = 
+# location of CyBench reports folder (automatically takes the most recent report) 
+# OR the location of the specific report you want to run Comparator on
+
+# token = CyBench Access Token with View Permissions
+### Token can be found on the CyBench site by clicking on your username ###
+### Token should be a query token with access to the specific workspace that stores your benchmarks ###
+
+# compare.default = default comparison configurations
+
+#compare.{} = specific comparison configurations 
+### {} can be any identifier of your choice ###
+### Make sure to include {package} to specify which package you want these comparisons to run on ###
+
+
+### Comparison Configurations ###
+
+# scope = (within or between project versions)
+## Options {within, between} ##
+### {within} will compare all benchmarks within the benchmarked version ###
+### if {between} is chosen, must specify {compareVersion} (will compare benchmarked version to the specified version) ###
+### add {compareVersion} to specify which version to compare to ###
+
+# range = {amount of values to compare against}
+## Options {all, (#)} - can specify the word "all" to compare against all values or any number X to compare against previous X recorded scores ##
+### to compare against just the previous score within your version or the most recent score in another version, specify range '1' ###
+### otherwise the new score will be compared against the mean of the previous X values ###
+
+# method = how benchmarks will be compared
+## Options {delta, SD} ##
+### if {SD} is chosen, must specify {deviationsAllowed} ###
+### {deviationsAllowed} = the amount of deviations you will allow your score to be away from the mean of the previous X values (X specified as {range}) ###
+### if {delta} is chosen, must specify {threshold} ###
+# {threshold} = how to specify a passing benchmark 
+## Options {percent_change, greater} ##
+### {greater} will check to see if new score is simply greater than the compared to score ###
+### if {percent_change} is chosen, must specify {percentChangeAllowed} ###
+### {percentChangeAllowed} = percentage score should be within in order to pass ###
+### ex. 5% means the new score should be within 5% of the previous threshold ###
+```
 
 * Configuration file [comparator.yaml](config/comparator.yaml)
 * The first two configurations are vital to fetching the previous benchmark scores correctly
@@ -245,7 +292,7 @@ this example, it'll compare scores between the current version, and `compareVers
 
 * Inside these `compare.X` branches exists various configurations you can set.
 
-##### Comparator Methods
+#### Comparator Methods
 
 * The first configuration you should decide is the method to compare
 * Comparison method is defined by `method:`
@@ -291,9 +338,9 @@ this example, it'll compare scores between the current version, and `compareVers
     * `"ALL"` = Compare newest score to only the previous one
     * `X` = Compare newest score to the previous X scores
 
-#### Example `comparator.yaml`
+#### YAML Template
 
-A template `comparator.yaml` can be taken from this repository, and can/should be used for your own tests. If you've
+A template [comparator.yaml](config/comparator.yaml) can be taken from this repository, and can/should be used for your own tests. If you've
 added the CyBench comparator to your project via this README or the CyBench Wiki, Comparator will look
 for `comparator.yaml` in a folder called `config/` at the root of your project. All CyBench components that use a
 properties or configuration file will look for those files inside this same folder. The template `comparator.yaml` also
@@ -303,50 +350,6 @@ out `comparator.yaml`
 
 ```yaml
 ### Property File for Cybench Comparator Tool ###
-
-# failBuild = whether or not you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
-## Options {true, false} ##
-
-# reportPath = 
-# location of CyBench reports folder (automatically takes the most recent report) 
-# OR the location of the specific report you want to run Comparator on
-
-# token = CyBench Access Token with View Permissions
-### Token can be found on the CyBench site by clicking on your username ###
-### Token should be a query token with access to the specific workspace that stores your benchmarks ###
-
-# compare.default = default comparison configurations
-
-#compare.{} = specific comparison configurations 
-### {} can be any identifier of your choice ###
-### Make sure to include {package} to specify which package you want these comparisons to run on ###
-
-
-### Comparison Configurations ###
-
-# scope = (within or between project versions)
-## Options {within, between} ##
-### {within} will compare all benchmarks within the benchmarked version ###
-### if {between} is chosen, must specify {compareVersion} (will compare benchmarked version to the specified version) ###
-### add {compareVersion} to specify which version to compare to ###
-
-# range = {amount of values to compare against}
-## Options {all, (#)} - can specify the word "all" to compare against all values or any number X to compare against previous X recorded scores ##
-### to compare against just the previous score within your version or the most recent score in another version, specify range '1' ###
-### otherwise the new score will be compared against the mean of the previous X values ###
-
-# method = how benchmarks will be compared
-## Options {delta, SD} ##
-### if {SD} is chosen, must specify {deviationsAllowed} ###
-### {deviationsAllowed} = the amount of deviations you will allow your score to be away from the mean of the previous X values (X specified as {range}) ###
-### if {delta} is chosen, must specify {threshold} ###
-# {threshold} = how to specify a passing benchmark 
-## Options {percent_change, greater} ##
-### {greater} will check to see if new score is simply greater than the compared to score ###
-### if {percent_change} is chosen, must specify {percentChangeAllowed} ###
-### {percentChangeAllowed} = percentage score should be within in order to pass ###
-### ex. 5% means the new score should be within 5% of the previous threshold ###
-
 
 failBuild: true
 reportPath: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/report-1633702919786-14.35352973095467.cybnech"
