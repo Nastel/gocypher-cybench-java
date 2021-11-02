@@ -107,6 +107,8 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 * `SCOPE` passed with `-s` or `-scope`
     * Options: `WITHIN` or `BETWEEN`
     * Comparator gives you the ability to compare WITHIN or BETWEEN (current and previous) versions
+        * For BETWEEN configurations, users can specify `compareVersion` as a version to compare to (against the current version)
+            * `COMPARE VERSION` passed with `-v` or `-compareVersion`
 * `RANGE` passed with `-r` or `-range`
     * Options: `ALL` or any Integer value
     * You can specify the amount of values you want to compare to. This can be any integer, or the String `ALL` to
