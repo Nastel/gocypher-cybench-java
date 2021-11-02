@@ -1,5 +1,5 @@
-// EX. ARGS PASSED VIA COMMAND LINE
-// '-F -S scripts/SD-BetweenVersions.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s WITHIN -r ALL -m SD -d 2
+// EXAMPLE ARGS PASSED VIA COMMAND LINE
+// -F -S scripts/SD-BetweenVersions.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s WITHIN -r ALL -m SD -d 2
 
 
 // loop through the fingerprints in my report

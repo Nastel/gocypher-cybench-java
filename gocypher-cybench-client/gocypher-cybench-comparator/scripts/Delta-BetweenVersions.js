@@ -1,5 +1,5 @@
-// EX. ARGS PASSED VIA COMMAND LINE
-// '-F -S scripts/SD-BetweenVersions.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r ALL -m DELTA -t GREATER 
+// EXAMPLE ARGS PASSED VIA COMMAND LINE
+// -F -S scripts/SD-BetweenVersions.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r ALL -m DELTA -t GREATER 
 
 
 // loop through the fingerprints in my report
