@@ -12,7 +12,7 @@ forEach.call(myFingerprints, function (fingerprint) {
     forEach.call(benchmarkedModes, function (mode) {
         currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
 
-        logComparison(logConfigs, benchmarkName, mode);
+        logComparison(benchmarkName, mode);
         var deviationsFromMean = compareScores(currentVersionScores);
         var pass = passAssertion(deviationsFromMean);
     });

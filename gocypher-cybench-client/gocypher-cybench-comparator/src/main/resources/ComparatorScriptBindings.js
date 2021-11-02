@@ -1,6 +1,6 @@
 // help log the comparison being ran
-// params: {Map<String, Object> created in background, String, String}
-function logComparison(logConfigs, benchmarkName, mode) {
+// params: {String, String}
+function logComparison(benchmarkName, mode) {
     return Comparisons.logComparison(logConfigs, benchmarkName, mode);
 }
 

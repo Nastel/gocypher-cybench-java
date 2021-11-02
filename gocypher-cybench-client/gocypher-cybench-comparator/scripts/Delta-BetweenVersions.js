@@ -15,7 +15,7 @@ forEach.call(myFingerprints, function (fingerprint) {
 
         // check to make sure there are benchmarks to compare to
         if (compareVersionScores != null) {
-            logComparison(logConfigs, benchmarkName, mode);
+            logComparison(benchmarkName, mode);
             var delta = compareScores(currentVersionScores, compareVersionScores);
             var pass = passAssertion(delta);
         }
