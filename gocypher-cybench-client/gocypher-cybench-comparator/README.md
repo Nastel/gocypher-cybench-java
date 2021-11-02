@@ -137,6 +137,11 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 ### Example Script
 
 ```javascript
+// EXAMPLE ARGS PASSED VIA COMMAND LINE
+// -F -S scripts/SD-BetweenVersions.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r 1 -m DELTA -t PERCENT_CHANGE -p 10 
+
+
+// loop through the fingerprints in my report
 forEach.call(myFingerprints, function (fingerprint) {
     var currentVersion = getCurrentVersion(fingerprint);
     var benchmarkName = fingerprintsToNames.get(fingerprint);
@@ -147,11 +152,11 @@ forEach.call(myFingerprints, function (fingerprint) {
         currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
         compareVersionScores = getBenchmarksByMode(fingerprint, compareVersion, mode);
 
-        // check to make sure there are benchmarks to compare to 
+        // check to make sure there are benchmarks to compare to
         if (compareVersionScores != null) {
             logComparison(logConfigs, benchmarkName, mode);
-            var percentChange = compareDelta(threshold, range, currentVersionScores, compareVersionScores);
-            var pass = passAssertionPercentage(percentChange, percentChangeAllowed);
+            var percentChange = compareScores(currentVersionScores, compareVersionScores);
+            var pass = passAssertion(percentChange);
         }
     });
 });
@@ -183,18 +188,20 @@ the background as you execute the script.
       can be made
     * `logComparison(logConfigs, benchmarkName, mode);` calls a log method that takes your comparison configurables, the
       benchmarkName, and the mode currently being looped through in order to give you more log outputs
-    * `var percentChange = compareDelta(threshold, range, currentVersionScores, compareVersionScores);`
-      calls a `delta` compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
+    * `var percentChange = compareScores(currentVersionScores, compareVersionScores);`
+      calls a generalized compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
       below
         * It compares the current version scores under a specific mode to the previous version scores under the same
           mode. (`currentVersionScores`, `compareVersionScores`)
-        * Threshold ('threshold') is an argument that is passed, similar to `compareVersion`. It is passed via the (-t)
-          flag. In this example, threshold was set to `percent_change` which will allow the test to pass even if it
+        * Method, threshold, and range are all gathered from the flags you passed via the command line (for this generalized compare method)
+        * Method (`method`) is passed via the (-m) flag. In this example, method was set to `DELTA` which will allow the DELTA comparison to run.
+        * Threshold ('threshold') is passed via the (-t)
+          flag. In this example, threshold was set to `PERCENT_CHANGE` which will allow the test to pass even if it
           performs slower, as long as it is within a given `percentChangeAllowed` (-p)
-        * Range (`range`) is an argument that is passed, similar to `compareVersion`. It is passed via the (-r) flag.
-          The default range is `1` which means in this example, we are looking at the last (most recent) value
+        * Range (`range`) is passed via the (-r) flag.
+          The range is `1` which means in this example, we are looking at the last (most recent) value
           of `currentVersionScores` and comparing it to the most recent score in `compareVersionScores`
-    * `var pass = passAssertionPercentage(percentChange, percentChangeAllowed);` calls an assertion method that checks
+    * `var pass = passAssertion(percentChange);` calls a generalized assertion method that checks
       to see if the calculated `percent_change` is within the `percentChangeAllowed` (-p) specified by
       you. `percentChangeAllowed` is another argument that you pass through the command line.
 * **NOTE:** As a reminder, a table of [passable arguments](#configuration-args)
@@ -209,13 +216,15 @@ the background as you execute the script.
 * `logComparison` will allow you to receive more log output regarding what is being tested during comparison runs
 * `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different ways
   to access the benchmarks stored in `Java Maps`
-* `compareDelta` and `compareSD` are compare methods you can call with your scores that run all calculations behind the
+* `getCurrentVerison` and `getPreviousVersion` are methods that return version Strings of the fingerprint being compared. Current Version represents the current version of the fingerprint being benchmarked, and previous version will be passed back as the most previous version found in the fingerprint fetch based on dot notation. It is possible previous version returns null.
+* `compareScores` is a generalized compare method which collects information from the command line flag arguments to decide which comparison method to run, for more specific comparisons, you can use the functions below
+* `compareDelta` and `compareSD` are specific compare methods you can call with your scores that run all calculations behind the
   scenes and return Double values
-* `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are simple methods you can quickly
+* `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are specific simple methods you can quickly
   access for your own calculations and return `Double` values
+* `passAssertion` is a generalized assert method which collects information from the command line flag arguments to decide which assertion to run, for more specific assertions, you can use the functions below
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to
   return boolean values that represent pass/fail
-* `getCurrentVerison` and `getPreviousVersion` are methods that return version Strings of the fingerprint being compared. Current Version represents the current version of the fingerprint being benchmarked, and previous version will be passed back as the most previous version found in the fingerprint fetch based on dot notation. It is possible previous version returns null.
 
 ## YAML Configuration
 
