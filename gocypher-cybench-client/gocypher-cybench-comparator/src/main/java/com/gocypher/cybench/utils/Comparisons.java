@@ -76,7 +76,7 @@ public final class Comparisons {
     	else if (state.equals(State.FAIL))
     		CompareBenchmarks.totalFailedBenchmarks++;
     	
-    	logComparison(state, configMap, benchmarkName, benchmarkVersion, benchmarkMode, method, rangeStr, threshold);
+    	logComparison(state, configMap, benchmarkName, benchmarkVersion, benchmarkMode, method, range, threshold);
     	
     	return compareValue;
     }
@@ -136,7 +136,7 @@ public final class Comparisons {
     }
     
     public static void logComparison(State state, Map<String, Object> logConfigs, String benchmarkName, String benchmarkVersion, String benchmarkMode,
-    		Method method, String range, Threshold threshold) {
+    		Method method, int range, Threshold threshold) {
     	String benchmarkFingerprint = Requests.namesToFingerprints.get(benchmarkName);
     	StringBuilder sb = new StringBuilder();
         Scope scope = (Scope) logConfigs.get(ConfigHandling.SCOPE);
