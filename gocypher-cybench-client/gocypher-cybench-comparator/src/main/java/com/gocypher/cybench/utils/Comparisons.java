@@ -318,6 +318,7 @@ public final class Comparisons {
             String benchmarkMode) {
         CompareBenchmarks.totalComparedBenchmarks++;
         CompareBenchmarks.totalPassedBenchmarks++;
+        CompareBenchmarks.totalSkippedBenchmarks++;
         CompareBenchmarks.addAutoPassBenchData(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         return false;
     }

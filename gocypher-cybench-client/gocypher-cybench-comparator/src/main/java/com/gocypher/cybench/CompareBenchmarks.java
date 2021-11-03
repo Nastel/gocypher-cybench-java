@@ -45,6 +45,7 @@ public class CompareBenchmarks {
     public static int totalComparedBenchmarks = 0;
     public static final Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
     public static int totalPassedBenchmarks = 0;
+    public static int totalSkippedBenchmarks = 0;
     public static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
     public static int totalFailedBenchmarks = 0;
     public static boolean failBuildFlag = false;
@@ -423,8 +424,8 @@ public class CompareBenchmarks {
 
     public static void finalizeComparisonLogs() throws Exception {
     	System.out.print("\n\n");
-        logInfo("compared={}, passed={}, failed={}", totalComparedBenchmarks, totalPassedBenchmarks,
-                totalFailedBenchmarks);
+        logInfo("compared={}, passed={}, (skipped={}), failed={}", totalComparedBenchmarks, totalPassedBenchmarks, 
+        		totalSkippedBenchmarks, totalFailedBenchmarks);
         System.out.print("\n");
         printBenchmarkResults(Requests.namesToFingerprints);
         if (totalFailedBenchmarks > 0) {
