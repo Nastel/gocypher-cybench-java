@@ -18,7 +18,7 @@
  */
 
 // depending on compare method set (DELTA / SD), returns (change in value within/between versions OR deviations from mean within/between versions)
-// params: {String, String, List<Double>, List<Double> (optional)}
+// params: {String, String, String, List<Double>, List<Double> (optional)}
 function compareScores(benchmarkName, currentVersion, benchmarkMode, currentVersionScores, compareVersionScores) {
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
@@ -29,9 +29,9 @@ function compareScores(benchmarkName, currentVersion, benchmarkMode, currentVers
 }
 
 // returns change in value within/between versions
-// params: {String, String, Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
+// params: {String, String, String, Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
 function compareDelta(benchmarkName, currentVersion, benchmarkMode, threshold, range, currentVersionScores, compareVersionScores) {
-	Comparisons.logComparison(logConfigs, benchmarkName, benchmarkVersion, benchmarkMode, Comparisons.Method.DELTA, range, threshold);
+	Comparisons.logComparison(Comparisons.State.RUNNING, logConfigs, benchmarkName, benchmarkVersion, benchmarkMode, Comparisons.Method.DELTA, range, threshold);
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
@@ -41,9 +41,9 @@ function compareDelta(benchmarkName, currentVersion, benchmarkMode, threshold, r
 }
 
 // returns deviations from mean within/between versions
-// params: {String, String, String, List<Double>, List<Double> (optional)}
+// params: {String, String, String, String, List<Double>, List<Double> (optional)}
 function compareSD(benchmarkName, currentVersion, benchmarkMode, range, currentVersionScores, compareVersionScores) {
-	Comparisons.logComparison(logConfigs, benchmarkName, benchmarkVersion, benchmarkMode, Comparisons.Method.SD, range, null);
+	Comparisons.logComparison(Comparisons.State.RUNNING, logConfigs, benchmarkName, benchmarkVersion, benchmarkMode, Comparisons.Method.SD, range, null);
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list

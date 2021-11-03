@@ -59,8 +59,6 @@ public final class Comparisons {
     	String rangeStr = (String) configMap.get(ConfigHandling.RANGE);
     	Threshold threshold = (Threshold) configMap.get(ConfigHandling.THRESHOLD);
     	
-    	logComparison(configMap, benchmarkName, benchmarkVersion, benchmarkMode, method, rangeStr, threshold);
-    	
     	int benchmarkVersionSize = benchmarkVersionScores.size();
         Double benchmarkScore = benchmarkVersionScores.get(benchmarkVersionSize - 1);
     	Double compareValue = null;
@@ -70,7 +68,9 @@ public final class Comparisons {
     		compareValue = compareWithSD(benchmarkVersionScores, compareVersionScores, rangeStr);
     	}
     	
-    	passAssertion(configMap, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareValue);
+    	State state = passAssertion(configMap, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareValue);
+    	
+    	logComparison(state, configMap, benchmarkName, benchmarkVersion, benchmarkMode, method, rangeStr, threshold);
     	
     	return compareValue;
     }
@@ -131,7 +131,7 @@ public final class Comparisons {
 		return SDfromMean;
     }
     
-    public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String benchmarkVersion, String benchmarkMode,
+    public static void logComparison(State state, Map<String, Object> logConfigs, String benchmarkName, String benchmarkVersion, String benchmarkMode,
     		Method method, String range, Threshold threshold) {
     	String benchmarkFingerprint = Requests.namesToFingerprints.get(benchmarkName);
     	StringBuilder sb = new StringBuilder();
@@ -139,13 +139,17 @@ public final class Comparisons {
         String compareVersion = (String) logConfigs.get(ConfigHandling.COMPARE_VERSION);
         if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) 
             compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
-        sb.append("COMPARISON RUNNING - {} : {} - method={} ({} version {}");
+        sb.append("COMPARISON {} - {} : {} - method={} ({} version {}");
         if (scope.equals(Scope.BETWEEN)) 
             sb.append(" and version ").append(compareVersion);
         sb.append("), range={}");
         if (threshold != null)
         	sb.append(", threshold=").append(threshold);
-        log.info(sb.toString(), benchmarkName, benchmarkMode, method, scope, benchmarkVersion, range);
+        
+        if (state.equals(State.FAIL))
+        	log.error(sb.toString(), state, benchmarkName, benchmarkMode, method, scope, benchmarkVersion, range);
+        else
+        	log.info(sb.toString(), state, benchmarkName, benchmarkMode, method, scope, benchmarkVersion, range);
     }
 
     // Calculate Methods
@@ -206,6 +210,10 @@ public final class Comparisons {
         PERCENT_CHANGE, GREATER
     }
     
+    public static enum State {
+    	RUNNING, PASS, FAIL
+    }
+    
     private static Double roundTwoDecimal(Double value) {
 		// TODO: Handle *BIG* scores in scientific notation
 		DecimalFormat df1 = new DecimalFormat("##################.00");
@@ -215,7 +223,7 @@ public final class Comparisons {
 		return formatValue;
 	}
 
-    public static boolean passAssertion(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion, String benchmarkMode,
+    public static State passAssertion(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion, String benchmarkMode,
     		Double benchmarkScore, Double compareValue) {
     	Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
     	Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
@@ -236,7 +244,9 @@ public final class Comparisons {
         CompareBenchmarks.addPassFailBenchData(pass ? CompareBenchmarks.passedBenchmarks : CompareBenchmarks.failedBenchmarks, configMap, benchmarkName, benchmarkVersion, 
         		benchmarkMode, benchmarkScore, compareValue);
         
-        return pass;
+        if (pass)
+        	return State.PASS;
+        return State.FAIL;
     }
 
     public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
