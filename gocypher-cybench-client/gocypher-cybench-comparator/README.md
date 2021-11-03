@@ -135,7 +135,7 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 
 ```javascript
 // EXAMPLE ARGS PASSED VIA COMMAND LINE
-// -F -S scripts/SD-BetweenVersions.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r 1 -m DELTA -t PERCENT_CHANGE -p 10 
+// -F -S scripts/SD-BetweenVersions.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r ALL -m DELTA -t PERCENT_CHANGE -p 10 
 
 
 // loop through the fingerprints in my report
@@ -151,9 +151,7 @@ forEach.call(myFingerprints, function (fingerprint) {
 
         // check to make sure there are benchmarks to compare to
         if (compareVersionScores != null) {
-            logComparison(benchmarkName, mode);
-            var percentChange = compareScores(currentVersionScores, compareVersionScores);
-            var pass = passAssertion(percentChange);
+            var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);
         }
     });
 });
@@ -181,8 +179,6 @@ the background as you execute the script.
 * Next come the comparisons and assertions
     * First, a check is made to ensure that compareVersionScores was populated with at least one score, so a comparison
       can be made
-    * `logComparison(benchmarkName, mode);` calls a log method that takes the benchmarkName and the mode currently being
-      looped through in order to give you more log outputs
     * `var percentChange = compareScores(currentVersionScores, compareVersionScores);`
       calls a generalized compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
       below
@@ -198,9 +194,6 @@ the background as you execute the script.
         * Range (`range`) is passed via the (-r) flag. The range is `1` which means in this example, we are looking at
           the last (most recent) value of `currentVersionScores` and comparing it to the most recent score
           in `compareVersionScores`
-    * `var pass = passAssertion(percentChange);` calls a generalized assertion method that checks to see if the
-      calculated `percent_change` is within the `percentChangeAllowed` (-p) specified by you. `percentChangeAllowed` is
-      another argument that you pass through the command line.
 * **NOTE:** As a reminder, a table of [passable arguments](#configuration-args)
   and [exposed methods](#exposed-methods-for-use) can be found below in their corresponding sections.
 
@@ -209,7 +202,6 @@ the background as you execute the script.
 * [Exposed Methods](src/main/resources/ComparatorScriptBindings.js)
     * These methods can be called in your .js script
 
-* `logComparison` will allow you to receive more log output regarding what is being tested during comparison runs
 * `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different ways
   to access the benchmarks stored in `Java Maps`
 * `getRecentlyBenchmarkedModes` will allow you to grab the modes benchmarked by the passed fingerprint and the version (
