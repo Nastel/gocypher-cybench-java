@@ -122,7 +122,9 @@ public final class Comparisons {
 		newScore = roundTwoDecimal(newScore);
 		compareMean = roundTwoDecimal(compareMean);
 		compareSD = roundTwoDecimal(compareSD);
-		SDfromMean = roundTwoDecimal(SDfromMean);
+		if (Double.isFinite(SDfromMean)) {
+			SDfromMean = roundTwoDecimal(SDfromMean);
+		}	
 
 		return SDfromMean;
     }
