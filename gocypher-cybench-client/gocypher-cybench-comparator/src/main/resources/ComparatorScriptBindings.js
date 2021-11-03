@@ -30,7 +30,8 @@ function compareScores(benchmarkName, currentVersion, benchmarkMode, currentVers
 
 // returns change in value within/between versions
 // params: {String, String, Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
-function compareDelta(benchmarkName, benchmarkMode, threshold, range, currentVersionScores, compareVersionScores) {
+function compareDelta(benchmarkName, currentVersion, benchmarkMode, threshold, range, currentVersionScores, compareVersionScores) {
+	Comparisons.logComparison(logConfigs, benchmarkName, benchmarkVersion, benchmarkMode, Comparisons.Method.DELTA, range, threshold);
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
@@ -41,7 +42,8 @@ function compareDelta(benchmarkName, benchmarkMode, threshold, range, currentVer
 
 // returns deviations from mean within/between versions
 // params: {String, String, String, List<Double>, List<Double> (optional)}
-function compareSD(benchmarkName, benchmarkMode, range, currentVersionScores, compareVersionScores) {
+function compareSD(benchmarkName, currentVersion, benchmarkMode, range, currentVersionScores, compareVersionScores) {
+	Comparisons.logComparison(logConfigs, benchmarkName, benchmarkVersion, benchmarkMode, Comparisons.Method.SD, range, null);
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list

@@ -59,6 +59,8 @@ public final class Comparisons {
     	String rangeStr = (String) configMap.get(ConfigHandling.RANGE);
     	Threshold threshold = (Threshold) configMap.get(ConfigHandling.THRESHOLD);
     	
+    	logComparison(configMap, benchmarkName, benchmarkVersion, benchmarkMode, method, rangeStr, threshold);
+    	
     	int benchmarkVersionSize = benchmarkVersionScores.size();
         Double benchmarkScore = benchmarkVersionScores.get(benchmarkVersionSize - 1);
     	Double compareValue = null;
@@ -127,6 +129,23 @@ public final class Comparisons {
 		}	
 
 		return SDfromMean;
+    }
+    
+    public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String benchmarkVersion, String benchmarkMode,
+    		Method method, String range, Threshold threshold) {
+    	String benchmarkFingerprint = Requests.namesToFingerprints.get(benchmarkName);
+    	StringBuilder sb = new StringBuilder();
+        Scope scope = (Scope) logConfigs.get(ConfigHandling.SCOPE);
+        String compareVersion = (String) logConfigs.get(ConfigHandling.COMPARE_VERSION);
+        if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) 
+            compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
+        sb.append("COMPARISON RUNNING - {} : {} - method={} ({} version {}");
+        if (scope.equals(Scope.BETWEEN)) 
+            sb.append(" and version ").append(compareVersion);
+        sb.append("), range={}");
+        if (threshold != null)
+        	sb.append(", threshold=").append(threshold);
+        log.info(sb.toString(), benchmarkName, benchmarkMode, method, scope, benchmarkVersion, range);
     }
 
     // Calculate Methods
@@ -224,9 +243,11 @@ public final class Comparisons {
         CompareBenchmarks.totalComparedBenchmarks++;
         if (Math.abs(deviationsFromMean) < deviationsAllowed) {
             CompareBenchmarks.totalPassedBenchmarks++;
+            log.info("Passed assertion");
             return true;
         } else {
             CompareBenchmarks.totalFailedBenchmarks++;
+            log.error("FAILED assertion");
             return false;
         }
     }
@@ -235,9 +256,11 @@ public final class Comparisons {
         CompareBenchmarks.totalComparedBenchmarks++;
         if (Math.abs(percentChange) < percentageAllowed) {
             CompareBenchmarks.totalPassedBenchmarks++;
+            log.info("Passed assertion");
             return true;
         } else {
             CompareBenchmarks.totalFailedBenchmarks++;
+            log.error("FAILED assertion");
             return false;
         }
     }
@@ -246,9 +269,11 @@ public final class Comparisons {
         CompareBenchmarks.totalComparedBenchmarks++;
         if (val >= 0) {
             CompareBenchmarks.totalPassedBenchmarks++;
+            log.info("Passed assertion");
             return true;
         } else {
             CompareBenchmarks.totalFailedBenchmarks++;
+            log.error("FAILED assertion");
             return false;
         }
     }
