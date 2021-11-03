@@ -19,6 +19,7 @@
 
 package com.gocypher.cybench.utils;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,6 @@ public final class Comparisons {
     	return compareValue;
     }
     
-    // name, mode, scope, curversion, compversion
     public static Double compareWithDelta(List<Double> benchmarkVersionScores, List<Double> compareVersionScores,
     		String rangeStr, Threshold threshold) {
         int benchmarkVersionSize = benchmarkVersionScores.size();
@@ -82,7 +82,23 @@ public final class Comparisons {
         Double compareValue = calculateMean(
                 compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
 
-        return calculateDelta(newScore, compareValue, threshold);
+		double delta = calculateDelta(newScore, compareValue, threshold);
+
+		if (threshold.equals(Threshold.GREATER)) {
+			double deltaPercentChange = calculatePercentChange(newScore, compareValue);
+
+			// round values to two decimals
+			newScore = roundTwoDecimal(newScore);
+			compareValue = roundTwoDecimal(compareValue);
+			delta = roundTwoDecimal(delta);
+			deltaPercentChange = roundTwoDecimal(deltaPercentChange);
+		} else {
+			newScore = roundTwoDecimal(newScore);
+			compareValue = roundTwoDecimal(compareValue);
+			delta = roundTwoDecimal(delta);
+		}
+
+		return delta;
     }
 
     public static Double compareWithSD(List<Double> benchmarkVersionScores, List<Double> compareVersionScores,
@@ -102,8 +118,13 @@ public final class Comparisons {
         if (newScore < compareMean) {
             SDfromMean *= -1;
         }
+        
+		newScore = roundTwoDecimal(newScore);
+		compareMean = roundTwoDecimal(compareMean);
+		compareSD = roundTwoDecimal(compareSD);
+		SDfromMean = roundTwoDecimal(SDfromMean);
 
-        return SDfromMean;
+		return SDfromMean;
     }
 
     // Calculate Methods
@@ -163,6 +184,15 @@ public final class Comparisons {
     public static enum Threshold {
         PERCENT_CHANGE, GREATER
     }
+    
+    private static Double roundTwoDecimal(Double value) {
+		// TODO: Handle *BIG* scores in scientific notation
+		DecimalFormat df1 = new DecimalFormat("##################.00");
+		// DecimalFormat.format() always returns a string, must convert to Double
+		String tempStr = df1.format(value);
+		Double formatValue = Double.parseDouble(tempStr);
+		return formatValue;
+	}
 
     public static boolean passAssertion(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion, String benchmarkMode,
     		Double benchmarkScore, Double compareValue) {
