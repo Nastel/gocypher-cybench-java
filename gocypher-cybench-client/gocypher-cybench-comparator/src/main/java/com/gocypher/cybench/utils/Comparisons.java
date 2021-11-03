@@ -76,7 +76,6 @@ public final class Comparisons {
 			log.info("comparison=delta, recentScore={}, range={}, compareMean={}, delta={}, percentChange={}%",
 					newScore, rangeString, compareValue, delta, deltaPercentChange);
 		} else {
-			log.info("Attempting to format Double's... New Style:");
 			newScore = roundTwoDecimal(newScore);
 			compareValue = roundTwoDecimal(compareValue);
 			delta = roundTwoDecimal(delta);
