@@ -159,7 +159,7 @@ public class CompareBenchmarks {
     		String benchmarkVersion, String benchmarkMode, Double benchmarkScore, Double compareValue) {
     	Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
     	Comparisons.Scope compareScope = (Comparisons.Scope) configMap.get(ConfigHandling.SCOPE);
-    	int compareRange = (int) configMap.get(ConfigHandling.RANGE);
+    	String compareRange = (String) configMap.get(ConfigHandling.RANGE);
     	Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
     	String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
     	Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
@@ -206,7 +206,7 @@ public class CompareBenchmarks {
         return dataPerMode.get(benchmarkMode);
     }
 
-    private static void addAutoPassBenchData(Double benchmarkScore, String benchmarkName, String benchmarkVersion,
+    public static void addAutoPassBenchData(Double benchmarkScore, String benchmarkName, String benchmarkVersion,
             String benchmarkMode) {
         Map<String, Object> data = prepareCompareDataMap(passedBenchmarks, benchmarkName, benchmarkVersion,
                 benchmarkMode);
@@ -247,7 +247,7 @@ public class CompareBenchmarks {
                         Comparisons.Method compareMethod = (Comparisons.Method) benchmarkData
                                 .get(ConfigHandling.METHOD);
                         Comparisons.Scope compareScope = (Comparisons.Scope) benchmarkData.get(ConfigHandling.SCOPE);
-                        int compareRange = (int) benchmarkData.get(ConfigHandling.RANGE);
+                        String compareRange = (String) benchmarkData.get(ConfigHandling.RANGE);
                         String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
                         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) benchmarkData
                                 .get(ConfigHandling.THRESHOLD);
@@ -404,37 +404,11 @@ public class CompareBenchmarks {
                     logWarn(
                             "{} - {}: There are no benchmarks for the specified compare version ({}), no comparison will be run",
                             benchmarkName, benchmarkMode, compareVersion);
-                    return autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
+                    return Comparisons.autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
                 }
             }
             configMap.put(ConfigHandling.SCOPE, compareScope);
             configMap.put(ConfigHandling.COMPARE_VERSION, compareVersion);
-
-            // range validation
-            int range;
-            if (compareRange.equals("ALL")) {
-                range = compareVersionScores.size();
-            } else {
-                range = Integer.parseInt(compareRange);
-                if (range > compareVersionScores.size()) {
-                    logWarn(
-                            "{} - {}: There are not enough values to compare to in version ({}) with specific range ({}), no comparison will be run",
-                            benchmarkName, benchmarkMode, benchmarkVersion, range);
-                    return autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
-                }
-            }
-            compareRange = String.valueOf(range);
-            configMap.put(ConfigHandling.RANGE, compareRange);
-
-            if (compareScope.equals(Comparisons.Scope.WITHIN)) {
-                compareVersion = benchmarkVersion;
-                if (benchmarkVersionScores.size() <= 1) {
-                    logWarn(
-                            "{} - {}: There are no previously tested benchmarks within the version ({}), no comparison will be run",
-                            benchmarkName, benchmarkMode, benchmarkVersion);
-                    return autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
-                }
-            }
 
             Comparisons.compareScores(configMap, benchmarkName,benchmarkVersion, benchmarkMode, 
             		benchmarkVersionScores, compareVersionScores);
@@ -443,17 +417,8 @@ public class CompareBenchmarks {
         } else {
             logWarn("{} - {}: There are no configurations set, no comparison will be run", benchmarkName,
                     benchmarkMode);
-            return autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
+            return Comparisons.autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
-    }
-
-    // NO COMPARISON SHOULD BE RUN, PASS TEST
-    private static boolean autoPass(Double benchmarkScore, String benchmarkName, String benchmarkVersion,
-            String benchmarkMode) {
-        totalComparedBenchmarks++;
-        totalPassedBenchmarks++;
-        addAutoPassBenchData(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
-        return false;
     }
 
     public static void finalizeComparisonLogs() throws Exception {

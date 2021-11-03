@@ -35,49 +35,77 @@ public final class Comparisons {
 
     private Comparisons() {
     }
-
-    public static int validateRange(List<Double> scores, String compareRange) {
-        int range;
-        int totalScores = scores.size();
+    
+    private static boolean validateComparison(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion, String benchmarkMode, 
+    		Double benchmarkScore, List<Double> benchmarkVersionScores, List<Double> compareVersionScores) {
+    	if (compareVersionScores == null) {
+    		logWarn(
+                    "{} - {}: There are no scores to compare to!", benchmarkName, benchmarkMode);
+    		return Comparisons.autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
+    	}
+        String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
+    	String compareRange = (String) configMap.get(ConfigHandling.RANGE);
+    	Scope compareScope = (Scope) configMap.get(ConfigHandling.SCOPE);
+    	int range;
         if (compareRange.equals("ALL")) {
-            range = totalScores;
+            range = compareVersionScores.size();
         } else {
             range = Integer.parseInt(compareRange);
-            if (range > totalScores) {
-                range = totalScores;
+            if (range > compareVersionScores.size()) {
                 logWarn(
-                        "There are less scores to compare to than the specified range, will compare to as many as possible ({}).", range);
+                        "{} - {}: There are not enough values to compare to in version ({}) with specific range ({}), no comparison will be run",
+                        benchmarkName, benchmarkMode, benchmarkVersion, range);
+                return Comparisons.autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
             }
         }
-        return range;
+        compareRange = String.valueOf(range);
+        configMap.put(ConfigHandling.RANGE, compareRange);
+
+        if (compareScope.equals(Comparisons.Scope.WITHIN)) {
+        	if (!compareVersion.equals(benchmarkVersion)) {
+        		compareVersion = benchmarkVersion;
+        		configMap.put(ConfigHandling.COMPARE_VERSION, compareVersion);
+        		logWarn("{} -{}: Compare scope set to WITHIN but compareVersion specified as a separate version, will ignore compareVersion", benchmarkName, benchmarkMode);
+        	}
+            
+            if (benchmarkVersionScores.size() <= 1) {
+                logWarn(
+                        "{} - {}: There are no previously tested benchmarks within the version ({}), no comparison will be run",
+                        benchmarkName, benchmarkMode, benchmarkVersion);
+                return Comparisons.autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
+            }
+        }
+        
+        return true;
     }
-    
     
     public static Double compareScores(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion, String benchmarkMode, 
     		List<Double> benchmarkVersionScores, List<Double> compareVersionScores) {
-    	Method method = (Method) configMap.get(ConfigHandling.METHOD);
-    	Threshold threshold = (Threshold) configMap.get(ConfigHandling.THRESHOLD);
-    	String rangeStr = (String) configMap.get(ConfigHandling.RANGE);
-    	int range = validateRange(compareVersionScores, rangeStr);
-    	configMap.put(ConfigHandling.RANGE, range);
     	int benchmarkVersionSize = benchmarkVersionScores.size();
         Double benchmarkScore = benchmarkVersionScores.get(benchmarkVersionSize - 1);
-    	Double compareValue = null;
-    	if (method.equals(Method.DELTA)) {
-    		compareValue = compareWithDelta(benchmarkVersionScores, compareVersionScores, range, threshold);
-    	} else {
-    		compareValue = compareWithSD(benchmarkVersionScores, compareVersionScores, range);
+        Double compareValue = null;
+    	if (validateComparison(configMap, benchmarkName, benchmarkVersion, benchmarkMode, 
+        		benchmarkScore, benchmarkVersionScores, compareVersionScores) ) {
+    		Method method = (Method) configMap.get(ConfigHandling.METHOD);
+        	Threshold threshold = (Threshold) configMap.get(ConfigHandling.THRESHOLD);
+        	String rangeStr = (String) configMap.get(ConfigHandling.RANGE);
+        	int range = Integer.parseInt(rangeStr);
+        	
+        	if (method.equals(Method.DELTA)) {
+        		compareValue = compareWithDelta(benchmarkVersionScores, compareVersionScores, range, threshold);
+        	} else {
+        		compareValue = compareWithSD(benchmarkVersionScores, compareVersionScores, range);
+        	}
+        	
+        	State state = passAssertion(configMap, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareValue);
+        	CompareBenchmarks.totalComparedBenchmarks++;
+        	if (state.equals(State.PASS))
+        		CompareBenchmarks.totalPassedBenchmarks++;
+        	else if (state.equals(State.FAIL))
+        		CompareBenchmarks.totalFailedBenchmarks++;
+        	
+        	logComparison(state, configMap, benchmarkName, benchmarkVersion, benchmarkMode, method, range, threshold);
     	}
-    	
-    	State state = passAssertion(configMap, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareValue);
-    	CompareBenchmarks.totalComparedBenchmarks++;
-    	if (state.equals(State.PASS))
-    		CompareBenchmarks.totalPassedBenchmarks++;
-    	else if (state.equals(State.FAIL))
-    		CompareBenchmarks.totalFailedBenchmarks++;
-    	
-    	logComparison(state, configMap, benchmarkName, benchmarkVersion, benchmarkMode, method, range, threshold);
-    	
     	return compareValue;
     }
     
@@ -281,6 +309,17 @@ public final class Comparisons {
             log.error("FAILED assertion");
             return false;
         }
+    }
+    
+
+
+    // NO COMPARISON SHOULD BE RUN, PASS TEST
+    public static boolean autoPass(Double benchmarkScore, String benchmarkName, String benchmarkVersion,
+            String benchmarkMode) {
+        CompareBenchmarks.totalComparedBenchmarks++;
+        CompareBenchmarks.totalPassedBenchmarks++;
+        CompareBenchmarks.addAutoPassBenchData(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
+        return false;
     }
     
     public static void logInfo(String msg, Object... args) {
