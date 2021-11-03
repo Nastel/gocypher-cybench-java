@@ -17,4 +17,3 @@ forEach.call(myFingerprints, function (fingerprint) {
         var pass = passAssertion(delta);
     });
 });
-

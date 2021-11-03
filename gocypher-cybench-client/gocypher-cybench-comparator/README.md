@@ -38,8 +38,9 @@ Dependencies for your project:
 
 ## Configuration Args
 
-* **NOTE** 
-    * -C must be specified for using [YAML Configuration](#yaml-configuration), the rest of the arguments are used for [Scripting Configuration](#scripting). (args can be specified within YAML file)
+* **NOTE**
+    * `-C` must be specified for using [YAML Configuration](#yaml-configuration), the rest of the arguments are used
+      for [Scripting Configuration](#scripting). (args can be specified within YAML file)
 
 | Argument Flag |  `.yaml` Equivalent | Valid Options | Description
 | --- | --- | --- | --- |
@@ -70,8 +71,7 @@ Template scripts located in the scripts folder [scripts](scripts/)
     * `myBenchmarks` - a Java `Map` of all the benchmarks from your report. `myBenchmarks` is
       a `Map<String, Map<String, Map<String, Double>>>` object, which maps
       to `<Benchmark Fingerprint: <Version : <Mode : <Score>>>`
-    * `myFingerprints` - an `ArrayList<String>` that contains every method's unique CyBench fingerprints in your
-      report.
+    * `myFingerprints` - an `ArrayList<String>` that contains every method's unique CyBench fingerprints in your report.
     * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
       method's name
 
@@ -88,7 +88,6 @@ see: [Configuration Args](#configuration-args)) are also accessible:
   the test
 * `compareVersion` - used when scope is `BETWEEN`, the version to compare to
 
-
 ### Script Configuring via args
 
 * `FAIL BUILD` passed with `-F` or `-failBuild`
@@ -104,7 +103,8 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 * `SCOPE` passed with `-s` or `-scope`
     * Options: `WITHIN` or `BETWEEN`
     * Comparator gives you the ability to compare WITHIN or BETWEEN (current and previous) versions
-        * For BETWEEN configurations, users can specify `compareVersion` as a version to compare to (against the current version)
+        * For BETWEEN configurations, users can specify `compareVersion` as a version to compare to (against the current
+          version)
             * `COMPARE VERSION` passed with `-v` or `-compareVersion`
 * `RANGE` passed with `-r` or `-range`
     * Options: `ALL` or any Integer value
@@ -169,9 +169,9 @@ the background as you execute the script.
       variable `currentVersion`. The variable `fingerprint` is automatically set for you in the background.
     * The next line sets `benchmarkName` to the method name corresponding to the given fingerprint, it reads from
       the `fingerprintsToNames` HashMap.
-    * After that, we call a function `getRecentlyBenchmarkedModes` that grabs an ArrayList `benchmarkedModes`, which contains the modes benchmarked by the specific fingerprint in the recent report.
-    * **NOTE:** `myBenchmarks` is automatically defined for you, you do not have to set it
-      manually.
+    * After that, we call a function `getRecentlyBenchmarkedModes` that grabs an ArrayList `benchmarkedModes`, which
+      contains the modes benchmarked by the specific fingerprint in the recent report.
+    * **NOTE:** `myBenchmarks` is automatically defined for you, you do not have to set it manually.
 * After these variables are set, another loop is ran that cycles through the modes tested within the current version
     * Two `List<Double>` objects are created, `currentVersionScores` and `compareVersionScores`. These lists of scores
       get populated via multiple calls of `getBenchmarksByMode(fingerprint, currentVersion/compareVersion, mode)`
@@ -181,27 +181,28 @@ the background as you execute the script.
 * Next come the comparisons and assertions
     * First, a check is made to ensure that compareVersionScores was populated with at least one score, so a comparison
       can be made
-    * `logComparison(benchmarkName, mode);` calls a log method that takes the
-      benchmarkName and the mode currently being looped through in order to give you more log outputs
+    * `logComparison(benchmarkName, mode);` calls a log method that takes the benchmarkName and the mode currently being
+      looped through in order to give you more log outputs
     * `var percentChange = compareScores(currentVersionScores, compareVersionScores);`
       calls a generalized compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
       below
         * It compares the current version scores under a specific mode to the previous version scores under the same
           mode. (`currentVersionScores`, `compareVersionScores`)
-        * Method, threshold, and range are all gathered from the flags you passed via the command line (for this generalized compare method)
-        * Method (`method`) is passed via the (-m) flag. In this example, method was set to `DELTA` which will allow the DELTA comparison to run.
+        * Method, threshold, and range are all gathered from the flags you passed via the command line (for this
+          generalized compare method)
+        * Method (`method`) is passed via the (-m) flag. In this example, method was set to `DELTA` which will allow the
+          DELTA comparison to run.
         * Threshold ('threshold') is passed via the (-t)
           flag. In this example, threshold was set to `PERCENT_CHANGE` which will allow the test to pass even if it
           performs slower, as long as it is within a given `percentChangeAllowed` (-p)
-        * Range (`range`) is passed via the (-r) flag.
-          The range is `1` which means in this example, we are looking at the last (most recent) value
-          of `currentVersionScores` and comparing it to the most recent score in `compareVersionScores`
-    * `var pass = passAssertion(percentChange);` calls a generalized assertion method that checks
-      to see if the calculated `percent_change` is within the `percentChangeAllowed` (-p) specified by
-      you. `percentChangeAllowed` is another argument that you pass through the command line.
+        * Range (`range`) is passed via the (-r) flag. The range is `1` which means in this example, we are looking at
+          the last (most recent) value of `currentVersionScores` and comparing it to the most recent score
+          in `compareVersionScores`
+    * `var pass = passAssertion(percentChange);` calls a generalized assertion method that checks to see if the
+      calculated `percent_change` is within the `percentChangeAllowed` (-p) specified by you. `percentChangeAllowed` is
+      another argument that you pass through the command line.
 * **NOTE:** As a reminder, a table of [passable arguments](#configuration-args)
   and [exposed methods](#exposed-methods-for-use) can be found below in their corresponding sections.
-  
 
 ### Exposed Methods for Use
 
@@ -211,14 +212,21 @@ the background as you execute the script.
 * `logComparison` will allow you to receive more log output regarding what is being tested during comparison runs
 * `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different ways
   to access the benchmarks stored in `Java Maps`
-* `getRecentlyBenchmarkedModes` will allow you to grab the modes benchmarked by the passed fingerprint and the version (currentVersion). It grabs from myBenchmarks which contains benchmark information from only your recent report (not including fetched information).  
-* `getCurrentVerison` and `getPreviousVersion` are methods that return version Strings of the fingerprint being compared. Current Version represents the current version of the fingerprint being benchmarked, and previous version will be passed back as the most previous version found in the fingerprint fetch based on dot notation. It is possible previous version returns null.
-* `compareScores` is a generalized compare method which collects information from the command line flag arguments to decide which comparison method to run, for more specific comparisons, you can use the functions below
-* `compareDelta` and `compareSD` are specific compare methods you can call with your scores that run all calculations behind the
-  scenes and return Double values
-* `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are specific simple methods you can quickly
-  access for your own calculations and return `Double` values
-* `passAssertion` is a generalized assert method which collects information from the command line flag arguments to decide which assertion to run, for more specific assertions, you can use the functions below
+* `getRecentlyBenchmarkedModes` will allow you to grab the modes benchmarked by the passed fingerprint and the version (
+  currentVersion). It grabs from myBenchmarks which contains benchmark information from only your recent report (not
+  including fetched information).
+* `getCurrentVerison` and `getPreviousVersion` are methods that return version Strings of the fingerprint being
+  compared. Current Version represents the current version of the fingerprint being benchmarked, and previous version
+  will be passed back as the most previous version found in the fingerprint fetch based on dot notation. It is possible
+  previous version returns null.
+* `compareScores` is a generalized compare method which collects information from the command line flag arguments to
+  decide which comparison method to run, for more specific comparisons, you can use the functions below
+* `compareDelta` and `compareSD` are specific compare methods you can call with your scores that run all calculations
+  behind the scenes and return Double values
+* `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are specific simple methods you can
+  quickly access for your own calculations and return `Double` values
+* `passAssertion` is a generalized assert method which collects information from the command line flag arguments to
+  decide which assertion to run, for more specific assertions, you can use the functions below
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to
   return boolean values that represent pass/fail
 
@@ -367,9 +375,9 @@ this example, it'll compare scores between the current version, and `compareVers
 
 #### YAML Template
 
-A template [comparator.yaml](config/comparator.yaml) can be taken from this repository, and can/should be used for your own tests. If you've
-added the CyBench comparator to your project via this README or the CyBench Wiki, Comparator will look
-for `comparator.yaml` in a folder called `config/` at the root of your project. All CyBench components that use a
+A template [comparator.yaml](config/comparator.yaml) can be taken from this repository, and can/should be used for your
+own tests. If you've added the CyBench comparator to your project via this README or the CyBench Wiki, Comparator will
+look for `comparator.yaml` in a folder called `config/` at the root of your project. All CyBench components that use a
 properties or configuration file will look for those files inside this same folder. The template `comparator.yaml` also
 includes comments at the top to help you adjust values on the fly. Once you've set your configurations, you're ready for
 the next step of running the Comparator, detailed in the next section. Below is an example of a more fleshed

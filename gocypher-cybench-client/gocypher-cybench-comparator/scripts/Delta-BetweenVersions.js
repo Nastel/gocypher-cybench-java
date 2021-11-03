@@ -21,4 +21,3 @@ forEach.call(myFingerprints, function (fingerprint) {
         }
     });
 });
-
