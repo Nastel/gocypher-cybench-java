@@ -44,9 +44,9 @@ public final class Comparisons {
         } else {
             range = Integer.parseInt(compareRange);
             if (range > totalScores) {
-                logWarn(
-                        "There are less scores to compare to than the specified range, will compare to as many as possible.");
                 range = totalScores;
+                logWarn(
+                        "There are less scores to compare to than the specified range, will compare to as many as possible ({}).", range);
             }
         }
         return range;
@@ -56,19 +56,25 @@ public final class Comparisons {
     public static Double compareScores(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion, String benchmarkMode, 
     		List<Double> benchmarkVersionScores, List<Double> compareVersionScores) {
     	Method method = (Method) configMap.get(ConfigHandling.METHOD);
-    	String rangeStr = (String) configMap.get(ConfigHandling.RANGE);
     	Threshold threshold = (Threshold) configMap.get(ConfigHandling.THRESHOLD);
-    	
+    	String rangeStr = (String) configMap.get(ConfigHandling.RANGE);
+    	int range = validateRange(compareVersionScores, rangeStr);
+    	configMap.put(ConfigHandling.RANGE, range);
     	int benchmarkVersionSize = benchmarkVersionScores.size();
         Double benchmarkScore = benchmarkVersionScores.get(benchmarkVersionSize - 1);
     	Double compareValue = null;
     	if (method.equals(Method.DELTA)) {
-    		compareValue = compareWithDelta(benchmarkVersionScores, compareVersionScores, rangeStr, threshold);
+    		compareValue = compareWithDelta(benchmarkVersionScores, compareVersionScores, range, threshold);
     	} else {
-    		compareValue = compareWithSD(benchmarkVersionScores, compareVersionScores, rangeStr);
+    		compareValue = compareWithSD(benchmarkVersionScores, compareVersionScores, range);
     	}
     	
     	State state = passAssertion(configMap, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareValue);
+    	CompareBenchmarks.totalComparedBenchmarks++;
+    	if (state.equals(State.PASS))
+    		CompareBenchmarks.totalPassedBenchmarks++;
+    	else if (state.equals(State.FAIL))
+    		CompareBenchmarks.totalFailedBenchmarks++;
     	
     	logComparison(state, configMap, benchmarkName, benchmarkVersion, benchmarkMode, method, rangeStr, threshold);
     	
@@ -76,10 +82,9 @@ public final class Comparisons {
     }
     
     public static Double compareWithDelta(List<Double> benchmarkVersionScores, List<Double> compareVersionScores,
-    		String rangeStr, Threshold threshold) {
+    		int range, Threshold threshold) {
         int benchmarkVersionSize = benchmarkVersionScores.size();
         int compareVersionSize = compareVersionScores.size();
-        int range = validateRange(compareVersionScores, rangeStr);
         Double newScore = benchmarkVersionScores.get(benchmarkVersionSize - 1);
         Double compareValue = calculateMean(
                 compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
@@ -104,10 +109,9 @@ public final class Comparisons {
     }
 
     public static Double compareWithSD(List<Double> benchmarkVersionScores, List<Double> compareVersionScores,
-            String rangeStr) {
+            int range) {
         int benchmarkVersionSize = benchmarkVersionScores.size();
         int compareVersionSize = compareVersionScores.size();
-        int range = validateRange(compareVersionScores, rangeStr);
         Double newScore = benchmarkVersionScores.get(benchmarkVersionSize - 1);
         Double compareMean = calculateMean(
                 compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
@@ -250,39 +254,30 @@ public final class Comparisons {
     }
 
     public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-        CompareBenchmarks.totalComparedBenchmarks++;
         if (Math.abs(deviationsFromMean) < deviationsAllowed) {
-            CompareBenchmarks.totalPassedBenchmarks++;
             log.info("Passed assertion");
             return true;
         } else {
-            CompareBenchmarks.totalFailedBenchmarks++;
             log.error("FAILED assertion");
             return false;
         }
     }
 
     public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
-        CompareBenchmarks.totalComparedBenchmarks++;
         if (Math.abs(percentChange) < percentageAllowed) {
-            CompareBenchmarks.totalPassedBenchmarks++;
             log.info("Passed assertion");
             return true;
         } else {
-            CompareBenchmarks.totalFailedBenchmarks++;
             log.error("FAILED assertion");
             return false;
         }
     }
 
     public static boolean passAssertionPositive(Double val) {
-        CompareBenchmarks.totalComparedBenchmarks++;
         if (val >= 0) {
-            CompareBenchmarks.totalPassedBenchmarks++;
             log.info("Passed assertion");
             return true;
         } else {
-            CompareBenchmarks.totalFailedBenchmarks++;
             log.error("FAILED assertion");
             return false;
         }

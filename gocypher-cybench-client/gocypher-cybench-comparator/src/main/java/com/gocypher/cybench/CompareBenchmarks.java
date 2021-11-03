@@ -159,7 +159,7 @@ public class CompareBenchmarks {
     		String benchmarkVersion, String benchmarkMode, Double benchmarkScore, Double compareValue) {
     	Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
     	Comparisons.Scope compareScope = (Comparisons.Scope) configMap.get(ConfigHandling.SCOPE);
-    	String compareRange = (String) configMap.get(ConfigHandling.RANGE);
+    	int compareRange = (int) configMap.get(ConfigHandling.RANGE);
     	Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
     	String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
     	Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
@@ -247,7 +247,7 @@ public class CompareBenchmarks {
                         Comparisons.Method compareMethod = (Comparisons.Method) benchmarkData
                                 .get(ConfigHandling.METHOD);
                         Comparisons.Scope compareScope = (Comparisons.Scope) benchmarkData.get(ConfigHandling.SCOPE);
-                        String compareRange = (String) benchmarkData.get(ConfigHandling.RANGE);
+                        int compareRange = (int) benchmarkData.get(ConfigHandling.RANGE);
                         String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
                         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) benchmarkData
                                 .get(ConfigHandling.THRESHOLD);

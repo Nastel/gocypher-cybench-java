@@ -19,37 +19,42 @@
 
 // depending on compare method set (DELTA / SD), returns (change in value within/between versions OR deviations from mean within/between versions)
 // params: {String, String, String, List<Double>, List<Double> (optional)}
-function compareScores(benchmarkName, currentVersion, benchmarkMode, currentVersionScores, compareVersionScores) {
+function compareScores(benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores) {
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
     }
-	return Comparisons.compareScores(logConfigs,  benchmarkName, currentVersion, benchmarkMode, currentVersionScores, compareVersionScores);
+	return Comparisons.compareScores(new HashMap(logConfigs), benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
 // returns change in value within/between versions
 // params: {String, String, String, Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
 function compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, threshold, range, currentVersionScores, compareVersionScores) {
-	Comparisons.logComparison(Comparisons.State.RUNNING, logConfigs, benchmarkName, benchmarkVersion, benchmarkMode, Comparisons.Method.DELTA, range, threshold);
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
     }
-    return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, range, threshold);
+    var tempConfigMap = new HashMap(logConfigs);
+	tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
+	tempConfigMap.put(ConfigHandling.RANGE, range.toString());
+	tempConfigMap.put(ConfigHandling.THRESHOLD, threshold);
+    return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
 // returns deviations from mean within/between versions
 // params: {String, String, String, String, List<Double>, List<Double> (optional)}
 function compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, currentVersionScores, compareVersionScores) {
-	Comparisons.logComparison(Comparisons.State.RUNNING, logConfigs, benchmarkName, benchmarkVersion, benchmarkMode, Comparisons.Method.SD, range, null);
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
     }
-    return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range);
+	var tempConfigMap = new HashMap(logConfigs);
+	tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.SD);
+	tempConfigMap.put(ConfigHandling.RANGE, range.toString());
+    return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
 // return change in value
