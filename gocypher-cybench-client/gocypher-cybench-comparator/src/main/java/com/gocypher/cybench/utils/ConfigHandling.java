@@ -60,13 +60,18 @@ public class ConfigHandling {
     public static final String REPORT_PATH = "reportPath";
     public static final String CONFIG_PATH = "configPath";
     public static final String SCRIPT_PATH = "scriptPath";
+    public static final String BENCHMARK_NAME = "benchmarkName";
+    public static final String BENCHMARK_MODE = "benchmarkMode";
+    public static final String BENCHMARK_SCORE = "benchmarkScore";
     public static final String METHOD = "method";
     public static final String SCOPE = "scope";
     public static final String RANGE = "range";
     public static final String THRESHOLD = "threshold";
+    public static final String BENCHMARK_VERSION = "benchmarkVersion";
     public static final String COMPARE_VERSION = "compareVersion";
     public static final String PERCENT_CHANGE_ALLOWED = "percentChangeAllowed";
     public static final String DEVIATIONS_ALLOWED = "deviationsAllowed";
+    public static final String COMPARE_VALUE = "compareValue";
 
     public static Map<String, Object> loadYaml(String configFilePath) {
         File configFile = identifyConfigFile(configFilePath);

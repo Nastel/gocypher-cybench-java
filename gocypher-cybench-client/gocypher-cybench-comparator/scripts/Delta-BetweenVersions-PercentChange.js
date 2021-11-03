@@ -34,9 +34,7 @@ forEach.call(myFingerprints, function (fingerprint) {
 
         // check to make sure there are benchmarks to compare to
         if (compareVersionScores != null) {
-            logComparison(benchmarkName, mode);
-            var percentChange = compareScores(currentVersionScores, compareVersionScores);
-            var pass = passAssertion(percentChange);
+            var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);
         }
     });
 });

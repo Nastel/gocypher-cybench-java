@@ -17,41 +17,31 @@
  *
  */
 
-// help log the comparison being ran
-// params: {String, String}
-function logComparison(benchmarkName, mode) {
-    return Comparisons.logComparison(logConfigs, benchmarkName, mode);
-}
-
 // depending on compare method set (DELTA / SD), returns (change in value within/between versions OR deviations from mean within/between versions)
-// params: {List<Double>, List<Double> (optional)}
-function compareScores(currentVersionScores, compareVersionScores) {
+// params: {String, String, List<Double>, List<Double> (optional)}
+function compareScores(benchmarkName, currentVersion, benchmarkMode, currentVersionScores, compareVersionScores) {
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
     }
-    if (method === Comparisons.Method.DELTA) {
-        return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range);
-    } else {
-        return Comparisons.compareWithSD(currentVersionScores, compareVersionScores, range);
-    }
+	return Comparisons.compareScores(logConfigs,  benchmarkName, currentVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
 // returns change in value within/between versions
-// params: {Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
-function compareDelta(threshold, range, currentVersionScores, compareVersionScores) {
+// params: {String, String, Comparisons.Threshold, String, List<Double>, List<Double> (optional)}
+function compareDelta(benchmarkName, benchmarkMode, threshold, range, currentVersionScores, compareVersionScores) {
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
     }
-    return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, threshold, range);
+    return Comparisons.compareWithDelta(currentVersionScores, compareVersionScores, range, threshold);
 }
 
 // returns deviations from mean within/between versions
-// params: {String, List<Double>, List<Double> (optional)}
-function compareSD(range, currentVersionScores, compareVersionScores) {
+// params: {String, String, String, List<Double>, List<Double> (optional)}
+function compareSD(benchmarkName, benchmarkMode, range, currentVersionScores, compareVersionScores) {
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list

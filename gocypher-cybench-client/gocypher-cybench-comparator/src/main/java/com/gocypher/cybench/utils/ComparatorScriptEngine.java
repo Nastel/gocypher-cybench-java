@@ -158,14 +158,6 @@ public class ComparatorScriptEngine {
             e.printStackTrace();
         }
 
-        logPassFailData();
-    }
-
-    private void logPassFailData() throws Exception {
-        System.out.print("\n");
-        log.info("compared={}, passed={}, failed={}", CompareBenchmarks.totalComparedBenchmarks,
-                CompareBenchmarks.totalPassedBenchmarks, CompareBenchmarks.totalFailedBenchmarks);
-        System.out.print("\n");
-        CompareBenchmarks.buildFailureCheck();
+        CompareBenchmarks.finalizeComparisonLogs();
     }
 }
