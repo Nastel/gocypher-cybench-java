@@ -19,10 +19,7 @@
 
 package com.gocypher.cybench.utils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +32,6 @@ import com.gocypher.cybench.services.Requests;
 
 public final class Comparisons {
 	private static final Logger log = LoggerFactory.getLogger(Comparisons.class);
-	public static final DecimalFormat df1 = new DecimalFormat("#.##");
 
 	private Comparisons() {
 	}
