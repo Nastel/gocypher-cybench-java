@@ -179,7 +179,7 @@ the background as you execute the script.
 * Next come the comparisons and assertions
     * First, a check is made to ensure that compareVersionScores was populated with at least one score, so a comparison
       can be made
-    * `var percentChange = compareScores(currentVersionScores, compareVersionScores);`
+    * `var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);`
       calls a generalized compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
       below
         * It compares the current version scores under a specific mode to the previous version scores under the same
