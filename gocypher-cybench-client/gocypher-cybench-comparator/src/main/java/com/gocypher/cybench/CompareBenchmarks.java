@@ -52,7 +52,7 @@ public class CompareBenchmarks {
     private static final String AUTO_PASS_KEY = "autoPass";
 
     public static void main(String... args) throws Exception {
-        log.info("* Analyzing benchmark performance...");
+        logInfo("* Analyzing benchmark performance...");
 
         Options options = new Options();
         options.addOption("F", ConfigHandling.FAIL_BUILD_FLAG, false, "Fail build on failed comparisons");
@@ -72,7 +72,7 @@ public class CompareBenchmarks {
         CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("F")) {
-            log.warn("Build will fail if any benchmark comparison assertions fail\n");
+            logWarn("Build will fail if any benchmark comparison assertions fail\n");
             failBuildFlag = true;
         }
 
@@ -102,16 +102,16 @@ public class CompareBenchmarks {
         String configPath = passedProps.get(ConfigHandling.CONFIG_PATH);
 
         if (scriptPath != null) {
-            log.info("Attempting to evaluate custom defined script at {}\n", scriptPath);
+            logInfo("Attempting to evaluate custom defined script at {}\n", scriptPath);
 
             ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps, scriptPath);
         } else {
             if (configPath == null) {
-                log.info("No script or config file specified, looking for comparator.yaml in default location");
+                logInfo("No script or config file specified, looking for comparator.yaml in default location");
                 configPath = ConfigHandling.DEFAULT_COMPARATOR_CONFIG_PATH;
             }
 
-            log.info("Attempting to load comparator configurations at {}\n", configPath);
+            logInfo("Attempting to load comparator configurations at {}\n", configPath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configPath);
             Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
 
@@ -123,9 +123,9 @@ public class CompareBenchmarks {
                 analyzeBenchmarks(accessToken, recentReport, allConfigs, configuredPackages);
             } else {
                 if (recentReport == null) {
-                    log.error("* No recent report found to compare!");
+                    logErr("* No recent report found to compare!");
                 } else if (accessToken == null) {
-                    log.error("* Failed to authorize provided access token!");
+                    logErr("* Failed to authorize provided access token!");
                 }
             }
         }
@@ -152,7 +152,7 @@ public class CompareBenchmarks {
             }
 
             System.out.print("\n\n");
-            log.info("compared={}, passed={}, failed={}", totalComparedBenchmarks, totalPassedBenchmarks,
+            logInfo("compared={}, passed={}, failed={}", totalComparedBenchmarks, totalPassedBenchmarks,
                     totalFailedBenchmarks);
             System.out.print("\n");
             printBenchmarkResults(Requests.namesToFingerprints);
@@ -216,20 +216,21 @@ public class CompareBenchmarks {
 
     private static void printBenchmarkResults(Map<String, String> namesToFingerprints) {
         if (totalPassedBenchmarks > 0) {
-            printBenchmarkResultsHelper("PASSED", totalPassedBenchmarks, passedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(true, totalPassedBenchmarks, passedBenchmarks, namesToFingerprints);
         }
         System.out.print("\n");
         if (totalFailedBenchmarks > 0) {
-            printBenchmarkResultsHelper("FAILED", totalFailedBenchmarks, failedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(false, totalFailedBenchmarks, failedBenchmarks, namesToFingerprints);
         }
         System.out.print("\n");
-        log.info("* Completed benchmark analysis\n");
+        logInfo("* Completed benchmark analysis\n");
     }
 
-    private static void printBenchmarkResultsHelper(String passfail, int totalBenchmarksToReport,
+    private static void printBenchmarkResultsHelper(boolean passfail, int totalBenchmarksToReport,
             Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarksToReport,
             Map<String, String> namesToFingerprints) {
-        log.info("** {}/{} benchmarks {}:", totalBenchmarksToReport, totalComparedBenchmarks, passfail);
+    	String passfailStr = passfail ? "PASSED" : "FAILED";
+        logInfo("** {}/{} benchmarks {}:", totalBenchmarksToReport, totalComparedBenchmarks, passfailStr);
         for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> brEntry : benchmarksToReport.entrySet()) {
             String benchmarkName = brEntry.getKey();
             String fingerprint = namesToFingerprints.get(benchmarkName);
@@ -278,11 +279,19 @@ public class CompareBenchmarks {
 
                         logReport.append("test.id={}");
 
-                        log.info(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
+                        if (passfail)
+                        	logInfo(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
                                 COMPARE_VALUE, compareMethod, compareScope, compareVersion, compareRange, fingerprint);
+                        else 
+                        	logErr(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
+                                    COMPARE_VALUE, compareMethod, compareScope, compareVersion, compareRange, fingerprint);
                     } else {
-                        log.info("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
+                    	if (passfail)
+                    		logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
                                 benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore);
+                    	else
+                    		logErr("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
+                                    benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore);
                     }
                 }
             }
@@ -383,13 +392,13 @@ public class CompareBenchmarks {
             if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
                 if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
                     compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
-                    log.info(
+                    logInfo(
                             "{} - {}: Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version {}",
                             benchmarkName, benchmarkMode, compareVersion);
                 }
 
                 if (benchmarkVersion.equals(compareVersion)) {
-                    log.warn(
+                    logWarn(
                             "{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
                             benchmarkName, benchmarkMode, compareVersion, benchmarkVersion);
                     compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
@@ -397,7 +406,7 @@ public class CompareBenchmarks {
                         && Requests.getBenchmarks(benchmarkFingerprint, compareVersion).containsKey(benchmarkMode)) {
                     compareVersionScores = Requests.getBenchmarks(benchmarkFingerprint, compareVersion, benchmarkMode);
                 } else {
-                    log.warn(
+                    logWarn(
                             "{} - {}: There are no benchmarks for the specified compare version ({}), no comparison will be run",
                             benchmarkName, benchmarkMode, compareVersion);
                     return autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
@@ -411,7 +420,7 @@ public class CompareBenchmarks {
             } else {
                 range = Integer.parseInt(compareRange);
                 if (range > compareVersionScores.size()) {
-                    log.warn(
+                    logWarn(
                             "{} - {}: There are not enough values to compare to in version ({}) with specific range ({}), no comparison will be run",
                             benchmarkName, benchmarkMode, benchmarkVersion, range);
                     return autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
@@ -422,7 +431,7 @@ public class CompareBenchmarks {
             if (compareScope.equals(Comparisons.Scope.WITHIN)) {
                 compareVersion = benchmarkVersion;
                 if (benchmarkVersionScores.size() <= 1) {
-                    log.warn(
+                    logWarn(
                             "{} - {}: There are no previously tested benchmarks within the version ({}), no comparison will be run",
                             benchmarkName, benchmarkMode, benchmarkVersion);
                     return autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
@@ -431,13 +440,13 @@ public class CompareBenchmarks {
 
             switch (compareMethod) {
             case DELTA:
-                log.info("COMPARISON: {} : {} - Between versions {} and {} delta running", benchmarkName, benchmarkMode,
+                logInfo("COMPARISON: {} : {} - Between versions {} and {} delta running", benchmarkName, benchmarkMode,
                         benchmarkVersion, compareVersion);
                 COMPARE_VALUE = Comparisons.compareWithDelta(benchmarkVersionScores, compareVersionScores,
                         compareThreshold, compareRange);
                 break;
             case SD:
-                log.info("COMPARISON: {} : {} - Between versions {} and {} SD running", benchmarkName, benchmarkMode,
+                logInfo("COMPARISON: {} : {} - Between versions {} and {} SD running", benchmarkName, benchmarkMode,
                         benchmarkVersion, compareVersion);
                 COMPARE_VALUE = Comparisons.compareWithSD(benchmarkVersionScores, compareVersionScores, compareRange);
                 break;
@@ -452,7 +461,7 @@ public class CompareBenchmarks {
 
             return true;
         } else {
-            log.warn("{} - {}: There are no configurations set, no comparison will be run", benchmarkName,
+            logWarn("{} - {}: There are no configurations set, no comparison will be run", benchmarkName,
                     benchmarkMode);
             return autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
@@ -469,14 +478,26 @@ public class CompareBenchmarks {
 
     public static void buildFailureCheck() throws Exception {
         if (totalFailedBenchmarks > 0) {
-            log.warn("* There are benchmark comparison failures! *");
+            logWarn("* There are benchmark comparison failures! *");
             if (failBuildFlag) {
                 String error = "* Build failed due to scores being too low *";
-                log.error(error + "\n");
+                logErr(error + "\n");
                 // helps logs finish before exception is thrown
                 TimeUnit.MILLISECONDS.sleep(500);
                 throw new Exception(error);
             }
         }
+    }
+    
+    public static void logInfo(String msg, Object... args) {
+    	log.info(msg, args);
+    }
+    
+    public static void logWarn(String msg, Object... args) {
+    	log.warn(msg, args);
+    }
+    
+    public static void logErr(String msg, Object... args) {
+    	log.error(msg, args);
     }
 }

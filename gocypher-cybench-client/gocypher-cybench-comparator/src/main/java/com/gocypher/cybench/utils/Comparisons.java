@@ -196,7 +196,7 @@ public final class Comparisons {
             CompareBenchmarks.totalPassedBenchmarks++;
             return true;
         } else {
-            log.warn("FAILED test");
+            log.error("FAILED test");
             CompareBenchmarks.totalFailedBenchmarks++;
             return false;
         }
@@ -209,7 +209,7 @@ public final class Comparisons {
             CompareBenchmarks.totalPassedBenchmarks++;
             return true;
         } else {
-            log.warn("FAILED test");
+            log.error("FAILED test");
             CompareBenchmarks.totalFailedBenchmarks++;
             return false;
         }
@@ -222,7 +222,7 @@ public final class Comparisons {
             CompareBenchmarks.totalPassedBenchmarks++;
             return true;
         } else {
-            log.warn("FAILED test");
+            log.error("FAILED test");
             CompareBenchmarks.totalFailedBenchmarks++;
             return false;
         }
