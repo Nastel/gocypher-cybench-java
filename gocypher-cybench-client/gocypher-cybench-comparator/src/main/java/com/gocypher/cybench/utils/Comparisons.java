@@ -19,6 +19,10 @@
 
 package com.gocypher.cybench.utils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,201 +34,226 @@ import com.gocypher.cybench.CompareBenchmarks;
 import com.gocypher.cybench.services.Requests;
 
 public final class Comparisons {
-    private static final Logger log = LoggerFactory.getLogger(Comparisons.class);
+	private static final Logger log = LoggerFactory.getLogger(Comparisons.class);
+	public static final DecimalFormat df1 = new DecimalFormat("#.##");
 
-    private Comparisons() {
-    }
+	private Comparisons() {
+	}
 
-    public static int validateRange(List<Double> scores, String compareRange) {
-        int range;
-        int totalScores = scores.size();
-        if (compareRange.equals("ALL")) {
-            range = totalScores;
-        } else {
-            range = Integer.parseInt(compareRange);
-            if (range > totalScores) {
-                log.warn(
-                        "There are less scores to compare to than the specified range, will compare to as many as possible.");
-                range = totalScores;
-            }
-        }
-        return range;
-    }
+	public static int validateRange(List<Double> scores, String compareRange) {
+		int range;
+		int totalScores = scores.size();
+		if (compareRange.equals("ALL")) {
+			range = totalScores;
+		} else {
+			range = Integer.parseInt(compareRange);
+			if (range > totalScores) {
+				log.warn(
+						"There are less scores to compare to than the specified range, will compare to as many as possible.");
+				range = totalScores;
+			}
+		}
+		return range;
+	}
 
-    public static Double compareWithDelta(List<Double> currentVersionScores, List<Double> compareVersionScores,
-            Threshold threshold, String rangeString) {
-        int currentVersionSize = currentVersionScores.size();
-        int compareVersionSize = compareVersionScores.size();
-        int range = validateRange(compareVersionScores, rangeString);
-        Double newScore = currentVersionScores.get(currentVersionSize - 1);
-        Double compareValue = calculateMean(
-                compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
+	public static Double compareWithDelta(List<Double> currentVersionScores, List<Double> compareVersionScores,
+			Threshold threshold, String rangeString) {
 
-        double delta = calculateDelta(newScore, compareValue, threshold);
+		int currentVersionSize = currentVersionScores.size();
+		int compareVersionSize = compareVersionScores.size();
+		int range = validateRange(compareVersionScores, rangeString);
+		Double newScore = currentVersionScores.get(currentVersionSize - 1);
+		Double compareValue = calculateMean(
+				compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
 
-        if (threshold.equals(Threshold.GREATER)) {
-            double deltaPercentChange = calculatePercentChange(newScore, compareValue);
-            log.info("comparison=delta, recentScore={}, range={}, compareMean={}, delta={}, percentChange={}%",
-                    newScore, rangeString, compareValue, delta, deltaPercentChange);
-        } else {
-            log.info("comparison=DELTA, recentScore={}, range={}, compareMean={}, percentChange={}%", newScore,
-                    rangeString, compareValue, delta);
-        }
+		double delta = calculateDelta(newScore, compareValue, threshold);
 
-        return delta;
-    }
+		if (threshold.equals(Threshold.GREATER)) {
+			double deltaPercentChange = calculatePercentChange(newScore, compareValue);
 
-    public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores,
-            String rangeString) {
-        int currentVersionSize = currentVersionScores.size();
-        int compareVersionSize = compareVersionScores.size();
-        int range = validateRange(compareVersionScores, rangeString);
-        Double newScore = currentVersionScores.get(currentVersionSize - 1);
-        Double compareMean = calculateMean(
-                compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
+			// round values to two decimals
+			newScore = roundTwoDecimal(newScore);
+			compareValue = roundTwoDecimal(compareValue);
+			delta = roundTwoDecimal(delta);
+			deltaPercentChange = roundTwoDecimal(deltaPercentChange);
 
-        double compareSD = calculateSD(compareVersionScores.subList(compareVersionSize - range, compareVersionSize),
-                compareMean);
+			log.info("comparison=delta, recentScore={}, range={}, compareMean={}, delta={}, percentChange={}%",
+					newScore, rangeString, compareValue, delta, deltaPercentChange);
+		} else {
+			log.info("Attempting to format Double's... New Style:");
+			newScore = roundTwoDecimal(newScore);
+			compareValue = roundTwoDecimal(compareValue);
+			delta = roundTwoDecimal(delta);
+			log.info("comparison=DELTA, recentScore={}, range={}, compareMean={}, percentChange={}%", newScore,
+					rangeString, compareValue, delta);
+		}
 
-        double SDfromMean = (Math.abs(newScore) + compareMean) / compareSD;
+		return delta;
+	}
 
-        if (newScore < compareMean) {
-            SDfromMean *= -1;
-        }
+	public static Double compareWithSD(List<Double> currentVersionScores, List<Double> compareVersionScores,
+			String rangeString) {
+		int currentVersionSize = currentVersionScores.size();
+		int compareVersionSize = compareVersionScores.size();
+		int range = validateRange(compareVersionScores, rangeString);
+		Double newScore = currentVersionScores.get(currentVersionSize - 1);
+		Double compareMean = calculateMean(
+				compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
 
-        log.info("comparison=SD, recentScore={}, range={}, mean={}, SD={}, SDfromMean={}", newScore, rangeString,
-                compareMean, compareSD, SDfromMean);
+		double compareSD = calculateSD(compareVersionScores.subList(compareVersionSize - range, compareVersionSize),
+				compareMean);
 
-        return SDfromMean;
-    }
+		double SDfromMean = (Math.abs(newScore) + compareMean) / compareSD;
 
-    public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String mode) {
-        String benchmarkFingerprint = Requests.namesToFingerprints.get(benchmarkName);
-        String currentVersion = Requests.getCurrentVersion(benchmarkFingerprint);
-        StringBuilder sb = new StringBuilder();
-        Method method = (Method) logConfigs.get("method");
-        Scope scope = (Scope) logConfigs.get("scope");
-        String compareVersion = (String) logConfigs.get("compareVersion");
-        if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
-            compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
-        }
-        sb.append("COMPARISON - {} : {} - {} running {} current version {}");
-        if (scope.equals(Scope.BETWEEN)) {
-            sb.append(" and version ").append(compareVersion);
-        }
-        log.info(sb.toString(), benchmarkName, mode, method, scope, currentVersion);
-    }
+		if (newScore < compareMean) {
+			SDfromMean *= -1;
+		}
+		newScore = roundTwoDecimal(newScore);
+		compareMean = roundTwoDecimal(compareMean);
+		compareSD = roundTwoDecimal(compareSD);
+		SDfromMean = roundTwoDecimal(SDfromMean);
+		log.info("comparison=SD, recentScore={}, range={}, mean={}, SD={}, SDfromMean={}", newScore, rangeString,
+				compareMean, compareSD, SDfromMean);
 
-    // Calculate Methods
-    public static Double calculateDelta(Double newScore, Double compareValue, Threshold threshold) {
+		return SDfromMean;
+	}
 
-        Double difference = null;
+	public static void logComparison(Map<String, Object> logConfigs, String benchmarkName, String mode) {
+		String benchmarkFingerprint = Requests.namesToFingerprints.get(benchmarkName);
+		String currentVersion = Requests.getCurrentVersion(benchmarkFingerprint);
+		StringBuilder sb = new StringBuilder();
+		Method method = (Method) logConfigs.get("method");
+		Scope scope = (Scope) logConfigs.get("scope");
+		String compareVersion = (String) logConfigs.get("compareVersion");
+		if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
+			compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
+		}
+		sb.append("COMPARISON - {} : {} - {} running {} current version {}");
+		if (scope.equals(Scope.BETWEEN)) {
+			sb.append(" and version ").append(compareVersion);
+		}
+		log.info(sb.toString(), benchmarkName, mode, method, scope, currentVersion);
+	}
 
-        if (compareValue != null) {
-            switch (threshold) {
-            case GREATER:
-                difference = newScore - compareValue;
-                break;
-            case PERCENT_CHANGE:
-                difference = calculatePercentChange(newScore, compareValue);
-                break;
-            }
-        }
+	// Calculate Methods
+	public static Double calculateDelta(Double newScore, Double compareValue, Threshold threshold) {
 
-        return difference;
-    }
+		Double difference = null;
 
-    public static Double calculateMean(List<Double> scores) {
-        Double average = 0.0;
-        for (Double score : scores) {
-            average += score;
-        }
-        return average / scores.size();
-    }
+		if (compareValue != null) {
+			switch (threshold) {
+			case GREATER:
+				difference = newScore - compareValue;
+				break;
+			case PERCENT_CHANGE:
+				difference = calculatePercentChange(newScore, compareValue);
+				break;
+			}
+		}
 
-    public static Double calculateSD(List<Double> scores) {
-        Double mean = calculateMean(scores);
-        return calculateSD(scores, mean);
-    }
+		return difference;
+	}
 
-    public static Double calculateSD(List<Double> scores, Double mean) {
-        List<Double> temp = new ArrayList<>();
+	public static Double calculateMean(List<Double> scores) {
+		Double average = 0.0;
+		for (Double score : scores) {
+			average += score;
+		}
+		return average / scores.size();
+	}
 
-        for (Double score : scores) {
-            temp.add(Math.pow(score - mean, 2));
-        }
+	public static Double calculateSD(List<Double> scores) {
+		Double mean = calculateMean(scores);
+		return calculateSD(scores, mean);
+	}
 
-        return Math.sqrt(calculateMean(temp));
-    }
+	public static Double calculateSD(List<Double> scores, Double mean) {
+		List<Double> temp = new ArrayList<>();
 
-    private static Double calculatePercentChange(Double newScore, Double compareScore) {
-        return 100 * ((newScore - compareScore) / compareScore);
-    }
+		for (Double score : scores) {
+			temp.add(Math.pow(score - mean, 2));
+		}
 
-    public static enum Method {
-        DELTA, SD
-    }
+		return Math.sqrt(calculateMean(temp));
+	}
 
-    public static enum Scope {
-        WITHIN, BETWEEN
-    }
+	private static Double calculatePercentChange(Double newScore, Double compareScore) {
+		return 100 * ((newScore - compareScore) / compareScore);
+	}
 
-    public static enum Threshold {
-        PERCENT_CHANGE, GREATER
-    }
+	private static Double roundTwoDecimal(Double value) {
+		// TODO: Handle *BIG* scores in scientific notation
+		DecimalFormat df1 = new DecimalFormat("##################.00");
+		// DecimalFormat.format() always returns a string, must convert to Double
+		String tempStr = df1.format(value);
+		Double formatValue = Double.parseDouble(tempStr);
+		return formatValue;
+	}
 
-    public static boolean passAssertion(Double COMPARE_VALUE, Method method, Threshold threshold,
-            Double percentageAllowed, Double deviationsAllowed) {
-        // assert within x SDs from mean
-        if (method.equals(Method.SD)) {
-            return passAssertionDeviation(COMPARE_VALUE, deviationsAllowed);
-        }
+	public static enum Method {
+		DELTA, SD
+	}
 
-        // assert within x Percentage from COMPARE_VALUE
-        if (threshold.equals(Threshold.PERCENT_CHANGE)) {
-            return passAssertionPercentage(COMPARE_VALUE, percentageAllowed);
-        }
+	public static enum Scope {
+		WITHIN, BETWEEN
+	}
 
-        // assert higher than COMPARE_VALUE
-        return passAssertionPositive(COMPARE_VALUE);
-    }
+	public static enum Threshold {
+		PERCENT_CHANGE, GREATER
+	}
 
-    public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-        CompareBenchmarks.totalComparedBenchmarks++;
-        if (Math.abs(deviationsFromMean) < deviationsAllowed) {
-            log.info("Passed test");
-            CompareBenchmarks.totalPassedBenchmarks++;
-            return true;
-        } else {
-            log.error("FAILED test");
-            CompareBenchmarks.totalFailedBenchmarks++;
-            return false;
-        }
-    }
+	public static boolean passAssertion(Double COMPARE_VALUE, Method method, Threshold threshold,
+			Double percentageAllowed, Double deviationsAllowed) {
+		// assert within x SDs from mean
+		if (method.equals(Method.SD)) {
+			return passAssertionDeviation(COMPARE_VALUE, deviationsAllowed);
+		}
 
-    public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
-        CompareBenchmarks.totalComparedBenchmarks++;
-        if (Math.abs(percentChange) < percentageAllowed) {
-            log.info("Passed test");
-            CompareBenchmarks.totalPassedBenchmarks++;
-            return true;
-        } else {
-            log.error("FAILED test");
-            CompareBenchmarks.totalFailedBenchmarks++;
-            return false;
-        }
-    }
+		// assert within x Percentage from COMPARE_VALUE
+		if (threshold.equals(Threshold.PERCENT_CHANGE)) {
+			return passAssertionPercentage(COMPARE_VALUE, percentageAllowed);
+		}
 
-    public static boolean passAssertionPositive(Double val) {
-        CompareBenchmarks.totalComparedBenchmarks++;
-        if (val >= 0) {
-            log.info("Passed test");
-            CompareBenchmarks.totalPassedBenchmarks++;
-            return true;
-        } else {
-            log.error("FAILED test");
-            CompareBenchmarks.totalFailedBenchmarks++;
-            return false;
-        }
-    }
+		// assert higher than COMPARE_VALUE
+		return passAssertionPositive(COMPARE_VALUE);
+	}
+
+	public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
+		CompareBenchmarks.totalComparedBenchmarks++;
+		if (Math.abs(deviationsFromMean) < deviationsAllowed) {
+			log.info("Passed test");
+			CompareBenchmarks.totalPassedBenchmarks++;
+			return true;
+		} else {
+			log.warn("FAILED test");
+			CompareBenchmarks.totalFailedBenchmarks++;
+			return false;
+		}
+	}
+
+	public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
+		CompareBenchmarks.totalComparedBenchmarks++;
+		if (Math.abs(percentChange) < percentageAllowed) {
+			log.info("Passed test");
+			CompareBenchmarks.totalPassedBenchmarks++;
+			return true;
+		} else {
+			log.warn("FAILED test");
+			CompareBenchmarks.totalFailedBenchmarks++;
+			return false;
+		}
+	}
+
+	public static boolean passAssertionPositive(Double val) {
+		CompareBenchmarks.totalComparedBenchmarks++;
+		if (val >= 0) {
+			log.info("Passed test");
+			CompareBenchmarks.totalPassedBenchmarks++;
+			return true;
+		} else {
+			log.warn("FAILED test");
+			CompareBenchmarks.totalFailedBenchmarks++;
+			return false;
+		}
+	}
 }
