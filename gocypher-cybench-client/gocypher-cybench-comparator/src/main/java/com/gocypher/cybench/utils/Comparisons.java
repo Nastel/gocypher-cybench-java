@@ -228,14 +228,20 @@ public final class Comparisons {
 
 	private static Double roundHandling(Double value) {
 
-		DecimalFormat df1 = new DecimalFormat("#.0000");
-		if (value > 0.0001) {
+		DecimalFormat df1 = new DecimalFormat("#.00");
+		DecimalFormat df2 = new DecimalFormat("#.00000");
+		
+		if (value >= 5) {
 
 			String tempStr = df1.format(value);
 			Double formatValue = Double.parseDouble(tempStr);
 			return formatValue;
 
-		} else {
+		} else if (value >= 1 && value < 5) {
+			String tempStr = df2.format(value);
+			Double formatValue = Double.parseDouble(tempStr);
+			return formatValue;
+		}else {
 			return value;
 		}
 	}
@@ -257,7 +263,8 @@ public final class Comparisons {
 			// assert higher than COMPARE_VALUE
 			pass = passAssertionPositive(compareValue);
 		}
-
+		
+		benchmarkScore = roundHandling(benchmarkScore);
 		compareValue = roundHandling(compareValue);
 
 		CompareBenchmarks.addPassFailBenchData(
