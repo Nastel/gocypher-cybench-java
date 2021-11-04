@@ -428,7 +428,7 @@ public class CompareBenchmarks {
 
             return true;
         } else {
-            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set, no comparison will be run", benchmarkName,
+            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set", benchmarkName,
                     benchmarkMode);
             return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
