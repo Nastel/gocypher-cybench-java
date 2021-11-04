@@ -75,9 +75,9 @@ function compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviat
 }
 
 // return change in value
-// params: {Double, Double, Comparisons.Threshold}
-function calculateDelta(newScore, compareValue, threshold) {
-    return Comparisons.calculateDelta(newScore, compareValue, threshold);
+// params: {Double, Double}
+function calculateDelta(newScore, compareValue) {
+    return Comparisons.calculateDelta(newScore, compareValue, Comparisons.Threshold.GREATER);
 }
 
 // returns mean
