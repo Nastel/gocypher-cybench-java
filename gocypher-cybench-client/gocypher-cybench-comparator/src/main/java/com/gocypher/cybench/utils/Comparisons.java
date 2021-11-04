@@ -40,7 +40,7 @@ public final class Comparisons {
             String benchmarkVersion, String benchmarkMode, Double benchmarkScore, List<Double> benchmarkVersionScores,
             List<Double> compareVersionScores) {
         if (compareVersionScores == null) {
-            logWarn("{} - {}: There are no scores to compare to!", benchmarkName, benchmarkMode);
+            logWarn("SKIP COMPARISON - {} : mode={} - There are no scores to compare to!", benchmarkName, benchmarkMode);
             return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
         String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
@@ -52,7 +52,7 @@ public final class Comparisons {
         } else {
             range = Integer.parseInt(compareRange);
             if (range > compareVersionScores.size()) {
-                logWarn("{} - {}: There are not enough values to compare to in version ({}) with specific range ({}), no comparison will be run",
+                logWarn("SKIP COMPARISON - {} : mode={} - There are not enough values to compare to in version={} with specific range={}",
                         benchmarkName, benchmarkMode, benchmarkVersion, range);
                 return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
             }
@@ -64,12 +64,12 @@ public final class Comparisons {
             if (!compareVersion.equals(benchmarkVersion)) {
                 compareVersion = benchmarkVersion;
                 configMap.put(ConfigHandling.COMPARE_VERSION, compareVersion);
-                logWarn("{} -{}: Compare scope set to WITHIN but compareVersion specified as a separate version, will ignore compareVersion",
+                logWarn("{} : mode={} - Compare scope set to WITHIN but compareVersion specified as a separate version, will ignore compareVersion",
                         benchmarkName, benchmarkMode);
             }
 
             if (benchmarkVersionScores.size() <= 1) {
-                logWarn("{} - {}: There are no previously tested benchmarks within the version ({}), no comparison will be run",
+                logWarn("SKIP COMPARISON - {} : mode={} - There are no previously tested benchmarks within the version={}",
                         benchmarkName, benchmarkMode, benchmarkVersion);
                 return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
             }

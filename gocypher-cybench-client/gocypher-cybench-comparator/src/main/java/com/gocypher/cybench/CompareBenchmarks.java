@@ -403,19 +403,19 @@ public class CompareBenchmarks {
             if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
                 if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
                     compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
-                    logInfo("{} - {}: Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version {}",
+                    logInfo("{} : mode={} - Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version={}",
                             benchmarkName, benchmarkMode, compareVersion);
                 }
 
                 if (benchmarkVersion.equals(compareVersion)) {
-                    logWarn("{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
+                    logWarn("{} : mode={} - the compare version specified ({}) is the same as the currently benchmarked version={}, will perform WITHIN VERSION comparisons",
                             benchmarkName, benchmarkMode, compareVersion, benchmarkVersion);
                     compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
                 } else if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(compareVersion)
                         && Requests.getBenchmarks(benchmarkFingerprint, compareVersion).containsKey(benchmarkMode)) {
                     compareVersionScores = Requests.getBenchmarks(benchmarkFingerprint, compareVersion, benchmarkMode);
                 } else {
-                    logWarn("{} - {}: There are no benchmarks for the specified compare version ({}), no comparison will be run",
+                    logWarn("SKIP COMPARISON - {} : mode={} - There are no benchmarks for the specified compare version={}",
                             benchmarkName, benchmarkMode, compareVersion);
                     return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
                 }
@@ -428,7 +428,7 @@ public class CompareBenchmarks {
 
             return true;
         } else {
-            logWarn("{} - {}: There are no configurations set, no comparison will be run", benchmarkName,
+            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set, no comparison will be run", benchmarkName,
                     benchmarkMode);
             return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
