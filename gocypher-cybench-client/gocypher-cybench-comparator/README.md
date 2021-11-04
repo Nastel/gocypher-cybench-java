@@ -208,16 +208,16 @@ the background as you execute the script.
   previous version returns null.
 * `compareScores` is a generalized compare method which collects information from the command line flag arguments to
   decide which comparison method to run, for more specific comparisons, you can use the functions below
-* `compareDelta` and `compareSD` are specific compare methods you can call with your scores that run all calculations
+* `compareDelta`, `compareDeltaPercentChange`, and `compareSD` are specific compare methods you can call with your scores that run all calculations
   behind the scenes and return Double values
    * **NOTE:** When calling `compareSD`, you must supply `deviationsAllowed` (a `Double` type), example below:
       * `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviationsAllowed, currentVersionScores, compareVersionScores)`
       * A filled out `compareSD()` may look like this: `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, 5, 1, currentVersionScores, compareVersionScores)`
           * where `5` is the `range`, and `1` is the `deviationsAllowed`. Refer to `ComparatorScriptBindings.js` for full parameters/exepectations.
-   * **NOTE:** When calling `compareDelta`, you must supply `percentChangeAllowed` **EVEN** if you're using `GREATER` as the `threshold`
-      * `compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, threshold, range, percentChangeAllowed, currentVersionScores, compareVersionScores)`
-      * A filled out `compareDelta()` may look like this: `compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, threshold, 5, 15, currentVersionScores, compareVersionScore)`
-          * where `5` is the `range` and `15` is the `percentChangeAllowed`. Even if `threshold` (-t) was set to `GREATER`, **percentChangeAllowed** must still be passed. It won't be used, but is still **necessary** for functionaility. 
+   * **NOTE:** When calling `compareDeltaPercentChange`, you must supply `percentChangeAllowed`
+      * `compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMode, range, percentChangeAllowed, currentVersionScores, compareVersionScores)`
+      * A filled out `compareDelta()` may look like this: `compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, 5, 15, currentVersionScores, compareVersionScore)`
+          * where `5` is the `range` and `15` is the `percentChangeAllowed`.
 * `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are specific simple methods you can
   quickly access for your own calculations and return `Double` values
 * `passAssertion` is a generalized assert method which collects information from the command line flag arguments to
