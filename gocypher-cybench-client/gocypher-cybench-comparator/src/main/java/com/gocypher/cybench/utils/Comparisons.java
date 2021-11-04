@@ -153,7 +153,7 @@ public final class Comparisons {
         if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
             compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
         }
-        sb.append("COMPARISON {} - {} : {} - method={} ({} version {}");
+        sb.append("{} COMPARISON - {} : {} - method={} ({} version {}");
         if (scope.equals(Scope.BETWEEN)) {
             sb.append(" and version ").append(compareVersion);
         }
