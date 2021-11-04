@@ -140,7 +140,7 @@ public class ConfigHandling {
         }
 
         if (!comparatorProps.containsKey(DEFAULT_IDENTIFIER_HEADER)) {
-            log.warn("No default compare vals specified");
+            log.warn("No default compare values specified");
             log.warn("Using predefined defaults (method: {}, scope: {}, range: {}, threshold: {})",
                     DEFAULT_COMPARE_METHOD, DEFAULT_COMPARE_SCOPE, DEFAULT_COMPARE_RANGE, DEFAULT_COMPARE_THRESHOLD);
 

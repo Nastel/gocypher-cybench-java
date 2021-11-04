@@ -39,7 +39,7 @@ public class ComparatorScriptEngine {
     private static final Logger log = LoggerFactory.getLogger(ComparatorScriptEngine.class);
     private final String[] engineDefs = { "var Comparisons = Java.type('com.gocypher.cybench.utils.Comparisons');",
             "var ConfigHandling = Java.type('com.gocypher.cybench.utils.ConfigHandling')",
-    		"var Requests = Java.type('com.gocypher.cybench.services.Requests');",
+            "var Requests = Java.type('com.gocypher.cybench.services.Requests');",
             "var forEach = Array.prototype.forEach;", "var HashMap = Java.type('java.util.HashMap');",
             "var ArrayList = Java.type('java.util.ArrayList');" };
     private Map<String, Map<String, Map<String, Double>>> myBenchmarks;

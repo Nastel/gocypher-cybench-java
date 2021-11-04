@@ -37,7 +37,6 @@ import com.gocypher.cybench.services.Requests;
 import com.gocypher.cybench.utils.ComparatorScriptEngine;
 import com.gocypher.cybench.utils.Comparisons;
 import com.gocypher.cybench.utils.Comparisons.Scope;
-import com.gocypher.cybench.utils.Comparisons.Threshold;
 import com.gocypher.cybench.utils.ConfigHandling;
 
 public class CompareBenchmarks {
@@ -151,21 +150,22 @@ public class CompareBenchmarks {
                     }
                 }
             }
-            
+
             finalizeComparisonLogs();
         }
     }
 
-    public static void addPassFailBenchData(Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks, Map<String, Object> configMap, String benchmarkName, 
-    		String benchmarkVersion, String benchmarkMode, Double benchmarkScore, Double compareValue) {
-    	Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
-    	Comparisons.Scope compareScope = (Comparisons.Scope) configMap.get(ConfigHandling.SCOPE);
-    	String compareRange = (String) configMap.get(ConfigHandling.RANGE);
-    	Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
-    	String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
-    	Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
-    	Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
-    	
+    public static void addPassFailBenchData(Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks,
+            Map<String, Object> configMap, String benchmarkName, String benchmarkVersion, String benchmarkMode,
+            Double benchmarkScore, Double compareValue) {
+        Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
+        Comparisons.Scope compareScope = (Comparisons.Scope) configMap.get(ConfigHandling.SCOPE);
+        String compareRange = (String) configMap.get(ConfigHandling.RANGE);
+        Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
+        String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
+        Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
+        Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
+
         Map<String, Object> data = prepareCompareDataMap(benchmarks, benchmarkName, benchmarkVersion, benchmarkMode);
         data.put(ConfigHandling.BENCHMARK_SCORE, benchmarkScore);
         data.put(ConfigHandling.COMPARE_VALUE, compareValue);
@@ -177,7 +177,7 @@ public class CompareBenchmarks {
         data.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, percentChangeAllowed);
         data.put(ConfigHandling.DEVIATIONS_ALLOWED, deviationsAllowed);
     }
-    
+
     private static Map<String, Object> prepareCompareDataMap(
             Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks, String benchmarkName,
             String benchmarkVersion, String benchmarkMode) {
@@ -230,7 +230,7 @@ public class CompareBenchmarks {
     private static void printBenchmarkResultsHelper(boolean passfail, int totalBenchmarksToReport,
             Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarksToReport,
             Map<String, String> namesToFingerprints) {
-    	String passfailStr = passfail ? "PASSED" : "FAILED";
+        String passfailStr = passfail ? "PASSED" : "FAILED";
         logInfo("** {}/{} benchmarks {}:", totalBenchmarksToReport, totalComparedBenchmarks, passfailStr);
         for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> brEntry : benchmarksToReport.entrySet()) {
             String benchmarkName = brEntry.getKey();
@@ -255,7 +255,8 @@ public class CompareBenchmarks {
 
                         String compareStr;
                         if (compareMethod == Comparisons.Method.DELTA) {
-                        	 compareStr = compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE) ? "test.percentChange={}%, " : "test.delta={}, ";
+                            compareStr = compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)
+                                    ? "test.percentChange={}%, " : "test.delta={}, ";
                         } else {
                             compareStr = "test.SDsFromMean={}, ";
                         }
@@ -266,7 +267,7 @@ public class CompareBenchmarks {
                                         + "test.compare.scope={}, test.compare.version={}, test.compare.range={}, ");
 
                         if (compareMethod.equals(Comparisons.Method.DELTA)) {
-                            
+
                             logReport.append("test.compare.threshold=").append(compareThreshold).append(", ");
                             if (compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)) {
                                 Double percentChangeAllowed = (Double) benchmarkData
@@ -281,19 +282,23 @@ public class CompareBenchmarks {
 
                         logReport.append("test.id={}");
 
-                        if (passfail)
-                        	logInfo(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
-                                compareValue, compareMethod, compareScope, compareVersion, compareRange, fingerprint);
-                        else 
-                        	logErr(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
-                        			compareValue, compareMethod, compareScope, compareVersion, compareRange, fingerprint);
+                        if (passfail) {
+                            logInfo(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode,
+                                    benchmarkScore, compareValue, compareMethod, compareScope, compareVersion,
+                                    compareRange, fingerprint);
+                        } else {
+                            logErr(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
+                                    compareValue, compareMethod, compareScope, compareVersion, compareRange,
+                                    fingerprint);
+                        }
                     } else {
-                    	if (passfail)
-                    		logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
-                                benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore);
-                    	else
-                    		logErr("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
+                        if (passfail) {
+                            logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
                                     benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore);
+                        } else {
+                            logErr("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
+                                    benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore);
+                        }
                     }
                 }
             }
@@ -388,22 +393,19 @@ public class CompareBenchmarks {
             if (compareScope.equals(Comparisons.Scope.BETWEEN)) {
                 if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
                     compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
-                    logInfo(
-                            "{} - {}: Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version {}",
+                    logInfo("{} - {}: Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version {}",
                             benchmarkName, benchmarkMode, compareVersion);
                 }
 
                 if (benchmarkVersion.equals(compareVersion)) {
-                    logWarn(
-                            "{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
+                    logWarn("{} - {}: the compare version specified ({}) is the same as the currently benchmarked version ({}), will perform WITHIN VERSION comparisons",
                             benchmarkName, benchmarkMode, compareVersion, benchmarkVersion);
                     compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
                 } else if (Requests.getBenchmarks(benchmarkFingerprint).containsKey(compareVersion)
                         && Requests.getBenchmarks(benchmarkFingerprint, compareVersion).containsKey(benchmarkMode)) {
                     compareVersionScores = Requests.getBenchmarks(benchmarkFingerprint, compareVersion, benchmarkMode);
                 } else {
-                    logWarn(
-                            "{} - {}: There are no benchmarks for the specified compare version ({}), no comparison will be run",
+                    logWarn("{} - {}: There are no benchmarks for the specified compare version ({}), no comparison will be run",
                             benchmarkName, benchmarkMode, compareVersion);
                     return Comparisons.autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
                 }
@@ -411,8 +413,8 @@ public class CompareBenchmarks {
             configMap.put(ConfigHandling.SCOPE, compareScope);
             configMap.put(ConfigHandling.COMPARE_VERSION, compareVersion);
 
-            Comparisons.compareScores(configMap, benchmarkName,benchmarkVersion, benchmarkMode, 
-            		benchmarkVersionScores, compareVersionScores);
+            Comparisons.compareScores(configMap, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkVersionScores,
+                    compareVersionScores);
 
             return true;
         } else {
@@ -423,9 +425,9 @@ public class CompareBenchmarks {
     }
 
     public static void finalizeComparisonLogs() throws Exception {
-    	System.out.print("\n\n");
-        logInfo("compared={}, passed={}, (skipped={}), failed={}", totalComparedBenchmarks, totalPassedBenchmarks, 
-        		totalSkippedBenchmarks, totalFailedBenchmarks);
+        System.out.print("\n\n");
+        logInfo("compared={}, passed={}, (skipped={}), failed={}", totalComparedBenchmarks, totalPassedBenchmarks,
+                totalSkippedBenchmarks, totalFailedBenchmarks);
         System.out.print("\n");
         printBenchmarkResults(Requests.namesToFingerprints);
         if (totalFailedBenchmarks > 0) {
@@ -439,16 +441,16 @@ public class CompareBenchmarks {
             }
         }
     }
-    
+
     public static void logInfo(String msg, Object... args) {
-    	log.info(msg, args);
+        log.info(msg, args);
     }
-    
+
     public static void logWarn(String msg, Object... args) {
-    	log.warn(msg, args);
+        log.warn(msg, args);
     }
-    
+
     public static void logErr(String msg, Object... args) {
-    	log.error(msg, args);
+        log.error(msg, args);
     }
 }

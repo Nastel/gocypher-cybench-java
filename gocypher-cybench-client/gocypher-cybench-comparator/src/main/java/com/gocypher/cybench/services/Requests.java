@@ -369,7 +369,7 @@ public class Requests {
 
         for (int i = 0; i < newVersionDotSplit.size(); i++) {
             if (currentVersionDotSize == i) {
-                // newVersion has an additional dot and is therefore newer after all previous subversions have been
+                // newVersion has an additional dot and is therefore newer after all previous sub-versions have been
                 // deemed equivalent
                 return true;
             } else {

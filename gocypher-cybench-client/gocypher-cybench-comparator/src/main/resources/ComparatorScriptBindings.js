@@ -25,7 +25,7 @@ function compareScores(benchmarkName, benchmarkVersion, benchmarkMode, currentVe
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
     }
-	return Comparisons.compareScores(new HashMap(logConfigs), benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
+    return Comparisons.compareScores(new HashMap(logConfigs), benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
 // returns change in value within/between versions
@@ -37,9 +37,9 @@ function compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, threshold,
         compareVersionScores.remove(currentVersionScores.size() - 1);
     }
     var tempConfigMap = new HashMap(logConfigs);
-	tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
-	tempConfigMap.put(ConfigHandling.RANGE, range.toString());
-	tempConfigMap.put(ConfigHandling.THRESHOLD, threshold);
+    tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
+    tempConfigMap.put(ConfigHandling.RANGE, range.toString());
+    tempConfigMap.put(ConfigHandling.THRESHOLD, threshold);
     return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
@@ -51,9 +51,9 @@ function compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, curren
         // remove new score to have a comparative list
         compareVersionScores.remove(currentVersionScores.size() - 1);
     }
-	var tempConfigMap = new HashMap(logConfigs);
-	tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.SD);
-	tempConfigMap.put(ConfigHandling.RANGE, range.toString());
+    var tempConfigMap = new HashMap(logConfigs);
+    tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.SD);
+    tempConfigMap.put(ConfigHandling.RANGE, range.toString());
     return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
