@@ -171,8 +171,11 @@ public class CompareBenchmarks {
         Double compareValue = compareValues.get(Comparisons.CALCULATED_COMPARE_VALUE);
         compareValue = Comparisons.roundHandling(compareValue);
         Double delta = compareValues.get(Comparisons.CALCULATED_DELTA);
+        delta = Comparisons.roundHandling(delta);
         Double percentChange = compareValues.get(Comparisons.CALCULATED_PERCENT_CHANGE);
+        percentChange = Comparisons.roundHandling(percentChange);
         Double sdFromMean = compareValues.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+        sdFromMean = Comparisons.roundHandling(sdFromMean);
         data.put(ConfigHandling.BENCHMARK_SCORE, benchmarkScore);
         data.put(Comparisons.CALCULATED_COMPARE_VALUE, compareValue);
         data.put(Comparisons.CALCULATED_DELTA, delta);
