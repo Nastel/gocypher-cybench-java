@@ -21,6 +21,7 @@ package com.gocypher.cybench.utils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,12 @@ import com.gocypher.cybench.services.Requests;
 public final class Comparisons {
     private static final Logger log = LoggerFactory.getLogger(Comparisons.class);
 
+    // CALCULATED COMPARISONS
+    public static final String CALCULATED_COMPARE_VALUE = "compareValue";
+    public static final String CALCULATED_DELTA = "delta";
+    public static final String CALCULATED_PERCENT_CHANGE = "percentChange";
+    public static final String CALCULATED_SD_FROM_MEAN = "sdFromMean";
+    
     private Comparisons() {
     }
 
@@ -90,14 +97,26 @@ public final class Comparisons {
             String rangeStr = (String) configMap.get(ConfigHandling.RANGE);
             int range = Integer.parseInt(rangeStr);
 
+            Double delta = compareWithDelta(benchmarkVersionScores, compareVersionScores, range, Threshold.GREATER);
+            Double percentChange = compareWithDelta(benchmarkVersionScores, compareVersionScores, range, Threshold.PERCENT_CHANGE);
+            Double sdFromMean = compareWithSD(benchmarkVersionScores, compareVersionScores, range);
             if (method.equals(Method.DELTA)) {
-                compareValue = compareWithDelta(benchmarkVersionScores, compareVersionScores, range, threshold);
+            	if (threshold.equals(Threshold.GREATER))
+            		compareValue = delta;
+            	else if (threshold.equals(Threshold.PERCENT_CHANGE))
+            		compareValue = percentChange;
             } else {
-                compareValue = compareWithSD(benchmarkVersionScores, compareVersionScores, range);
+                compareValue = sdFromMean;
             }
-
+            
+            Map<String, Double> compareValues = new HashMap<>();
+            compareValues.put(CALCULATED_COMPARE_VALUE, compareValue);
+            compareValues.put(CALCULATED_DELTA, delta);
+            compareValues.put(CALCULATED_PERCENT_CHANGE, percentChange);
+            compareValues.put(CALCULATED_SD_FROM_MEAN, sdFromMean);
+            
             State state = passAssertion(configMap, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
-                    compareValue);
+            		compareValues);
             CompareBenchmarks.totalComparedBenchmarks++;
             if (state.equals(State.PASS)) {
                 CompareBenchmarks.totalPassedBenchmarks++;
@@ -249,11 +268,13 @@ public final class Comparisons {
 	}
 
     public static State passAssertion(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion,
-            String benchmarkMode, Double benchmarkScore, Double compareValue) {
+            String benchmarkMode, Double benchmarkScore, Map<String, Double> compareValues) {
         Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
         Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
         Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
+        
+        Double compareValue = compareValues.get(CALCULATED_COMPARE_VALUE);
         boolean pass = false;
         if (compareMethod.equals(Method.SD)) {
             // assert within x SDs from mean
@@ -268,7 +289,7 @@ public final class Comparisons {
 
         CompareBenchmarks.addPassFailBenchData(
                 pass ? CompareBenchmarks.passedBenchmarks : CompareBenchmarks.failedBenchmarks, configMap,
-                benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareValue);
+                benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareValues);
 
         if (pass) {
             return State.PASS;

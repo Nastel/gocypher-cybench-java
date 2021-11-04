@@ -71,7 +71,6 @@ public class ConfigHandling {
     public static final String COMPARE_VERSION = "compareVersion";
     public static final String PERCENT_CHANGE_ALLOWED = "percentChangeAllowed";
     public static final String DEVIATIONS_ALLOWED = "deviationsAllowed";
-    public static final String COMPARE_VALUE = "compareValue";
 
     public static Map<String, Object> loadYaml(String configFilePath) {
         File configFile = identifyConfigFile(configFilePath);

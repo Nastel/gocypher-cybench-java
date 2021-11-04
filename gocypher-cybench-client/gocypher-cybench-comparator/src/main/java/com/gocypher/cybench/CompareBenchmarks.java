@@ -157,7 +157,7 @@ public class CompareBenchmarks {
 
     public static void addPassFailBenchData(Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks,
             Map<String, Object> configMap, String benchmarkName, String benchmarkVersion, String benchmarkMode,
-            Double benchmarkScore, Double compareValue) {
+            Double benchmarkScore, Map<String, Double> compareValues) {
         Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
         Comparisons.Scope compareScope = (Comparisons.Scope) configMap.get(ConfigHandling.SCOPE);
         String compareRange = (String) configMap.get(ConfigHandling.RANGE);
@@ -168,9 +168,16 @@ public class CompareBenchmarks {
 
         Map<String, Object> data = prepareCompareDataMap(benchmarks, benchmarkName, benchmarkVersion, benchmarkMode);
         benchmarkScore = Comparisons.roundHandling(benchmarkScore);
+        Double compareValue = compareValues.get(Comparisons.CALCULATED_COMPARE_VALUE);
         compareValue = Comparisons.roundHandling(compareValue);
+        Double delta = compareValues.get(Comparisons.CALCULATED_DELTA);
+        Double percentChange = compareValues.get(Comparisons.CALCULATED_PERCENT_CHANGE);
+        Double sdFromMean = compareValues.get(Comparisons.CALCULATED_SD_FROM_MEAN);
         data.put(ConfigHandling.BENCHMARK_SCORE, benchmarkScore);
-        data.put(ConfigHandling.COMPARE_VALUE, compareValue);
+        data.put(Comparisons.CALCULATED_COMPARE_VALUE, compareValue);
+        data.put(Comparisons.CALCULATED_DELTA, delta);
+        data.put(Comparisons.CALCULATED_PERCENT_CHANGE, percentChange);
+        data.put(Comparisons.CALCULATED_SD_FROM_MEAN, sdFromMean);
         data.put(ConfigHandling.METHOD, compareMethod);
         data.put(ConfigHandling.SCOPE, compareScope);
         data.put(ConfigHandling.RANGE, compareRange);
@@ -256,10 +263,16 @@ public class CompareBenchmarks {
                     String benchmarkMode = bdEntry.getKey();
                     Map<String, Object> benchmarkData = bdEntry.getValue();
                     Double benchmarkScore = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-                	BigDecimal scoreConvert = BigDecimal.valueOf(benchmarkScore);
+                	BigDecimal roundedBenchmarkScore = BigDecimal.valueOf(benchmarkScore);
                     if (!passfail.equals(Comparisons.State.SKIP)) {
-                        Double compareValue = (Double) benchmarkData.get(ConfigHandling.COMPARE_VALUE);
-                        BigDecimal compareConvert = BigDecimal.valueOf(compareValue);
+                        Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
+                        BigDecimal roundedCompareValue = BigDecimal.valueOf(compareValue);
+                        Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
+                        BigDecimal roundedDelta = BigDecimal.valueOf(delta);
+                        Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
+                        BigDecimal roundedPercentChange = BigDecimal.valueOf(percentChange);
+                        Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+                        BigDecimal roundedSDFromMean = BigDecimal.valueOf(sdFromMean);
                         Comparisons.Method compareMethod = (Comparisons.Method) benchmarkData
                                 .get(ConfigHandling.METHOD);
                         Comparisons.Scope compareScope = (Comparisons.Scope) benchmarkData.get(ConfigHandling.SCOPE);
@@ -268,17 +281,9 @@ public class CompareBenchmarks {
                         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) benchmarkData
                                 .get(ConfigHandling.THRESHOLD);
 
-                        String compareStr;
-                        if (compareMethod == Comparisons.Method.DELTA) {
-                            compareStr = compareThreshold.equals(Comparisons.Threshold.PERCENT_CHANGE)
-                                    ? "test.percentChange={}%, " : "test.delta={}, ";
-                        } else {
-                            compareStr = "test.SDsFromMean={}, ";
-                        }
-
                         StringBuilder logReport = new StringBuilder(
-                                "   {} COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}, " + compareStr
-                                        + "test.compare.method={}, "
+                                "   {} COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}, "
+                                        + "test.compare.method={}, test.COMPARE.VALUE={}, test.delta={}, test.percentChange={}%, test.SDsFromMean={}, "
                                         + "test.compare.scope={}, test.compare.version={}, test.compare.range={}, ");
 
                         if (compareMethod.equals(Comparisons.Method.DELTA)) {
@@ -299,16 +304,16 @@ public class CompareBenchmarks {
                         
                         if (passfail.equals(Comparisons.State.PASS)) {
                             logInfo(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
-                            		scoreConvert, compareConvert, compareMethod, compareScope, compareVersion,
-                                    compareRange, fingerprint);
+                            		roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta, roundedPercentChange, roundedSDFromMean, 
+                            		compareScope, compareVersion, compareRange, fingerprint);
                         } else {
-                            logErr(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode, scoreConvert,
-                            		compareConvert, compareMethod, compareScope, compareVersion, compareRange,
-                                    fingerprint);
+                            logErr(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
+                            		roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta, roundedPercentChange, roundedSDFromMean, 
+                            		compareScope, compareVersion, compareRange, fingerprint);
                         }
                     } else {
                         logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
-                                    benchmarkName, benchmarkVersion, benchmarkMode, scoreConvert);
+                                    benchmarkName, benchmarkVersion, benchmarkMode, roundedBenchmarkScore);
                     }
                 }
             }
