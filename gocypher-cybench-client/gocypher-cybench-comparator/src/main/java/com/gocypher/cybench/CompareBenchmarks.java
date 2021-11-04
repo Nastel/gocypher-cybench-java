@@ -224,6 +224,7 @@ public class CompareBenchmarks {
         if (totalSkippedBenchmarks > 0) {
         	printBenchmarkResultsHelper(Comparisons.State.SKIP, totalSkippedBenchmarks, skippedBenchmarks, namesToFingerprints);
         }
+        System.out.print("\n");
         if (totalFailedBenchmarks > 0) {
             printBenchmarkResultsHelper(Comparisons.State.FAIL, totalFailedBenchmarks, failedBenchmarks, namesToFingerprints);
         }
@@ -273,7 +274,7 @@ public class CompareBenchmarks {
                         }
 
                         StringBuilder logReport = new StringBuilder(
-                                "   test.name={}, test.version={}, test.mode={}, test.score={}, " + compareStr
+                                "   {} COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}, " + compareStr
                                         + "test.compare.method={}, "
                                         + "test.compare.scope={}, test.compare.version={}, test.compare.range={}, ");
 
@@ -294,11 +295,11 @@ public class CompareBenchmarks {
                         logReport.append("test.id={}");
 
                         if (passfail.equals(Comparisons.State.PASS)) {
-                            logInfo(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode,
+                            logInfo(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
                                     benchmarkScore, compareValue, compareMethod, compareScope, compareVersion,
                                     compareRange, fingerprint);
                         } else {
-                            logErr(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
+                            logErr(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
                                     compareValue, compareMethod, compareScope, compareVersion, compareRange,
                                     fingerprint);
                         }
