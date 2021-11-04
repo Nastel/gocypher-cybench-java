@@ -167,6 +167,8 @@ public class CompareBenchmarks {
         Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
 
         Map<String, Object> data = prepareCompareDataMap(benchmarks, benchmarkName, benchmarkVersion, benchmarkMode);
+        benchmarkScore = Comparisons.roundHandling(benchmarkScore);
+        compareValue = Comparisons.roundHandling(compareValue);
         data.put(ConfigHandling.BENCHMARK_SCORE, benchmarkScore);
         data.put(ConfigHandling.COMPARE_VALUE, compareValue);
         data.put(ConfigHandling.METHOD, compareMethod);
@@ -211,6 +213,7 @@ public class CompareBenchmarks {
             String benchmarkMode) {
         Map<String, Object> data = prepareCompareDataMap(passedBenchmarks, benchmarkName, benchmarkVersion,
                 benchmarkMode);
+        benchmarkScore = Comparisons.roundHandling(benchmarkScore);
         data.put(ConfigHandling.BENCHMARK_SCORE, benchmarkScore);
         data.put(AUTO_PASS_KEY, "true");
     }

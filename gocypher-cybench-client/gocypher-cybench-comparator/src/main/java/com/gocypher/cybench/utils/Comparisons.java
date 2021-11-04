@@ -231,25 +231,25 @@ public final class Comparisons {
         RUNNING, PASS, FAIL
     }
 
-    private static Double roundHandling(Double value) {
+	public static Double roundHandling(Double value) {
+		// TODO: Handle BIG (scientific notation) scores
+		DecimalFormat df1 = new DecimalFormat("#.00");
+		DecimalFormat df2 = new DecimalFormat("#.00000");
+		
+		if (value >= 5 || value < -1) {
 
-        DecimalFormat df1 = new DecimalFormat("#.00");
-        DecimalFormat df2 = new DecimalFormat("#.00000");
+			String tempStr = df1.format(value);
+			Double formatValue = Double.parseDouble(tempStr);
+			return formatValue;
 
-        if (value >= 5) {
-
-            String tempStr = df1.format(value);
-            Double formatValue = Double.parseDouble(tempStr);
-            return formatValue;
-
-        } else if (value >= 1 && value < 5) {
-            String tempStr = df2.format(value);
-            Double formatValue = Double.parseDouble(tempStr);
-            return formatValue;
-        } else {
-            return value;
-        }
-    }
+		} else if (value >= 1 && value < 5) {
+			String tempStr = df2.format(value);
+			Double formatValue = Double.parseDouble(tempStr);
+			return formatValue;
+		}else {
+			return value;
+		}
+	}
 
     public static State passAssertion(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion,
             String benchmarkMode, Double benchmarkScore, Double compareValue) {
