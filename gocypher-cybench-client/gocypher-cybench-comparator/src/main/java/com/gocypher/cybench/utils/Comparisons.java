@@ -153,9 +153,9 @@ public final class Comparisons {
         if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
             compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
         }
-        sb.append("{} COMPARISON - {} : {} - method={} ({} version {}");
+        sb.append("{} COMPARISON - {} : mode={} - method={} ({} version={}");
         if (scope.equals(Scope.BETWEEN)) {
-            sb.append(" and version ").append(compareVersion);
+            sb.append(" and version=").append(compareVersion);
         }
         sb.append("), range={}");
         if (threshold != null) {
@@ -278,30 +278,24 @@ public final class Comparisons {
 
     public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
         if (Math.abs(deviationsFromMean) < deviationsAllowed) {
-            log.info("Passed assertion");
             return true;
         } else {
-            log.error("FAILED assertion");
             return false;
         }
     }
 
     public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
         if (Math.abs(percentChange) < percentageAllowed) {
-            log.info("Passed assertion");
             return true;
         } else {
-            log.error("FAILED assertion");
             return false;
         }
     }
 
     public static boolean passAssertionPositive(Double val) {
         if (val >= 0) {
-            log.info("Passed assertion");
             return true;
         } else {
-            log.error("FAILED assertion");
             return false;
         }
     }
