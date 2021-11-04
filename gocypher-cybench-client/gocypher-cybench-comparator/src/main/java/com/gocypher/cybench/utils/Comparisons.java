@@ -150,16 +150,18 @@ public final class Comparisons {
         Double newScore = benchmarkVersionScores.get(benchmarkVersionSize - 1);
         Double compareMean = calculateMean(
                 compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
-
+        
         double compareSD = calculateSD(compareVersionScores.subList(compareVersionSize - range, compareVersionSize),
                 compareMean);
-
-        double SDfromMean = (Math.abs(newScore) + compareMean) / compareSD;
+        double SDfromMean = 0;
+        if (compareSD != 0) {
+        	SDfromMean= (Math.abs(newScore) + compareMean) / compareSD;
+        }
 
         if (newScore < compareMean) {
             SDfromMean *= -1;
         }
-
+        
         return SDfromMean;
     }
 
@@ -226,7 +228,6 @@ public final class Comparisons {
         for (Double score : scores) {
             temp.add(Math.pow(score - mean, 2));
         }
-
         return Math.sqrt(calculateMean(temp));
     }
 
