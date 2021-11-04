@@ -269,9 +269,6 @@ public final class Comparisons {
             pass = passAssertionPositive(compareValue);
         }
 
-        benchmarkScore = roundHandling(benchmarkScore);
-        compareValue = roundHandling(compareValue);
-
         CompareBenchmarks.addPassFailBenchData(
                 pass ? CompareBenchmarks.passedBenchmarks : CompareBenchmarks.failedBenchmarks, configMap,
                 benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore, compareValue);
