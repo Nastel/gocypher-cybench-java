@@ -236,18 +236,15 @@ public final class Comparisons {
 		DecimalFormat df1 = new DecimalFormat("#.00");
 		DecimalFormat df2 = new DecimalFormat("#.00000");
 		
-		if (value >= 5 || value < -1) {
-
+		if (value >= 1 || value  < 0 )  {
 			String tempStr = df1.format(value);
 			Double formatValue = Double.parseDouble(tempStr);
 			return formatValue;
 
-		} else if (value >= 1 && value < 5) {
+		} else {
 			String tempStr = df2.format(value);
 			Double formatValue = Double.parseDouble(tempStr);
 			return formatValue;
-		}else {
-			return value;
 		}
 	}
 
