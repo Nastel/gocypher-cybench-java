@@ -417,7 +417,7 @@ public class CompareBenchmarks {
                 } else {
                     logWarn("{} - {}: There are no benchmarks for the specified compare version ({}), no comparison will be run",
                             benchmarkName, benchmarkMode, compareVersion);
-                    return Comparisons.autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
+                    return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
                 }
             }
             configMap.put(ConfigHandling.SCOPE, compareScope);
@@ -430,7 +430,7 @@ public class CompareBenchmarks {
         } else {
             logWarn("{} - {}: There are no configurations set, no comparison will be run", benchmarkName,
                     benchmarkMode);
-            return Comparisons.autoPass(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
+            return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
     }
 

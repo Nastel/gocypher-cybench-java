@@ -32,9 +32,6 @@ forEach.call(myFingerprints, function (fingerprint) {
         currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
         compareVersionScores = getBenchmarksByMode(fingerprint, compareVersion, mode);
 
-        // check to make sure there are benchmarks to compare to
-        if (compareVersionScores != null) {
-            var delta = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);
-        }
+        var delta = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);
     });
 });

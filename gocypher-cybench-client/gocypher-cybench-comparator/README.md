@@ -149,10 +149,7 @@ forEach.call(myFingerprints, function (fingerprint) {
         currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
         compareVersionScores = getBenchmarksByMode(fingerprint, compareVersion, mode);
 
-        // check to make sure there are benchmarks to compare to
-        if (compareVersionScores != null) {
-            var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);
-        }
+        var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);
     });
 });
 ```
@@ -177,8 +174,6 @@ the background as you execute the script.
       default compare version is the previous version of `currentVersion`. You can pass the compare version with the (
       -v) flag.
 * Next come the comparisons and assertions
-    * First, a check is made to ensure that compareVersionScores was populated with at least one score, so a comparison
-      can be made
     * `var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);`
       calls a generalized compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
       below
