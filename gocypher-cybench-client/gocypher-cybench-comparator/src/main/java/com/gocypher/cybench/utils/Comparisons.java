@@ -232,7 +232,7 @@ public final class Comparisons {
     }
 
 	public static Double roundHandling(Double value) {
-		// TODO: Handle BIG (scientific notation) scores
+
 		DecimalFormat df1 = new DecimalFormat("#.00");
 		DecimalFormat df2 = new DecimalFormat("#.00000");
 		

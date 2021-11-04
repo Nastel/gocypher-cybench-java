@@ -20,6 +20,7 @@
 package com.gocypher.cybench;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -294,18 +295,22 @@ public class CompareBenchmarks {
 
                         logReport.append("test.id={}");
 
+                        BigDecimal scoreConvert = BigDecimal.valueOf(benchmarkScore);
+                        BigDecimal compareConvert = BigDecimal.valueOf(compareValue);
+                        
                         if (passfail.equals(Comparisons.State.PASS)) {
                             logInfo(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
-                                    benchmarkScore, compareValue, compareMethod, compareScope, compareVersion,
+                            		scoreConvert, compareConvert, compareMethod, compareScope, compareVersion,
                                     compareRange, fingerprint);
                         } else {
-                            logErr(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
-                                    compareValue, compareMethod, compareScope, compareVersion, compareRange,
+                            logErr(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode, scoreConvert,
+                            		compareConvert, compareMethod, compareScope, compareVersion, compareRange,
                                     fingerprint);
                         }
                     } else {
+                    	BigDecimal scoreConvert = BigDecimal.valueOf(benchmarkScore);
                         logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
-                                    benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore);
+                                    benchmarkName, benchmarkVersion, benchmarkMode, scoreConvert);
                     }
                 }
             }
