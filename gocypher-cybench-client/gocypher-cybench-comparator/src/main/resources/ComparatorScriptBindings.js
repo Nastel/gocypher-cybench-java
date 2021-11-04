@@ -28,9 +28,9 @@ function compareScores(benchmarkName, benchmarkVersion, benchmarkMode, currentVe
     return Comparisons.compareScores(new HashMap(logConfigs), benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
-// returns change in value within/between versions
-// params: {String, String, String, Comparisons.Threshold, String, Double, List<Double>, List<Double> (optional)}
-function compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, threshold, range, percentChangeAllowed, currentVersionScores, compareVersionScores) {
+// returns percent change in value within/between versions
+// params: {String, String, String, String, Double, List<Double>, List<Double> (optional)}
+function compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMode, range, percentChangeAllowed, currentVersionScores, compareVersionScores) {
     if (!compareVersionScores) {
         compareVersionScores = new ArrayList(currentVersionScores);
         // remove new score to have a comparative list
@@ -39,8 +39,23 @@ function compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, threshold,
     var tempConfigMap = new HashMap(logConfigs);
     tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
     tempConfigMap.put(ConfigHandling.RANGE, range.toString());
-    tempConfigMap.put(ConfigHandling.THRESHOLD, threshold);
+	tempConfigMap.put(ConfigHandling.THRESHOLD, Comparisons.Threshold.PERCENT_CHANGE);
 	tempConfigMap.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, new Double(percentChangeAllowed));
+    return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
+}
+
+// returns change in value within/between versions
+// params: {String, String, String, String, List<Double>, List<Double> (optional)}
+function compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, range, currentVersionScores, compareVersionScores) {
+    if (!compareVersionScores) {
+        compareVersionScores = new ArrayList(currentVersionScores);
+        // remove new score to have a comparative list
+        compareVersionScores.remove(currentVersionScores.size() - 1);
+    }
+    var tempConfigMap = new HashMap(logConfigs);
+    tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
+    tempConfigMap.put(ConfigHandling.RANGE, range.toString());
+	tempConfigMap.put(ConfigHandling.THRESHOLD, Comparisons.Threshold.GREATER);
     return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
