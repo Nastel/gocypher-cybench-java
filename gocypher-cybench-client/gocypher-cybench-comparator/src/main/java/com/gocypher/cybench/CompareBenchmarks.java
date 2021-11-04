@@ -256,8 +256,10 @@ public class CompareBenchmarks {
                     String benchmarkMode = bdEntry.getKey();
                     Map<String, Object> benchmarkData = bdEntry.getValue();
                     Double benchmarkScore = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
+                	BigDecimal scoreConvert = BigDecimal.valueOf(benchmarkScore);
                     if (!passfail.equals(Comparisons.State.SKIP)) {
                         Double compareValue = (Double) benchmarkData.get(ConfigHandling.COMPARE_VALUE);
+                        BigDecimal compareConvert = BigDecimal.valueOf(compareValue);
                         Comparisons.Method compareMethod = (Comparisons.Method) benchmarkData
                                 .get(ConfigHandling.METHOD);
                         Comparisons.Scope compareScope = (Comparisons.Scope) benchmarkData.get(ConfigHandling.SCOPE);
@@ -294,9 +296,6 @@ public class CompareBenchmarks {
                         }
 
                         logReport.append("test.id={}");
-
-                        BigDecimal scoreConvert = BigDecimal.valueOf(benchmarkScore);
-                        BigDecimal compareConvert = BigDecimal.valueOf(compareValue);
                         
                         if (passfail.equals(Comparisons.State.PASS)) {
                             logInfo(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
@@ -308,7 +307,6 @@ public class CompareBenchmarks {
                                     fingerprint);
                         }
                     } else {
-                    	BigDecimal scoreConvert = BigDecimal.valueOf(benchmarkScore);
                         logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
                                     benchmarkName, benchmarkVersion, benchmarkMode, scoreConvert);
                     }
