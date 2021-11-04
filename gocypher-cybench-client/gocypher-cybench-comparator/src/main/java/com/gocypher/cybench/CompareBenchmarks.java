@@ -44,12 +44,11 @@ public class CompareBenchmarks {
     public static int totalComparedBenchmarks = 0;
     public static final Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
     public static int totalPassedBenchmarks = 0;
+    public static final Map<String, Map<String, Map<String, Map<String, Object>>>> skippedBenchmarks = new HashMap<>();
     public static int totalSkippedBenchmarks = 0;
     public static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
     public static int totalFailedBenchmarks = 0;
     public static boolean failBuildFlag = false;
-
-    private static final String AUTO_PASS_KEY = "autoPass";
 
     public static void main(String... args) throws Exception {
         logInfo("* Analyzing benchmark performance...");
@@ -207,30 +206,39 @@ public class CompareBenchmarks {
         return dataPerMode.get(benchmarkMode);
     }
 
-    public static void addAutoPassBenchData(Double benchmarkScore, String benchmarkName, String benchmarkVersion,
+    public static void addSkipBenchData(Double benchmarkScore, String benchmarkName, String benchmarkVersion,
             String benchmarkMode) {
-        Map<String, Object> data = prepareCompareDataMap(passedBenchmarks, benchmarkName, benchmarkVersion,
+        Map<String, Object> data = prepareCompareDataMap(skippedBenchmarks, benchmarkName, benchmarkVersion,
                 benchmarkMode);
         data.put(ConfigHandling.BENCHMARK_SCORE, benchmarkScore);
-        data.put(AUTO_PASS_KEY, "true");
     }
 
     private static void printBenchmarkResults(Map<String, String> namesToFingerprints) {
         if (totalPassedBenchmarks > 0) {
-            printBenchmarkResultsHelper(true, totalPassedBenchmarks, passedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(Comparisons.State.PASS, totalPassedBenchmarks, passedBenchmarks, namesToFingerprints);
         }
         System.out.print("\n");
+        if (totalSkippedBenchmarks > 0) {
+        	printBenchmarkResultsHelper(Comparisons.State.SKIP, totalSkippedBenchmarks, skippedBenchmarks, namesToFingerprints);
+        }
         if (totalFailedBenchmarks > 0) {
-            printBenchmarkResultsHelper(false, totalFailedBenchmarks, failedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(Comparisons.State.FAIL, totalFailedBenchmarks, failedBenchmarks, namesToFingerprints);
         }
         System.out.print("\n");
         logInfo("* Completed benchmark analysis\n");
     }
 
-    private static void printBenchmarkResultsHelper(boolean passfail, int totalBenchmarksToReport,
+    private static void printBenchmarkResultsHelper(Comparisons.State passfail, int totalBenchmarksToReport,
             Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarksToReport,
             Map<String, String> namesToFingerprints) {
-        String passfailStr = passfail ? "PASSED" : "FAILED";
+        String passfailStr;
+        if (passfail.equals(Comparisons.State.PASS))
+        	passfailStr = "PASSED";
+        else if (passfail.equals(Comparisons.State.FAIL))
+        	passfailStr = "FAILED";
+        else
+        	passfailStr = "SKIPPED";
+        
         logInfo("** {}/{} benchmarks {}:", totalBenchmarksToReport, totalComparedBenchmarks, passfailStr);
         for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> brEntry : benchmarksToReport.entrySet()) {
             String benchmarkName = brEntry.getKey();
@@ -243,7 +251,7 @@ public class CompareBenchmarks {
                     String benchmarkMode = bdEntry.getKey();
                     Map<String, Object> benchmarkData = bdEntry.getValue();
                     Double benchmarkScore = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-                    if (!benchmarkData.containsKey(AUTO_PASS_KEY)) {
+                    if (!passfail.equals(Comparisons.State.SKIP)) {
                         Double compareValue = (Double) benchmarkData.get(ConfigHandling.COMPARE_VALUE);
                         Comparisons.Method compareMethod = (Comparisons.Method) benchmarkData
                                 .get(ConfigHandling.METHOD);
@@ -282,7 +290,7 @@ public class CompareBenchmarks {
 
                         logReport.append("test.id={}");
 
-                        if (passfail) {
+                        if (passfail.equals(Comparisons.State.PASS)) {
                             logInfo(logReport.toString(), benchmarkName, benchmarkVersion, benchmarkMode,
                                     benchmarkScore, compareValue, compareMethod, compareScope, compareVersion,
                                     compareRange, fingerprint);
@@ -292,13 +300,8 @@ public class CompareBenchmarks {
                                     fingerprint);
                         }
                     } else {
-                        if (passfail) {
-                            logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
+                        logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
                                     benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore);
-                        } else {
-                            logErr("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
-                                    benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore);
-                        }
                     }
                 }
             }

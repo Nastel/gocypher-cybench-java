@@ -228,7 +228,7 @@ public final class Comparisons {
     }
 
     public static enum State {
-        RUNNING, PASS, FAIL
+        RUNNING, PASS, FAIL, SKIP
     }
 
     private static Double roundHandling(Double value) {
@@ -315,10 +315,9 @@ public final class Comparisons {
     // NO COMPARISON SHOULD BE RUN, PASS TEST
     public static boolean autoPass(Double benchmarkScore, String benchmarkName, String benchmarkVersion,
             String benchmarkMode) {
-        CompareBenchmarks.totalComparedBenchmarks++;
-        CompareBenchmarks.totalPassedBenchmarks++;
+    	CompareBenchmarks.totalComparedBenchmarks++;
         CompareBenchmarks.totalSkippedBenchmarks++;
-        CompareBenchmarks.addAutoPassBenchData(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
+        CompareBenchmarks.addSkipBenchData(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         return false;
     }
 
