@@ -229,15 +229,18 @@ public class CompareBenchmarks {
 
     private static void printBenchmarkResults(Map<String, String> namesToFingerprints) {
         if (totalPassedBenchmarks > 0) {
-            printBenchmarkResultsHelper(Comparisons.State.PASS, totalPassedBenchmarks, passedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(Comparisons.State.PASS, totalPassedBenchmarks, passedBenchmarks,
+                    namesToFingerprints);
         }
         System.out.print("\n");
         if (totalSkippedBenchmarks > 0) {
-        	printBenchmarkResultsHelper(Comparisons.State.SKIP, totalSkippedBenchmarks, skippedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(Comparisons.State.SKIP, totalSkippedBenchmarks, skippedBenchmarks,
+                    namesToFingerprints);
         }
         System.out.print("\n");
         if (totalFailedBenchmarks > 0) {
-            printBenchmarkResultsHelper(Comparisons.State.FAIL, totalFailedBenchmarks, failedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(Comparisons.State.FAIL, totalFailedBenchmarks, failedBenchmarks,
+                    namesToFingerprints);
         }
         System.out.print("\n");
         logInfo("* Completed benchmark analysis\n");
@@ -247,13 +250,14 @@ public class CompareBenchmarks {
             Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarksToReport,
             Map<String, String> namesToFingerprints) {
         String passfailStr;
-        if (passfail.equals(Comparisons.State.PASS))
-        	passfailStr = "PASSED";
-        else if (passfail.equals(Comparisons.State.FAIL))
-        	passfailStr = "FAILED";
-        else
-        	passfailStr = "SKIPPED";
-        
+        if (passfail.equals(Comparisons.State.PASS)) {
+            passfailStr = "PASSED";
+        } else if (passfail.equals(Comparisons.State.FAIL)) {
+            passfailStr = "FAILED";
+        } else {
+            passfailStr = "SKIPPED";
+        }
+
         logInfo("** {}/{} benchmarks {}:", totalBenchmarksToReport, totalComparedBenchmarks, passfailStr);
         for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> brEntry : benchmarksToReport.entrySet()) {
             String benchmarkName = brEntry.getKey();
@@ -266,7 +270,7 @@ public class CompareBenchmarks {
                     String benchmarkMode = bdEntry.getKey();
                     Map<String, Object> benchmarkData = bdEntry.getValue();
                     Double benchmarkScore = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-                	BigDecimal roundedBenchmarkScore = BigDecimal.valueOf(benchmarkScore);
+                    BigDecimal roundedBenchmarkScore = BigDecimal.valueOf(benchmarkScore);
                     if (!passfail.equals(Comparisons.State.SKIP)) {
                         Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
                         BigDecimal roundedCompareValue = BigDecimal.valueOf(compareValue);
@@ -304,19 +308,21 @@ public class CompareBenchmarks {
                         }
 
                         logReport.append("test.id={}");
-                        
+
                         if (passfail.equals(Comparisons.State.PASS)) {
                             logInfo(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
-                            		roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta, roundedPercentChange, roundedSDFromMean, 
-                            		compareScope, compareVersion, compareRange, fingerprint);
+                                    roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta,
+                                    roundedPercentChange, roundedSDFromMean, compareScope, compareVersion, compareRange,
+                                    fingerprint);
                         } else {
                             logErr(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
-                            		roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta, roundedPercentChange, roundedSDFromMean, 
-                            		compareScope, compareVersion, compareRange, fingerprint);
+                                    roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta,
+                                    roundedPercentChange, roundedSDFromMean, compareScope, compareVersion, compareRange,
+                                    fingerprint);
                         }
                     } else {
                         logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
-                                    benchmarkName, benchmarkVersion, benchmarkMode, roundedBenchmarkScore);
+                                benchmarkName, benchmarkVersion, benchmarkMode, roundedBenchmarkScore);
                     }
                 }
             }
@@ -436,8 +442,7 @@ public class CompareBenchmarks {
 
             return true;
         } else {
-            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set", benchmarkName,
-                    benchmarkMode);
+            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set", benchmarkName, benchmarkMode);
             return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
     }

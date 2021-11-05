@@ -42,7 +42,7 @@ public class ComparatorScriptEngine {
             "var Requests = Java.type('com.gocypher.cybench.services.Requests');",
             "var forEach = Array.prototype.forEach;", "var HashMap = Java.type('java.util.HashMap');",
             "var ArrayList = Java.type('java.util.ArrayList');",
-            "var Double = Java.type('java.lang.Double');"};
+            "var Double = Java.type('java.lang.Double');" };
     private Map<String, Map<String, Map<String, Double>>> myBenchmarks;
     private ArrayList<String> myFingerprints;
     private Map<String, Object> passedProps;

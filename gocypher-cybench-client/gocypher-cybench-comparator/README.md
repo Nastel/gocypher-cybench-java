@@ -44,18 +44,31 @@ Dependencies for your project:
 
 | Argument Flag |  `.yaml` Equivalent | Valid Options | Description
 | --- | --- | --- | --- |
-| -F, -failBuild | `failBuild:` | N/A | This argument is unique in that you don't need to pass a value with it. Default value is `false`, meaning your build will **not** fail even if one more multiple benchmark comparison tests fail. By passing the (-f) flag, this value gets set to `true`, meaning your build **will** fail if even just one benchmark comparison test fails. | 
-| -C, -configPath | N/A | An existing `comparator.yaml` config file | Allows you to forgo scripting and specify the path of a valid `comparator.yaml` configuration file | 
-| -S, -scriptPath | N/A | An existing `.js` script | Specify file path/name of the script | 
-| -T, -token | `token:` | An existing CyBench query access token | Specify your CyBench Workspace's query access token | 
-| -R, -reportPath | `reportPath: ` | Path to folder containing CyBench generated reports, or a specific report | Specify a certain `.cybench` report, or a folder of them |
-| -s, -scope | `scope:` | `WITHIN` or `BETWEEN` | Choose between comparing within current version, or between previous versions, when using `BETWEEN`, a specific version can be specified with (-v), otherwise defaults to the previous version |
-| -v, -compareVersion | `compareVersion:` | `PREVIOUS` or any specific version | Specify the version you'd like to compare to, previous is the immediate version prior to the tested version, e.g. a Benchmark with the version `2.0.2` compared to the `PREVIOUS` version will compare to `2.0.1`|
-| -r, -range | `range:` | `ALL` or any integer | Decide how many scores you'd like to compare the newest one to, `ALL` would be all values, `1` would be the previous score from the newest |
-| -m, -method | `method:` | `DELTA` or `SD` | Decide which method of comparison to use. `DELTA` will compare difference in score, and requires an additional flag, threshold (-t). `SD` will do comparisons regarding standard deviation. `SD` requires an additional flag as well, deviations allowed (-d) |
-| -d, -deviationsAllowed | `deviationsAllowed:` | Any Double value | Used with assertions to check that the new score is within the given amount of deviations from the mean. (mean being calculated from the scores being compared to) |
-| -t, -threshold | `threshold:` | `GREATER` or `PERCENT_CHANGE` | Only used with the `DELTA` method. `GREATER` will compare raw scores, `PERCENT_CHANGE` is used to measure the percent change of the score in comparison to previous scores. |
-| -p, -percentChangeAllowed | `percentChangeAllowed:` | Any Double value | This argument is used when running assertions, makes sure your new score is within X percent of the previous scores you're comparing to |
+| -F, -failBuild | `failBuild:` | N/A | This argument is unique in that you don't need to pass a value with it. Default value is `false`, meaning your build will **
+
+not** fail even if one more multiple benchmark comparison tests fail. By passing the (-f) flag, this value gets set
+to `true`, meaning your build **
+will** fail if even just one benchmark comparison test fails. | | -C, -configPath | N/A | An existing `comparator.yaml`
+config file | Allows you to forgo scripting and specify the path of a valid `comparator.yaml` configuration file | | -S,
+-scriptPath | N/A | An existing `.js` script | Specify file path/name of the script | | -T, -token | `token:` | An
+existing CyBench query access token | Specify your CyBench Workspace's query access token | | -R, -reportPath
+| `reportPath: ` | Path to folder containing CyBench generated reports, or a specific report | Specify a
+certain `.cybench` report, or a folder of them | | -s, -scope | `scope:` | `WITHIN` or `BETWEEN` | Choose between
+comparing within current version, or between previous versions, when using `BETWEEN`, a specific version can be
+specified with (-v), otherwise defaults to the previous version | | -v, -compareVersion | `compareVersion:` | `PREVIOUS`
+or any specific version | Specify the version you'd like to compare to, previous is the immediate version prior to the
+tested version, e.g. a Benchmark with the version `2.0.2` compared to the `PREVIOUS` version will compare to `2.0.1`| |
+-r, -range | `range:` | `ALL` or any integer | Decide how many scores you'd like to compare the newest one to, `ALL`
+would be all values, `1` would be the previous score from the newest | | -m, -method | `method:` | `DELTA` or `SD` |
+Decide which method of comparison to use. `DELTA` will compare difference in score, and requires an additional flag,
+threshold (-t). `SD` will do comparisons regarding standard deviation. `SD` requires an additional flag as well,
+deviations allowed (-d) | | -d, -deviationsAllowed | `deviationsAllowed:` | Any Double value | Used with assertions to
+check that the new score is within the given amount of deviations from the mean. (mean being calculated from the scores
+being compared to) | | -t, -threshold | `threshold:` | `GREATER` or `PERCENT_CHANGE` | Only used with the `DELTA`
+method. `GREATER` will compare raw scores, `PERCENT_CHANGE` is used to measure the percent change of the score in
+comparison to previous scores. | | -p, -percentChangeAllowed | `percentChangeAllowed:` | Any Double value | This
+argument is used when running assertions, makes sure your new score is within X percent of the previous scores you're
+comparing to |
 
 ## Scripting
 
@@ -208,16 +221,19 @@ the background as you execute the script.
   previous version returns null.
 * `compareScores` is a generalized compare method which collects information from the command line flag arguments to
   decide which comparison method to run, for more specific comparisons, you can use the functions below
-* `compareDelta`, `compareDeltaPercentChange`, and `compareSD` are specific compare methods you can call with your scores that run all calculations
-  behind the scenes and return Double values
-   * **NOTE:** When calling `compareSD`, you must supply `deviationsAllowed` (a `Double` type), example below:
-      * `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviationsAllowed, currentVersionScores, compareVersionScores)`
-      * A filled out `compareSD()` may look like this: `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, 5, 1, currentVersionScores, compareVersionScores)`
-          * where `5` is the `range`, and `1` is the `deviationsAllowed`. Refer to `ComparatorScriptBindings.js` for full parameters/exepectations.
-   * **NOTE:** When calling `compareDeltaPercentChange`, you must supply `percentChangeAllowed`
-      * `compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMode, range, percentChangeAllowed, currentVersionScores, compareVersionScores)`
-      * A filled out `compareDelta()` may look like this: `compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, 5, 15, currentVersionScores, compareVersionScore)`
-          * where `5` is the `range` and `15` is the `percentChangeAllowed`.
+* `compareDelta`, `compareDeltaPercentChange`, and `compareSD` are specific compare methods you can call with your
+  scores that run all calculations behind the scenes and return Double values
+    * **NOTE:** When calling `compareSD`, you must supply `deviationsAllowed` (a `Double` type), example below:
+        * `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviationsAllowed, currentVersionScores, compareVersionScores)`
+        * A filled out `compareSD()` may look like
+          this: `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, 5, 1, currentVersionScores, compareVersionScores)`
+            * where `5` is the `range`, and `1` is the `deviationsAllowed`. Refer to `ComparatorScriptBindings.js` for
+              full parameters/expectations.
+    * **NOTE:** When calling `compareDeltaPercentChange`, you must supply `percentChangeAllowed`
+        * `compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMode, range, percentChangeAllowed, currentVersionScores, compareVersionScores)`
+        * A filled out `compareDelta()` may look like
+          this: `compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, 5, 15, currentVersionScores, compareVersionScore)`
+            * where `5` is the `range` and `15` is the `percentChangeAllowed`.
 * `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are specific simple methods you can
   quickly access for your own calculations and return `Double` values
 * `passAssertion` is a generalized assert method which collects information from the command line flag arguments to

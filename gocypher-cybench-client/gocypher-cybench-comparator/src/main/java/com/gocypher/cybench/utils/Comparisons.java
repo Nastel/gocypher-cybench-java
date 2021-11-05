@@ -39,7 +39,7 @@ public final class Comparisons {
     public static final String CALCULATED_DELTA = "delta";
     public static final String CALCULATED_PERCENT_CHANGE = "percentChange";
     public static final String CALCULATED_SD_FROM_MEAN = "sdFromMean";
-    
+
     private Comparisons() {
     }
 
@@ -47,7 +47,8 @@ public final class Comparisons {
             String benchmarkVersion, String benchmarkMode, Double benchmarkScore, List<Double> benchmarkVersionScores,
             List<Double> compareVersionScores) {
         if (compareVersionScores == null) {
-            logWarn("SKIP COMPARISON - {} : mode={} - There are no scores to compare to!", benchmarkName, benchmarkMode);
+            logWarn("SKIP COMPARISON - {} : mode={} - There are no scores to compare to!", benchmarkName,
+                    benchmarkMode);
             return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
         String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
@@ -98,25 +99,27 @@ public final class Comparisons {
             int range = Integer.parseInt(rangeStr);
 
             Double delta = compareWithDelta(benchmarkVersionScores, compareVersionScores, range, Threshold.GREATER);
-            Double percentChange = compareWithDelta(benchmarkVersionScores, compareVersionScores, range, Threshold.PERCENT_CHANGE);
+            Double percentChange = compareWithDelta(benchmarkVersionScores, compareVersionScores, range,
+                    Threshold.PERCENT_CHANGE);
             Double sdFromMean = compareWithSD(benchmarkVersionScores, compareVersionScores, range);
             if (method.equals(Method.DELTA)) {
-            	if (threshold.equals(Threshold.GREATER))
-            		compareValue = delta;
-            	else if (threshold.equals(Threshold.PERCENT_CHANGE))
-            		compareValue = percentChange;
+                if (threshold.equals(Threshold.GREATER)) {
+                    compareValue = delta;
+                } else if (threshold.equals(Threshold.PERCENT_CHANGE)) {
+                    compareValue = percentChange;
+                }
             } else {
                 compareValue = sdFromMean;
             }
-            
+
             Map<String, Double> compareValues = new HashMap<>();
             compareValues.put(CALCULATED_COMPARE_VALUE, compareValue);
             compareValues.put(CALCULATED_DELTA, delta);
             compareValues.put(CALCULATED_PERCENT_CHANGE, percentChange);
             compareValues.put(CALCULATED_SD_FROM_MEAN, sdFromMean);
-            
+
             State state = passAssertion(configMap, benchmarkName, benchmarkVersion, benchmarkMode, benchmarkScore,
-            		compareValues);
+                    compareValues);
             CompareBenchmarks.totalComparedBenchmarks++;
             if (state.equals(State.PASS)) {
                 CompareBenchmarks.totalPassedBenchmarks++;
@@ -150,18 +153,18 @@ public final class Comparisons {
         Double newScore = benchmarkVersionScores.get(benchmarkVersionSize - 1);
         Double compareMean = calculateMean(
                 compareVersionScores.subList(compareVersionSize - range, compareVersionSize));
-        
+
         double compareSD = calculateSD(compareVersionScores.subList(compareVersionSize - range, compareVersionSize),
                 compareMean);
         double SDfromMean = 0;
         if (compareSD != 0) {
-        	SDfromMean= (Math.abs(newScore) + compareMean) / compareSD;
+            SDfromMean = (Math.abs(newScore) + compareMean) / compareSD;
         }
 
         if (newScore < compareMean) {
             SDfromMean *= -1;
         }
-        
+
         return SDfromMean;
     }
 
@@ -251,22 +254,22 @@ public final class Comparisons {
         RUNNING, PASS, FAIL, SKIP
     }
 
-	public static Double roundHandling(Double value) {
+    public static Double roundHandling(Double value) {
 
-		DecimalFormat df1 = new DecimalFormat("#.00");
-		DecimalFormat df2 = new DecimalFormat("#.00000");
-		
-		if (value >= 1 || value  < 0 )  {
-			String tempStr = df1.format(value);
-			Double formatValue = Double.parseDouble(tempStr);
-			return formatValue;
+        DecimalFormat df1 = new DecimalFormat("#.00");
+        DecimalFormat df2 = new DecimalFormat("#.00000");
 
-		} else {
-			String tempStr = df2.format(value);
-			Double formatValue = Double.parseDouble(tempStr);
-			return formatValue;
-		}
-	}
+        if (value >= 1 || value < 0) {
+            String tempStr = df1.format(value);
+            Double formatValue = Double.parseDouble(tempStr);
+            return formatValue;
+
+        } else {
+            String tempStr = df2.format(value);
+            Double formatValue = Double.parseDouble(tempStr);
+            return formatValue;
+        }
+    }
 
     public static State passAssertion(Map<String, Object> configMap, String benchmarkName, String benchmarkVersion,
             String benchmarkMode, Double benchmarkScore, Map<String, Double> compareValues) {
@@ -274,7 +277,7 @@ public final class Comparisons {
         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
         Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
         Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
-        
+
         Double compareValue = compareValues.get(CALCULATED_COMPARE_VALUE);
         boolean pass = false;
         if (compareMethod.equals(Method.SD)) {
@@ -299,33 +302,21 @@ public final class Comparisons {
     }
 
     public static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-        if (Math.abs(deviationsFromMean) < deviationsAllowed) {
-            return true;
-        } else {
-            return false;
-        }
+        return Math.abs(deviationsFromMean) < deviationsAllowed;
     }
 
     public static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
-        if (Math.abs(percentChange) < percentageAllowed) {
-            return true;
-        } else {
-            return false;
-        }
+        return Math.abs(percentChange) < percentageAllowed;
     }
 
     public static boolean passAssertionPositive(Double val) {
-        if (val >= 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return val >= 0;
     }
 
     // NO COMPARISON SHOULD BE RUN, PASS TEST
     public static boolean skipComparison(Double benchmarkScore, String benchmarkName, String benchmarkVersion,
             String benchmarkMode) {
-    	CompareBenchmarks.totalComparedBenchmarks++;
+        CompareBenchmarks.totalComparedBenchmarks++;
         CompareBenchmarks.totalSkippedBenchmarks++;
         CompareBenchmarks.addSkipBenchData(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         return false;

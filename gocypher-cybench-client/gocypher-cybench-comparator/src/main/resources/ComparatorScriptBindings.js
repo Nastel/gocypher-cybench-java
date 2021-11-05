@@ -39,8 +39,8 @@ function compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMod
     var tempConfigMap = new HashMap(logConfigs);
     tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
     tempConfigMap.put(ConfigHandling.RANGE, range.toString());
-	tempConfigMap.put(ConfigHandling.THRESHOLD, Comparisons.Threshold.PERCENT_CHANGE);
-	tempConfigMap.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, new Double(percentChangeAllowed));
+    tempConfigMap.put(ConfigHandling.THRESHOLD, Comparisons.Threshold.PERCENT_CHANGE);
+    tempConfigMap.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, new Double(percentChangeAllowed));
     return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
@@ -55,7 +55,7 @@ function compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, range, cur
     var tempConfigMap = new HashMap(logConfigs);
     tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
     tempConfigMap.put(ConfigHandling.RANGE, range.toString());
-	tempConfigMap.put(ConfigHandling.THRESHOLD, Comparisons.Threshold.GREATER);
+    tempConfigMap.put(ConfigHandling.THRESHOLD, Comparisons.Threshold.GREATER);
     return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
@@ -70,7 +70,7 @@ function compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviat
     var tempConfigMap = new HashMap(logConfigs);
     tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.SD);
     tempConfigMap.put(ConfigHandling.RANGE, range.toString());
-	tempConfigMap.put(ConfigHandling.DEVIATIONS_ALLOWED, new Double(deviationsAllowed));
+    tempConfigMap.put(ConfigHandling.DEVIATIONS_ALLOWED, new Double(deviationsAllowed));
     return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
 }
 
