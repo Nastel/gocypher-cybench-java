@@ -163,7 +163,7 @@ java -jar gocypher-cybench-comparator.jar [args]
       the product of this phase.
     * `-f pom.xml` - you can replace it with any path and file name to match your environment
 
-### Gradle
+### From Gradle
 
 * Step 1: to run Cybench Comparator from Gradle, edit `build.gradle` of your project first by adding these `repository`,
   `configurations`, `dependnecies` and `task` definitions:
