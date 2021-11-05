@@ -1,16 +1,19 @@
 # What is CyBench Launcher
 
-**CyBench Launcher** is a standalone Java application designed to execute [JMH](https://openjdk.java.net/projects/code-tools/jmh/) benchmarks. 
-Speed-test Java classes, collections, modules, libraries and other application building blocks under varying runtime conditions. 
-Share your results with the community, compare and choose the right libraries for your application. 
+**CyBench Launcher** is a standalone Java application designed to
+execute [JMH](https://openjdk.java.net/projects/code-tools/jmh/) benchmarks. Speed-test Java classes, collections,
+modules, libraries and other application building blocks under varying runtime conditions. Share your results with the
+community, compare and choose the right libraries for your application.
 **CyBench** helps developers build better, faster Java code by benchmarking code performance.
 
-CyBench Launcher contains a set of default performance tests developed by the CyBench team to benchmark Java Core services. These tests are 
-executed by default every time CyBench benchmarks are executed via `cybench` shell script and results are automatically submitted to a 
-public [CyBench Repository](https://www.gocypher.com/cybench/).
+CyBench Launcher contains a set of default performance tests developed by the CyBench team to benchmark Java Core
+services. These tests are executed by default every time CyBench benchmarks are executed via `cybench` shell script and
+results are automatically submitted to a public [CyBench Repository](https://www.gocypher.com/cybench/).
 
-Default benchmark execution and automated reporting can be configured via `<cybench-home>/conf/cybench-launcher.properties`
-Download and run CyBench [here](https://github.com/K2NIO/cybench-java-benchmarks/releases). Visit our [page](https://www.gocypher.com/cybench/) 
+Default benchmark execution and automated reporting can be configured
+via `<cybench-home>/conf/cybench-launcher.properties`
+Download and run CyBench [here](https://github.com/K2NIO/cybench-java-benchmarks/releases). Visit
+our [page](https://www.gocypher.com/cybench/)
 to analyze your results.
 
 ## Running User-defined Benchmarks using CyBench Launcher
@@ -18,37 +21,42 @@ to analyze your results.
 #### Add the runner and JMH dependencies to your project
 
 ```xml
-    <dependencies>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <version>1.32</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
-            <version>1.32</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gocypher.cybench.client</groupId>
-            <artifactId>gocypher-cybench-runner</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-    </dependencies>
+
+<dependencies>
+    <dependency>
+        <groupId>org.openjdk.jmh</groupId>
+        <artifactId>jmh-generator-annprocess</artifactId>
+        <version>1.33</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.openjdk.jmh</groupId>
+        <artifactId>jmh-core</artifactId>
+        <version>1.33</version>
+    </dependency>
+    <dependency>
+        <groupId>com.gocypher.cybench.client</groupId>
+        <artifactId>gocypher-cybench-runner</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+</dependencies>
 ```
 
 #### Run your benchmarks
-- Implement any benchmarks classes 
-- Add call to the runner main class 
+
+- Implement any benchmarks classes
+- Add call to the runner main class
+
 ```java
-    public static void main(String[] args) throws Exception {
+    public static void main(String[]args)throws Exception{
         BenchmarkRunner.main(args);
-    }
+        }
 ```
+
 - Analyze results in your console, reports folder or [app.cybench.io](https://app.cybench.io/cybench/)
-- **Optional:** Add CyBench configuration file into `<project-path>/conf/cybench-launcher.properties` directory to manage your benchmarking 
-run configuration. [Configuration example](https://github.com/K2NIO/gocypher-cybench-java/blob/master/gocypher-cybench-client/gocypher-cybench-runner/src/main/resources/cybench-launcher.properties)
+- **Optional:** Add CyBench configuration file into `<project-path>/conf/cybench-launcher.properties` directory to
+  manage your benchmarking run
+  configuration. [Configuration example](https://github.com/K2NIO/gocypher-cybench-java/blob/master/gocypher-cybench-client/gocypher-cybench-runner/src/main/resources/cybench-launcher.properties)
 
 #### CyBench launcher configuration
 
@@ -77,30 +85,31 @@ run configuration. [Configuration example](https://github.com/K2NIO/gocypher-cyb
 
 Update CyBench Launcher configuration located in `<cybench-home>/conf/cybench-launcher.properties`:
 
-* __required__: add or update property `benchmarks`, set path to jar file which contains your JMH benchmark, this path will be added to the 
-`CLASSPATH` of the JVM. Values must be semicolon separated!
+* __required__: add or update property `benchmarks`, set path to jar file which contains your JMH benchmark, this path
+  will be added to the
+  `CLASSPATH` of the JVM. Values must be semicolon separated!
 
-    Rule:
+  Rule:
     ```properties
     benchmarks=<path to custom jar file1>;<path to custom jar file2>;
     ```
 
-    Example:
+  Example:
     ```properties
     benchmarks=gocypher-cybench-custom-1.0.0.jar;
     ```
 
-* __optional__: register categories for your tests in order to have correct tests classification and better readability and comparison in 
-CyBench portal. If not set then default value (`Custom`) will be written and all custom tests will reside under this category. Values of 
-different classes must be semicolon separated!
+* __optional__: register categories for your tests in order to have correct tests classification and better readability
+  and comparison in CyBench portal. If not set then default value (`Custom`) will be written and all custom tests will
+  reside under this category. Values of different classes must be semicolon separated!
 
-    Rule:
+  Rule:
     ```properties
     benchmarkMetadata=<fully classified benchmark class name>=category:<category name>;\
       <fully classified benchmark class name>=category:<category name>;
     ```
 
-    Example:
+  Example:
     ```properties
     benchmarkMetadata=com.gocypher.benchmarks.client.CollectionsBenchmarks=category:Collections;
     ```
@@ -108,13 +117,15 @@ different classes must be semicolon separated!
 ### Execute Only Custom Benchmarks
 
 Update CyBench configuration in order to run only user-defined tests:
-* add or update property `benchmarkClasses`, specify class names of tests which shall be executed (values must be comma separated).
 
-    Rule:
+* add or update property `benchmarkClasses`, specify class names of tests which shall be executed (values must be comma
+  separated).
+
+  Rule:
     ```properties
     benchmarkClasses=<fully qualified class name, or class name>,<fully qualified class name, or class name>
     ```
-    Example:
+  Example:
     ```properties
     benchmarkClasses=com.gocypher.benchmarks.client.CollectionsBenchmarks,NumberBenchmarks
     ```

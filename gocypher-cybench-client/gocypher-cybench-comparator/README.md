@@ -10,30 +10,17 @@ Dependencies for your project:
 
 * Maven:
     ```xml
-    <repositories>
-        <repository>
-            <id>oss.sonatype.org</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    ...
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-comparator</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.2.0</version>
         <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.0.0-SNAPSHOT'
+    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.0'
     ```
 
 ## Running Cybench Comparator
@@ -56,25 +43,12 @@ java -jar gocypher-cybench-comparator.jar [args]
         <profiles>
             <profile>
                 <id>compareBenchmarks</id>
-                <!-- @@@ Maven central snapshots repository to get dependency artifacts snapshot releases @@@ -->
-                <repositories>
-                    <repository>
-                        <id>oss.sonatype.org</id>
-                        <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-                        <releases>
-                            <enabled>false</enabled>
-                        </releases>
-                        <snapshots>
-                            <enabled>true</enabled>
-                        </snapshots>
-                    </repository>
-                </repositories>
                 <dependencies>
                     <!-- @@@ Cybench Comparator app dependency @@@ -->
                     <dependency>
                         <groupId>com.gocypher.cybench.client</groupId>
                         <artifactId>gocypher-cybench-comparator</artifactId>
-                        <version>1.0.0-SNAPSHOT</version>
+                        <version>1.2.0</version>
                         <scope>test</scope>
                     </dependency>
                 </dependencies>
@@ -169,10 +143,6 @@ java -jar gocypher-cybench-comparator.jar [args]
   `configurations`, `dependnecies` and `task` definitions:
     * Groovy
         ```groovy
-        repositories {
-            mavenCentral()
-            maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
-        }
         // ...
         configurations {
             cybenchComparator
@@ -180,7 +150,7 @@ java -jar gocypher-cybench-comparator.jar [args]
         // ...
         dependencies {
             // ...
-            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.0.0-SNAPSHOT'
+            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.0'
         }
         // ...
         task compareBenchmarks(type: JavaExec) {
@@ -200,14 +170,6 @@ java -jar gocypher-cybench-comparator.jar [args]
 
     * Kotlin
         ```kotlin
-        import java.util.Properties
-        // ...
-        repositories {
-          mavenCentral()
-          maven {
-            setUrl("https://s01.oss.sonatype.org/content/repositories/snapshots")
-          }
-        }
         // ...
         val cybenchComparator by configurations.creating {
           isCanBeResolved = true
@@ -216,7 +178,7 @@ java -jar gocypher-cybench-comparator.jar [args]
         // ...
         dependencies {
           // ...
-          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.0.0-SNAPSHOT")
+          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.0")
         }
         // ...
   
@@ -237,9 +199,6 @@ java -jar gocypher-cybench-comparator.jar [args]
           }
         }
         ```
-
-  **Note:** since `gocypher-cybench-comparator` now is in pre-release state, you have to add maven central snapshots
-  repo `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
 
   **Note:** you may need configuration file
   [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it with flag `-C`
