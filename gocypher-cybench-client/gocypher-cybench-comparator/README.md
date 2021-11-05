@@ -262,10 +262,13 @@ java -jar gocypher-cybench-comparator.jar [args]
 * For Gradle / Kotlin, add `dependsOn` to the compareBenchmarks task to make it run after the others
 
 ## Adding Comparator to Jenkins
-Comparator has the ability to fail a Jenkins build in the case of comparison failures. Just add a Jenkins stage with a Comparator run command for your appropriate operating system.  
-For different run configurations, refer to [running the comparator](#running-cybench-comparator). 
+
+Comparator has the ability to fail a Jenkins build in the case of comparison failures. Just add a Jenkins stage with a
+Comparator run command for your appropriate operating system.  
+For different run configurations, refer to [running the comparator](#running-cybench-comparator).
 
 ### Windows
+
 ```jenkinsfile
 stage('Compare Benchmarks') {
             steps {
@@ -275,6 +278,7 @@ stage('Compare Benchmarks') {
 ```
 
 ### Linux
+
 ```jenkinsfile
 stage('Compare Benchmarks') {
             steps {
