@@ -63,7 +63,7 @@ to analyze your results.
 | Property name | Description | Default value |
 | ------------- |-------------| -----:|
 | **javaOptions** | All the property fields that starts with name javaOptions will be used while benchmarking as JVM properties. | - |
-| **javaToUsePath** | Provide full path to java.exe to be used e.g. D:/jdk180_162/bin/java.exe | - |
+| **javaToUsePath** | Provide full path to java.exe to be used e.g. `D:/jdk180_162/bin/java.exe` | - |
 | **benchmarks** | Provide jar's with JMH benchmarks which shall be executed with CyBench. [more here](#adding-custom-benchmarks-for-execution)| - |
 | **sendReport** | Choose if the report generated will be automatically uploaded. (true/false) | true |
 | **reportUploadStatus** | Define public or private property for the uploaded report visibility. | public |
