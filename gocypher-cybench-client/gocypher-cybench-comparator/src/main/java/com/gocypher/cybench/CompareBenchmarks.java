@@ -20,13 +20,16 @@
 package com.gocypher.cybench;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -39,9 +42,11 @@ import com.gocypher.cybench.utils.ComparatorScriptEngine;
 import com.gocypher.cybench.utils.Comparisons;
 import com.gocypher.cybench.utils.Comparisons.Scope;
 import com.gocypher.cybench.utils.ConfigHandling;
+import com.gocypher.cybench.utils.WebpageGenerator;
 
 public class CompareBenchmarks {
     private static final Logger log = LoggerFactory.getLogger(CompareBenchmarks.class);
+    private static boolean useScriptConfigForPage = false;
     public static int totalComparedBenchmarks = 0;
     public static final Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
     public static int totalPassedBenchmarks = 0;
@@ -50,7 +55,8 @@ public class CompareBenchmarks {
     public static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
     public static int totalFailedBenchmarks = 0;
     public static boolean failBuildFlag = false;
-
+    
+    
     public static void main(String... args) throws Exception {
         logInfo("* Analyzing benchmark performance...");
 
@@ -97,6 +103,8 @@ public class CompareBenchmarks {
                 passedProps.put(pEntry.getKey(), prop);
             }
         }
+        
+        
 
         String scriptPath = passedProps.get(ConfigHandling.SCRIPT_PATH);
         String configPath = passedProps.get(ConfigHandling.CONFIG_PATH);
@@ -105,6 +113,7 @@ public class CompareBenchmarks {
             logInfo("Attempting to evaluate custom defined script at {}\n", scriptPath);
 
             ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps, scriptPath);
+            useScriptConfigForPage = true;
         } else {
             if (configPath == null) {
                 logInfo("No script or config file specified, looking for comparator.yaml in default location");
@@ -113,14 +122,16 @@ public class CompareBenchmarks {
 
             logInfo("Attempting to load comparator configurations at {}\n", configPath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configPath);
-            Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
-
+            Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);        
+            WebpageGenerator.sendToWebpageGenerator(allConfigs, configuredPackages);
+         
             File recentReport = ConfigHandling
                     .identifyRecentReport((String) allConfigs.get(ConfigHandling.REPORT_PATH));
             String accessToken = (String) allConfigs.get(ConfigHandling.TOKEN);
 
             if (recentReport != null && accessToken != null) {
                 analyzeBenchmarks(accessToken, recentReport, allConfigs, configuredPackages);
+
             } else {
                 if (recentReport == null) {
                     logErr("* No recent report found to compare!");
@@ -129,6 +140,9 @@ public class CompareBenchmarks {
                 }
             }
         }
+      if(!useScriptConfigForPage) {
+    	  WebpageGenerator.generatePage();
+      }
     }
 
     private static void analyzeBenchmarks(String accessToken, File recentReport, Map<String, Object> allConfigs,
@@ -150,8 +164,6 @@ public class CompareBenchmarks {
                     }
                 }
             }
-
-            finalizeComparisonLogs();
         }
     }
 
@@ -310,6 +322,7 @@ public class CompareBenchmarks {
                             		roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta, roundedPercentChange, roundedSDFromMean, 
                             		compareScope, compareVersion, compareRange, fingerprint);
                         } else {
+                        	
                             logErr(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
                             		roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta, roundedPercentChange, roundedSDFromMean, 
                             		compareScope, compareVersion, compareRange, fingerprint);
@@ -318,7 +331,7 @@ public class CompareBenchmarks {
                         logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
                                     benchmarkName, benchmarkVersion, benchmarkMode, roundedBenchmarkScore);
                     }
-                }
+                } 
             }
         }
     }
@@ -392,7 +405,7 @@ public class CompareBenchmarks {
     private static boolean compareBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
             String benchmarkMode, Double benchmarkScore, Map<String, Object> allConfigs,
             Map<String, String> configuredPackages) {
-
+     	
         Map<String, Object> configMap = getConfigs(benchmarkName, allConfigs, configuredPackages);
 
         if (configMap != null) {
@@ -441,13 +454,14 @@ public class CompareBenchmarks {
             return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
     }
-
-    public static void finalizeComparisonLogs() throws Exception {
+ 
+    public static void finalizeComparisonLogs(Map<String, Object> props) throws Exception {
         System.out.print("\n\n");
         logInfo("compared={}, passed={}, (skipped={}), failed={}", totalComparedBenchmarks, totalPassedBenchmarks,
                 totalSkippedBenchmarks, totalFailedBenchmarks);
         System.out.print("\n");
         printBenchmarkResults(Requests.namesToFingerprints);
+        WebpageGenerator.generatePage(props);
         if (totalFailedBenchmarks > 0) {
             logWarn("* There are benchmark comparison failures! *");
             if (failBuildFlag) {
