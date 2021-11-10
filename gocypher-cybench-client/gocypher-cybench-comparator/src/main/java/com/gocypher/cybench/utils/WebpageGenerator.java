@@ -41,12 +41,18 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.CompareBenchmarks;
 import com.gocypher.cybench.services.Requests;
 
 public class WebpageGenerator {
 
+	
+	private static final Logger log = LoggerFactory.getLogger(WebpageGenerator.class);
+	
+	
 	String passed = String.valueOf(CompareBenchmarks.totalPassedBenchmarks);
 	String failed = String.valueOf(CompareBenchmarks.totalFailedBenchmarks);
 	String total = String.valueOf(CompareBenchmarks.totalComparedBenchmarks);
@@ -81,7 +87,7 @@ public class WebpageGenerator {
 		configType = "comparator.yaml";
 		WebpageGenerator gen = new WebpageGenerator();
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("output/Report-Test-" + getDateTimeForFileName() + ".html");
+		File newHtml = new File("logs/Report-Test-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
@@ -123,7 +129,7 @@ public class WebpageGenerator {
 		configType = "JavaScript"; // TODO: Add actual script name
 		WebpageGenerator gen = new WebpageGenerator();
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("output/"+packageNames.get(0) + "-"+ getDateTimeForFileName() + ".html");
+		File newHtml = new File("logs/"+packageNames.get(0) + "-"+ getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
@@ -156,6 +162,7 @@ public class WebpageGenerator {
 		createFailedTable(newHtml);
 		createSkippedTable(newHtml);
 		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
+		log.info("Generated html report can be found at {}", newHtml.getAbsolutePath() );
 	}
 
 	private static void createPassedTable(File file) throws IOException {
@@ -203,19 +210,19 @@ public class WebpageGenerator {
 	private static void createFailedTable(File file) throws IOException {
 		try {
 			FileUtils.write(file,
-					"<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">\r\n"
-							+ "    <caption style=\"border-style:double;background-color:#f97c7c;font-weight:bold\">Failed Tests</caption>\r\n"
-							+ "        <tr style=\"border: 1px dotted black;\">\r\n" //
-							+ "            <th>Fingerprint</th>\r\n" //
-							+ "            <th>Name</th>\r\n" //
-							+ "            <th>Version</th>\r\n" //
-							+ "            <th>Mode</th>\r\n" //
-							+ "            <th>Score</th>\r\n" //
-							+ "            <th>Compare Value</th>\r\n" //
-							+ "            <th>Delta</th>\r\n" //
-							+ "            <th>Percent Change</th>\r\n" //
-							+ "            <th>SD from Mean</th>\r\n" //
-							+ "        </tr>\r\n" //
+					"<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">"
+							+ "    <caption style=\"border-style:double;background-color:#f97c7c;font-weight:bold\">Failed Tests</caption>"
+							+ "        <tr style=\"border: 1px dotted black;\">" //
+							+ "            <th>Fingerprint</th>" //
+							+ "            <th>Name</th>" //               
+							+ "            <th>Version</th>" //
+							+ "            <th>Mode</th>" //
+							+ "            <th>Score</th>" //
+							+ "            <th>Compare Value</th>" //
+							+ "            <th>Delta</th>" //
+							+ "            <th>Percent Change</th>" //
+							+ "            <th>SD from Mean</th>" //
+							+ "        </tr>" //
 							+ "    <tr style=\"border: 1px dotted black;font-size:70%\">", //
 					utf8, true);
 
@@ -267,19 +274,19 @@ public class WebpageGenerator {
 	private static void createSkippedTable(File file) throws IOException {
 		try {
 			FileUtils.write(file,
-					"<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">\r\n"
-							+ "    <caption style=\"border-style:double;background-color:goldenrod;font-weight:bold\">Skipped Tests</caption>\r\n"
-							+ "        <tr style=\"border: 1px dotted black;\">\r\n" //
-							+ "            <th>Fingerprint</th>\r\n" //
-							+ "            <th>Name</th>\r\n" //
-							+ "            <th>Version</th>\r\n" //
-							+ "            <th>Mode</th>\r\n" //
-							+ "            <th>Score</th>\r\n" //
-							+ "            <th>Compare Value</th>\r\n" //
-							+ "            <th>Delta</th>\r\n" //
-							+ "            <th>Percent Change</th>\r\n" //
-							+ "            <th>SD from Mean</th>\r\n" //
-							+ "        </tr>\r\n" //
+					"<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">"
+							+ "    <caption style=\"border-style:double;background-color:goldenrod;font-weight:bold\">Skipped Tests</caption>"
+							+ "        <tr style=\"border: 1px dotted black;\">" //
+							+ "            <th>Fingerprint</th>" //
+							+ "            <th>Name</th>" //
+							+ "            <th>Version</th>" //
+							+ "            <th>Mode</th>" //
+							+ "            <th>Score</th>" //
+							+ "            <th>Compare Value</th>" //
+							+ "            <th>Delta</th>" //
+							+ "            <th>Percent Change</th>" //
+							+ "            <th>SD from Mean</th>" //
+							+ "        </tr>" //
 							+ "    <tr style=\"border: 1px dotted black;font-size:70%\">", //
 					utf8, true);
 
@@ -423,6 +430,17 @@ public class WebpageGenerator {
 		allConfigs = allConfig;
 	}
 
+    public static void logInfo(String msg, Object... args) {
+        log.info(msg, args);
+    }
+
+    public static void logWarn(String msg, Object... args) {
+        log.warn(msg, args);
+    }
+
+    public static void logErr(String msg, Object... args) {
+        log.error(msg, args);
+    }
 
 	public static void grabPackageNames(ArrayList<String> packNames) {
 		Set<String> pkgNames = new HashSet<>(packNames);
