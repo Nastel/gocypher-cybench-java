@@ -27,9 +27,12 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,7 +77,7 @@ public class WebpageGenerator {
 		configType = "comparator.yaml";
 		WebpageGenerator gen = new WebpageGenerator();
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("output/results.html");
+		File newHtml = new File("output/Report-Test-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
@@ -116,7 +119,7 @@ public class WebpageGenerator {
 		configType = "JavaScript"; // TODO: Add actual script name
 		WebpageGenerator gen = new WebpageGenerator();
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("output/results.html");
+		File newHtml = new File("output/Report-Test-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
@@ -171,9 +174,12 @@ public class WebpageGenerator {
 						BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
 						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
 						FileUtils.writeStringToFile(file,
-								"<tr><th>" + fingerprint + "</th><th style='text-align:left'>" + benchmarkName + "</th><th>" + benchVersion
-										+ "</th><th>" + benchMode + "</th><th style='text-align:right'>" + roundScore + "</th><th style='text-align:right'>"
-										+ roundCompValue + "</th><th style='text-align:right'>" + delta + "</th><th style='text-align:right'>" + roundPercentChange
+								"<tr><th>" + fingerprint + "</th><th style='text-align:left'>" + benchmarkName
+										+ "</th><th>" + benchVersion + "</th><th>" + benchMode
+										+ "</th><th style='text-align:right'>" + roundScore
+										+ "</th><th style='text-align:right'>" + roundCompValue
+										+ "</th><th style='text-align:right'>" + delta
+										+ "</th><th style='text-align:right'>" + roundPercentChange
 										+ "% </th><th style='text-align:right'>" + sdFromMean + "</th></tr>\n",
 								utf8, true);
 					}
@@ -231,8 +237,10 @@ public class WebpageGenerator {
 						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
 						FileUtils.writeStringToFile(file,
 								"<tr><th>" + fingerprint + "</th><th>" + benchmarkName + "</th><th>" + benchVersion
-										+ "</th><th>" + benchMode + "</th><th style='text-align:right'>" + roundScore + "</th><th style='text-align:right'>"
-										+ roundCompValue + "</th><th style='text-align:right'>" + delta + "</th><th style='text-align:right'>" + roundPercentChange
+										+ "</th><th>" + benchMode + "</th><th style='text-align:right'>" + roundScore
+										+ "</th><th style='text-align:right'>" + roundCompValue
+										+ "</th><th style='text-align:right'>" + delta
+										+ "</th><th style='text-align:right'>" + roundPercentChange
 										+ "% </th><th style='text-align:right'>" + sdFromMean + "</th></tr>\n",
 								utf8, true);
 					}
@@ -318,6 +326,13 @@ public class WebpageGenerator {
 
 	}
 
+	private static String getDateTimeForFileName() {
+		DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
+		Date date = new Date();
+		String fileName = df.format(date);
+		return fileName;
+	}
+
 	private static void changeVersion() {
 		List<String> passedNames = new ArrayList<>();
 		for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
@@ -391,11 +406,9 @@ public class WebpageGenerator {
 	private static void changeDateTime() {
 		dateTime = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
 	}
-	
+
 	public static void sendToWebpageGenerator(Map<String, Object> allConfig, Map<String, String> packages) {
 		allConfigs = allConfig;
-		System.out.println("All Configs: \n" + allConfig.toString());
-		System.out.println("All Packs: \n" + packages.toString());
 	}
 
 }
