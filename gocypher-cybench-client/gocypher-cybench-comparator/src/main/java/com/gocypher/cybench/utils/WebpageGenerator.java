@@ -59,7 +59,6 @@ public class WebpageGenerator {
 	static String configType = "";
 	static String dateTime = "";
 	static Charset utf8 = StandardCharsets.UTF_8;
-	static File templateHTML;
 	static Map<String, Object> allConfigs;
 
 	public WebpageGenerator() {
@@ -81,7 +80,6 @@ public class WebpageGenerator {
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
 
 		// debug
-		System.out.println("Comparator Config detected.........");
 		if (allConfigs == null) {
 			System.out.println("allConfigs wasn't set correctly....");
 		} else {
@@ -129,7 +127,7 @@ public class WebpageGenerator {
 		Class<?> clazz = gen.getClass();
 		for (Field field : clazz.getDeclaredFields()) {
 			try {
-				if (field.getName() != "utf8" && field.getName() != "allConfigs" && field.getName() != "templateHTML") {
+				if (field.getName() != "utf8" && field.getName() != "allConfigs") {
 					htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
 					FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
 				}
@@ -143,7 +141,6 @@ public class WebpageGenerator {
 		createFailedTable(newHtml);
 		createSkippedTable(newHtml);
 		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
-		System.out.println("Done creating page results with updated template");
 	}
 
 	private static void createPassedTable(File file) throws IOException {
