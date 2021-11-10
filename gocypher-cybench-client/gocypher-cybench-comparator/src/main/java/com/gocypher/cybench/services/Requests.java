@@ -43,7 +43,7 @@ public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
 
     private static final String benchmarkViewBenchmarksServiceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/";
-    private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/";
+    private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-reports-1.0-SNAPSHOT/services/v1/reports/benchmark/view/";
 
     private static Requests instance;
     private static final String tagFingerprint = "benchmarkTag";
