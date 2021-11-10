@@ -33,9 +33,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -50,6 +52,7 @@ public class WebpageGenerator {
 	String total = String.valueOf(CompareBenchmarks.totalComparedBenchmarks);
 	String skipped = String.valueOf(CompareBenchmarks.totalSkippedBenchmarks);
 
+	
 	static String version = "";
 	static String name = "";
 	static String range = "";
@@ -63,6 +66,7 @@ public class WebpageGenerator {
 	static String dateTime = "";
 	static Charset utf8 = StandardCharsets.UTF_8;
 	static Map<String, Object> allConfigs;
+	static ArrayList<String> packageNames;
 
 	public WebpageGenerator() {
 		// TODO Remove Logs/Prints | Change conditional for class variables to be
@@ -94,7 +98,7 @@ public class WebpageGenerator {
 		Class<?> clazz = gen.getClass();
 		for (Field field : clazz.getDeclaredFields()) {
 			try {
-				if (field.getName() != "utf8" && field.getName() != "allConfigs") {
+				if (field.getName() != "utf8" && field.getName() != "allConfigs" && field.getName() != "packageNames") {
 					htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
 					FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
 				}
@@ -119,7 +123,7 @@ public class WebpageGenerator {
 		configType = "JavaScript"; // TODO: Add actual script name
 		WebpageGenerator gen = new WebpageGenerator();
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("output/Report-Test-" + getDateTimeForFileName() + ".html");
+		File newHtml = new File("output/"+packageNames.get(0) + "-"+ getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
@@ -127,6 +131,14 @@ public class WebpageGenerator {
 		changeScriptConfigs(props);
 		changeVersion();
 		changeDateTime();
+		
+		int test = packageNames.size();
+		System.out.println("TOTAL PACKS: "+test);
+		
+		  for (String name : packageNames) { System.out.println("HERES A NAME?: "+
+		  name); }
+		 
+		
 		Class<?> clazz = gen.getClass();
 		for (Field field : clazz.getDeclaredFields()) {
 			try {
@@ -410,5 +422,16 @@ public class WebpageGenerator {
 	public static void sendToWebpageGenerator(Map<String, Object> allConfig, Map<String, String> packages) {
 		allConfigs = allConfig;
 	}
+
+
+	public static void grabPackageNames(ArrayList<String> packNames) {
+		Set<String> pkgNames = new HashSet<>(packNames);
+		packNames.clear();
+		packNames.addAll(pkgNames);
+		packageNames = packNames;
+		
+		
+	}
+
 
 }

@@ -37,12 +37,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.utils.ConfigHandling;
+import com.gocypher.cybench.utils.WebpageGenerator;
 
 public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
 
     private static final String benchmarkViewBenchmarksServiceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/";
-    private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-reports-1.0-SNAPSHOT/services/v1/reports/benchmark/view/";
+    private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/";
 
     private static Requests instance;
     private static final String tagFingerprint = "benchmarkTag";
@@ -50,6 +51,7 @@ public class Requests {
     private static final String CURRENT_VERSION = "currentVersion";
     private static final String PREVIOUS_VERSION = "previousVersion";
 
+    
     // <Benchmark Fingerprint : <Version : <Mode : <List of Scores in Test Order>>>>
     public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarks = new HashMap<>();
     // <Benchmark Fingerprint : <Version : <Mode : <Score>>>>
@@ -292,6 +294,7 @@ public class Requests {
 
     public static Map<String, Map<String, Map<String, Double>>> getBenchmarksFromReport(String accessToken,
             File recentReport) {
+    	ArrayList<String> packNames = new ArrayList();
         if (StringUtils.isNotEmpty(accessToken) && !accessToken.equals("undefined")) {
             JSONObject benchmarkReport = null;
             try {
@@ -323,8 +326,11 @@ public class Requests {
                         Double benchmarkScore = (Double) benchmark.get("score");
                         String benchmarkMode = (String) benchmark.get("mode");
                         String benchmarkFingerprint = (String) benchmark.get("manualFingerprint");
+                        String benchmarkPackName = (String) benchmark.get("benchApi");
                         fingerprintsToNames.put(benchmarkFingerprint, benchmarkName);
                         namesToFingerprints.put(benchmarkName, benchmarkFingerprint);
+                        // send package names to Webpage Generator
+                        packNames.add((String) benchmark.get("benchApi"));
 
                         // report data handling
                         storeRecentBenchmark(benchmarkFingerprint, benchmarkVersion, benchmarkMode, benchmarkScore);
@@ -350,6 +356,7 @@ public class Requests {
         } else {
             log.warn("No access token provided!");
         }
+        WebpageGenerator.grabPackageNames(packNames);
         getInstance().close();
 
         return recentBenchmarks;
