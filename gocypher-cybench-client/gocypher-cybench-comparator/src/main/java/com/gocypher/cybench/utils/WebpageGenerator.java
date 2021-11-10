@@ -171,10 +171,10 @@ public class WebpageGenerator {
 						BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
 						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
 						FileUtils.writeStringToFile(file,
-								"<tr><th>" + fingerprint + "</th><th>" + benchmarkName + "</th><th>" + benchVersion
-										+ "</th><th>" + benchMode + "</th><th>" + roundScore + "</th><th>"
-										+ roundCompValue + "</th><th>" + delta + "</th><th>" + roundPercentChange
-										+ "% </th><th>" + sdFromMean + "</th></tr>\n",
+								"<tr><th>" + fingerprint + "</th><th style='text-align:left'>" + benchmarkName + "</th><th>" + benchVersion
+										+ "</th><th>" + benchMode + "</th><th style='text-align:right'>" + roundScore + "</th><th style='text-align:right'>"
+										+ roundCompValue + "</th><th style='text-align:right'>" + delta + "</th><th style='text-align:right'>" + roundPercentChange
+										+ "% </th><th style='text-align:right'>" + sdFromMean + "</th></tr>\n",
 								utf8, true);
 					}
 				}
@@ -231,9 +231,9 @@ public class WebpageGenerator {
 						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
 						FileUtils.writeStringToFile(file,
 								"<tr><th>" + fingerprint + "</th><th>" + benchmarkName + "</th><th>" + benchVersion
-										+ "</th><th>" + benchMode + "</th><th>" + roundScore + "</th><th>"
-										+ roundCompValue + "</th><th>" + delta + "</th><th>" + roundPercentChange
-										+ "% </th><th>" + sdFromMean + "</th></tr>\n",
+										+ "</th><th>" + benchMode + "</th><th style='text-align:right'>" + roundScore + "</th><th style='text-align:right'>"
+										+ roundCompValue + "</th><th style='text-align:right'>" + delta + "</th><th style='text-align:right'>" + roundPercentChange
+										+ "% </th><th style='text-align:right'>" + sdFromMean + "</th></tr>\n",
 								utf8, true);
 					}
 
