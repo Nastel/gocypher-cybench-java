@@ -10,31 +10,241 @@ Dependencies for your project:
 
 * Maven:
     ```xml
-    <repositories>
-        <repository>
-            <id>oss.sonatype.org</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    ...
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-comparator</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.2.0</version>
         <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.0.0-SNAPSHOT'
+    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.0'
     ```
+
+## Running Cybench Comparator
+
+### Application
+
+* Main class: `com.gocypher.cybench.CompareBenchmarks`
+
+### From CMD
+
+```cmd
+java -jar gocypher-cybench-comparator.jar [args]
+```
+
+### From Maven
+
+* Step 1: to run Cybench Comparator from Maven, edit POM of your project first by adding this profile:
+    ```xml
+    <project>
+        <profiles>
+            <profile>
+                <id>compareBenchmarks</id>
+                <dependencies>
+                    <!-- @@@ Cybench Comparator app dependency @@@ -->
+                    <dependency>
+                        <groupId>com.gocypher.cybench.client</groupId>
+                        <artifactId>gocypher-cybench-comparator</artifactId>
+                        <version>1.2.0</version>
+                        <scope>test</scope>
+                    </dependency>
+                </dependencies>
+                <properties>
+                    <!-- ### Java executable to use ### -->
+                    <comp.java.home>${java.home}</comp.java.home>
+                    <comp.java.exec>"${comp.java.home}/bin/java"</comp.java.exec>
+                    <comp.class>com.gocypher.cybench.CompareBenchmarks</comp.class>
+                    <comp.class.args>-C config/comparator.yaml</comp.class.args>
+                </properties>
+                <build>
+                    <plugins>
+                        <!-- @@@ Make classpath entries as properties to ease access @@@ -->
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-dependency-plugin</artifactId>
+                            <version>3.1.2</version>
+                            <executions>
+                                <execution>
+                                    <id>get-classpath-filenames</id>
+                                    <goals>
+                                        <goal>properties</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <phase>generate-sources</phase>
+                                    <goals>
+                                        <goal>build-classpath</goal>
+                                    </goals>
+                                    <configuration>
+                                        <outputProperty>comp.compile.classpath</outputProperty>
+                                        <pathSeparator>${path.separator}</pathSeparator>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>exec-maven-plugin</artifactId>
+                            <version>3.0.0</version>
+                                <!-- @@@ Compare benchmarks @@@ -->
+                                <execution>
+                                    <id>compare-benchmarks</id>
+                                    <goals>
+                                        <goal>exec</goal>
+                                    </goals>
+                                    <!-- ### Maven phase when to compare benchmarks ### -->
+                                    <phase>integration-test</phase>
+                                    <configuration>
+                                        <executable>${comp.java.exec}</executable>
+                                        <classpathScope>test</classpathScope>
+                                        <commandlineArgs>
+                                            -cp ${comp.compile.classpath} ${comp.class} ${comp.class.args}
+                                        </commandlineArgs>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </build>
+            </profile>
+            <...>
+        </profiles>
+        <...>
+    </project>
+    ```
+  **Note:** configurable sections are marked with comments starting `<!-- ###`.
+
+  **Note:** you may need configuration file
+  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it over `comp.class.args`
+  property:
+    ```xml
+    <comp.class.args>-C config/comparator.yaml</comp.class.args>
+    ```
+
+* Step 2: run your Maven script with `compareBenchmarks` profile enabled:
+    ```cmd
+    mvn clean verify -f pom.xml -P compareBenchmarks 
+    ```
+
+  **Note:**
+    * `clean` - this goal is optional, but in most cases we want to have clean build
+    * `verify` - this goal is used to cover full build process lifecycle, since our default benchmark build and run
+      phases are bound to `pre-integration-test` and `integration-test`. But you may change accordingly to adopt your
+      project build lifecycle, but **note** those phases must go after `test-compile` phase, since we are dealing with
+      the product of this phase.
+    * `-f pom.xml` - you can replace it with any path and file name to match your environment
+
+### From Gradle
+
+* Step 1: to run Cybench Comparator from Gradle, edit `build.gradle` of your project first by adding these `repository`,
+  `configurations`, `dependnecies` and `task` definitions:
+    * Groovy
+        ```groovy
+        // ...
+        configurations {
+            cybenchComparator
+        }
+        // ...
+        dependencies {
+            // ...
+            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.0'
+        }
+        // ...
+        task compareBenchmarks(type: JavaExec) {
+            group = 'CyBench-Comparator'
+            description = 'Compare Benchmarks'
+            classpath = files(
+                    project.sourceSets.main.runtimeClasspath,
+                    project.sourceSets.test.runtimeClasspath,
+                    configurations.cybenchComparator
+            )
+            main = 'com.gocypher.cybench.CompareBenchmarks'
+            args = [
+              '-C config/comparator.yaml'
+            ]
+        }
+        ```
+
+    * Kotlin
+        ```kotlin
+        // ...
+        val cybenchComparator by configurations.creating {
+          isCanBeResolved = true
+          isCanBeConsumed = false
+        }
+        // ...
+        dependencies {
+          // ...
+          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.0")
+        }
+        // ...
+  
+        tasks {
+          val compareBenchmarks by registering(JavaExec::class) {
+            group = "cybench-comparator"
+            description = "Compare Benchmarks"
+            javaLauncher.set(launcher)
+  
+            classpath(
+              sourceSets["main"].runtimeClasspath,
+              sourceSets["test"].runtimeClasspath,
+              configurations.getByName("cybenchComparator")
+            )
+            
+            mainClass.set("com.gocypher.cybench.CompareBenchmarks")
+            args ("-C config/comparator.yaml")
+          }
+        }
+        ```
+
+  **Note:** you may need configuration file
+  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it with flag `-C`
+  or `-configPath` property:
+    ```cmd
+    "-C config/comparator.yaml"
+    ```
+
+* Step 2: run your Gradle script:
+    * To compare benchmarks
+      ```cmd
+      gradle :compareBenchmarks 
+      ```
+
+**Note:** If you want to run Compare Benchmarks:
+
+* Make sure to update your Maven or Gradle build files with the defined build
+  in [gocypher-cybench-comparator](https://github.com/K2NIO/gocypher-cybench-java/blob/master/gocypher-cybench-client/gocypher-cybench-comparator/README.md)
+* For Maven, place these execution phases before the compareBenchmarks execution phase
+* For Gradle / Kotlin, add `dependsOn` to the compareBenchmarks task to make it run after the others
+
+## Adding Comparator to Jenkins
+
+Comparator has the ability to fail a Jenkins build in the case of comparison failures. Just add a Jenkins stage with a
+Comparator run command for your appropriate operating system.  
+For different run configurations, refer to [running the comparator](#running-cybench-comparator).
+
+### Windows
+
+```jenkinsfile
+stage('Compare Benchmarks') {
+            steps {
+                bat 'gradle :compareBenchmarks'
+            }
+        }
+```
+
+### Linux
+
+```jenkinsfile
+stage('Compare Benchmarks') {
+            steps {
+                sh 'gradle :compareBenchmarks'
+            }
+        }
+```
 
 ## Configuration Args
 
@@ -167,7 +377,7 @@ the background as you execute the script.
     * After that, we call a function `getRecentlyBenchmarkedModes` that grabs an ArrayList `benchmarkedModes`, which
       contains the modes benchmarked by the specific fingerprint in the recent report.
     * **NOTE:** `myBenchmarks` is automatically defined for you, you do not have to set it manually.
-* After these variables are set, another loop is ran that cycles through the modes tested within the current version
+* After these variables are set, another loop cycles through the modes tested within the current version
     * Two `List<Double>` objects are created, `currentVersionScores` and `compareVersionScores`. These lists of scores
       get populated via multiple calls of `getBenchmarksByMode(fingerprint, currentVersion/compareVersion, mode)`
     * **NOTE:** While `currentVersion` is set within the script, `compareVersion` has to be passed via arguments. The
@@ -208,16 +418,19 @@ the background as you execute the script.
   previous version returns null.
 * `compareScores` is a generalized compare method which collects information from the command line flag arguments to
   decide which comparison method to run, for more specific comparisons, you can use the functions below
-* `compareDelta`, `compareDeltaPercentChange`, and `compareSD` are specific compare methods you can call with your scores that run all calculations
-  behind the scenes and return Double values
-   * **NOTE:** When calling `compareSD`, you must supply `deviationsAllowed` (a `Double` type), example below:
-      * `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviationsAllowed, currentVersionScores, compareVersionScores)`
-      * A filled out `compareSD()` may look like this: `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, 5, 1, currentVersionScores, compareVersionScores)`
-          * where `5` is the `range`, and `1` is the `deviationsAllowed`. Refer to `ComparatorScriptBindings.js` for full parameters/exepectations.
-   * **NOTE:** When calling `compareDeltaPercentChange`, you must supply `percentChangeAllowed`
-      * `compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMode, range, percentChangeAllowed, currentVersionScores, compareVersionScores)`
-      * A filled out `compareDelta()` may look like this: `compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, 5, 15, currentVersionScores, compareVersionScore)`
-          * where `5` is the `range` and `15` is the `percentChangeAllowed`.
+* `compareDelta`, `compareDeltaPercentChange`, and `compareSD` are specific compare methods you can call with your
+  scores that run all calculations behind the scenes and return Double values
+    * **NOTE:** When calling `compareSD`, you must supply `deviationsAllowed` (a `Double` type), example below:
+        * `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviationsAllowed, currentVersionScores, compareVersionScores)`
+        * A filled out `compareSD()` may look like
+          this: `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, 5, 1, currentVersionScores, compareVersionScores)`
+            * where `5` is the `range`, and `1` is the `deviationsAllowed`. Refer to `ComparatorScriptBindings.js` for
+              full parameters/expectations.
+    * **NOTE:** When calling `compareDeltaPercentChange`, you must supply `percentChangeAllowed`
+        * `compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMode, range, percentChangeAllowed, currentVersionScores, compareVersionScores)`
+        * A filled out `compareDelta()` may look like
+          this: `compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, 5, 15, currentVersionScores, compareVersionScore)`
+            * where `5` is the `range` and `15` is the `percentChangeAllowed`.
 * `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are specific simple methods you can
   quickly access for your own calculations and return `Double` values
 * `passAssertion` is a generalized assert method which collects information from the command line flag arguments to
@@ -234,7 +447,7 @@ the background as you execute the script.
 ### Configuration Variables
 
 ```yaml
-# failBuild = whether or not you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
+# failBuild = whether you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
 ## Options {true, false} ##
 
 # reportPath = 
@@ -288,7 +501,7 @@ the background as you execute the script.
     * `token:` Set this to your CyBench Access token, specifically a 'query' one. You can generate an access token for
       your private workspace on the CyBench website. More details and a guide is
       provided [here](https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-private-workspaces).
-* Additionally, you can pass a `failBuild` variable which will instruct Comparator to fail your build (ie. fail your
+* Additionally, you can pass a `failBuild` variable which will instruct Comparator to fail your build (i.e. fail your
   CI/CD pipeline) in the presence of failed comparisons
 * The following branches of `comparator.yaml` are used for configuring values exclusive to a certain package. i.e. If
   you'd like to test for change in Delta between the last benchmark for one package, and then test for change in average
@@ -318,7 +531,7 @@ packages will refer to the `compare.default` since they are not explicitly defin
 other packages in your Comparator run will test for the change in score between your most recent score, and the previous
 score. In this case, `threshold:` is set to `"GREATER"`, which means the most recent score must be greater than the
 previous in order to pass. As opposed to `compare.A`, `compare.default` will check scores from a different version (in
-this example, it'll compare scores between the current version, and `compareVersion: "1.0.1"`.
+this example, it'll compare scores between the current version, and `compareVersion: "1.0.1"`).
 
 * Inside these `compare.X` branches exists various configurations you can set.
 
@@ -365,8 +578,8 @@ this example, it'll compare scores between the current version, and `compareVers
 
 * Setting this configuration will allow you to choose what your newest score compares against
 * Possible values for range are `"ALL"` and any integer X`
-    * `"ALL"` = Compare newest score to only the previous one
-    * `X` = Compare newest score to the previous X scores
+    * `"ALL"` = Compare the latest score to only the previous one
+    * `X` = Compare the latest score to the previous X scores
 
 #### YAML Template
 
@@ -404,228 +617,3 @@ compare.B:
   percentChangeAllowed: "10"
   range: "2"
 ```
-
-## Running Cybench Comparator
-
-### Application
-
-* Main class: `com.gocypher.cybench.CompareBenchmarks`
-
-### From CMD
-
-```cmd
-java -jar gocypher-cybench-comparator.jar [args]
-```
-
-### From Maven
-
-* Step 1: to run Cybench Comparator from Maven, edit POM of your project first by adding this profile:
-    ```xml
-    <project>
-        <profiles>
-            <profile>
-                <id>compareBenchmarks</id>
-                <!-- @@@ Maven central snapshots repository to get dependency artifacts snapshot releases @@@ -->
-                <repositories>
-                    <repository>
-                        <id>oss.sonatype.org</id>
-                        <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-                        <releases>
-                            <enabled>false</enabled>
-                        </releases>
-                        <snapshots>
-                            <enabled>true</enabled>
-                        </snapshots>
-                    </repository>
-                </repositories>
-                <dependencies>
-                    <!-- @@@ Cybench Comparator app dependency @@@ -->
-                    <dependency>
-                        <groupId>com.gocypher.cybench.client</groupId>
-                        <artifactId>gocypher-cybench-comparator</artifactId>
-                        <version>1.0.0-SNAPSHOT</version>
-                        <scope>test</scope>
-                    </dependency>
-                </dependencies>
-                <properties>
-                    <!-- ### Java executable to use ### -->
-                    <comp.java.home>${java.home}</comp.java.home>
-                    <comp.java.exec>"${comp.java.home}/bin/java"</comp.java.exec>
-                    <comp.class>com.gocypher.cybench.CompareBenchmarks</comp.class>
-                    <comp.class.args>-C config/comparator.yaml</comp.class.args>
-                </properties>
-                <build>
-                    <plugins>
-                        <!-- @@@ Make classpath entries as properties to ease access @@@ -->
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-dependency-plugin</artifactId>
-                            <version>3.1.2</version>
-                            <executions>
-                                <execution>
-                                    <id>get-classpath-filenames</id>
-                                    <goals>
-                                        <goal>properties</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <phase>generate-sources</phase>
-                                    <goals>
-                                        <goal>build-classpath</goal>
-                                    </goals>
-                                    <configuration>
-                                        <outputProperty>comp.compile.classpath</outputProperty>
-                                        <pathSeparator>${path.separator}</pathSeparator>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>exec-maven-plugin</artifactId>
-                            <version>3.0.0</version>
-                                <!-- @@@ Compare benchmarks @@@ -->
-                                <execution>
-                                    <id>compare-benchmarks</id>
-                                    <goals>
-                                        <goal>exec</goal>
-                                    </goals>
-                                    <!-- ### Maven phase when to compare benchmarks ### -->
-                                    <phase>integration-test</phase>
-                                    <configuration>
-                                        <executable>${comp.java.exec}</executable>
-                                        <classpathScope>test</classpathScope>
-                                        <commandlineArgs>
-                                            -cp ${comp.compile.classpath} ${comp.class} ${comp.class.args}
-                                        </commandlineArgs>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </build>
-            </profile>
-            <...>
-        </profiles>
-        <...>
-    </project>
-    ```
-  **Note:** configurable sections are marked with comments starting `<!-- ###`.
-
-  **Note:** you may need configuration file
-  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it over `comp.class.args`
-  property:
-    ```xml
-    <comp.class.args>-C config/comparator.yaml</comp.class.args>
-    ```
-
-* Step 2: run your Maven script with `compareBenchmarks` profile enabled:
-    ```cmd
-    mvn clean verify -f pom.xml -P compareBenchmarks 
-    ```
-
-  **Note:**
-    * `clean` - this goal is optional, but in most cases we want to have clean build
-    * `verify` - this goal is used to cover full build process lifecycle, since our default benchmark build and run
-      phases are bound to `pre-integration-test` and `integration-test`. But you may change accordingly to adopt your
-      project build lifecycle, but **note** those phases must go after `test-compile` phase, since we are dealing with
-      the product of this phase.
-    * `-f pom.xml` - you can replace it with any path and file name to match your environment
-
-### Gradle
-
-* Step 1: to run Cybench Comparator from Gradle, edit `build.gradle` of your project first by adding these `repository`,
-  `configurations`, `dependnecies` and `task` definitions:
-    * Groovy
-        ```groovy
-        repositories {
-            mavenCentral()
-            maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
-        }
-        // ...
-        configurations {
-            cybenchComparator
-        }
-        // ...
-        dependencies {
-            // ...
-            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.0.0-SNAPSHOT'
-        }
-        // ...
-        task compareBenchmarks(type: JavaExec) {
-            group = 'CyBench-Comparator'
-            description = 'Compare Benchmarks'
-            classpath = files(
-                    project.sourceSets.main.runtimeClasspath,
-                    project.sourceSets.test.runtimeClasspath,
-                    configurations.cybenchComparator
-            )
-            main = 'com.gocypher.cybench.CompareBenchmarks'
-            args = [
-              '-C config/comparator.yaml'
-            ]
-        }
-        ```
-
-    * Kotlin
-        ```kotlin
-        import java.util.Properties
-        // ...
-        repositories {
-          mavenCentral()
-          maven {
-            setUrl("https://s01.oss.sonatype.org/content/repositories/snapshots")
-          }
-        }
-        // ...
-        val cybenchComparator by configurations.creating {
-          isCanBeResolved = true
-          isCanBeConsumed = false
-        }
-        // ...
-        dependencies {
-          // ...
-          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.0.0-SNAPSHOT")
-        }
-        // ...
-  
-        tasks {
-          val compareBenchmarks by registering(JavaExec::class) {
-            group = "cybench-comparator"
-            description = "Compare Benchmarks"
-            javaLauncher.set(launcher)
-  
-            classpath(
-              sourceSets["main"].runtimeClasspath,
-              sourceSets["test"].runtimeClasspath,
-              configurations.getByName("cybenchComparator")
-            )
-            
-            mainClass.set("com.gocypher.cybench.CompareBenchmarks")
-            args ("-C config/comparator.yaml")
-          }
-        }
-        ```
-
-  **Note:** since `gocypher-cybench-comparator` now is in pre-release state, you have to add maven central snapshots
-  repo `https://s01.oss.sonatype.org/content/repositories/snapshots` to your project repositories list.
-
-  **Note:** you may need configuration file
-  [comparator.yaml](config/comparator.yaml). Put it somewhere in your project scope and set it with flag `-C`
-  or `-configPath` property:
-    ```cmd
-    "-C config/comparator.yaml"
-    ```
-
-* Step 2: run your Gradle script:
-    * To compare benchmarks
-      ```cmd
-      gradle :compareBenchmarks 
-      ```
-
-**Note:** If you want to run Compare Benchmarks:
-
-* Make sure to update your Maven or Gradle build files with the defined build
-  in [gocypher-cybench-comparator](https://github.com/K2NIO/gocypher-cybench-java/blob/master/gocypher-cybench-client/gocypher-cybench-comparator/README.md)
-* For Maven, place these execution phases before the compareBenchmarks execution phase
-* For Gradle / Kotlin, add `dependsOn` to the compareBenchmarks task to make it run after the others

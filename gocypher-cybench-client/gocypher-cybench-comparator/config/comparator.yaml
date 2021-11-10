@@ -1,6 +1,6 @@
 ### Property File for Cybench Comparator Tool ###
 
-# failBuild = whether or not you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
+# failBuild = whether you want the build to fail (CI/CD pipeline failure) if there are benchmark comparison failures
 ## Options {true, false} ##
 
 # reportPath = 
