@@ -58,9 +58,10 @@ import com.gocypher.cybench.launcher.utils.Constants;
 import com.gocypher.cybench.launcher.utils.SecurityBuilder;
 
 public class BenchmarkRunner {
+    private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
+
     public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",
             "https://app.cybench.io/cybench/upload");
-    private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
     private static final String CYB_REPORT_FOLDER = System.getProperty("cybench.report.folder",
             "." + File.separator + "reports" + File.separator);
     public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER

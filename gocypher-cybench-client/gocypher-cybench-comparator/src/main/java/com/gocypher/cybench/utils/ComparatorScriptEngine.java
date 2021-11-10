@@ -35,8 +35,8 @@ import com.gocypher.cybench.CompareBenchmarks;
 import com.gocypher.cybench.services.Requests;
 
 public class ComparatorScriptEngine {
-
     private static final Logger log = LoggerFactory.getLogger(ComparatorScriptEngine.class);
+
     private final String[] engineDefs = { "var Comparisons = Java.type('com.gocypher.cybench.utils.Comparisons');",
             "var ConfigHandling = Java.type('com.gocypher.cybench.utils.ConfigHandling')",
             "var Requests = Java.type('com.gocypher.cybench.services.Requests');",

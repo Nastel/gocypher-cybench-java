@@ -43,6 +43,7 @@ import com.jcabi.manifests.Manifests;
 
 public class ReportingService {
     private static final Logger LOG = LoggerFactory.getLogger(ReportingService.class);
+
     private static ReportingService instance;
 
     private ReportingService() {

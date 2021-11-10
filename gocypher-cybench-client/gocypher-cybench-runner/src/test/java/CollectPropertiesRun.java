@@ -35,10 +35,11 @@ import com.sun.management.GarbageCollectorMXBean;
 import com.sun.management.GcInfo;
 
 public class CollectPropertiesRun {
+    private static final Logger LOG = LoggerFactory.getLogger(CollectPropertiesRun.class);
+
     private static final String GC_BEAN_NAME = "java.lang:type=GarbageCollector,name=PS MarkSweep";
     private static volatile GarbageCollectorMXBean gcMBean;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CollectSystemInformation.class);
     static final HardwareProperties hardwareProp = new HardwareProperties();
     static final JVMProperties jvmProperties = new JVMProperties();
     private static final DecimalFormat df = new DecimalFormat("#.####");

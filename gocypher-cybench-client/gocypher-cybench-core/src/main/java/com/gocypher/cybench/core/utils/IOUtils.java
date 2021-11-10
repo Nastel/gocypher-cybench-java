@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 public final class IOUtils {
     private static Logger LOG = LoggerFactory.getLogger(IOUtils.class);
+
     private static int randomFileChunkSize = 65536;
     private static long fileSizeMultiplierPerChunkSize = 16384;
     private static long fileSizeSmallMultiplierPerChunkSize = 2048;

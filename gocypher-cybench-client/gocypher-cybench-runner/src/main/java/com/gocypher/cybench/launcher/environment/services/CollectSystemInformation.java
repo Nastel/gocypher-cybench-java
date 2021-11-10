@@ -53,6 +53,7 @@ import oshi.software.os.OperatingSystem;
 
 public class CollectSystemInformation {
     private static final Logger LOG = LoggerFactory.getLogger(CollectSystemInformation.class);
+
     private static final DecimalFormat df = new DecimalFormat("#.####");
     private static final String[] excludeWindowsMACs = { "virtual", "hyper-v", "npcap" };
     static HardwareProperties hardwareProp = new HardwareProperties();

@@ -43,6 +43,7 @@ import com.gocypher.cybench.utils.WebpageGenerator;
 
 public class CompareBenchmarks {
     private static final Logger log = LoggerFactory.getLogger(CompareBenchmarks.class);
+
     private static boolean useScriptConfigForPage = false;
     public static int totalComparedBenchmarks = 0;
     public static final Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();

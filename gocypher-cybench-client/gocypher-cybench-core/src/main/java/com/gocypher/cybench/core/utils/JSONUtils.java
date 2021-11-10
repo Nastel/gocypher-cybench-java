@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class JSONUtils {
     private static Logger LOG = LoggerFactory.getLogger(JSONUtils.class);
+
     private static ObjectMapper mapper = new ObjectMapper();
 
     private JSONUtils() {

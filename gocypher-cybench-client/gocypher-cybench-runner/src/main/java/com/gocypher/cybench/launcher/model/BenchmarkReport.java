@@ -40,6 +40,7 @@ import com.gocypher.cybench.launcher.utils.Constants;
 public class BenchmarkReport implements Serializable {
     private static final long serialVersionUID = 2293390306981371292L;
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkReport.class);
+
     private String name;
     private Double score;
     private Double operationTime;
