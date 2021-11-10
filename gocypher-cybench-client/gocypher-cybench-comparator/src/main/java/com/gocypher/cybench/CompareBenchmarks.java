@@ -20,16 +20,13 @@
 package com.gocypher.cybench;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -55,8 +52,7 @@ public class CompareBenchmarks {
     public static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
     public static int totalFailedBenchmarks = 0;
     public static boolean failBuildFlag = false;
-    
-    
+
     public static void main(String... args) throws Exception {
         logInfo("* Analyzing benchmark performance...");
 
@@ -103,8 +99,6 @@ public class CompareBenchmarks {
                 passedProps.put(pEntry.getKey(), prop);
             }
         }
-        
-        
 
         String scriptPath = passedProps.get(ConfigHandling.SCRIPT_PATH);
         String configPath = passedProps.get(ConfigHandling.CONFIG_PATH);
@@ -122,9 +116,9 @@ public class CompareBenchmarks {
 
             logInfo("Attempting to load comparator configurations at {}\n", configPath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configPath);
-            Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);        
+            Map<String, String> configuredPackages = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
             WebpageGenerator.sendToWebpageGenerator(allConfigs, configuredPackages);
-         
+
             File recentReport = ConfigHandling
                     .identifyRecentReport((String) allConfigs.get(ConfigHandling.REPORT_PATH));
             String accessToken = (String) allConfigs.get(ConfigHandling.TOKEN);
@@ -140,9 +134,9 @@ public class CompareBenchmarks {
                 }
             }
         }
-      if(!useScriptConfigForPage) {
-    	  WebpageGenerator.generatePage();
-      }
+        if (!useScriptConfigForPage) {
+            WebpageGenerator.generatePage();
+        }
     }
 
     private static void analyzeBenchmarks(String accessToken, File recentReport, Map<String, Object> allConfigs,
@@ -241,15 +235,18 @@ public class CompareBenchmarks {
 
     private static void printBenchmarkResults(Map<String, String> namesToFingerprints) {
         if (totalPassedBenchmarks > 0) {
-            printBenchmarkResultsHelper(Comparisons.State.PASS, totalPassedBenchmarks, passedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(Comparisons.State.PASS, totalPassedBenchmarks, passedBenchmarks,
+                    namesToFingerprints);
         }
         System.out.print("\n");
         if (totalSkippedBenchmarks > 0) {
-        	printBenchmarkResultsHelper(Comparisons.State.SKIP, totalSkippedBenchmarks, skippedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(Comparisons.State.SKIP, totalSkippedBenchmarks, skippedBenchmarks,
+                    namesToFingerprints);
         }
         System.out.print("\n");
         if (totalFailedBenchmarks > 0) {
-            printBenchmarkResultsHelper(Comparisons.State.FAIL, totalFailedBenchmarks, failedBenchmarks, namesToFingerprints);
+            printBenchmarkResultsHelper(Comparisons.State.FAIL, totalFailedBenchmarks, failedBenchmarks,
+                    namesToFingerprints);
         }
         System.out.print("\n");
         logInfo("* Completed benchmark analysis\n");
@@ -259,13 +256,14 @@ public class CompareBenchmarks {
             Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarksToReport,
             Map<String, String> namesToFingerprints) {
         String passfailStr;
-        if (passfail.equals(Comparisons.State.PASS))
-        	passfailStr = "PASSED";
-        else if (passfail.equals(Comparisons.State.FAIL))
-        	passfailStr = "FAILED";
-        else
-        	passfailStr = "SKIPPED";
-        
+        if (passfail.equals(Comparisons.State.PASS)) {
+            passfailStr = "PASSED";
+        } else if (passfail.equals(Comparisons.State.FAIL)) {
+            passfailStr = "FAILED";
+        } else {
+            passfailStr = "SKIPPED";
+        }
+
         logInfo("** {}/{} benchmarks {}:", totalBenchmarksToReport, totalComparedBenchmarks, passfailStr);
         for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> brEntry : benchmarksToReport.entrySet()) {
             String benchmarkName = brEntry.getKey();
@@ -278,7 +276,7 @@ public class CompareBenchmarks {
                     String benchmarkMode = bdEntry.getKey();
                     Map<String, Object> benchmarkData = bdEntry.getValue();
                     Double benchmarkScore = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-                	BigDecimal roundedBenchmarkScore = BigDecimal.valueOf(benchmarkScore);
+                    BigDecimal roundedBenchmarkScore = BigDecimal.valueOf(benchmarkScore);
                     if (!passfail.equals(Comparisons.State.SKIP)) {
                         Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
                         BigDecimal roundedCompareValue = BigDecimal.valueOf(compareValue);
@@ -316,22 +314,24 @@ public class CompareBenchmarks {
                         }
 
                         logReport.append("test.id={}");
-                        
+
                         if (passfail.equals(Comparisons.State.PASS)) {
                             logInfo(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
-                            		roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta, roundedPercentChange, roundedSDFromMean, 
-                            		compareScope, compareVersion, compareRange, fingerprint);
+                                    roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta,
+                                    roundedPercentChange, roundedSDFromMean, compareScope, compareVersion, compareRange,
+                                    fingerprint);
                         } else {
-                        	
+
                             logErr(logReport.toString(), passfail, benchmarkName, benchmarkVersion, benchmarkMode,
-                            		roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta, roundedPercentChange, roundedSDFromMean, 
-                            		compareScope, compareVersion, compareRange, fingerprint);
+                                    roundedBenchmarkScore, compareMethod, roundedCompareValue, roundedDelta,
+                                    roundedPercentChange, roundedSDFromMean, compareScope, compareVersion, compareRange,
+                                    fingerprint);
                         }
                     } else {
                         logInfo("   NO COMPARISON: test.name={}, test.version={}, test.mode={}, test.score={}",
-                                    benchmarkName, benchmarkVersion, benchmarkMode, roundedBenchmarkScore);
+                                benchmarkName, benchmarkVersion, benchmarkMode, roundedBenchmarkScore);
                     }
-                } 
+                }
             }
         }
     }
@@ -405,7 +405,7 @@ public class CompareBenchmarks {
     private static boolean compareBenchmark(String benchmarkName, String benchmarkFingerprint, String benchmarkVersion,
             String benchmarkMode, Double benchmarkScore, Map<String, Object> allConfigs,
             Map<String, String> configuredPackages) {
-     	
+
         Map<String, Object> configMap = getConfigs(benchmarkName, allConfigs, configuredPackages);
 
         if (configMap != null) {
@@ -449,12 +449,11 @@ public class CompareBenchmarks {
 
             return true;
         } else {
-            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set", benchmarkName,
-                    benchmarkMode);
+            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set", benchmarkName, benchmarkMode);
             return Comparisons.skipComparison(benchmarkScore, benchmarkName, benchmarkVersion, benchmarkMode);
         }
     }
- 
+
     public static void finalizeComparisonLogs(Map<String, Object> props) throws Exception {
         System.out.print("\n\n");
         logInfo("compared={}, passed={}, (skipped={}), failed={}", totalComparedBenchmarks, totalPassedBenchmarks,

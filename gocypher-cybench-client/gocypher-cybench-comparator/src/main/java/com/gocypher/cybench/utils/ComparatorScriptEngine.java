@@ -46,7 +46,7 @@ public class ComparatorScriptEngine {
     private Map<String, Map<String, Map<String, Double>>> myBenchmarks;
     private ArrayList<String> myFingerprints;
     private Map<String, Object> passedProps;
-    
+
     public static Map<String, Object> comparatorProps;
 
     public ComparatorScriptEngine(Map<String, String> passedProps, String scriptPath) throws Exception {
@@ -59,8 +59,8 @@ public class ComparatorScriptEngine {
         String threshold = passedProps.get(ConfigHandling.THRESHOLD);
         String percentChangeAllowed = passedProps.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
         String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
-        comparatorProps = new HashMap();
-        
+        comparatorProps = new HashMap<>();
+
         initiateFetch(token, reportPath);
         if (handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed,
                 deviationsAllowed)) {
@@ -88,11 +88,11 @@ public class ComparatorScriptEngine {
 
     private boolean handleComparatorConfigs(String method, String range, String scope, String compareVersion,
             String threshold, String percentChangeAllowed, String deviationsAllowed) {
-    	
-    	log.info("Attempting to set comparatorProps");
-    	
+
+        log.info("Attempting to set comparatorProps");
+
         comparatorProps.put(ConfigHandling.DEFAULT_IDENTIFIER_HEADER, ConfigHandling.loadDefaults());
-        
+
         log.info("Finished setting comparatorProps");
         passedProps = new HashMap<>();
 
