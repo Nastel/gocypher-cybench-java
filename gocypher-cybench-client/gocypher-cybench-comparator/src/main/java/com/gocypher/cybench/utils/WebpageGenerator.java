@@ -27,6 +27,8 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,7 @@ public class WebpageGenerator {
 	static String percentChangeAllowed = "";
 	static String deviationsAllowed = "";
 	static String configType = "";
+	static String dateTime = "";
 	static Charset utf8 = StandardCharsets.UTF_8;
 	static File templateHTML;
 	static Map<String, Object> allConfigs;
@@ -84,6 +87,7 @@ public class WebpageGenerator {
 		} else {
 			changeComparatorConfigs(allConfigs);
 			changeVersion();
+			changeDateTime();
 		}
 
 		Class<?> clazz = gen.getClass();
@@ -121,7 +125,7 @@ public class WebpageGenerator {
 
 		changeScriptConfigs(props);
 		changeVersion();
-
+		changeDateTime();
 		Class<?> clazz = gen.getClass();
 		for (Field field : clazz.getDeclaredFields()) {
 			try {
@@ -387,6 +391,10 @@ public class WebpageGenerator {
 		}
 	}
 
+	private static void changeDateTime() {
+		dateTime = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
+	}
+	
 	public static void sendToWebpageGenerator(Map<String, Object> allConfig, Map<String, String> packages) {
 		allConfigs = allConfig;
 		System.out.println("All Configs: \n" + allConfig.toString());
