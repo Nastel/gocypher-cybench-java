@@ -199,8 +199,8 @@ public class WebpageGenerator {
 	private static void createFailedTable(File file) throws IOException {
 		try {
 			FileUtils.write(file,
-					"<table id =\"table21\"style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;class=\"display\"\">"
-							+ "    <caption style=\"border-style:double;background-color:#f97c7c;font-weight:bold\">Failed Tests</caption>"
+					"<table id =\"table21\"style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\"class=\"display compact\">"
+							+ "    <caption style=\"border-style:double;background-color:#f97c7c;font-weight:bold\">Test Anomalies</caption>"
 							+ "    <thead>" + "        <tr style=\"border: 1px dotted black;\">" //
 							+ "            <th>Fingerprint</th>" //
 							+ "            <th>Name</th>" //

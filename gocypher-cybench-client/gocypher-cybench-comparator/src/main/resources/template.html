@@ -15,6 +15,7 @@
   ~ License along with this library; if not, write to the Free Software
   ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
   ~
+  https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css
   -->
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -35,7 +36,7 @@ td {
 }
 </style>
 <link rel="stylesheet" type="text/css"
-	href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+	href="https://drive.google.com/uc?export=view&id=1XcPIhMXlW7mnoSumk8QN5Klrp3jM-6wq">
 <script type="text/javascript"
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
@@ -46,14 +47,19 @@ td {
 
 <script>
      $(document).ready( function () {
-    	    $('#table1').DataTable();
-    	    $('#table21').DataTable();
+    	    $('#table1').DataTable( {
+    	    	"pageLength": 50
+    	    });
+    	    $('#table21').DataTable( {
+    	    	"pageLength": 50
+    	    });
+    	    
     	} );
      </script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Comparison Report</title>
 </head>
-<body style="background-color: #A7C7E7">
+<body style="background-color: #d3dadf">
 	<div
 		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white; width: 25%; margin: auto; text-align: center">
 		<p style="font-weight: bold; font-size: 20px;">CyBench Comparator
@@ -114,7 +120,7 @@ td {
 
 
 	<table id="table1"
-		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white; class="display"">
+		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white;" class="display compact">
 		 <caption
 			style="border-style: double; background-color: #C7F6B6; font-weight: bold">Passed
 			Tests</caption>
