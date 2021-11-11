@@ -129,13 +129,6 @@ public class WebpageGenerator {
         changeVersion();
         changeDateTime();
 
-        int test = packageNames.size();
-        System.out.println("TOTAL PACKS: " + test);
-
-        for (String pName : packageNames) {
-            System.out.println("HERES A NAME?: " + pName);
-        }
-
         Class<?> clazz = gen.getClass();
         for (Field field : clazz.getDeclaredFields()) {
             try {
