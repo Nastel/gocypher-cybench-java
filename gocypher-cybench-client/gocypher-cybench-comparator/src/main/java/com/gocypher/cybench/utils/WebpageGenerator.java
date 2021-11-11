@@ -75,6 +75,7 @@ public class WebpageGenerator {
 
 	// for comparator configuration
 	public static void generatePage() throws IOException, URISyntaxException {
+		WebpageGenerator gen = new WebpageGenerator();
 		configType = "comparator.yaml";
 		File tempfile = genTemplateHTML();
 		File newHtml = new File("logs/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
@@ -120,6 +121,7 @@ public class WebpageGenerator {
 	// for script configuration || props gets passed all the way from
 	// ComparatorScriptEngine
 	public static void generatePage(Map<String, Object> props) throws IOException {
+		WebpageGenerator gen = new WebpageGenerator();
 		configType = scriptName; // TODO: Add actual script name
 		File tempfile = genTemplateHTML();
 		File newHtml = new File("logs/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");

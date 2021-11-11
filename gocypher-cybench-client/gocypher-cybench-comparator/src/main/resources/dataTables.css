@@ -83,7 +83,7 @@ table.dataTable tbody td.dt-body-nowrap {
  * Table styles
  */
 table.dataTable {
-  width: 100%;
+  width: 99%;
   margin: 0 auto;
   clear: both;
   border-collapse: separate;
@@ -280,6 +280,7 @@ table.dataTable td {
   clear: both;
 }
 .dataTables_wrapper .dataTables_length {
+  padding-left:1%;
   float: left;
   font-weight:bold;
 }
@@ -291,6 +292,7 @@ table.dataTable td {
   padding: 4px;
 }
 .dataTables_wrapper .dataTables_filter {
+  padding-right:1%;
   float: right;
   text-align: right;
   font-weight:bold;
