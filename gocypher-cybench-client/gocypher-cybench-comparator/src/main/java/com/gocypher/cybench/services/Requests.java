@@ -51,7 +51,6 @@ public class Requests {
     private static final String CURRENT_VERSION = "currentVersion";
     private static final String PREVIOUS_VERSION = "previousVersion";
 
-    
     // <Benchmark Fingerprint : <Version : <Mode : <List of Scores in Test Order>>>>
     public static Map<String, Map<String, Map<String, List<Double>>>> allBenchmarks = new HashMap<>();
     // <Benchmark Fingerprint : <Version : <Mode : <Score>>>>
@@ -294,7 +293,7 @@ public class Requests {
 
     public static Map<String, Map<String, Map<String, Double>>> getBenchmarksFromReport(String accessToken,
             File recentReport) {
-    	ArrayList<String> packNames = new ArrayList();
+        ArrayList<String> packNames = new ArrayList<>();
         if (StringUtils.isNotEmpty(accessToken) && !accessToken.equals("undefined")) {
             JSONObject benchmarkReport = null;
             try {

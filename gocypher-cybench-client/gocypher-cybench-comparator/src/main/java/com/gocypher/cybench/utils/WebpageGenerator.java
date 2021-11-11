@@ -31,13 +31,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -48,387 +43,374 @@ import com.gocypher.cybench.CompareBenchmarks;
 import com.gocypher.cybench.services.Requests;
 
 public class WebpageGenerator {
+    private static final Logger log = LoggerFactory.getLogger(WebpageGenerator.class);
 
-	
-	private static final Logger log = LoggerFactory.getLogger(WebpageGenerator.class);
-	
-	
-	String passed = String.valueOf(CompareBenchmarks.totalPassedBenchmarks);
-	String failed = String.valueOf(CompareBenchmarks.totalFailedBenchmarks);
-	String total = String.valueOf(CompareBenchmarks.totalComparedBenchmarks);
-	String skipped = String.valueOf(CompareBenchmarks.totalSkippedBenchmarks);
+    String passed = String.valueOf(CompareBenchmarks.totalPassedBenchmarks);
+    String failed = String.valueOf(CompareBenchmarks.totalFailedBenchmarks);
+    String total = String.valueOf(CompareBenchmarks.totalComparedBenchmarks);
+    String skipped = String.valueOf(CompareBenchmarks.totalSkippedBenchmarks);
 
-	
-	static String version = "";
-	static String name = "";
-	static String range = "";
-	static String scope = "";
-	static String method = "";
-	static String compareVersion = "";
-	static String threshold = "";
-	static String percentChangeAllowed = "";
-	static String deviationsAllowed = "";
-	static String configType = "";
-	static String dateTime = "";
-	static Charset utf8 = StandardCharsets.UTF_8;
-	static Map<String, Object> allConfigs;
-	static ArrayList<String> packageNames;
+    static String version = "";
+    static String name = "";
+    static String range = "";
+    static String scope = "";
+    static String method = "";
+    static String compareVersion = "";
+    static String threshold = "";
+    static String percentChangeAllowed = "";
+    static String deviationsAllowed = "";
+    static String configType = "";
+    static String dateTime = "";
+    static Charset utf8 = StandardCharsets.UTF_8;
+    static Map<String, Object> allConfigs;
+    static ArrayList<String> packageNames;
 
-	public WebpageGenerator() {
-		// TODO Remove Logs/Prints | Change conditional for class variables to be
-		// skipped
-		// Make sure no artifacts are left in other classes from debugging
-		// Add support/HTML generation for multiple packaged in comparator.yaml
+    public WebpageGenerator() {
+        // TODO Remove Logs/Prints | Change conditional for class variables to be
+        // skipped
+        // Make sure no artifacts are left in other classes from debugging
+        // Add support/HTML generation for multiple packaged in comparator.yaml
 
-	}
+    }
 
-	// for comparator configuration
-	public static void generatePage() throws IOException, URISyntaxException {
-		configType = "comparator.yaml";
-		WebpageGenerator gen = new WebpageGenerator();
-		File tempfile = genTemplateHTML();
-		File newHtml = new File("logs/Report-Test-" + getDateTimeForFileName() + ".html");
-		String htmlTemp;
+    // for comparator configuration
+    public static void generatePage() throws IOException, URISyntaxException {
+        configType = "comparator.yaml";
+        WebpageGenerator gen = new WebpageGenerator();
+        File tempfile = genTemplateHTML();
+        File newHtml = new File("logs/Report-Test-" + getDateTimeForFileName() + ".html");
+        String htmlTemp;
 
-		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
+        htmlTemp = FileUtils.readFileToString(tempfile, utf8);
 
-		// debug
-		if (allConfigs == null) {
-			System.out.println("allConfigs wasn't set correctly....");
-		} else {
-			changeComparatorConfigs(allConfigs);
-			changeVersion();
-			changeDateTime();
-		}
+        // debug
+        if (allConfigs == null) {
+            System.out.println("allConfigs wasn't set correctly....");
+        } else {
+            changeComparatorConfigs(allConfigs);
+            changeVersion();
+            changeDateTime();
+        }
 
-		Class<?> clazz = gen.getClass();
-		for (Field field : clazz.getDeclaredFields()) {
-			try {
-				if (field.getName() != "utf8" && field.getName() != "allConfigs" && field.getName() != "packageNames") {
-					htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
-					FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
-				}
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-		}
+        Class<?> clazz = gen.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            try {
+                if (field.getName() != "utf8" && field.getName() != "allConfigs" && field.getName() != "packageNames") {
+                    htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
+                    FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
 
-		createPassedTable(newHtml);
-		createFailedTable(newHtml);
-		createSkippedTable(newHtml);
+        createPassedTable(newHtml);
+        createFailedTable(newHtml);
+        createSkippedTable(newHtml);
 
-		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
-		System.out.println("Done creating page results with updated template");
-	}
+        FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
+        System.out.println("Done creating page results with updated template");
+    }
 
-	// for script configuration || props gets passed all the way from
-	// ComparatorScriptEngine
-	public static void generatePage(Map<String, Object> props) throws IOException {
-		configType = "JavaScript"; // TODO: Add actual script name
-		WebpageGenerator gen = new WebpageGenerator();
-		File tempfile = genTemplateHTML();
-		File newHtml = new File("logs/"+packageNames.get(0) + "-"+ getDateTimeForFileName() + ".html");
-		String htmlTemp;
+    // for script configuration || props gets passed all the way from
+    // ComparatorScriptEngine
+    public static void generatePage(Map<String, Object> props) throws IOException {
+        configType = "JavaScript"; // TODO: Add actual script name
+        WebpageGenerator gen = new WebpageGenerator();
+        File tempfile = genTemplateHTML();
+        File newHtml = new File("logs/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
+        String htmlTemp;
 
-		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
+        htmlTemp = FileUtils.readFileToString(tempfile, utf8);
 
-		changeScriptConfigs(props);
-		changeVersion();
-		changeDateTime();
-		
-		int test = packageNames.size();
-		System.out.println("TOTAL PACKS: "+test);
-		
-		  for (String name : packageNames) { System.out.println("HERES A NAME?: "+
-		  name); }
-		 
-		
-		Class<?> clazz = gen.getClass();
-		for (Field field : clazz.getDeclaredFields()) {
-			try {
-				if (field.getName() != "utf8" && field.getName() != "allConfigs") {
-					htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
-					FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
-				}
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-		}
-		createPassedTable(newHtml);
-		createFailedTable(newHtml);
-		createSkippedTable(newHtml);
-		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
-		log.info("Generated html report can be found at {}", newHtml.getAbsolutePath() );
-	}
+        changeScriptConfigs(props);
+        changeVersion();
+        changeDateTime();
 
-	private static void createPassedTable(File file) throws IOException {
+        int test = packageNames.size();
+        System.out.println("TOTAL PACKS: " + test);
 
-		if (CompareBenchmarks.totalPassedBenchmarks == 0) {
-			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td> No tests passed.</td></td></td></td></td></tr>\n", utf8, true);
-		} else {
+        for (String pName : packageNames) {
+            System.out.println("HERES A NAME?: " + pName);
+        }
 
-			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
-					.entrySet()) {
-				String benchmarkName = benchmark.getKey();
-				String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
+        Class<?> clazz = gen.getClass();
+        for (Field field : clazz.getDeclaredFields()) {
+            try {
+                if (field.getName() != "utf8" && field.getName() != "allConfigs") {
+                    htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
+                    FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        createPassedTable(newHtml);
+        createFailedTable(newHtml);
+        createSkippedTable(newHtml);
+        FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
+        log.info("Generated html report can be found at {}", newHtml.getAbsolutePath());
+    }
 
-				Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
-				for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
-					String benchVersion = versionEntry.getKey();
-					Map<String, Map<String, Object>> benchData = versionEntry.getValue();
-					for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
-						String benchMode = dataEntry.getKey();
-						Map<String, Object> benchmarkData = dataEntry.getValue();
-						Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-						BigDecimal roundScore = BigDecimal.valueOf(score);
-						Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
-						BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
-						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
-						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
-						BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
-						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
-						FileUtils.writeStringToFile(file,
-								"<tr><th>" + fingerprint + "</th><th style='text-align:left'>" + benchmarkName
-										+ "</th><th>" + benchVersion + "</th><th>" + benchMode
-										+ "</th><th style='text-align:right'>" + roundScore
-										+ "</th><th style='text-align:right'>" + roundCompValue
-										+ "</th><th style='text-align:right'>" + delta
-										+ "</th><th style='text-align:right'>" + roundPercentChange
-										+ "% </th><th style='text-align:right'>" + sdFromMean + "</th></tr>\n",
-								utf8, true);
-					}
-				}
-			}
-		}
-	}
+    private static void createPassedTable(File file) throws IOException {
 
-	private static void createFailedTable(File file) throws IOException {
-		try {
-			FileUtils.write(file,
-					"<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">"
-							+ "    <caption style=\"border-style:double;background-color:#f97c7c;font-weight:bold\">Failed Tests</caption>"
-							+ "        <tr style=\"border: 1px dotted black;\">" //
-							+ "            <th>Fingerprint</th>" //
-							+ "            <th>Name</th>" //               
-							+ "            <th>Version</th>" //
-							+ "            <th>Mode</th>" //
-							+ "            <th>Score</th>" //
-							+ "            <th>Compare Value</th>" //
-							+ "            <th>Delta</th>" //
-							+ "            <th>Percent Change</th>" //
-							+ "            <th>SD from Mean</th>" //
-							+ "        </tr>" //
-							+ "    <tr style=\"border: 1px dotted black;font-size:70%\">", //
-					utf8, true);
+        if (CompareBenchmarks.totalPassedBenchmarks == 0) {
+            FileUtils.writeStringToFile(file,
+                    "<tr><td><td><td><td><td> No tests passed.</td></td></td></td></td></tr>\n", utf8, true);
+        } else {
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+            for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
+                    .entrySet()) {
+                String benchmarkName = benchmark.getKey();
+                String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
 
-		if (CompareBenchmarks.totalFailedBenchmarks == 0) {
-			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td> No tests failed.</td></td></td></td></td></tr>\n", utf8, true);
-		} else {
-			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.failedBenchmarks
-					.entrySet()) {
-				String benchmarkName = benchmark.getKey();
-				String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
+                Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
+                for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
+                    String benchVersion = versionEntry.getKey();
+                    Map<String, Map<String, Object>> benchData = versionEntry.getValue();
+                    for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
+                        String benchMode = dataEntry.getKey();
+                        Map<String, Object> benchmarkData = dataEntry.getValue();
+                        Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
+                        BigDecimal roundScore = BigDecimal.valueOf(score);
+                        Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
+                        BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
+                        Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
+                        Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
+                        BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
+                        Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+                        FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
+                                + "</th><th style='text-align:left'>" + benchmarkName //
+                                + "</th><th>" + benchVersion //
+                                + "</th><th>" + benchMode //
+                                + "</th><th style='text-align:right'>" + roundScore //
+                                + "</th><th style='text-align:right'>" + roundCompValue //
+                                + "</th><th style='text-align:right'>" + delta //
+                                + "</th><th style='text-align:right'>" + roundPercentChange //
+                                + "% </th><th style='text-align:right'>" + sdFromMean //
+                                + "</th></tr>\n", utf8, true);
+                    }
+                }
+            }
+        }
+    }
 
-				Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
-				for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
-					String benchVersion = versionEntry.getKey();
-					Map<String, Map<String, Object>> benchData = versionEntry.getValue();
-					for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
-						String benchMode = dataEntry.getKey();
-						Map<String, Object> benchmarkData = dataEntry.getValue();
-						Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-						BigDecimal roundScore = BigDecimal.valueOf(score);
-						Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
-						BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
-						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
-						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
-						BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
-						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
-						FileUtils.writeStringToFile(file,
-								"<tr><th>" + fingerprint + "</th><th>" + benchmarkName + "</th><th>" + benchVersion
-										+ "</th><th>" + benchMode + "</th><th style='text-align:right'>" + roundScore
-										+ "</th><th style='text-align:right'>" + roundCompValue
-										+ "</th><th style='text-align:right'>" + delta
-										+ "</th><th style='text-align:right'>" + roundPercentChange
-										+ "% </th><th style='text-align:right'>" + sdFromMean + "</th></tr>\n",
-								utf8, true);
-					}
+    private static void createFailedTable(File file) throws IOException {
+        try {
+            FileUtils.write(file,
+                    "<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">"
+                            + "    <caption style=\"border-style:double;background-color:#f97c7c;font-weight:bold\">Failed Tests</caption>"
+                            + "        <tr style=\"border: 1px dotted black;\">" //
+                            + "            <th>Fingerprint</th>" //
+                            + "            <th>Name</th>" //
+                            + "            <th>Version</th>" //
+                            + "            <th>Mode</th>" //
+                            + "            <th>Score</th>" //
+                            + "            <th>Compare Value</th>" //
+                            + "            <th>Delta</th>" //
+                            + "            <th>Percent Change</th>" //
+                            + "            <th>SD from Mean</th>" //
+                            + "        </tr>" //
+                            + "    <tr style=\"border: 1px dotted black;font-size:70%\">", //
+                    utf8, true);
 
-				}
-			}
-			FileUtils.write(file, "\n</table><br>", utf8, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-		}
-	}
+        if (CompareBenchmarks.totalFailedBenchmarks == 0) {
+            FileUtils.writeStringToFile(file,
+                    "<tr><td><td><td><td><td>No tests failed.</td></td></td></td></td></tr>\n", utf8, true);
+        } else {
+            for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.failedBenchmarks
+                    .entrySet()) {
+                String benchmarkName = benchmark.getKey();
+                String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
 
-	private static void createSkippedTable(File file) throws IOException {
-		try {
-			FileUtils.write(file,
-					"<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">"
-							+ "    <caption style=\"border-style:double;background-color:goldenrod;font-weight:bold\">Skipped Tests</caption>"
-							+ "        <tr style=\"border: 1px dotted black;\">" //
-							+ "            <th>Fingerprint</th>" //
-							+ "            <th>Name</th>" //
-							+ "            <th>Version</th>" //
-							+ "            <th>Mode</th>" //
-							+ "            <th>Score</th>" //
-							+ "            <th>Compare Value</th>" //
-							+ "            <th>Delta</th>" //
-							+ "            <th>Percent Change</th>" //
-							+ "            <th>SD from Mean</th>" //
-							+ "        </tr>" //
-							+ "    <tr style=\"border: 1px dotted black;font-size:70%\">", //
-					utf8, true);
+                Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
+                for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
+                    String benchVersion = versionEntry.getKey();
+                    Map<String, Map<String, Object>> benchData = versionEntry.getValue();
+                    for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
+                        String benchMode = dataEntry.getKey();
+                        Map<String, Object> benchmarkData = dataEntry.getValue();
+                        Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
+                        BigDecimal roundScore = BigDecimal.valueOf(score);
+                        Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
+                        BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
+                        Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
+                        Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
+                        BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
+                        Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+                        FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
+                                + "</th><th style='text-align:left'>" + benchmarkName //
+                                + "</th><th>" + benchVersion //
+                                + "</th><th>" + benchMode //
+                                + "</th><th style='text-align:right'>" + roundScore //
+                                + "</th><th style='text-align:right'>" + roundCompValue //
+                                + "</th><th style='text-align:right'>" + delta //
+                                + "</th><th style='text-align:right'>" + roundPercentChange //
+                                + "% </th><th style='text-align:right'>" + sdFromMean //
+                                + "</th></tr>\n", utf8, true);
+                    }
+                }
+            }
+            FileUtils.write(file, "\n</table><br>", utf8, true);
+        }
+    }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if (CompareBenchmarks.totalSkippedBenchmarks == 0) {
-			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td> No tests were skipped.</td></td></td></td></td></tr>\n", utf8, true);
-		} else {
-			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.skippedBenchmarks
-					.entrySet()) {
-				String benchmarkName = benchmark.getKey();
-				String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
+    private static void createSkippedTable(File file) throws IOException {
+        try {
+            FileUtils.write(file,
+                    "<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">"
+                            + "    <caption style=\"border-style:double;background-color:goldenrod;font-weight:bold\">Skipped Tests</caption>"
+                            + "        <tr style=\"border: 1px dotted black;\">" //
+                            + "            <th>Fingerprint</th>" //
+                            + "            <th>Name</th>" //
+                            + "            <th>Version</th>" //
+                            + "            <th>Mode</th>" //
+                            + "            <th>Score</th>" //
+                            + "            <th>Compare Value</th>" //
+                            + "            <th>Delta</th>" //
+                            + "            <th>Percent Change</th>" //
+                            + "            <th>SD from Mean</th>" //
+                            + "        </tr>" //
+                            + "    <tr style=\"border: 1px dotted black;font-size:70%\">", //
+                    utf8, true);
 
-				Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
-				for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
-					String benchVersion = versionEntry.getKey();
-					Map<String, Map<String, Object>> benchData = versionEntry.getValue();
-					for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
-						String benchMode = dataEntry.getKey();
-						Map<String, Object> benchmarkData = dataEntry.getValue();
-						Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-						BigDecimal roundScore = BigDecimal.valueOf(score);
-						Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
-						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
-						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
-						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
-						FileUtils.writeStringToFile(file,
-								"<tr><th>" + fingerprint + "</th><th>" + benchmarkName + "</th><th>" + benchVersion
-										+ "</th><th>" + benchMode + "</th><th>" + roundScore + "</th><th>"
-										+ compareValue + "</th><th>" + delta + "</th><th>" + percentChange
-										+ "% </th><th>" + sdFromMean + "</th></tr>\n",
-								utf8, true);
-					}
-				}
-			}
-		}
-	}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (CompareBenchmarks.totalSkippedBenchmarks == 0) {
+            FileUtils.writeStringToFile(file,
+                    "<tr><td><td><td><td><td>No tests were skipped.</td></td></td></td></td></tr>\n", utf8, true);
+        } else {
+            for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.skippedBenchmarks
+                    .entrySet()) {
+                String benchmarkName = benchmark.getKey();
+                String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
 
-	private static File genTemplateHTML() {
-		WebpageGenerator gen = new WebpageGenerator();
-		InputStream in = gen.getClass().getResourceAsStream("/template.html");
-		File tempfile = new File("src/main/tmp/temphtml.tmp");
-		String result;
-		try {
-			result = IOUtils.toString(in, utf8);
-			FileUtils.writeStringToFile(tempfile, result, utf8);
-			in.close();
-			return tempfile;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return tempfile;
+                Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
+                for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
+                    String benchVersion = versionEntry.getKey();
+                    Map<String, Map<String, Object>> benchData = versionEntry.getValue();
+                    for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
+                        String benchMode = dataEntry.getKey();
+                        Map<String, Object> benchmarkData = dataEntry.getValue();
+                        Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
+                        BigDecimal roundScore = BigDecimal.valueOf(score);
+                        Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
+                        Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
+                        Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
+                        Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+                        FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
+                                + "</th><th style='text-align:left'>" + benchmarkName //
+                                + "</th><th>" + benchVersion //
+                                + "</th><th>" + benchMode //
+                                + "</th><th style='text-align:right'>" + roundScore //
+                                + "</th><th style='text-align:right'>" + compareValue //
+                                + "</th><th style='text-align:right'>" + delta //
+                                + "</th><th style='text-align:right'>" + percentChange //
+                                + "% </th><th style='text-align:right'>" + sdFromMean //
+                                + "</th></tr>\n", utf8, true);
+                    }
+                }
+            }
+        }
+    }
 
-	}
+    private static File genTemplateHTML() {
+        WebpageGenerator gen = new WebpageGenerator();
+        InputStream in = gen.getClass().getResourceAsStream("/template.html");
+        File tempfile = new File("src/main/tmp/temphtml.tmp");
+        String result;
+        try {
+            result = IOUtils.toString(in, utf8);
+            FileUtils.writeStringToFile(tempfile, result, utf8);
+            in.close();
+            return tempfile;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return tempfile;
 
-	private static String getDateTimeForFileName() {
-		DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
-		Date date = new Date();
-		String fileName = df.format(date);
-		return fileName;
-	}
+    }
 
-	private static void changeVersion() {
-		List<String> passedNames = new ArrayList<>();
-		for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
-				.entrySet()) {
-			String tempName = benchmark.getKey();
-			passedNames.add(tempName);
+    private static String getDateTimeForFileName() {
+        DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        Date date = new Date();
+        String fileName = df.format(date);
+        return fileName;
+    }
 
-		}
-		for (String pName : passedNames) {
-			String tempFingerprint = Requests.namesToFingerprints.get(pName);
-			version = Requests.getCurrentVersion(tempFingerprint);
-		}
-	}
+    private static void changeVersion() {
+        List<String> passedNames = new ArrayList<>();
+        for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
+                .entrySet()) {
+            String tempName = benchmark.getKey();
+            passedNames.add(tempName);
 
-	private static void changeComparatorConfigs(Map<String, Object> configs) {
-		String tempString = "";
+        }
+        for (String pName : passedNames) {
+            String tempFingerprint = Requests.namesToFingerprints.get(pName);
+            version = Requests.getCurrentVersion(tempFingerprint);
+        }
+    }
 
-		String longConfigGet = configs.get("compare.default").toString();
-		tempString = longConfigGet.substring(1, longConfigGet.length() - 1);
+    private static void changeComparatorConfigs(Map<String, Object> configs) {
+        String tempString = "";
+        String longConfigGet = configs.get("compare.default").toString();
+        tempString = longConfigGet.substring(1, longConfigGet.length() - 1);
+        String[] propsArray = tempString.split(". ");
+        setConfig(propsArray);
+    }
 
-		String[] propsArray = tempString.split(". ");
-		for (String pName : propsArray) {
-			if (pName.contains("method")) {
-				method = pName.substring(7);
-			} else if (pName.contains("range")) {
-				range = pName.substring(6);
-			} else if (pName.contains("scope")) {
-				scope = pName.substring(6);
-			} else if (pName.contains("compareVersion")) {
-				compareVersion = pName.substring(15);
-			} else if (pName.contains("threshold")) {
-				threshold = pName.substring(10);
-			} else if (pName.contains("percentChangeAllowed")) {
-				percentChangeAllowed = pName.substring(21);
-			} else if (pName.contains("deviationsAllowed")) {
-				deviationsAllowed = pName.substring(18);
-			}
-		}
-	}
+    private static void changeScriptConfigs(Map<String, Object> compProps) {
+        String tempString = "";
+        System.out.println("Begin loop through compProps");
+        for (Map.Entry<String, Object> entry : compProps.entrySet()) {
+            if (entry.getKey().equals("MyScript")) {
+                tempString = entry.getValue().toString();
+            }
+        }
+        tempString = tempString.substring(1, tempString.length() - 1);
+        System.out.println(tempString);
+        String[] propsArray = tempString.split(", ");
+        setConfig(propsArray);
+    }
 
-	private static void changeScriptConfigs(Map<String, Object> compProps) {
-		String tempString = "";
-		System.out.println("Begin loop through compProps");
-		for (Map.Entry<String, Object> entry : compProps.entrySet()) {
-			if (entry.getKey().equals("MyScript")) {
-				tempString = entry.getValue().toString();
-			}
-		}
-		tempString = tempString.substring(1, tempString.length() - 1);
-		System.out.println(tempString);
-		String[] propsArray = tempString.split(", ");
-		for (String pName : propsArray) {
-			if (pName.contains("method")) {
-				method = pName.substring(7);
-			} else if (pName.contains("range")) {
-				range = pName.substring(6);
-			} else if (pName.contains("scope")) {
-				scope = pName.substring(6);
-			} else if (pName.contains("compareVersion")) {
-				compareVersion = pName.substring(15);
-			} else if (pName.contains("threshold")) {
-				threshold = pName.substring(10);
-			} else if (pName.contains("percentChangeAllowed")) {
-				percentChangeAllowed = pName.substring(21);
-			} else if (pName.contains("deviationsAllowed")) {
-				deviationsAllowed = pName.substring(18);
-			}
-		}
-	}
+    private static void setConfig(String[] propsArray) {
+        for (String pName : propsArray) {
+            if (pName.contains("method")) {
+                method = pName.substring(7);
+            } else if (pName.contains("range")) {
+                range = pName.substring(6);
+            } else if (pName.contains("scope")) {
+                scope = pName.substring(6);
+            } else if (pName.contains("compareVersion")) {
+                compareVersion = pName.substring(15);
+            } else if (pName.contains("threshold")) {
+                threshold = pName.substring(10);
+            } else if (pName.contains("percentChangeAllowed")) {
+                percentChangeAllowed = pName.substring(21);
+            } else if (pName.contains("deviationsAllowed")) {
+                deviationsAllowed = pName.substring(18);
+            }
+        }
+    }
 
-	private static void changeDateTime() {
-		dateTime = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
-	}
+    private static void changeDateTime() {
+        dateTime = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
+    }
 
-	public static void sendToWebpageGenerator(Map<String, Object> allConfig, Map<String, String> packages) {
-		allConfigs = allConfig;
-	}
+    public static void sendToWebpageGenerator(Map<String, Object> allConfig, Map<String, String> packages) {
+        allConfigs = allConfig;
+    }
 
     public static void logInfo(String msg, Object... args) {
         log.info(msg, args);
@@ -442,14 +424,12 @@ public class WebpageGenerator {
         log.error(msg, args);
     }
 
-	public static void grabPackageNames(ArrayList<String> packNames) {
-		Set<String> pkgNames = new HashSet<>(packNames);
-		packNames.clear();
-		packNames.addAll(pkgNames);
-		packageNames = packNames;
-		
-		
-	}
+    public static void grabPackageNames(ArrayList<String> packNames) {
+        Set<String> pkgNames = new HashSet<>(packNames);
+        packNames.clear();
+        packNames.addAll(pkgNames);
+        packageNames = packNames;
 
+    }
 
 }
