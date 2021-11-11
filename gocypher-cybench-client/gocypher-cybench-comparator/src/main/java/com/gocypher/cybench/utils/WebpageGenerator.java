@@ -64,7 +64,7 @@ public class WebpageGenerator {
 	static Charset utf8 = StandardCharsets.UTF_8;
 	static Map<String, Object> allConfigs;
 	static ArrayList<String> packageNames;
-	static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "packageNames", "skippedFields");
+	static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields");
 
 	public WebpageGenerator() {
 		// TODO Remove Logs/Prints |		
@@ -177,9 +177,11 @@ public class WebpageGenerator {
 						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
 						BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
 						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
 						FileUtils.writeStringToFile(file, "<th>" + fingerprint //
 								+ "</th><th style='text-align:left'>" + benchmarkName //
 								+ "</th><th>" + benchVersion //
+								+ "</th><th>" + compareVersion
 								+ "</th><th>" + benchMode //
 								+ "</th><th style='text-align:right'>" + roundScore //
 								+ "</th><th style='text-align:right'>" + roundCompValue //
@@ -190,7 +192,7 @@ public class WebpageGenerator {
 					}
 				}
 			}
-			FileUtils.writeStringToFile(file, "</tbody></table>", utf8, true);
+			FileUtils.writeStringToFile(file, "</tbody></table><br>", utf8, true);
 		}
 	}
 
@@ -203,6 +205,7 @@ public class WebpageGenerator {
 							+ "            <th>Fingerprint</th>" //
 							+ "            <th>Name</th>" //
 							+ "            <th>Version</th>" //
+							+ "            <th>Compare Version</th>" //
 							+ "            <th>Mode</th>" //
 							+ "            <th>Score</th>" //
 							+ "            <th>Compare Value</th>" //
@@ -240,9 +243,11 @@ public class WebpageGenerator {
 						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
 						BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
 						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
 						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
 								+ "</th><th style='text-align:left'>" + benchmarkName //
 								+ "</th><th>" + benchVersion //
+								+ "</th><th>" + compareVersion
 								+ "</th><th>" + benchMode //
 								+ "</th><th style='text-align:right'>" + roundScore //
 								+ "</th><th style='text-align:right'>" + roundCompValue //
@@ -266,6 +271,7 @@ public class WebpageGenerator {
 							+ "            <th>Fingerprint</th>" //
 							+ "            <th>Name</th>" //
 							+ "            <th>Version</th>" //
+							+ "            <th>Compare Version</th>" //
 							+ "            <th>Mode</th>" //
 							+ "            <th>Score</th>" //
 							+ "            <th>Compare Value</th>" //
@@ -305,6 +311,7 @@ public class WebpageGenerator {
 						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
 								+ "</th><th style='text-align:left'>" + benchmarkName //
 								+ "</th><th>" + benchVersion //
+								+ "</th><th>" + compareVersion //
 								+ "</th><th>" + benchMode //
 								+ "</th><th style='text-align:right'>" + roundScore //
 								+ "</th><th style='text-align:right'>" + compareValue //
