@@ -120,7 +120,7 @@ public class WebpageGenerator {
 	// for script configuration || props gets passed all the way from
 	// ComparatorScriptEngine
 	public static void generatePage(Map<String, Object> props) throws IOException {
-		configType = "JavaScript"; // TODO: Add actual script name
+		configType = scriptName; // TODO: Add actual script name
 		File tempfile = genTemplateHTML();
 		File newHtml = new File("logs/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
@@ -468,7 +468,7 @@ public class WebpageGenerator {
 
 	public static void sendToWebpageGenerator(String script) {
 		try {
-			scriptName = script;
+			scriptName = script.substring(script.lastIndexOf("\\") + 1);
 		} catch (Exception e) {
 			log.error("Error passing script file path.");
 			e.printStackTrace();
