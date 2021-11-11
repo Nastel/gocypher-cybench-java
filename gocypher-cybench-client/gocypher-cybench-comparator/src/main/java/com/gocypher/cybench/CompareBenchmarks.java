@@ -106,7 +106,7 @@ public class CompareBenchmarks {
 
         if (scriptPath != null) {
             logInfo("Attempting to evaluate custom defined script at {}\n", scriptPath);
-
+            WebpageGenerator.sendToWebpageGenerator(scriptPath);
             ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps, scriptPath);
             useScriptConfigForPage = true;
         } else {

@@ -61,10 +61,12 @@ public class WebpageGenerator {
 	static String deviationsAllowed = "";
 	static String configType = "";
 	static String dateTime = "";
+	static String scriptName = "";
 	static Charset utf8 = StandardCharsets.UTF_8;
 	static Map<String, Object> allConfigs;
 	static ArrayList<String> packageNames;
-	static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields");
+	static WebpageGenerator gen = new WebpageGenerator();
+	static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields", "gen");
 
 	public WebpageGenerator() {
 		// TODO Remove Logs/Prints |
@@ -74,7 +76,6 @@ public class WebpageGenerator {
 	// for comparator configuration
 	public static void generatePage() throws IOException, URISyntaxException {
 		configType = "comparator.yaml";
-		WebpageGenerator gen = new WebpageGenerator();
 		File tempfile = genTemplateHTML();
 		File newHtml = new File("logs/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
@@ -83,7 +84,7 @@ public class WebpageGenerator {
 
 		// debug
 		if (allConfigs == null) {
-			log.error("Unable to grab configurations from comparator.yaml");
+			log.error("* Unable to grab configurations from comparator.yaml");
 		} else {
 			changeComparatorConfigs(allConfigs);
 			changeVersion();
@@ -110,16 +111,16 @@ public class WebpageGenerator {
 		createSkippedTable(newHtml);
 
 		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
+		genCSS();
 		deleteTempFiles();
-		log.info("Finished creating HTML report.");
-		log.info("Generated HTML report can be found at {}", newHtml.getAbsolutePath());
+		log.info("* Finished creating HTML report.");
+		log.info("* Generated HTML report can be found at {}", newHtml.getAbsolutePath());
 	}
 
 	// for script configuration || props gets passed all the way from
 	// ComparatorScriptEngine
 	public static void generatePage(Map<String, Object> props) throws IOException {
 		configType = "JavaScript"; // TODO: Add actual script name
-		WebpageGenerator gen = new WebpageGenerator();
 		File tempfile = genTemplateHTML();
 		File newHtml = new File("logs/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
@@ -147,9 +148,10 @@ public class WebpageGenerator {
 		createFailedTable(newHtml);
 		createSkippedTable(newHtml);
 		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
+		genCSS();
 		deleteTempFiles();
-		log.info("Finished creating HTML report.");
-		log.info("Generated HTML report can be found at {}", newHtml.getAbsolutePath());
+		log.info("* Finished creating HTML report.");
+		log.info("* Generated HTML report can be found at {}", newHtml.getAbsolutePath());
 	}
 
 	private static void createPassedTable(File file) throws IOException {
@@ -326,7 +328,7 @@ public class WebpageGenerator {
 	}
 
 	private static File genTemplateHTML() {
-		WebpageGenerator gen = new WebpageGenerator();
+
 		InputStream in = gen.getClass().getResourceAsStream("/template.html");
 		File tempfile = new File("src/main/tmp/temphtml.tmp");
 		String result;
@@ -343,11 +345,26 @@ public class WebpageGenerator {
 
 	}
 
+	private static void genCSS() {
+		InputStream in = gen.getClass().getResourceAsStream("/dataTables.css");
+		File tempFile = new File("logs/dataTables.css");
+		String result;
+		try {
+			result = IOUtils.toString(in, utf8);
+			FileUtils.writeStringToFile(tempFile, result, utf8);
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+
+		}
+
+	}
+
 	private static void deleteTempFiles() {
 		File tempDir = new File("src/main/tmp/");
 		try {
 			FileUtils.deleteDirectory(tempDir);
-			log.info("Temporary files deleted.");
+			log.info("* Temporary files deleted.");
 		} catch (IOException e) {
 			e.printStackTrace();
 			log.error("Error while deleting temporary files directory.");
@@ -415,20 +432,48 @@ public class WebpageGenerator {
 	private static String getDateTimeForFileName() {
 		DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		Date date = new Date();
-		String fileName = df.format(date);
-		return fileName;
+		String fileNameDateTime = df.format(date);
+		return fileNameDateTime;
 	}
 
 	public static void grabPackageNames(ArrayList<String> packNames) {
-		Set<String> pkgNames = new HashSet<>(packNames);
-		packNames.clear();
-		packNames.addAll(pkgNames);
-		packageNames = packNames;
+		if (!packNames.isEmpty()) {
+			try {
+				Set<String> pkgNames = new HashSet<>(packNames);
+				packNames.clear();
+				packNames.addAll(pkgNames);
+				packageNames = packNames;
+
+			} catch (Exception e) {
+				log.error("Error grabbing package names from benchmark test");
+			}
+		} else {
+			log.error("List of package names was empty.");
+		}
 
 	}
 
 	public static void sendToWebpageGenerator(Map<String, Object> allConfig, Map<String, String> packages) {
-		allConfigs = allConfig;
+		if (!allConfig.isEmpty()) {
+			try {
+				allConfigs = allConfig;
+			} catch (Exception e) {
+				log.error("Error passing configuration values");
+				e.printStackTrace();
+			}
+		} else {
+			log.error("Passed configuration values were empty.");
+		}
+	}
+
+	public static void sendToWebpageGenerator(String script) {
+		try {
+			scriptName = script;
+		} catch (Exception e) {
+			log.error("Error passing script file path.");
+			e.printStackTrace();
+		}
+
 	}
 
 	public static void logInfo(String msg, Object... args) {
