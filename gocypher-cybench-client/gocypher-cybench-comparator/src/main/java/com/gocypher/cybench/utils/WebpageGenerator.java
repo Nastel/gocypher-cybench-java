@@ -110,6 +110,7 @@ public class WebpageGenerator {
 		createSkippedTable(newHtml);
 
 		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
+		deleteTempFiles();
 		log.info("Finished creating HTML report.");
 		log.info("Generated HTML report can be found at {}", newHtml.getAbsolutePath());
 	}
@@ -146,6 +147,7 @@ public class WebpageGenerator {
 		createFailedTable(newHtml);
 		createSkippedTable(newHtml);
 		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
+		deleteTempFiles();
 		log.info("Finished creating HTML report.");
 		log.info("Generated HTML report can be found at {}", newHtml.getAbsolutePath());
 	}
@@ -192,7 +194,7 @@ public class WebpageGenerator {
 					}
 				}
 			}
-			FileUtils.writeStringToFile(file, "</tbody></table><br>", utf8, true);
+			FileUtils.writeStringToFile(file, "</tbody></table><br>", utf8, true);			
 		}
 	}
 
@@ -343,6 +345,16 @@ public class WebpageGenerator {
 
 	}
 
+	private static void deleteTempFiles() {
+		File tempDir = new File("src/main/tmp/");
+		try {
+			FileUtils.deleteDirectory(tempDir);
+			log.info("Temporary files deleted.");
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.error("Error while deleting temporary files directory.");
+		}
+	}
 	private static String getDateTimeForFileName() {
 		DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		Date date = new Date();
