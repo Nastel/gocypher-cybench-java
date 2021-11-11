@@ -67,7 +67,7 @@ public class WebpageGenerator {
 	static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields");
 
 	public WebpageGenerator() {
-		// TODO Remove Logs/Prints |		
+		// TODO Remove Logs/Prints |
 		// Add support/HTML generation for multiple packaged in comparator.yaml
 	}
 
@@ -183,8 +183,7 @@ public class WebpageGenerator {
 						FileUtils.writeStringToFile(file, "<th>" + fingerprint //
 								+ "</th><th style='text-align:left'>" + benchmarkName //
 								+ "</th><th>" + benchVersion //
-								+ "</th><th>" + compareVersion
-								+ "</th><th>" + benchMode //
+								+ "</th><th>" + compareVersion + "</th><th>" + benchMode //
 								+ "</th><th style='text-align:right'>" + roundScore //
 								+ "</th><th style='text-align:right'>" + roundCompValue //
 								+ "</th><th style='text-align:right'>" + delta //
@@ -194,7 +193,7 @@ public class WebpageGenerator {
 					}
 				}
 			}
-			FileUtils.writeStringToFile(file, "</tbody></table><br>", utf8, true);			
+			FileUtils.writeStringToFile(file, "</tbody></table><br>", utf8, true);
 		}
 	}
 
@@ -249,8 +248,7 @@ public class WebpageGenerator {
 						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
 								+ "</th><th style='text-align:left'>" + benchmarkName //
 								+ "</th><th>" + benchVersion //
-								+ "</th><th>" + compareVersion
-								+ "</th><th>" + benchMode //
+								+ "</th><th>" + compareVersion + "</th><th>" + benchMode //
 								+ "</th><th style='text-align:right'>" + roundScore //
 								+ "</th><th style='text-align:right'>" + roundCompValue //
 								+ "</th><th style='text-align:right'>" + delta //
@@ -355,26 +353,6 @@ public class WebpageGenerator {
 			log.error("Error while deleting temporary files directory.");
 		}
 	}
-	private static String getDateTimeForFileName() {
-		DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
-		Date date = new Date();
-		String fileName = df.format(date);
-		return fileName;
-	}
-
-	private static void changeVersion() {
-		List<String> passedNames = new ArrayList<>();
-		for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
-				.entrySet()) {
-			String tempName = benchmark.getKey();
-			passedNames.add(tempName);
-
-		}
-		for (String pName : passedNames) {
-			String tempFingerprint = Requests.namesToFingerprints.get(pName);
-			version = Requests.getCurrentVersion(tempFingerprint);
-		}
-	}
 
 	private static void changeComparatorConfigs(Map<String, Object> configs) {
 		String tempString = "";
@@ -420,6 +398,35 @@ public class WebpageGenerator {
 		dateTime = ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME);
 	}
 
+	private static void changeVersion() {
+		List<String> passedNames = new ArrayList<>();
+		for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
+				.entrySet()) {
+			String tempName = benchmark.getKey();
+			passedNames.add(tempName);
+
+		}
+		for (String pName : passedNames) {
+			String tempFingerprint = Requests.namesToFingerprints.get(pName);
+			version = Requests.getCurrentVersion(tempFingerprint);
+		}
+	}
+
+	private static String getDateTimeForFileName() {
+		DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
+		Date date = new Date();
+		String fileName = df.format(date);
+		return fileName;
+	}
+
+	public static void grabPackageNames(ArrayList<String> packNames) {
+		Set<String> pkgNames = new HashSet<>(packNames);
+		packNames.clear();
+		packNames.addAll(pkgNames);
+		packageNames = packNames;
+
+	}
+
 	public static void sendToWebpageGenerator(Map<String, Object> allConfig, Map<String, String> packages) {
 		allConfigs = allConfig;
 	}
@@ -434,14 +441,6 @@ public class WebpageGenerator {
 
 	public static void logErr(String msg, Object... args) {
 		log.error(msg, args);
-	}
-
-	public static void grabPackageNames(ArrayList<String> packNames) {
-		Set<String> pkgNames = new HashSet<>(packNames);
-		packNames.clear();
-		packNames.addAll(pkgNames);
-		packageNames = packNames;
-
 	}
 
 }
