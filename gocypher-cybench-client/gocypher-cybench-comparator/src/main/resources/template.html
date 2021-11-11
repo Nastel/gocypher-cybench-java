@@ -21,86 +21,114 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <style>
-        th {
-            border: 1px dotted black;
-        }
+<style>
+th {
+	border: 1px dotted black;
+}
 
-        tr {
-            font-size: 85%;
-        }
+tr {
+	font-size: 85%;
+}
 
-        td {
-            font-weight: bold;
-        }
-    </style>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Comparison Report</title>
+td {
+	font-weight: bold;
+}
+</style>
+<link rel="stylesheet" type="text/css"
+	href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script type="text/javascript" charset="utf8"
+	src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
+
+
+<script>
+     $(document).ready( function () {
+    	    $('#table1').DataTable();
+    	    $('#table21').DataTable();
+    	} );
+     </script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Comparison Report</title>
 </head>
-<body style="background-color:#A7C7E7">
-<div style="margin-left:auto;margin-right:auto;border-style:double;background-color:white;width:25%;margin:auto;text-align:center">
-    <p style="font-weight:bold;font-size:20px;">CyBench Comparator Results</p>
-    <p style="font-size:15px;">Time of report: $dateTime</p>
-</div>
-<div style="margin-left:auto;margin-right:auto;border-style:double;background-color:white;width:25%;margin:auto;text-align:center">
-    <p style="font-size:12px;">List of packages: $packageNames</p>
-</div>
-<p></p>
-<table style="margin-left:auto;margin-right:auto;border-style:double;background-color:white;">
-    <caption style="border-style:double;background-color:white;font-weight:bold">Tests</caption>
-    <tr style="border-bottom-style:dotted;">
-        <th>Version</th>
-        <th>Total</th>
-        <th>Passed</th>
-        <th>Failed</th>
-        <th>Skipped</th>
-    </tr>
-    <tr>
-        <th>$version</th>
-        <th>$total</th>
-        <th style="color:green;">$passed</th>
-        <th style="color:red;">$failed</th>
-        <th style="color:goldenrod;">$skipped</th>
-</table>
-<p></p>
-<table style="margin-left:auto;margin-right:auto;border-style:double;background-color:white;">
-    <caption style="border-style:double;background-color:white;font-weight:bold">Configurations ($configType)</caption>
-    <tr style="border: 1px dotted black;">
-        <th>Method</th>
-        <th>Range</th>
-        <th>Scope</th>
-        <th>Threshold</th>
-        <th>Version</th>
-        <th>Compare Version</th>
-        <th>% Change Allowed</th>
-        <th>Deviations Allowed</th>
-    </tr>
-    <tr style="border: 1px dotted black;color:#551a8b">
-        <th>$method</th>
-        <th>$range</th>
-        <th>$scope</th>
-        <th>$threshold</th>
-        <th>$version</th>
-        <th>$compareVersion</th>
-        <th>$percentChangeAllowed %</th>
-        <th>$deviationsAllowed</th>
-    </tr>
-</table>
-<p></p>
+<body style="background-color: #A7C7E7">
+	<div
+		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white; width: 25%; margin: auto; text-align: center">
+		<p style="font-weight: bold; font-size: 20px;">CyBench Comparator
+			Results</p>
+		<p style="font-size: 15px;">Time of report: $dateTime</p>
+	</div>
+	<div
+		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white; width: 25%; margin: auto; text-align: center">
+		<p style="font-size: 12px;">List of packages: $packageNames</p>
+	</div>
+	<p></p>
+	<table
+		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white;">
+		<caption
+			style="border-style: double; background-color: white; font-weight: bold">Tests</caption>
+		<tr style="border-bottom-style: dotted;">
+			<th>Version</th>
+			<th>Total</th>
+			<th>Passed</th>
+			<th>Failed</th>
+			<th>Skipped</th>
+		</tr>
+		<tr>
+			<th>$version</th>
+			<th>$total</th>
+			<th style="color: green;">$passed</th>
+			<th style="color: red;">$failed</th>
+			<th style="color: goldenrod;">$skipped</th>
+	</table>
+	<p></p>
+	<table
+		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white;">
+		<caption
+			style="border-style: double; background-color: white; font-weight: bold">Configurations
+			($configType)</caption>
+		<tr style="border: 1px dotted black;">
+			<th>Method</th>
+			<th>Range</th>
+			<th>Scope</th>
+			<th>Threshold</th>
+			<th>Version</th>
+			<th>Compare Version</th>
+			<th>% Change Allowed</th>
+			<th>Deviations Allowed</th>
+		</tr>
+		<tr style="border: 1px dotted black; color: #551a8b">
+			<th>$method</th>
+			<th>$range</th>
+			<th>$scope</th>
+			<th>$threshold</th>
+			<th>$version</th>
+			<th>$compareVersion</th>
+			<th>$percentChangeAllowed %</th>
+			<th>$deviationsAllowed</th>
+		</tr>
+	</table>
+	<p></p>
 
 
-<table style="margin-left:auto;margin-right:auto;border-style:double;background-color:white;">
-    <caption style="border-style:double;background-color:#C7F6B6;font-weight:bold">Passed Tests</caption>
-    <tr style="border: 1px dotted black;">
-        <th>Fingerprint</th>
-        <th>Name</th>
-        <th>Version</th>
-        <th>Mode</th>
-        <th>Score</th>
-        <th>Compare Value</th>
-        <th>Delta</th>
-        <th>Percent Change</th>
-        <th>SD from Mean</th>
-    </tr>
-    <tr style="border: 1px dotted black;font-size:70%">
-    
+	<table id="table1"
+		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white; class="display"">
+		 <caption
+			style="border-style: double; background-color: #C7F6B6; font-weight: bold">Passed
+			Tests</caption>
+		<thead>
+			<tr>
+				<th>Fingerprint</th>
+				<th>Name</th>
+				<th>Version</th>
+				<th>Mode</th>
+				<th>Score</th>
+				<th>Compare Value</th>
+				<th>Delta</th>
+				<th>Percent Change</th>
+				<th>SD from Mean</th>
+			</tr>
+		</thead>
+		<tbody>

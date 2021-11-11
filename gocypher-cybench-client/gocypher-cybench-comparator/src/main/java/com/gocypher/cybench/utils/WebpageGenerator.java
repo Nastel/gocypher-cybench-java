@@ -85,7 +85,7 @@ public class WebpageGenerator {
 
         // debug
         if (allConfigs == null) {
-            System.out.println("allConfigs wasn't set correctly....");
+        	log.error("Unable to grab configurations from comparator.yaml");
         } else {
             changeComparatorConfigs(allConfigs);
             changeVersion();
@@ -111,7 +111,8 @@ public class WebpageGenerator {
         createSkippedTable(newHtml);
 
         FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
-        System.out.println("Done creating page results with updated template");
+        log.info("Finished creating HTML report.");
+        log.info("Generated HTML report can be found at {}", newHtml.getAbsolutePath());
     }
 
     // for script configuration || props gets passed all the way from
@@ -146,7 +147,8 @@ public class WebpageGenerator {
         createFailedTable(newHtml);
         createSkippedTable(newHtml);
         FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
-        log.info("Generated html report can be found at {}", newHtml.getAbsolutePath());
+        log.info("Finished creating HTML report.");
+        log.info("Generated HTML report can be found at {}", newHtml.getAbsolutePath());
     }
 
     private static void createPassedTable(File file) throws IOException {
@@ -176,7 +178,7 @@ public class WebpageGenerator {
                         Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
                         BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
                         Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
-                        FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
+                        FileUtils.writeStringToFile(file, "<th>" + fingerprint //
                                 + "</th><th style='text-align:left'>" + benchmarkName //
                                 + "</th><th>" + benchVersion //
                                 + "</th><th>" + benchMode //
@@ -189,14 +191,16 @@ public class WebpageGenerator {
                     }
                 }
             }
+        FileUtils.writeStringToFile(file, "</tbody></table>", utf8, true);
         }
     }
 
     private static void createFailedTable(File file) throws IOException {
         try {
             FileUtils.write(file,
-                    "<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">"
+                    "<table id =\"table21\"style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;class=\"display\"\">"
                             + "    <caption style=\"border-style:double;background-color:#f97c7c;font-weight:bold\">Failed Tests</caption>"
+                    		+ "    <thead>"
                             + "        <tr style=\"border: 1px dotted black;\">" //
                             + "            <th>Fingerprint</th>" //
                             + "            <th>Name</th>" //
@@ -207,9 +211,8 @@ public class WebpageGenerator {
                             + "            <th>Delta</th>" //
                             + "            <th>Percent Change</th>" //
                             + "            <th>SD from Mean</th>" //
-                            + "        </tr>" //
-                            + "    <tr style=\"border: 1px dotted black;font-size:70%\">", //
-                    utf8, true);
+                            + "        </tr></thead><tbody>", //
+                            utf8, true);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -252,7 +255,7 @@ public class WebpageGenerator {
                     }
                 }
             }
-            FileUtils.write(file, "\n</table><br>", utf8, true);
+            FileUtils.write(file, "\n</tbody></table><br>", utf8, true);
         }
     }
 
@@ -300,6 +303,7 @@ public class WebpageGenerator {
                         Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
                         Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
                         Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+                        String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
                         FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
                                 + "</th><th style='text-align:left'>" + benchmarkName //
                                 + "</th><th>" + benchVersion //
@@ -365,14 +369,12 @@ public class WebpageGenerator {
 
     private static void changeScriptConfigs(Map<String, Object> compProps) {
         String tempString = "";
-        System.out.println("Begin loop through compProps");
         for (Map.Entry<String, Object> entry : compProps.entrySet()) {
             if (entry.getKey().equals("MyScript")) {
                 tempString = entry.getValue().toString();
             }
         }
         tempString = tempString.substring(1, tempString.length() - 1);
-        System.out.println(tempString);
         String[] propsArray = tempString.split(", ");
         setConfig(propsArray);
     }
