@@ -426,20 +426,33 @@ public class WebpageGenerator {
 	}
 
 	private static void changeVersion() {
-		List<String> passedNames = new ArrayList<>();
+		List<String> names = new ArrayList<>();
 		if (!CompareBenchmarks.passedBenchmarks.isEmpty()) {
 			for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
 					.entrySet()) {
 				String tempName = benchmark.getKey();
-				passedNames.add(tempName);
+				names.add(tempName);
 
 			}
-			for (String pName : passedNames) {
+			for (String pName : names) {
 				String tempFingerprint = Requests.namesToFingerprints.get(pName);
 				version = Requests.getCurrentVersion(tempFingerprint);
 			}
-		}else {
-			log.error("* Error while attempting to grab current version from Passed Benchmarks map");
+		} else if (!CompareBenchmarks.failedBenchmarks.isEmpty()) {
+			for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.failedBenchmarks
+					.entrySet()) {
+				String tempName = benchmark.getKey();
+				names.add(tempName);
+			}
+			for (String fName : names) {
+				String tempFPrint = Requests.namesToFingerprints.get(fName);
+				version = Requests.getCurrentVersion(tempFPrint);
+			}
+
+		}
+
+		else {
+			log.error("* Error while attempting to grab current version from Passed/Failed Benchmarks map");
 		}
 	}
 
