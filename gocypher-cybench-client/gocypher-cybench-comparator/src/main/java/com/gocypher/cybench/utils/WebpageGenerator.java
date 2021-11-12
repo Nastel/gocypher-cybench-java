@@ -187,7 +187,6 @@ public class WebpageGenerator {
 						BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
 						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
 						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
-						log.warn("PERCENT CHANGE?: {}", percentChange);
 						if (!percentChange.isNaN()) {
 							roundPercentChange = BigDecimal.valueOf(percentChange);
 						}
@@ -256,7 +255,9 @@ public class WebpageGenerator {
 						BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
 						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
 						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
-						BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
+						if (!percentChange.isNaN()) {
+							roundPercentChange = BigDecimal.valueOf(percentChange);
+						}
 						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
 						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
 						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
@@ -383,9 +384,6 @@ public class WebpageGenerator {
 		String longConfigGet = configs.get("compare.default").toString();
 		tempString = longConfigGet.substring(1, longConfigGet.length() - 1);
 		String[] propsArray = tempString.split(". ");
-		for (String test : propsArray) {
-			log.warn("PRINTING COMPARATOR CONFIG: {} ", test);
-		}
 		setConfig(propsArray);
 	}
 
