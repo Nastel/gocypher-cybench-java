@@ -1,7 +1,6 @@
 @charset "ISO-8859-1";
 
 body {
-	
 	background-color: #d3dadf
 }
 
@@ -24,7 +23,7 @@ td {
 	background-color: #ecfbff;
 	width: 25%;
 	margin: auto;
-	text-align:center;
+	text-align: center;
 }
 
 .cybCompResults {
@@ -33,21 +32,26 @@ td {
 }
 
 .reportTime {
-	font-size:15px;
+	font-size: 15px;
 }
 
 .pkgNameDiv {
 	margin-left: auto;
 	margin-right: auto;
 	border-style: double;
-	background-color: limegreen;
+	background-color: #ecf5ff;
 	width: 25%;
 	margin: auto;
 	text-align: center;
 }
 
+.pkgNamesP {
+	font-size: 15px;
+	font-weight: bold;
+}
+
 .pkgNames {
-	font-size: 12px;
+	font-size: 13px;
 }
 
 .VTPFStable {
@@ -55,13 +59,7 @@ td {
 	margin-right: auto;
 	border-style: double;
 	background-color: #f3fcff;
-}
-
-.table1TopRow {
-	margin-left: auto;
-	margin-right: auto;
-	border-style: double;
-	background-color: seagreen;
+	display: inline-block;
 }
 
 .VTPFStableCaption {
@@ -70,35 +68,41 @@ td {
 	font-weight: bold;
 }
 
+.table1TopRow {
+	margin-left: auto;
+	margin-right: auto;
+	border-style: double;
+	background-color: #e5fbe5;
+}
+
 .passedTableCaption {
 	border-style: double;
-	background-color: #C7F6B6;
+	background-color: #65e665;
 	font-weight: bold;
 }
 
 .anomalyTable {
-	margin-left:auto;
-	margin-right:auto;
-	border-style:double;
-	background-color: periwinkle;
+	margin-left: auto;
+	margin-right: auto;
+	border-style: double;
+	background-color: #fbadad;
 }
 
 .anomalyCaption {
-	border-style:double;
+	border-style: double;
 	background-color: #f97c7c;
-	font-weight:bold;
+	font-weight: bold;
 }
 
 .skippedTable {
-	margin-left:auto;
-	margin-right:auto;
-	border-style:double;
-	background-color:white;
-	
+	margin-left: auto;
+	margin-right: auto;
+	border-style: double;
+	background-color: #ffc966;
 }
 
 .skippedCaption {
-	border-style:double;
-	background-color:goldenrod;
-	font-weight:bold
+	border-style: double;
+	background-color: #ffb733;
+	font-weight: bold
 }

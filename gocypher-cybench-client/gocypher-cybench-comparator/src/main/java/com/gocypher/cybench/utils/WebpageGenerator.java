@@ -62,6 +62,7 @@ public class WebpageGenerator {
 	static String configType = "";
 	static String dateTime = "";
 	static String scriptName = "";
+	static int packNum = 0;
 	static Charset utf8 = StandardCharsets.UTF_8;
 	static Map<String, Object> allConfigs;
 	static ArrayList<String> packageNames;
@@ -77,6 +78,7 @@ public class WebpageGenerator {
 	public static void generatePage() throws IOException, URISyntaxException {
 		WebpageGenerator gen = new WebpageGenerator();
 		configType = "comparator.yaml";
+		packNum = packageNames.size();
 		File tempfile = genTemplateHTML();
 		File newHtml = new File("htmlReports/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
@@ -123,6 +125,7 @@ public class WebpageGenerator {
 	public static void generatePage(Map<String, Object> props) throws IOException {
 		WebpageGenerator gen = new WebpageGenerator();
 		configType = scriptName;
+		packNum = packageNames.size();
 		File tempfile = genTemplateHTML();
 		File newHtml = new File("htmlReports/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
@@ -272,8 +275,7 @@ public class WebpageGenerator {
 		try {
 			FileUtils.write(file,
 					"<table id=\"table3\"class=\"display compact skippedTable\">"
-							+ "    <caption class=\"skippedCaption\">Skipped Tests</caption>"
-							+ "    <thead>"
+							+ "    <caption class=\"skippedCaption\">Skipped Tests</caption>" + "    <thead>"
 							+ "        <tr style=\"border: 1px dotted black;\">" //
 							+ "            <th>Fingerprint</th>" //
 							+ "            <th>Name</th>" //
@@ -281,7 +283,7 @@ public class WebpageGenerator {
 							+ "            <th>Compare Version</th>" //
 							+ "            <th>Mode</th>" //
 							+ "        </tr></thead><tbody>",
-							
+
 					utf8, true);
 
 		} catch (IOException e) {
@@ -289,8 +291,9 @@ public class WebpageGenerator {
 		}
 		if (CompareBenchmarks.totalSkippedBenchmarks == 0) {
 			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td style=\"text-align:center\">No tests were skipped.</td></td></td></td></td></tr>\n</tbody></table>", utf8,
-					true);
+					"<tr><td><td><td style=\"text-align:center\">No tests were skipped.<td><td>"
+							+ "</td></td></td></td></td></tr>\n</tbody></table>",
+					utf8, true);
 		} else {
 			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.skippedBenchmarks
 					.entrySet()) {

@@ -24,10 +24,8 @@
 <head>
 <style>
 </style>
-<link rel="stylesheet" type="text/css"
-	href="styles/dataTables.css">
-<link rel="stylesheet" type="text/css"
-	href="styles/styles.css">
+<link rel="stylesheet" type="text/css" href="styles/dataTables.css">
+<link rel="stylesheet" type="text/css" href="styles/styles.css">
 <script type="text/javascript"
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
@@ -37,87 +35,77 @@
 
 
 <script>
-     $(document).ready( function () {
-    	    $('#table1').DataTable( {
-    	    	"pageLength": 50
-    	    });
-    	    $('#table2').DataTable( {
-    	    	"pageLength": 50
-    	    });
-    	    $('#table3').DataTable( {
-    	    	"pageLength": 50
-    	    });
-    	    
-    	} );
-     </script>
+	$(document).ready(function() {
+		$('#table1').DataTable({
+			"pageLength" : 50
+		});
+		$('#table2').DataTable({
+			"pageLength" : 50
+		});
+		$('#table3').DataTable({
+			"pageLength" : 50
+		});
+
+	});
+</script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Comparison Report</title>
 </head>
 <body>
-	<div
-		class="cybCompResultsDiv">
-		<p class = "cybCompResults">CyBench Comparator
-			Results</p>
+	<div class="cybCompResultsDiv">
+		<p class="cybCompResults">CyBench Comparator Results</p>
 		<p class="reportTime">Time of report: $dateTime</p>
 	</div>
-	<div
-		class="pkgNameDiv">
-		<p class="pkgNames">List of packages: $packageNames</p>
+	<div class="pkgNameDiv">
+		<p class="pkgNamesP">$packNum Packages Tested In This Report:</p>
+		<p class="pkgNames">$packageNames</p>
 	</div>
-	<p></p>
-	<table
-		class="VTPFStable">
-		<caption
-			class="VTPFStableCaption">Tests</caption>
-		<tr style="border-bottom-style: dotted;">
-			<th>Version</th>
-			<th>Total</th>
-			<th>Passed</th>
-			<th>Failed</th>
-			<th>Skipped</th>
-		</tr>
-		<tr>
-			<th>$version</th>
-			<th>$total</th>
-			<th style="color: green;">$passed</th>
-			<th style="color: red;">$failed</th>
-			<th style="color: goldenrod;">$skipped</th>
-	</table>
-	<p></p>
-	<table
-		class="VTPFStable">
-		<caption
-			class="VTPFStableCaption">Configurations
-			($configType)</caption>
-		<tr style="border: 1px dotted black;">
-			<th>Method</th>
-			<th>Range</th>
-			<th>Scope</th>
-			<th>Threshold</th>
-			<th>Version</th>
-			<th>Compare Version</th>
-			<th>% Change Allowed</th>
-			<th>Deviations Allowed</th>
-		</tr>
-		<tr style="border: 1px dotted black; color: #551a8b">
-			<th>$method</th>
-			<th>$range</th>
-			<th>$scope</th>
-			<th>$threshold</th>
-			<th>$version</th>
-			<th>$compareVersion</th>
-			<th>$percentChangeAllowed %</th>
-			<th>$deviationsAllowed</th>
-		</tr>
-	</table>
-	<p></p>
-
-
-	<table id="table1"
-		class="display compact table1TopRow">
-		 <caption
-			class = "passedTableCaption">Passed
-			Tests</caption>
+	<br>
+	<div style="padding-left: 30%">
+		<table class="VTPFStable">
+			<caption class="VTPFStableCaption">Tests</caption>
+			<tr style="border-bottom-style: dotted;">
+				<th>Version</th>
+				<th>Total</th>
+				<th>Passed</th>
+				<th>Failed</th>
+				<th>Skipped</th>
+			</tr>
+			<tr>
+				<th>$version</th>
+				<th>$total</th>
+				<th style="color: green;">$passed</th>
+				<th style="color: red;">$failed</th>
+				<th style="color: goldenrod;">$skipped</th>
+		</table>
+		<table class="VTPFStable">
+			<caption class="VTPFStableCaption">Configurations
+				($configType)</caption>
+			<tr style="border: 1px dotted black;">
+				<th>Method</th>
+				<th>Range</th>
+				<th>Scope</th>
+				<th>Threshold</th>
+				<th>Version</th>
+				<th>Compare Version</th>
+				<th>% Change Allowed</th>
+				<th>Deviations Allowed</th>
+			</tr>
+			<tr style="border: 1px dotted black; color: #391a8b">
+				<th>$method</th>
+				<th>$range</th>
+				<th>$scope</th>
+				<th>$threshold</th>
+				<th>$version</th>
+				<th>$compareVersion</th>
+				<th>$percentChangeAllowed %</th>
+				<th>$deviationsAllowed</th>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<table id="table1" class="display compact table1TopRow">
+		<caption class="passedTableCaption">Passed Tests</caption>
 		<thead>
 			<tr>
 				<th>Fingerprint</th>
