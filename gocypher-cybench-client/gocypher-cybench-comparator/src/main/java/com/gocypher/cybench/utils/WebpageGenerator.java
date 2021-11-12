@@ -78,7 +78,7 @@ public class WebpageGenerator {
 		WebpageGenerator gen = new WebpageGenerator();
 		configType = "comparator.yaml";
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("logs/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
+		File newHtml = new File("htmlReports/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
@@ -122,9 +122,9 @@ public class WebpageGenerator {
 	// ComparatorScriptEngine
 	public static void generatePage(Map<String, Object> props) throws IOException {
 		WebpageGenerator gen = new WebpageGenerator();
-		configType = scriptName; // TODO: Add actual script name
+		configType = scriptName;
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("logs/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
+		File newHtml = new File("htmlReports/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
@@ -160,7 +160,8 @@ public class WebpageGenerator {
 
 		if (CompareBenchmarks.totalPassedBenchmarks == 0) {
 			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td> No tests passed.</td></td></td></td></td></tr>\n", utf8, true);
+					"<tr><td><td><td><td><td style=\"text-align:center\"> No tests passed.</td></td></td></td></td></tr>\n",
+					utf8, true);
 		} else {
 
 			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
@@ -204,9 +205,9 @@ public class WebpageGenerator {
 	private static void createFailedTable(File file) throws IOException {
 		try {
 			FileUtils.write(file,
-					"<table id =\"table21\"style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\"class=\"display compact\">"
-							+ "    <caption style=\"border-style:double;background-color:#f97c7c;font-weight:bold\">Test Anomalies</caption>"
-							+ "    <thead>" + "        <tr style=\"border: 1px dotted black;\">" //
+					"<table id =\"table2\"class=\"display compact anomalyTable\">"
+							+ "    <caption class=\"anomalyCaption\">Test Anomalies</caption>" + "    <thead>"
+							+ "        <tr class=\"th\">" //
 							+ "            <th>Fingerprint</th>" //
 							+ "            <th>Name</th>" //
 							+ "            <th>Version</th>" //
@@ -226,7 +227,8 @@ public class WebpageGenerator {
 
 		if (CompareBenchmarks.totalFailedBenchmarks == 0) {
 			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td>No tests failed.</td></td></td></td></td></tr>\n", utf8, true);
+					"<tr><td><td><td><td><td style=\"text-align:center\">No tests failed.</td></td></td></td></td></tr>\n",
+					utf8, true);
 		} else {
 			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.failedBenchmarks
 					.entrySet()) {
@@ -269,21 +271,17 @@ public class WebpageGenerator {
 	private static void createSkippedTable(File file) throws IOException {
 		try {
 			FileUtils.write(file,
-					"<table style=\"margin-left:auto;margin-right:auto;border-style:double;background-color:white;\">"
-							+ "    <caption style=\"border-style:double;background-color:goldenrod;font-weight:bold\">Skipped Tests</caption>"
+					"<table id=\"table3\"class=\"display compact skippedTable\">"
+							+ "    <caption class=\"skippedCaption\">Skipped Tests</caption>"
+							+ "    <thead>"
 							+ "        <tr style=\"border: 1px dotted black;\">" //
 							+ "            <th>Fingerprint</th>" //
 							+ "            <th>Name</th>" //
 							+ "            <th>Version</th>" //
 							+ "            <th>Compare Version</th>" //
 							+ "            <th>Mode</th>" //
-							+ "            <th>Score</th>" //
-							+ "            <th>Compare Value</th>" //
-							+ "            <th>Delta</th>" //
-							+ "            <th>Percent Change</th>" //
-							+ "            <th>SD from Mean</th>" //
-							+ "        </tr>" //
-							+ "    <tr style=\"border: 1px dotted black;font-size:70%\">", //
+							+ "        </tr></thead><tbody>",
+							
 					utf8, true);
 
 		} catch (IOException e) {
@@ -291,7 +289,8 @@ public class WebpageGenerator {
 		}
 		if (CompareBenchmarks.totalSkippedBenchmarks == 0) {
 			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td>No tests were skipped.</td></td></td></td></td></tr>\n", utf8, true);
+					"<tr><td><td><td><td><td style=\"text-align:center\">No tests were skipped.</td></td></td></td></td></tr>\n</tbody></table>", utf8,
+					true);
 		} else {
 			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.skippedBenchmarks
 					.entrySet()) {
@@ -306,22 +305,20 @@ public class WebpageGenerator {
 						String benchMode = dataEntry.getKey();
 						Map<String, Object> benchmarkData = dataEntry.getValue();
 						Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-						BigDecimal roundScore = BigDecimal.valueOf(score);
-						Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
-						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
-						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
-						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+						/*
+						 * BigDecimal roundScore = BigDecimal.valueOf(score); Double compareValue =
+						 * (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE); Double
+						 * delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA); Double
+						 * percentChange = (Double)
+						 * benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE); Double sdFromMean =
+						 * (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+						 */
 						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
 						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
 								+ "</th><th style='text-align:left'>" + benchmarkName //
 								+ "</th><th>" + benchVersion //
 								+ "</th><th>" + compareVersion //
 								+ "</th><th>" + benchMode //
-								+ "</th><th style='text-align:right'>" + roundScore //
-								+ "</th><th style='text-align:right'>" + compareValue //
-								+ "</th><th style='text-align:right'>" + delta //
-								+ "</th><th style='text-align:right'>" + percentChange //
-								+ "% </th><th style='text-align:right'>" + sdFromMean //
 								+ "</th></tr>\n", utf8, true);
 					}
 				}
@@ -339,6 +336,7 @@ public class WebpageGenerator {
 			FileUtils.writeStringToFile(tempfile, result, utf8);
 			in.close();
 			return tempfile;
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -349,12 +347,18 @@ public class WebpageGenerator {
 
 	private static void genCSS() {
 		InputStream in = gen.getClass().getResourceAsStream("/dataTables.css");
-		File tempFile = new File("logs/dataTables.css");
+		InputStream styleIn = gen.getClass().getResourceAsStream("/styles.css");
+		File tempFile = new File("htmlReports/styles/dataTables.css");
+		File tempStyleFile = new File("htmlReports/styles/styles.css");
 		String result;
+		String resultStyle;
 		try {
 			result = IOUtils.toString(in, utf8);
 			FileUtils.writeStringToFile(tempFile, result, utf8);
 			in.close();
+			resultStyle = IOUtils.toString(styleIn, utf8);
+			FileUtils.writeStringToFile(tempStyleFile, resultStyle, utf8);
+			styleIn.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 

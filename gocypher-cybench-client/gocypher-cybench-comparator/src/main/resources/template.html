@@ -23,20 +23,11 @@
 <html>
 <head>
 <style>
-th {
-	border: 1px dotted black;
-}
-
-tr {
-	font-size: 85%;
-}
-
-td {
-	font-weight: bold;
-}
 </style>
 <link rel="stylesheet" type="text/css"
-	href="dataTables.css">
+	href="styles/dataTables.css">
+<link rel="stylesheet" type="text/css"
+	href="styles/styles.css">
 <script type="text/javascript"
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
@@ -50,7 +41,10 @@ td {
     	    $('#table1').DataTable( {
     	    	"pageLength": 50
     	    });
-    	    $('#table21').DataTable( {
+    	    $('#table2').DataTable( {
+    	    	"pageLength": 50
+    	    });
+    	    $('#table3').DataTable( {
     	    	"pageLength": 50
     	    });
     	    
@@ -59,22 +53,22 @@ td {
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Comparison Report</title>
 </head>
-<body style="background-color: #d3dadf">
+<body>
 	<div
-		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white; width: 25%; margin: auto; text-align: center">
-		<p style="font-weight: bold; font-size: 20px;">CyBench Comparator
+		class="cybCompResultsDiv">
+		<p class = "cybCompResults">CyBench Comparator
 			Results</p>
-		<p style="font-size: 15px;">Time of report: $dateTime</p>
+		<p class="reportTime">Time of report: $dateTime</p>
 	</div>
 	<div
-		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white; width: 25%; margin: auto; text-align: center">
-		<p style="font-size: 12px;">List of packages: $packageNames</p>
+		class="pkgNameDiv">
+		<p class="pkgNames">List of packages: $packageNames</p>
 	</div>
 	<p></p>
 	<table
-		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white;">
+		class="VTPFStable">
 		<caption
-			style="border-style: double; background-color: white; font-weight: bold">Tests</caption>
+			class="VTPFStableCaption">Tests</caption>
 		<tr style="border-bottom-style: dotted;">
 			<th>Version</th>
 			<th>Total</th>
@@ -91,9 +85,9 @@ td {
 	</table>
 	<p></p>
 	<table
-		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white;">
+		class="VTPFStable">
 		<caption
-			style="border-style: double; background-color: white; font-weight: bold">Configurations
+			class="VTPFStableCaption">Configurations
 			($configType)</caption>
 		<tr style="border: 1px dotted black;">
 			<th>Method</th>
@@ -120,9 +114,9 @@ td {
 
 
 	<table id="table1"
-		style="margin-left: auto; margin-right: auto; border-style: double; background-color: white;" class="display compact">
+		class="display compact table1TopRow">
 		 <caption
-			style="border-style: double; background-color: #C7F6B6; font-weight: bold">Passed
+			class = "passedTableCaption">Passed
 			Tests</caption>
 		<thead>
 			<tr>

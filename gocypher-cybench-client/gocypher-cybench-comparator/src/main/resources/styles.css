@@ -1,0 +1,104 @@
+@charset "ISO-8859-1";
+
+body {
+	
+	background-color: #d3dadf
+}
+
+th {
+	border: 1px dotted black;
+}
+
+tr {
+	font-size: 85%;
+}
+
+td {
+	font-weight: bold;
+}
+
+.cybCompResultsDiv {
+	margin-left: auto;
+	margin-right: auto;
+	border-style: double;
+	background-color: #ecfbff;
+	width: 25%;
+	margin: auto;
+	text-align:center;
+}
+
+.cybCompResults {
+	font-weight: bold;
+	font-size: 20px;
+}
+
+.reportTime {
+	font-size:15px;
+}
+
+.pkgNameDiv {
+	margin-left: auto;
+	margin-right: auto;
+	border-style: double;
+	background-color: limegreen;
+	width: 25%;
+	margin: auto;
+	text-align: center;
+}
+
+.pkgNames {
+	font-size: 12px;
+}
+
+.VTPFStable {
+	margin-left: auto;
+	margin-right: auto;
+	border-style: double;
+	background-color: #f3fcff;
+}
+
+.table1TopRow {
+	margin-left: auto;
+	margin-right: auto;
+	border-style: double;
+	background-color: seagreen;
+}
+
+.VTPFStableCaption {
+	border-style: double;
+	background-color: #d3f6ff;
+	font-weight: bold;
+}
+
+.passedTableCaption {
+	border-style: double;
+	background-color: #C7F6B6;
+	font-weight: bold;
+}
+
+.anomalyTable {
+	margin-left:auto;
+	margin-right:auto;
+	border-style:double;
+	background-color: periwinkle;
+}
+
+.anomalyCaption {
+	border-style:double;
+	background-color: #f97c7c;
+	font-weight:bold;
+}
+
+.skippedTable {
+	margin-left:auto;
+	margin-right:auto;
+	border-style:double;
+	background-color:white;
+	
+}
+
+.skippedCaption {
+	border-style:double;
+	background-color:goldenrod;
+	font-weight:bold
+}
