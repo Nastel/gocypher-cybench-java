@@ -79,12 +79,10 @@ public class WebpageGenerator {
 		configType = "comparator.yaml";
 		packNum = packageNames.size();
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("htmlReports/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
 
-		// debug
 		if (allConfigs == null) {
 			log.error("* Unable to grab configurations from comparator.yaml");
 		} else {
@@ -92,6 +90,8 @@ public class WebpageGenerator {
 			changeVersion();
 			changeDateTime();
 		}
+		File newHtml = new File(
+				"htmlReports/" + packageNames.get(0) + "-v" + version + "-" + getDateTimeForFileName() + ".html");
 
 		Class<?> clazz = gen.getClass();
 		for (Field field : clazz.getDeclaredFields()) {
@@ -126,7 +126,6 @@ public class WebpageGenerator {
 		configType = scriptName;
 		packNum = packageNames.size();
 		File tempfile = genTemplateHTML();
-		File newHtml = new File("htmlReports/" + packageNames.get(0) + "-" + getDateTimeForFileName() + ".html");
 		String htmlTemp;
 
 		htmlTemp = FileUtils.readFileToString(tempfile, utf8);
@@ -134,6 +133,9 @@ public class WebpageGenerator {
 		changeScriptConfigs(props);
 		changeVersion();
 		changeDateTime();
+
+		File newHtml = new File(
+				"htmlReports/" + packageNames.get(0) + "-v" + version + "-" + getDateTimeForFileName() + ".html");
 
 		Class<?> clazz = gen.getClass();
 		for (Field field : clazz.getDeclaredFields()) {
@@ -306,15 +308,6 @@ public class WebpageGenerator {
 					for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
 						String benchMode = dataEntry.getKey();
 						Map<String, Object> benchmarkData = dataEntry.getValue();
-						Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-						/*
-						 * BigDecimal roundScore = BigDecimal.valueOf(score); Double compareValue =
-						 * (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE); Double
-						 * delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA); Double
-						 * percentChange = (Double)
-						 * benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE); Double sdFromMean =
-						 * (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
-						 */
 						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
 						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
 								+ "</th><th style='text-align:left'>" + benchmarkName //
