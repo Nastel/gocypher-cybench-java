@@ -63,8 +63,10 @@ public class WebpageGenerator {
 	static String dateTime = "";
 	static String scriptName = "";
 	static int packNum = 0;
+	static BigDecimal roundPercentChange;
 	static ArrayList<String> packageNames;
-	static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields", "gen");
+	static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields", "gen",
+			"roundPercentChange");
 	static Map<String, Object> allConfigs;
 	static Charset utf8 = StandardCharsets.UTF_8;
 	static WebpageGenerator gen = new WebpageGenerator();
@@ -164,7 +166,7 @@ public class WebpageGenerator {
 
 		if (CompareBenchmarks.totalPassedBenchmarks == 0) {
 			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td style=\"text-align:center\"> No tests passed.</td></td></td></td></td></tr>\n",
+					"<tr><td><td><td><td><td style=\"text-align:center\"> No tests passed.<td><td><td><td><td></td></td></td></td></td></td></td></td></td></td></tr>\n",
 					utf8, true);
 		} else {
 
@@ -172,7 +174,6 @@ public class WebpageGenerator {
 					.entrySet()) {
 				String benchmarkName = benchmark.getKey();
 				String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
-
 				Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
 				for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
 					String benchVersion = versionEntry.getKey();
@@ -186,7 +187,10 @@ public class WebpageGenerator {
 						BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
 						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
 						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
-						BigDecimal roundPercentChange = BigDecimal.valueOf(percentChange);
+						log.warn("PERCENT CHANGE?: {}", percentChange);
+						if (!percentChange.isNaN()) {
+							roundPercentChange = BigDecimal.valueOf(percentChange);
+						}
 						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
 						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
 						FileUtils.writeStringToFile(file, "<th>" + fingerprint //
@@ -379,6 +383,9 @@ public class WebpageGenerator {
 		String longConfigGet = configs.get("compare.default").toString();
 		tempString = longConfigGet.substring(1, longConfigGet.length() - 1);
 		String[] propsArray = tempString.split(". ");
+		for (String test : propsArray) {
+			log.warn("PRINTING COMPARATOR CONFIG: {} ", test);
+		}
 		setConfig(propsArray);
 	}
 
