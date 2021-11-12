@@ -63,15 +63,14 @@ public class WebpageGenerator {
 	static String dateTime = "";
 	static String scriptName = "";
 	static int packNum = 0;
-	static Charset utf8 = StandardCharsets.UTF_8;
-	static Map<String, Object> allConfigs;
 	static ArrayList<String> packageNames;
-	static WebpageGenerator gen = new WebpageGenerator();
 	static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields", "gen");
+	static Map<String, Object> allConfigs;
+	static Charset utf8 = StandardCharsets.UTF_8;
+	static WebpageGenerator gen = new WebpageGenerator();
 
 	public WebpageGenerator() {
-		// TODO Remove Logs/Prints |
-		// Add support/HTML generation for multiple packaged in comparator.yaml
+
 	}
 
 	// for comparator configuration
@@ -341,7 +340,7 @@ public class WebpageGenerator {
 			return tempfile;
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			log.error("* Unable to write template.html to temporary file: {}", tempfile.getAbsolutePath());
 			e.printStackTrace();
 		}
 		return tempfile;
@@ -363,6 +362,8 @@ public class WebpageGenerator {
 			FileUtils.writeStringToFile(tempStyleFile, resultStyle, utf8);
 			styleIn.close();
 		} catch (IOException e) {
+			log.error("* Unable to generate necessary CSS file ({}) or ({}) for HTML report.",
+					tempFile.getAbsoluteFile(), tempStyleFile.getAbsoluteFile());
 			e.printStackTrace();
 
 		}
@@ -426,15 +427,19 @@ public class WebpageGenerator {
 
 	private static void changeVersion() {
 		List<String> passedNames = new ArrayList<>();
-		for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
-				.entrySet()) {
-			String tempName = benchmark.getKey();
-			passedNames.add(tempName);
+		if (!CompareBenchmarks.passedBenchmarks.isEmpty()) {
+			for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
+					.entrySet()) {
+				String tempName = benchmark.getKey();
+				passedNames.add(tempName);
 
-		}
-		for (String pName : passedNames) {
-			String tempFingerprint = Requests.namesToFingerprints.get(pName);
-			version = Requests.getCurrentVersion(tempFingerprint);
+			}
+			for (String pName : passedNames) {
+				String tempFingerprint = Requests.namesToFingerprints.get(pName);
+				version = Requests.getCurrentVersion(tempFingerprint);
+			}
+		}else {
+			log.error("* Error while attempting to grab current version from Passed Benchmarks map");
 		}
 	}
 
@@ -454,10 +459,10 @@ public class WebpageGenerator {
 				packageNames = packNames;
 
 			} catch (Exception e) {
-				log.error("Error grabbing package names from benchmark test");
+				log.error("* Error grabbing package names from benchmark test");
 			}
 		} else {
-			log.error("List of package names was empty.");
+			log.error("* List of package names was empty.");
 		}
 
 	}
@@ -467,11 +472,11 @@ public class WebpageGenerator {
 			try {
 				allConfigs = allConfig;
 			} catch (Exception e) {
-				log.error("Error passing configuration values");
+				log.error("* Error passing configuration values");
 				e.printStackTrace();
 			}
 		} else {
-			log.error("Passed configuration values were empty.");
+			log.error("* Passed configuration values were empty.");
 		}
 	}
 
