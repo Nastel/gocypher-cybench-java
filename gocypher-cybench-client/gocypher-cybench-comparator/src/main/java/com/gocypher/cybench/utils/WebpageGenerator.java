@@ -231,7 +231,7 @@ public class WebpageGenerator {
 
 		if (CompareBenchmarks.totalFailedBenchmarks == 0) {
 			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td style=\"text-align:center\">No tests failed.</td></td></td></td></td></tr>\n",
+					"<tr><td><td><td><td><td style=\"text-align:center\">No tests anomalies.<td><td><td><td><td></td></td></td></td></td></td></td></td></td></td></tr>\n",
 					utf8, true);
 		} else {
 			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.failedBenchmarks
@@ -277,7 +277,7 @@ public class WebpageGenerator {
 			FileUtils.write(file,
 					"<table id=\"table3\"class=\"display compact skippedTable\">"
 							+ "    <caption class=\"skippedCaption\">Skipped Tests</caption>" + "    <thead>"
-							+ "        <tr style=\"border: 1px dotted black;\">" //
+							+ "        <tr class=\"th\">" //
 							+ "            <th>Fingerprint</th>" //
 							+ "            <th>Name</th>" //
 							+ "            <th>Version</th>" //
