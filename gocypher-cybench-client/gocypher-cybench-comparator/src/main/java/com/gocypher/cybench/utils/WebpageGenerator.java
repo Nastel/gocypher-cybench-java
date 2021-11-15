@@ -77,6 +77,7 @@ public class WebpageGenerator {
 
     // for comparator configuration
     public static void generatePage() throws IOException, URISyntaxException {
+    	WebpageGenerator gen = new WebpageGenerator();
         configType = "comparator.yaml";
         packNum = packageNames.size();
         File tempfile = genTemplateHTML();
@@ -98,6 +99,7 @@ public class WebpageGenerator {
         for (Field field : clazz.getDeclaredFields()) {
             try {
                 if (!skippedFields.contains(field.getName())) {
+                	log.info("======ATTEMPTING TO REPLACE {} WITH {}", field.getName(), field.get(gen).toString());
                     htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
                     FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
                 }
@@ -122,6 +124,7 @@ public class WebpageGenerator {
     // for script configuration || props gets passed all the way from
     // ComparatorScriptEngine
     public static void generatePage(Map<String, Object> props) throws IOException {
+    	WebpageGenerator gen = new WebpageGenerator();
         configType = scriptName;
         packNum = packageNames.size();
         File tempfile = genTemplateHTML();
