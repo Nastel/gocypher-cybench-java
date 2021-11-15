@@ -171,8 +171,7 @@ public class CompareBenchmarks {
         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
         String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
         Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
-        Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
-
+        Double deviationsAllowed = Double.parseDouble((String) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED));
         Map<String, Object> data = prepareCompareDataMap(benchmarks, benchmarkName, benchmarkVersion, benchmarkMode);
         benchmarkScore = Comparisons.roundHandling(benchmarkScore);
         Double compareValue = compareValues.get(Comparisons.CALCULATED_COMPARE_VALUE);
