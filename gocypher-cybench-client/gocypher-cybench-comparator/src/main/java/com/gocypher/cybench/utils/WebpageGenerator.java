@@ -377,10 +377,17 @@ public class WebpageGenerator {
 
     private static void changeComparatorConfigs(Map<String, Object> configs) {
         String tempString = "";
-        String longConfigGet = configs.get("compare.default").toString();
-        tempString = longConfigGet.substring(1, longConfigGet.length() - 1);
-        String[] propsArray = tempString.split(". ");
-        setConfig(propsArray);
+        if(!configs.isEmpty()) {
+        	try {
+                String longConfigGet = configs.get("compare.default").toString();
+                tempString = longConfigGet.substring(1, longConfigGet.length() - 1);
+                String[] propsArray = tempString.split(". ");
+                setConfig(propsArray);
+        	} catch (NullPointerException e) {
+        		e.printStackTrace();
+        		log.error("Comparator Configs were set incorrectly.");
+        	}
+        }
     }
 
     private static void changeScriptConfigs(Map<String, Object> compProps) {
