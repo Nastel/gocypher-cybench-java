@@ -172,8 +172,12 @@ public class CompareBenchmarks {
 		String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
 		Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
 		Double deviationsAllowed = null;
-		if ((configMap.get(ConfigHandling.DEVIATIONS_ALLOWED) != null)){
-			 deviationsAllowed = Double.parseDouble((String) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED));
+		if ((configMap.get(ConfigHandling.DEVIATIONS_ALLOWED) != null)) {
+			if (configMap.get(ConfigHandling.DEVIATIONS_ALLOWED).getClass() != Double.class) {
+				deviationsAllowed = Double.parseDouble((String) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED));
+			} else {
+				deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
+			}
 		}
 		//Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
 		
