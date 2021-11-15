@@ -171,7 +171,12 @@ public class CompareBenchmarks {
 		Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
 		String compareVersion = (String) configMap.get(ConfigHandling.COMPARE_VERSION);
 		Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
-		Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
+		Double deviationsAllowed = null;
+		if ((configMap.get(ConfigHandling.DEVIATIONS_ALLOWED) != null)){
+			 deviationsAllowed = Double.parseDouble((String) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED));
+		}
+		//Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
+		
 		Map<String, Object> data = prepareCompareDataMap(benchmarks, benchmarkName, benchmarkVersion, benchmarkMode);
 		benchmarkScore = Comparisons.roundHandling(benchmarkScore);
 		Double compareValue = compareValues.get(Comparisons.CALCULATED_COMPARE_VALUE);
@@ -358,9 +363,11 @@ public class CompareBenchmarks {
 			compareThreshold = (Comparisons.Threshold) defaultConfigs.get(ConfigHandling.THRESHOLD);
 			percentChangeAllowed = (Double) defaultConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
 			compareVersion = (String) defaultConfigs.get(ConfigHandling.COMPARE_VERSION);
-			// deviationsAllowed = (Double)
-			// defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED);
-			deviationsAllowed = Double.parseDouble((String) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED));
+			if ((defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED) != null)){
+				deviationsAllowed = Double.parseDouble((String) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED));
+			}
+			//deviationsAllowed = (Double) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED);
+			
 			configs = createConfigMap(compareMethod, compareScope, compareRange, compareThreshold, percentChangeAllowed,
 					compareVersion, deviationsAllowed);
 		}

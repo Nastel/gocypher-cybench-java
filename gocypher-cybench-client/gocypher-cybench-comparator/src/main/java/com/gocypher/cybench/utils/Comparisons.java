@@ -278,7 +278,11 @@ public final class Comparisons {
         Comparisons.Method compareMethod = (Comparisons.Method) configMap.get(ConfigHandling.METHOD);
         Comparisons.Threshold compareThreshold = (Comparisons.Threshold) configMap.get(ConfigHandling.THRESHOLD);
         Double percentChangeAllowed = (Double) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
-        Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
+        Double deviationsAllowed = null;
+      //  Double deviationsAllowed = (Double) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED); ///
+		if ((configMap.get(ConfigHandling.DEVIATIONS_ALLOWED) != null)){
+			 deviationsAllowed = Double.parseDouble((String) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED));
+		}
         Double compareValue = compareValues.get(CALCULATED_COMPARE_VALUE);
         boolean pass = false;
         if (compareMethod.equals(Method.SD)) {
