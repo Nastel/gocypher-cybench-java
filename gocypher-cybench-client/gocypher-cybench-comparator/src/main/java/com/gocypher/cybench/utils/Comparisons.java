@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public final class Comparisons {
         configMap.put(ConfigHandling.RANGE, compareRange);
 
         if (compareScope.equals(Comparisons.Scope.WITHIN)) {
-            if (!compareVersion.equals(benchmarkVersion)) {
+            if (StringUtils.isNotEmpty(compareVersion) && !compareVersion.equals(benchmarkVersion)) {
                 compareVersion = benchmarkVersion;
                 configMap.put(ConfigHandling.COMPARE_VERSION, compareVersion);
                 logWarn("{} : mode={} - Compare scope set to WITHIN but compareVersion specified as a separate version, will ignore compareVersion",
@@ -174,11 +175,12 @@ public final class Comparisons {
         StringBuilder sb = new StringBuilder();
         Scope scope = (Scope) logConfigs.get(ConfigHandling.SCOPE);
         String compareVersion = (String) logConfigs.get(ConfigHandling.COMPARE_VERSION);
-        if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
-            compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
-        }
+        
         sb.append("{} COMPARISON - {} : mode={} - method={} ({} version={}");
         if (scope.equals(Scope.BETWEEN)) {
+        	if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
+                compareVersion = Requests.getPreviousVersion(benchmarkFingerprint);
+            }
             sb.append(" and version=").append(compareVersion);
         }
         sb.append("), range={}");
