@@ -99,7 +99,6 @@ public class WebpageGenerator {
         for (Field field : clazz.getDeclaredFields()) {
             try {
                 if (!skippedFields.contains(field.getName())) {
-                	log.info("======ATTEMPTING TO REPLACE {} WITH {}", field.getName(), field.get(gen).toString());
                     htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
                     FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
                 }
@@ -174,6 +173,7 @@ public class WebpageGenerator {
                     .entrySet()) {
                 String benchmarkName = benchmark.getKey();
                 String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
+                String compareVersion = Requests.getPreviousVersion(fingerprint);
                 Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
                 for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
                     String benchVersion = versionEntry.getKey();
@@ -191,7 +191,6 @@ public class WebpageGenerator {
                             roundPercentChange = BigDecimal.valueOf(percentChange);
                         }
                         Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
-                        String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
                         FileUtils.writeStringToFile(file, "<th>" + fingerprint //
                                 + "</th><th style='text-align:left'>" + benchmarkName //
                                 + "</th><th>" + benchVersion //
@@ -241,7 +240,7 @@ public class WebpageGenerator {
                     .entrySet()) {
                 String benchmarkName = benchmark.getKey();
                 String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
-
+                String compareVersion = Requests.getPreviousVersion(fingerprint);
                 Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
                 for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
                     String benchVersion = versionEntry.getKey();
@@ -259,7 +258,6 @@ public class WebpageGenerator {
                             roundPercentChange = BigDecimal.valueOf(percentChange);
                         }
                         Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
-                        String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
                         FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
                                 + "</th><th style='text-align:left'>" + benchmarkName //
                                 + "</th><th>" + benchVersion //
@@ -305,7 +303,7 @@ public class WebpageGenerator {
                     .entrySet()) {
                 String benchmarkName = benchmark.getKey();
                 String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
-
+                String compareVersion = Requests.getPreviousVersion(fingerprint);
                 Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
                 for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
                     String benchVersion = versionEntry.getKey();
@@ -313,7 +311,6 @@ public class WebpageGenerator {
                     for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
                         String benchMode = dataEntry.getKey();
                         Map<String, Object> benchmarkData = dataEntry.getValue();
-                        String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
                         FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
                                 + "</th><th style='text-align:left'>" + benchmarkName //
                                 + "</th><th>" + benchVersion //
