@@ -146,6 +146,9 @@ public class WebpageGenerator {
 		for (Field field : clazz.getDeclaredFields()) {
 			try {
 				if (!skippedFields.contains(field.getName())) {
+					if (field.get(gen).toString().isEmpty()) {
+						field.set(gen, "N/A");
+					}
 					htmlTemp = htmlTemp.replace("$" + field.getName(), field.get(gen).toString());
 					FileUtils.writeStringToFile(newHtml, htmlTemp, utf8);
 				}
@@ -247,7 +250,6 @@ public class WebpageGenerator {
 					.entrySet()) {
 				String benchmarkName = benchmark.getKey();
 				String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
-				// String compareVersion = Requests.getPreviousVersion(fingerprint);
 				Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
 				for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
 					String benchVersion = versionEntry.getKey();
