@@ -85,6 +85,7 @@ public class WebpageGenerator {
 
         htmlTemp = FileUtils.readFileToString(tempfile, utf8);
 
+        
         if (allConfigs == null) {
             log.error("* Unable to grab configurations from comparator.yaml");
         } else {
@@ -92,6 +93,8 @@ public class WebpageGenerator {
             changeVersion();
             changeDateTime();
         }
+        
+        
         File newHtml = new File(
                 "htmlReports/" + packageNames.get(0) + "-v" + version + "-" + getDateTimeForFileName() + ".html");
 
@@ -173,7 +176,6 @@ public class WebpageGenerator {
                     .entrySet()) {
                 String benchmarkName = benchmark.getKey();
                 String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
-                String compareVersion = Requests.getPreviousVersion(fingerprint);
                 Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
                 for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
                     String benchVersion = versionEntry.getKey();
@@ -187,6 +189,10 @@ public class WebpageGenerator {
                         BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
                         Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
                         Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
+                        String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
+                        if (compareVersion == "PREVIOUS") {
+                        	compareVersion = Requests.getPreviousVersion(fingerprint);
+                        }
                         if (!percentChange.isNaN()) {
                             roundPercentChange = BigDecimal.valueOf(percentChange);
                         }
@@ -240,7 +246,7 @@ public class WebpageGenerator {
                     .entrySet()) {
                 String benchmarkName = benchmark.getKey();
                 String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
-                String compareVersion = Requests.getPreviousVersion(fingerprint);
+              //  String compareVersion = Requests.getPreviousVersion(fingerprint);
                 Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
                 for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
                     String benchVersion = versionEntry.getKey();
@@ -258,6 +264,10 @@ public class WebpageGenerator {
                             roundPercentChange = BigDecimal.valueOf(percentChange);
                         }
                         Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+                        String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
+                        if (compareVersion == "PREVIOUS") {
+                        	compareVersion = Requests.getPreviousVersion(fingerprint);
+                        }
                         FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
                                 + "</th><th style='text-align:left'>" + benchmarkName //
                                 + "</th><th>" + benchVersion //
@@ -303,7 +313,6 @@ public class WebpageGenerator {
                     .entrySet()) {
                 String benchmarkName = benchmark.getKey();
                 String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
-                String compareVersion = Requests.getPreviousVersion(fingerprint);
                 Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
                 for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
                     String benchVersion = versionEntry.getKey();
@@ -311,6 +320,10 @@ public class WebpageGenerator {
                     for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
                         String benchMode = dataEntry.getKey();
                         Map<String, Object> benchmarkData = dataEntry.getValue();
+                        String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
+                        if (compareVersion == "PREVIOUS") {
+                        	compareVersion = Requests.getPreviousVersion(fingerprint);
+                        }
                         FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
                                 + "</th><th style='text-align:left'>" + benchmarkName //
                                 + "</th><th>" + benchVersion //
@@ -418,6 +431,7 @@ public class WebpageGenerator {
                 percentChangeAllowed = pName.substring(21);
             } else if (pName.contains("deviationsAllowed")) {
                 deviationsAllowed = pName.substring(18);
+            } else if (pName.contains("compareVersion")) {
             }
         }
     }
