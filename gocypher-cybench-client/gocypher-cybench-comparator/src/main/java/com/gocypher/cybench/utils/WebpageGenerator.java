@@ -112,10 +112,9 @@ public class WebpageGenerator {
 				e.printStackTrace();
 			}
 		}
-
-		createPassedTable(newHtml);
 		createFailedTable(newHtml);
 		createSkippedTable(newHtml);
+		createPassedTable(newHtml);
 
 		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
 		genCSS();
@@ -158,9 +157,9 @@ public class WebpageGenerator {
 				e.printStackTrace();
 			}
 		}
-		createPassedTable(newHtml);
 		createFailedTable(newHtml);
 		createSkippedTable(newHtml);
+		createPassedTable(newHtml);
 		FileUtils.write(newHtml, "</body>\n</html>", utf8, true);
 		genCSS();
 		deleteTempFiles();
@@ -168,84 +167,14 @@ public class WebpageGenerator {
 		log.info("* Generated HTML report can be found at {}", newHtml.getAbsolutePath());
 	}
 
-	private static void createPassedTable(File file) throws IOException {
-
-		if (CompareBenchmarks.totalPassedBenchmarks == 0) {
-			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td style=\"text-align:center\"> No tests passed.<td><td><td><td><td></td></td></td></td></td></td></td></td></td></td></tr>\n",
-					utf8, true);
-		} else {
-
-			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
-					.entrySet()) {
-				String benchmarkName = benchmark.getKey();
-				String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
-				Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
-				for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
-					String benchVersion = versionEntry.getKey();
-					Map<String, Map<String, Object>> benchData = versionEntry.getValue();
-					for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
-						String benchMode = dataEntry.getKey();
-						Map<String, Object> benchmarkData = dataEntry.getValue();
-						Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
-						BigDecimal roundScore = BigDecimal.valueOf(score);
-						Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
-						BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
-						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
-						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
-						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
-						if (compareVersion == "PREVIOUS") {
-							compareVersion = Requests.getPreviousVersion(fingerprint);
-						}
-						if (!percentChange.isNaN()) {
-							roundPercentChange = BigDecimal.valueOf(percentChange);
-						}
-						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
-						FileUtils.writeStringToFile(file, "<th>" + fingerprint //
-								+ "</th><th style='text-align:left'>" + benchmarkName //
-								+ "</th><th>" + benchVersion //
-								+ "</th><th>" + compareVersion + "</th><th>" + benchMode //
-								+ "</th><th style='text-align:right'>" + roundScore //
-								+ "</th><th style='text-align:right'>" + roundCompValue //
-								+ "</th><th style='text-align:right'>" + delta //
-								+ "</th><th style='text-align:right'>" + roundPercentChange //
-								+ "% </th><th style='text-align:right'>" + sdFromMean //
-								+ "</th></tr>\n", utf8, true);
-					}
-				}
-			}
-			FileUtils.writeStringToFile(file, "</tbody></table><br>", utf8, true);
-		}
-	}
-
 	private static void createFailedTable(File file) throws IOException {
-		try {
-			FileUtils.write(file,
-					"<table id =\"table2\"class=\"display compact anomalyTable\">"
-							+ "    <caption class=\"anomalyCaption\">Test Anomalies</caption>" + "    <thead>"
-							+ "        <tr class=\"th\">" //
-							+ "            <th>Fingerprint</th>" //
-							+ "            <th>Name</th>" //
-							+ "            <th>Version</th>" //
-							+ "            <th>Compare Version</th>" //
-							+ "            <th>Mode</th>" //
-							+ "            <th>Score</th>" //
-							+ "            <th>Compare Value</th>" //
-							+ "            <th>Delta</th>" //
-							+ "            <th>Percent Change</th>" //
-							+ "            <th>SD from Mean</th>" //
-							+ "        </tr></thead><tbody>", //
-					utf8, true);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
 		if (CompareBenchmarks.totalFailedBenchmarks == 0) {
 			FileUtils.writeStringToFile(file,
-					"<tr><td><td><td><td><td style=\"text-align:center\">No tests anomalies.<td><td><td><td><td></td></td></td></td></td></td></td></td></td></td></tr>\n",
+					"<tr><td><td><td><td><td style=\"text-align:center\"> No test anomalies.<td><td><td><td><td></td></td></td></td></td></td></td></td></td></td></tr>\n",
 					utf8, true);
 		} else {
+
 			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.failedBenchmarks
 					.entrySet()) {
 				String benchmarkName = benchmark.getKey();
@@ -263,6 +192,76 @@ public class WebpageGenerator {
 						BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
 						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
 						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
+						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
+						if (compareVersion == "PREVIOUS") {
+							compareVersion = Requests.getPreviousVersion(fingerprint);
+						} else if (compareVersion == null) {
+							compareVersion = "N/A";
+						}
+						if (!percentChange.isNaN()) {
+							roundPercentChange = BigDecimal.valueOf(percentChange);
+						}
+						Double sdFromMean = (Double) benchmarkData.get(Comparisons.CALCULATED_SD_FROM_MEAN);
+						FileUtils.writeStringToFile(file, "<tr><td>" + fingerprint //
+								+ "</td><td style='text-align:left'>" + benchmarkName //
+								+ "</td><td>" + benchVersion //
+								+ "</td><td>" + compareVersion + "</td><td>" + benchMode //
+								+ "</td><td style='text-align:right'>" + roundScore //
+								+ "</td><td style='text-align:right'>" + roundCompValue //
+								+ "</td><td style='text-align:right'>" + delta //
+								+ "</td><td style='text-align:right'>" + roundPercentChange //
+								+ "</td><td style='text-align:right'>" + sdFromMean //
+								+ "</td></tr>\n", utf8, true);
+					}
+				}
+			}
+			FileUtils.writeStringToFile(file, "</tbody></table><br>", utf8, true);
+		}
+	}
+
+	private static void createPassedTable(File file) throws IOException {
+		try {
+			FileUtils.write(file, "<table id =\"table3\"class=\" display compact\">"
+					+ "    <caption class=\"passedTableCaption\">Passed Tests</caption>" + "<thead>" + "        <tr>" //
+					+ "            <th>Fingerprint</th>" //
+					+ "            <th>Name</th>" //
+					+ "            <th>Version</th>" //
+					+ "            <th>Compare Version</th>" //
+					+ "            <th>Mode</th>" //
+					+ "            <th>Score</th>" //
+					+ "            <th>Compare Value</th>" //
+					+ "            <th>Delta</th>" //
+					+ "            <th>Percent Change</th>" //
+					+ "            <th>SD from Mean</th>" //
+					+ "        </tr></thead><tbody>", //
+					utf8, true);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (CompareBenchmarks.totalPassedBenchmarks == 0) {
+			FileUtils.writeStringToFile(file,
+					"<tr><td><td><td><td><td style=\"text-align:center\">No tests anomalies.<td><td><td><td><td></td></td></td></td></td></td></td></td></td></td></tr>\n",
+					utf8, true);
+		} else {
+			for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
+					.entrySet()) {
+				String benchmarkName = benchmark.getKey();
+				String fingerprint = Requests.namesToFingerprints.get(benchmarkName);
+				Map<String, Map<String, Map<String, Object>>> benchVersions = benchmark.getValue();
+				for (Map.Entry<String, Map<String, Map<String, Object>>> versionEntry : benchVersions.entrySet()) {
+					String benchVersion = versionEntry.getKey();
+					Map<String, Map<String, Object>> benchData = versionEntry.getValue();
+					for (Map.Entry<String, Map<String, Object>> dataEntry : benchData.entrySet()) {
+						String benchMode = dataEntry.getKey();
+						Map<String, Object> benchmarkData = dataEntry.getValue();
+						Double score = (Double) benchmarkData.get(ConfigHandling.BENCHMARK_SCORE);
+						BigDecimal roundScore = BigDecimal.valueOf(score);
+						Double compareValue = (Double) benchmarkData.get(Comparisons.CALCULATED_COMPARE_VALUE);
+						BigDecimal roundCompValue = BigDecimal.valueOf(compareValue);
+						Double delta = (Double) benchmarkData.get(Comparisons.CALCULATED_DELTA);
+						Double percentChange = (Double) benchmarkData.get(Comparisons.CALCULATED_PERCENT_CHANGE);
 						if (!percentChange.isNaN()) {
 							roundPercentChange = BigDecimal.valueOf(percentChange);
 						}
@@ -270,36 +269,37 @@ public class WebpageGenerator {
 						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
 						if (compareVersion == "PREVIOUS") {
 							compareVersion = Requests.getPreviousVersion(fingerprint);
+						} else if (compareVersion == null) {
+							compareVersion = "N/A";
 						}
-						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
-								+ "</th><th style='text-align:left'>" + benchmarkName //
-								+ "</th><th>" + benchVersion //
-								+ "</th><th>" + compareVersion + "</th><th>" + benchMode //
-								+ "</th><th style='text-align:right'>" + roundScore //
-								+ "</th><th style='text-align:right'>" + roundCompValue //
-								+ "</th><th style='text-align:right'>" + delta //
-								+ "</th><th style='text-align:right'>" + roundPercentChange //
-								+ "% </th><th style='text-align:right'>" + sdFromMean //
-								+ "</th></tr>\n", utf8, true);
+						FileUtils.writeStringToFile(file, "<tr><td>" + fingerprint //
+								+ "</td><td style='text-align:left'>" + benchmarkName //
+								+ "</td><td>" + benchVersion //
+								+ "</td><td>" + compareVersion + "</td><td>" + benchMode //
+								+ "</td><td style='text-align:right'>" + roundScore //
+								+ "</td><td style='text-align:right'>" + roundCompValue //
+								+ "</td><td style='text-align:right'>" + delta //
+								+ "</td><td style='text-align:right'>" + roundPercentChange //
+								+ "% </td><td style='text-align:right'>" + sdFromMean //
+								+ "</td></tr>\n", utf8, true);
 					}
 				}
 			}
 			FileUtils.write(file, "\n</tbody></table><br>", utf8, true);
 		}
+
 	}
 
 	private static void createSkippedTable(File file) throws IOException {
 		try {
-			FileUtils.write(file,
-					"<table id=\"table3\"class=\"display compact skippedTable\">"
-							+ "    <caption class=\"skippedCaption\">Skipped Tests</caption>" + "    <thead>"
-							+ "        <tr class=\"th\">" //
-							+ "            <th>Fingerprint</th>" //
-							+ "            <th>Name</th>" //
-							+ "            <th>Version</th>" //
-							+ "            <th>Compare Version</th>" //
-							+ "            <th>Mode</th>" //
-							+ "        </tr></thead><tbody>",
+			FileUtils.write(file, "<table id=\"table2\"class=\"display compact skippedTable\">"
+					+ "    <caption class=\"skippedCaption\">Skipped Tests</caption>" + "    <thead>" + "        <tr>" //
+					+ "            <th>Fingerprint</th>" //
+					+ "            <th>Name</th>" //
+					+ "            <th>Version</th>" //
+					+ "            <th>Compare Version</th>" //
+					+ "            <th>Mode</th>" //
+					+ "        </tr></thead><tbody>",
 
 					utf8, true);
 
@@ -329,12 +329,12 @@ public class WebpageGenerator {
 						} else if (compareVersion == null) {
 							compareVersion = "N/A";
 						}
-						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
-								+ "</th><th style='text-align:left'>" + benchmarkName //
-								+ "</th><th>" + benchVersion //
-								+ "</th><th>" + compareVersion //
-								+ "</th><th>" + benchMode //
-								+ "</th></tr>\n", utf8, true);
+						FileUtils.writeStringToFile(file, "<tr><td>" + fingerprint //
+								+ "</td><td style='text-align:left'>" + benchmarkName //
+								+ "</td><td>" + benchVersion //
+								+ "</td><td>" + compareVersion //
+								+ "</td><td>" + benchMode //
+								+ "</td></tr>\n", utf8, true);
 					}
 				}
 			}
@@ -360,22 +360,15 @@ public class WebpageGenerator {
 	}
 
 	private static void genCSS() {
-		InputStream in = gen.getClass().getResourceAsStream("/dataTables.css");
 		InputStream styleIn = gen.getClass().getResourceAsStream("/styles.css");
-		File tempFile = new File("htmlReports/styles/dataTables.css");
 		File tempStyleFile = new File("htmlReports/styles/styles.css");
-		String result;
 		String resultStyle;
 		try {
-			result = IOUtils.toString(in, utf8);
-			FileUtils.writeStringToFile(tempFile, result, utf8);
-			in.close();
 			resultStyle = IOUtils.toString(styleIn, utf8);
 			FileUtils.writeStringToFile(tempStyleFile, resultStyle, utf8);
 			styleIn.close();
 		} catch (IOException e) {
-			log.error("* Unable to generate necessary CSS file ({}) or ({}) for HTML report.",
-					tempFile.getAbsoluteFile(), tempStyleFile.getAbsoluteFile());
+			log.error("* Unable to generate necessary CSS file ({}) for HTML report.", tempStyleFile.getAbsoluteFile());
 			e.printStackTrace();
 
 		}
