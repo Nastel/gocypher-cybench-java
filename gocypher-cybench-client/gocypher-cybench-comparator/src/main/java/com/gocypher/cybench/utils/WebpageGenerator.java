@@ -326,6 +326,8 @@ public class WebpageGenerator {
 						String compareVersion = (String) benchmarkData.get(ConfigHandling.COMPARE_VERSION);
 						if (compareVersion == "PREVIOUS") {
 							compareVersion = Requests.getPreviousVersion(fingerprint);
+						} else if (compareVersion == null) {
+							compareVersion = "N/A";
 						}
 						FileUtils.writeStringToFile(file, "<tr><th>" + fingerprint //
 								+ "</th><th style='text-align:left'>" + benchmarkName //
