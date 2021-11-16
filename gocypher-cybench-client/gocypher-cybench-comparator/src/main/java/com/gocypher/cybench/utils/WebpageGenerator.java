@@ -77,7 +77,7 @@ public class WebpageGenerator {
 
     // for comparator configuration
     public static void generatePage() throws IOException, URISyntaxException {
-    	WebpageGenerator gen = new WebpageGenerator();
+        WebpageGenerator gen = new WebpageGenerator();
         configType = "comparator.yaml";
         packNum = packageNames.size();
         File tempfile = genTemplateHTML();
@@ -123,7 +123,7 @@ public class WebpageGenerator {
     // for script configuration || props gets passed all the way from
     // ComparatorScriptEngine
     public static void generatePage(Map<String, Object> props) throws IOException {
-    	WebpageGenerator gen = new WebpageGenerator();
+        WebpageGenerator gen = new WebpageGenerator();
         configType = scriptName;
         packNum = packageNames.size();
         File tempfile = genTemplateHTML();
@@ -377,16 +377,16 @@ public class WebpageGenerator {
 
     private static void changeComparatorConfigs(Map<String, Object> configs) {
         String tempString = "";
-        if(!configs.isEmpty()) {
-        	try {
+        if (!configs.isEmpty()) {
+            try {
                 String longConfigGet = configs.get("compare.default").toString();
                 tempString = longConfigGet.substring(1, longConfigGet.length() - 1);
                 String[] propsArray = tempString.split(". ");
                 setConfig(propsArray);
-        	} catch (NullPointerException e) {
-        		e.printStackTrace();
-        		log.error("Comparator Configs were set incorrectly.");
-        	}
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                log.error("Comparator Configs were set incorrectly.");
+            }
         }
     }
 
