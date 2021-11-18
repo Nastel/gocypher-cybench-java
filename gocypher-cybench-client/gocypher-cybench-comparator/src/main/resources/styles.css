@@ -19,147 +19,147 @@
 @charset "ISO-8859-1";
 
 body {
-	background-color: #d3dadf;
+    background-color: #d3dadf;
 }
 
 th {
-	border: 1px dotted black;
-	background-color: #ecfbff;
+    border: 1px dotted black;
+    background-color: #ecfbff;
 }
 
 td {
-	font-size: 85%;
-	text-align: center;
+    font-size: 85%;
+    text-align: center;
 }
 
 table {
-	border: 1px dotted black;
+    border: 1px dotted black;
 }
 
 .dataTables_wrapper .dataTables_filter {
-	padding-right: 4.5em;
-	font-weight: bold;
+    padding-right: 4.5em;
+    font-weight: bold;
 }
 
 .dataTables_wrapper .dataTables_filter input {
-	background-color: #e9edef;
+    background-color: #e9edef;
 }
 
 .dataTables_wrapper .dataTables_paginate {
-	float: right;
-	text-align: right;
-	padding-top: 0.25em;
-	padding-right: 3em;
-	font-weight: bold;
+    float: right;
+    text-align: right;
+    padding-top: 0.25em;
+    padding-right: 3em;
+    font-weight: bold;
 }
 
 table.dataTable.no-footer {
-	border-bottom: 1px solid #111;
-	width: 95%;
+    border-bottom: 1px solid #111;
+    width: 95%;
 }
 
 .dataTables_wrapper .dataTables_length {
-	float: left;
-	padding-left: 3%;
-	font-weight: bold;
+    float: left;
+    padding-left: 3%;
+    font-weight: bold;
 }
 
 .dataTables_wrapper .dataTables_info {
-	clear: both;
-	float: left;
-	padding-top: 0.755em;
-	padding-left: 3%;
-	font-weight: bold;
+    clear: both;
+    float: left;
+    padding-top: 0.755em;
+    padding-left: 3%;
+    font-weight: bold;
 }
 
 .cybCompResultsDiv {
-	margin-left: auto;
-	margin-right: auto;
-	border-style: double;
-	background-color: #ecfbff;
-	width: 25%;
-	margin: auto;
-	text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: double;
+    background-color: #ecfbff;
+    width: 25%;
+    margin: auto;
+    text-align: center;
 }
 
 .cybCompResults {
-	font-weight: bold;
-	font-size: 20px;
+    font-weight: bold;
+    font-size: 20px;
 }
 
 .reportTime {
-	font-size: 15px;
+    font-size: 15px;
 }
 
 .pkgNameDiv {
-	margin-left: auto;
-	margin-right: auto;
-	border-style: double;
-	background-color: #ecf5ff;
-	width: 25%;
-	margin: auto;
-	text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: double;
+    background-color: #ecf5ff;
+    width: 25%;
+    margin: auto;
+    text-align: center;
 }
 
 .pkgNamesP {
-	font-size: 15px;
-	font-weight: bold;
+    font-size: 15px;
+    font-weight: bold;
 }
 
 .pkgNames {
-	font-size: 13px;
+    font-size: 13px;
 }
 
 .VTPFStable {
-	margin-left: auto;
-	margin-right: auto;
-	border: 2px double black;
-	display: inline-block;
-	font-size: 13px;
-	background-color: #ecf5ff;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px double black;
+    display: inline-block;
+    font-size: 13px;
+    background-color: #ecf5ff;
 }
 
 .VTPFStableCaption {
-	border-style: double;
-	background-color: #d3f6ff;
-	font-weight: bold;
+    border-style: double;
+    background-color: #d3f6ff;
+    font-weight: bold;
 }
 
 .table1TopRow {
-	margin-left: auto;
-	margin-right: auto;
-	border-style: double;
-	background-color: #e5fbe5;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: double;
+    background-color: #e5fbe5;
 }
 
 .passedTableCaption {
-	border-style: double;
-	background-color: #65e665;
-	font-weight: bold;
+    border-style: double;
+    background-color: #65e665;
+    font-weight: bold;
 }
 
 .anomalyTable {
-	margin-left: auto;
-	margin-right: auto;
-	border-style: double;
-	background-color: #fbadad;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: double;
+    background-color: #fbadad;
 }
 
 .anomalyCaption {
-	border-style: double;
-	background-color: #f97c7c;
-	font-weight: bold;
+    border-style: double;
+    background-color: #f97c7c;
+    font-weight: bold;
 }
 
 .skippedTable {
-	margin-left: auto;
-	margin-right: auto;
-	border-style: double;
-	background-color: #ffc966;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: double;
+    background-color: #ffc966;
 }
 
 .skippedCaption {
-	border-style: double;
-	background-color: #ffb733;
-	font-weight: bold
+    border-style: double;
+    background-color: #ffb733;
+    font-weight: bold
 }
