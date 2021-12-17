@@ -49,6 +49,7 @@ public class BenchmarkReport implements Serializable {
     private String category;
     private String context;
     private String version;
+    private String project;
     private Map<String, String> metadata;
 
     private int benchThreadCount;
@@ -247,7 +248,14 @@ public class BenchmarkReport implements Serializable {
     public void setVersion(String version) {
         this.version = version;
     }
+    
+    public void setProject(String project) {
+    	this.project = project;
+    }
 
+    public String getProject() {
+    	return project;
+    }
     public Double getMeanScore() {
         return meanScore;
     }
@@ -655,6 +663,7 @@ public class BenchmarkReport implements Serializable {
                 ", category='" + category + '\'' +
                 ", context='" + context + '\'' +
                 ", version='" + version + '\'' +
+                ", project='" + project + '\'' +
                 ", benchThreadCount=" + benchThreadCount +
                 ", benchForkCount=" + benchForkCount +
                 ", benchMeasurementIteration=" + benchMeasurementIteration +
