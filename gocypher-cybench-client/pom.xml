@@ -84,7 +84,7 @@
         <jmh.version>1.33</jmh.version>
         <jackson.version>2.13.0</jackson.version>
         <org.slf4j.version>1.7.32</org.slf4j.version>
-        <log4j.version>2.16.0</log4j.version>
+        <log4j.version>2.17.0</log4j.version>
         <disruptor.version>3.4.4</disruptor.version>
         <version.plugin.source>3.2.1</version.plugin.source>
         <version.plugin.javadoc>3.0.1</version.plugin.javadoc>
