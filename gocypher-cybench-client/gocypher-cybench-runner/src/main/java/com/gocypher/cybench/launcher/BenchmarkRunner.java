@@ -442,6 +442,9 @@ public class BenchmarkRunner {
         if ("version".equals(key)) {
             benchmarkReport.setVersion(value);
         }
+        if ("project".equals(key)) {
+            benchmarkReport.setProject(value);
+        }
     }
 
     private static boolean shouldSendReport(BenchmarkOverviewReport report) {

@@ -163,6 +163,9 @@ public class ReportingService {
             if (benchProps.get("benchVersion") != null) {
                 report.setVersion(benchProps.get("benchVersion"));
             }
+            if (benchProps.get("benchProject") != null) {
+                report.setProject(benchProps.get("benchProject"));
+            }
             report.recalculateScoresToMatchNewUnits();
             overviewReport.addToBenchmarks(report);
         }
@@ -196,10 +199,14 @@ public class ReportingService {
                 if (benchmarksMetadata.get(className).get("version") != null) {
                     benchmarkProperties.put("benchVersion", benchmarksMetadata.get(className).get("version"));
                 }
+                if (benchmarksMetadata.get(className).get("project") != null) {
+                    benchmarkProperties.put("benchProject", benchmarksMetadata.get(className).get("project"));
+                }
             } else {
                 benchmarkProperties.put("benchCategory", "CUSTOM");
                 benchmarkProperties.put("benchContext", "Custom");
                 benchmarkProperties.put("benchVersion", "1.0.0");
+                benchmarkProperties.put("benchProject", "Custom");
             }
             return benchmarkProperties;
         } catch (Exception e) {
@@ -219,14 +226,19 @@ public class ReportingService {
                 if (benchmarksMetadata.get(className).get("version") != null) {
                     benchmarkProperties.put("benchVersion", benchmarksMetadata.get(className).get("version"));
                 }
+                if (benchmarksMetadata.get(className).get("project") != null) {
+                    benchmarkProperties.put("benchProject", benchmarksMetadata.get(className).get("project"));
+                }
             } else {
                 benchmarkProperties.put("benchContext", "Custom");
                 benchmarkProperties.put("benchVersion", "1.0.0");
+                benchmarkProperties.put("project", "Custom");
             }
             return benchmarkProperties;
         } catch (Exception e) {
             benchmarkProperties.put("benchContext", "Custom");
             benchmarkProperties.put("benchVersion", "1.0.0");
+            benchmarkProperties.put("project", "Custom");
             LOG.error("Error on resolving category: class={}", className, e);
         }
         return benchmarkProperties;
