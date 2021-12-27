@@ -249,6 +249,15 @@ public class BenchmarkRunner {
                     appendMetadataFromClass(aClass, benchmarkReport);
                     appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
+                    try {
+                    	if (benchmarkReport.getProject() != null && !benchmarkReport.getProject().isEmpty())
+                        report.setProject(benchmarkReport.getProject());
+                    	else {
+                    		report.setProject("CUSTOM");
+                    	}
+                    } catch (Exception e) {
+                    	LOG.error("Error while attempting to setProject from runner: {}", e);
+                    }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -409,14 +418,14 @@ public class BenchmarkRunner {
                 Arrays.stream(annotation.value()).forEach(annot -> {
                     checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
                     benchmarkReport.addMetadata(annot.key(), annot.value());
-                    // LOG.info("added metadata " + annot.key() + "=" + annot.value());
+                     //LOG.info("added metadata(1) " + annot.key() + "=" + annot.value());
                 });
             }
             BenchmarkMetaData singleAnnotation = annotated.get().getDeclaredAnnotation(BenchmarkMetaData.class);
             if (singleAnnotation != null) {
                 checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
                 benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-                // LOG.info("added metadata " + singleAnnotation.key() + "=" + singleAnnotation.value());
+                 //LOG.info("added metadata(2) " + singleAnnotation.key() + "=" + singleAnnotation.value());
             }
         }
     }

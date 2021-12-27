@@ -26,7 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.javaparser.utils.Log;
+import com.gocypher.cybench.launcher.report.ReportingService;
 import com.gocypher.cybench.launcher.utils.ComputationUtils;
 
 public class BenchmarkOverviewReport implements Serializable {
@@ -34,6 +39,7 @@ public class BenchmarkOverviewReport implements Serializable {
 
     private long timestamp;
     private long timestampUTC;
+    private String project;
     private String reportURL;
     private String deviceReportsURL;
     private BigDecimal totalScore;
@@ -125,6 +131,14 @@ public class BenchmarkOverviewReport implements Serializable {
     public void setTotalScore(BigDecimal totalScore) {
         this.totalScore = totalScore;
     }
+    
+    public String getProject() {
+    	return project;
+    }
+    
+    public void setProject(String project) {
+    	this.project = project;
+    }
 
     public Map<String, List<BenchmarkReport>> getBenchmarks() {
         return benchmarks;
@@ -185,7 +199,7 @@ public class BenchmarkOverviewReport implements Serializable {
     @Override
     public String toString() {
         return "BenchmarkOverviewReport{" + "timestamp=" + timestamp + ", timestampUTC=" + timestampUTC
-                + ", totalScore=" + totalScore + ", categoriesOverview=" + categoriesOverview + ", environmentSettings="
+                + ", totalScore=" + totalScore + ", project=" + project + ", categoriesOverview=" + categoriesOverview + ", environmentSettings="
                 + environmentSettings + ", benchmarks=" + benchmarks + ", reportURL=" + reportURL + '}';
     }
 

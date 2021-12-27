@@ -189,7 +189,7 @@ public class ReportingService {
             Map<String, Map<String, String>> benchmarksMetadata) {
         Map<String, String> benchmarkProperties = new HashMap<>();
         try {
-            if (benchmarksMetadata.get(className) != null) {
+            if (benchmarksMetadata.get(className) != null) {            	
                 if (benchmarksMetadata.get(className).get("category") != null) {
                     benchmarkProperties.put("benchCategory", benchmarksMetadata.get(className).get("category"));
                 }
@@ -206,7 +206,7 @@ public class ReportingService {
                 benchmarkProperties.put("benchCategory", "CUSTOM");
                 benchmarkProperties.put("benchContext", "Custom");
                 benchmarkProperties.put("benchVersion", "1.0.0");
-                benchmarkProperties.put("benchProject", "Custom");
+                // can set default project here
             }
             return benchmarkProperties;
         } catch (Exception e) {
@@ -232,7 +232,6 @@ public class ReportingService {
             } else {
                 benchmarkProperties.put("benchContext", "Custom");
                 benchmarkProperties.put("benchVersion", "1.0.0");
-                benchmarkProperties.put("project", "Custom");
             }
             return benchmarkProperties;
         } catch (Exception e) {
