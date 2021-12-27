@@ -185,17 +185,7 @@ public class BenchmarkRunner {
             // }
         }
 
-        if (foundBenchmarks) {
-            if (System.getProperty(Constants.REPORT_SOURCE) != null) {
-                benchSource = System.getProperty(Constants.REPORT_SOURCE);
-            }
-            benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
-            benchmarkSetting.put(Constants.REPORT_VERSION, "1.0.0");
-        }
-        if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
-            benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
-        }
-        LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
+        
 
         ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true) //
                 // .addProfiler(HotspotThreadProfiler.class) // obsolete
@@ -230,7 +220,19 @@ public class BenchmarkRunner {
         report.getEnvironmentSettings().put("unclassifiedProperties",
                 CollectSystemInformation.getUnclassifiedProperties());
         report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
-        report.setBenchmarkSettings(benchmarkSetting);
+        
+        if (foundBenchmarks) {
+            if (System.getProperty(Constants.REPORT_SOURCE) != null) {
+                benchSource = System.getProperty(Constants.REPORT_SOURCE);
+            }
+            benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
+        }       
+        if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
+            benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
+        }       
+        
+        LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
+        
 
         for (String s : report.getBenchmarks().keySet()) {
             List<BenchmarkReport> custom = new ArrayList<>(report.getBenchmarks().get(s));
@@ -249,17 +251,18 @@ public class BenchmarkRunner {
                     appendMetadataFromClass(aClass, benchmarkReport);
                     appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
+                    benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
                     try {
                     	if (benchmarkReport.getProject() != null && !benchmarkReport.getProject().isEmpty()) {
                         report.setProject(benchmarkReport.getProject());
                     	}else {
-                    		report.setProject("CUSTOM");
+                    		report.setProject("CUSTOM"); //default
                     	}
                     	
                     	if (benchmarkReport.getProjectVersion() != null && !benchmarkReport.getProjectVersion().isEmpty()) {
                     		report.setProjectVersion(benchmarkReport.getProjectVersion());
                     	}else {
-                    		report.setProjectVersion("Unknown");
+                    		report.setProjectVersion("Unknown"); //default
                     	}
                     } catch (Exception e) {
                     	LOG.error("Error while attempting to setProject from runner: {}", e);
@@ -267,6 +270,7 @@ public class BenchmarkRunner {
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
+                report.setBenchmarkSettings(benchmarkSetting);
             });
         }
         if (report.getBenchmarks() != null && report.getBenchmarks().size() > 0) {
@@ -488,6 +492,19 @@ public class BenchmarkRunner {
     public static String getProperty(String key) {
         return System.getProperty(key, cfg.getProperty(key));
     }
+    
+	private static String getRunnerVersion() {
+		String runnerVersion = "";
+		try {
+			Properties properties = new Properties();
+			properties.load(BenchmarkRunner.class.getResourceAsStream("/runner.properties"));
+			runnerVersion = properties.getProperty("version");
+			return runnerVersion;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return runnerVersion;
+	}
 
     public static void getReportUploadStatus(BenchmarkOverviewReport report) {
         String reportUploadStatus = getProperty(Constants.REPORT_UPLOAD_STATUS);
