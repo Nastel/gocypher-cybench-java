@@ -250,10 +250,16 @@ public class BenchmarkRunner {
                     appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
                     try {
-                    	if (benchmarkReport.getProject() != null && !benchmarkReport.getProject().isEmpty())
+                    	if (benchmarkReport.getProject() != null && !benchmarkReport.getProject().isEmpty()) {
                         report.setProject(benchmarkReport.getProject());
-                    	else {
+                    	}else {
                     		report.setProject("CUSTOM");
+                    	}
+                    	
+                    	if (benchmarkReport.getProjectVersion() != null && !benchmarkReport.getProjectVersion().isEmpty()) {
+                    		report.setProjectVersion(benchmarkReport.getProjectVersion());
+                    	}else {
+                    		report.setProjectVersion("Unknown");
                     	}
                     } catch (Exception e) {
                     	LOG.error("Error while attempting to setProject from runner: {}", e);
@@ -418,14 +424,14 @@ public class BenchmarkRunner {
                 Arrays.stream(annotation.value()).forEach(annot -> {
                     checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
                     benchmarkReport.addMetadata(annot.key(), annot.value());
-                     //LOG.info("added metadata(1) " + annot.key() + "=" + annot.value());
+                     LOG.info("added metadata(1) " + annot.key() + "=" + annot.value());
                 });
             }
             BenchmarkMetaData singleAnnotation = annotated.get().getDeclaredAnnotation(BenchmarkMetaData.class);
             if (singleAnnotation != null) {
                 checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
                 benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-                 //LOG.info("added metadata(2) " + singleAnnotation.key() + "=" + singleAnnotation.value());
+                 LOG.info("added metadata(2) " + singleAnnotation.key() + "=" + singleAnnotation.value());
             }
         }
     }
@@ -453,6 +459,9 @@ public class BenchmarkRunner {
         }
         if ("project".equals(key)) {
             benchmarkReport.setProject(value);
+        }
+        if ("projectVersion".equals(key)) {
+        	benchmarkReport.setProjectVersion(value);
         }
     }
 

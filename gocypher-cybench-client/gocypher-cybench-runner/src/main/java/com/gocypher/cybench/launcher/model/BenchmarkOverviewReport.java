@@ -40,6 +40,7 @@ public class BenchmarkOverviewReport implements Serializable {
     private long timestamp;
     private long timestampUTC;
     private String project;
+    private String projectVersion;
     private String reportURL;
     private String deviceReportsURL;
     private BigDecimal totalScore;
@@ -140,7 +141,15 @@ public class BenchmarkOverviewReport implements Serializable {
     	this.project = project;
     }
 
-    public Map<String, List<BenchmarkReport>> getBenchmarks() {
+    public String getProjectVersion() {
+		return projectVersion;
+	}
+
+	public void setProjectVersion(String projectVersion) {
+		this.projectVersion = projectVersion;
+	}
+
+	public Map<String, List<BenchmarkReport>> getBenchmarks() {
         return benchmarks;
     }
 
@@ -199,7 +208,7 @@ public class BenchmarkOverviewReport implements Serializable {
     @Override
     public String toString() {
         return "BenchmarkOverviewReport{" + "timestamp=" + timestamp + ", timestampUTC=" + timestampUTC
-                + ", totalScore=" + totalScore + ", project=" + project + ", categoriesOverview=" + categoriesOverview + ", environmentSettings="
+                + ", totalScore=" + totalScore + ", project=" + project + ", projectVersion=" + projectVersion + ", categoriesOverview=" + categoriesOverview + ", environmentSettings="
                 + environmentSettings + ", benchmarks=" + benchmarks + ", reportURL=" + reportURL + '}';
     }
 

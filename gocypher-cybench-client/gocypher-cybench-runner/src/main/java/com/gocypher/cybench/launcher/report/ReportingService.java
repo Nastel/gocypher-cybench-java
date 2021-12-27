@@ -166,6 +166,9 @@ public class ReportingService {
             if (benchProps.get("benchProject") != null) {
                 report.setProject(benchProps.get("benchProject"));
             }
+            if (benchProps.get("benchProjectVersion") != null) {
+            	report.setProjectVersion(benchProps.get("benchProjectVersion"));
+            }
             report.recalculateScoresToMatchNewUnits();
             overviewReport.addToBenchmarks(report);
         }
@@ -202,11 +205,13 @@ public class ReportingService {
                 if (benchmarksMetadata.get(className).get("project") != null) {
                     benchmarkProperties.put("benchProject", benchmarksMetadata.get(className).get("project"));
                 }
+                if (benchmarksMetadata.get(className).get("projectVersion") != null) {
+                	benchmarkProperties.put("benchProjectVersion", benchmarksMetadata.get(className).get("projectVersion"));
+                }
             } else {
                 benchmarkProperties.put("benchCategory", "CUSTOM");
                 benchmarkProperties.put("benchContext", "Custom");
                 benchmarkProperties.put("benchVersion", "1.0.0");
-                // can set default project here
             }
             return benchmarkProperties;
         } catch (Exception e) {
@@ -228,6 +233,9 @@ public class ReportingService {
                 }
                 if (benchmarksMetadata.get(className).get("project") != null) {
                     benchmarkProperties.put("benchProject", benchmarksMetadata.get(className).get("project"));
+                }
+                if (benchmarksMetadata.get(className).get("projectVersion") != null) {
+                	benchmarkProperties.put("benchProjectVersion", benchmarksMetadata.get(className).get("projectVersion"));
                 }
             } else {
                 benchmarkProperties.put("benchContext", "Custom");
