@@ -19,15 +19,28 @@
 
 package com.gocypher.cybench.launcher;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openjdk.jmh.annotations.*;
@@ -38,6 +51,11 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.gocypher.cybench.core.annotation.BenchmarkMetaData;
 import com.gocypher.cybench.core.annotation.CyBenchMetadataList;
@@ -256,13 +274,15 @@ public class BenchmarkRunner {
                     	if (benchmarkReport.getProject() != null && !benchmarkReport.getProject().isEmpty()) {
                         report.setProject(benchmarkReport.getProject());
                     	}else {
-                    		report.setProject("CUSTOM"); //default
+                    		LOG.info("* Project name metadata not defined, setting it to project's artifactId..");
+                    		report.setProject(getMetadataFromBuildFile("artifactId"));
                     	}
                     	
                     	if (benchmarkReport.getProjectVersion() != null && !benchmarkReport.getProjectVersion().isEmpty()) {
                     		report.setProjectVersion(benchmarkReport.getProjectVersion());
                     	}else {
-                    		report.setProjectVersion("Unknown"); //default
+                    		LOG.info("* Project version metadata not defined, setting it to version in pom.xml...");
+                    		report.setProjectVersion(getMetadataFromBuildFile("version")); //default
                     	}
                     } catch (Exception e) {
                     	LOG.error("Error while attempting to setProject from runner: {}", e);
@@ -646,5 +666,39 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collections: " + totalGarbageCollections);
         System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
     }
+	
+	private static String getMetadataFromBuildFile(String prop) {
+		String property = "";		
+		String temp2 = System.getProperty("user.dir");
+		File pom = new File(temp2 + "/pom.xml");
+		
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		
+		try {
+			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
+			Document doc = docBuilder.parse(pom);
+			doc.getDocumentElement().normalize();
+			NodeList nList = doc.getElementsByTagName("project");
+			
+			for (int i = 0; i < nList.getLength(); i++) {
+				Node nNode = nList.item(i);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element eElement = (Element) nNode;
+					property = eElement.getElementsByTagName(prop).item(0).getTextContent();
+				}
+			}			
+		} catch (ParserConfigurationException e) {
+			LOG.error("Error creating DocumentBuilder");
+			e.printStackTrace();
+		} catch (SAXException e) {
+			LOG.error("SAX error");
+			e.printStackTrace();
+		} catch (IOException e) {
+			LOG.error("IO Error");
+			e.printStackTrace();
+		}				
+		return property;
+	}
 
 }
+
