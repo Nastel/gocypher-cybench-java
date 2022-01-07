@@ -264,11 +264,12 @@ public class BenchmarkRunner {
 					appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
 					appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
 					benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
+					LOG.info("Placed Runner Version");
 					try {
 						if (benchmarkReport.getProject() != null && !benchmarkReport.getProject().isEmpty()) {
 							report.setProject(benchmarkReport.getProject());
 						} else {
-							LOG.info("* Project name metadata not defined, setting it to project's artifactId..");
+							LOG.info("* Project name metadata not defined, grabbing it from build files..");
 							report.setProject(getMetadataFromBuildFile("artifactId"));
 						}
 
@@ -276,7 +277,7 @@ public class BenchmarkRunner {
 								&& !benchmarkReport.getProjectVersion().isEmpty()) {
 							report.setProjectVersion(benchmarkReport.getProjectVersion());
 						} else {
-							LOG.info("* Project version metadata not defined, setting it to version in pom.xml...");
+							LOG.info("* Project version metadata not defined, grabbing it from build files...");
 							report.setProjectVersion(getMetadataFromBuildFile("version")); // default
 						}
 					} catch (Exception e) {
@@ -659,10 +660,12 @@ public class BenchmarkRunner {
 
 	private static String getMetadataFromBuildFile(String prop) {
 		String property = "";
+		LOG.info("getMetaData called");
 		String temp2 = System.getProperty("user.dir");
 		File gradle = new File(temp2 + "/build.gradle");
 		File gradleKTS = new File(temp2 + "/build.gradle.kts");
 		File pom = new File(temp2 + "/pom.xml");
+
 		if (gradle.exists() && pom.exists()) {
 			LOG.info("Multiple build instructions detected, resolving to pom.xml..");
 			property = getMetaDataFromMaven(prop);
@@ -717,6 +720,7 @@ public class BenchmarkRunner {
 		// ** kotlin projects need more testing
 
 		LOG.info("* Gradle project detected, grabbing missing metadata from gradle build files");
+		LOG.info("* Checking for Groovy or Kotlin style build instructions");
 		String property = "";
 		String dir = System.getProperty("user.dir");
 		String switcher = null;
@@ -724,7 +728,6 @@ public class BenchmarkRunner {
 		File buildFileKTS = new File(dir + "/settings.gradle.kts");
 
 		if (buildFile.exists()) {
-			LOG.info("Switched to groovy..");
 			switcher = "groovy";
 		} else {
 			switcher = "kotlin";
@@ -732,7 +735,7 @@ public class BenchmarkRunner {
 
 		switch (switcher) {
 		case "groovy":
-			LOG.info("* Regular (groovy) build file detected, grabbing metadata..");
+			LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
 			try {
 
 				String temp = null;
@@ -751,6 +754,7 @@ public class BenchmarkRunner {
 						LOG.info("Found relevant metadata: {}", temp);
 						temp = temp.replaceAll("\\s", "");
 						property = temp.split("'")[1];
+						reader.close();
 						return property;
 					}
 				}
@@ -759,23 +763,27 @@ public class BenchmarkRunner {
 			}
 			break;
 		case "kotlin":
-			LOG.info("* Kotlin style build file detected, grabbing project name");
+			LOG.info("* Kotlin style build file detected, looking for possible metadata..");
 			try {
 
 				if (prop == "artifactId") {
 					prop = "rootProject";
 				} else {
 					prop = "version";
-					buildFile = new File(dir + "/version.gradle.kts");
+					buildFileKTS = new File(dir + "/version.gradle.kts");
+					if (!buildFileKTS.exists()) {
+						buildFileKTS = new File(dir + "/build.gradle.kts");
+					}
 				}
 
 				String temp = null;
 				BufferedReader reader = new BufferedReader(new FileReader(buildFileKTS));
 				while ((temp = reader.readLine()) != null) {
 					if (temp.contains(prop)) {
-						LOG.info("Found project name: {}", temp);
+						// LOG.info("Found relevant metadata: {}", temp);
 						temp = temp.replaceAll("\\s", "");
 						property = temp.split("\"")[1];
+						reader.close();
 						return property;
 					}
 				}
