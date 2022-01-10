@@ -84,7 +84,7 @@ public final class ComputationUtils {
         int magicNumberScoreDecimalDenominator = 100;
         double score = 0.0;
         int n = categoryReports.size();
-        int countOfClusters = 0;
+        int countOfClusters;
 
         if (n <= magicNumberOfClusterSize) {
             countOfClusters = 1;

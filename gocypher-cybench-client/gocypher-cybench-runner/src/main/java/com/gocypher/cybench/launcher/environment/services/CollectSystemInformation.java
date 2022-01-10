@@ -266,8 +266,8 @@ public class CollectSystemInformation {
      */
     private static void getLaunchDiskProperties(HardwareAbstractionLayer hwProps) throws Exception {
         LOG.info("Looking for Disk properties OSHI...");
-        File root = null;
-        root = new File(CollectSystemInformation.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        File root = new File(
+                CollectSystemInformation.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         hardwareProp.setHwLaunchDiskTotalMemoryGB(((double) root.getTotalSpace() / 1073741824));
         hardwareProp.setHwLaunchDiskFreeMemoryGB(((double) root.getFreeSpace() / 1073741824));
 

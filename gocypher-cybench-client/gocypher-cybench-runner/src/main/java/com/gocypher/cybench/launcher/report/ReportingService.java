@@ -167,7 +167,7 @@ public class ReportingService {
                 report.setProject(benchProps.get("benchProject"));
             }
             if (benchProps.get("benchProjectVersion") != null) {
-            	report.setProjectVersion(benchProps.get("benchProjectVersion"));
+                report.setProjectVersion(benchProps.get("benchProjectVersion"));
             }
             report.recalculateScoresToMatchNewUnits();
             overviewReport.addToBenchmarks(report);
@@ -192,7 +192,7 @@ public class ReportingService {
             Map<String, Map<String, String>> benchmarksMetadata) {
         Map<String, String> benchmarkProperties = new HashMap<>();
         try {
-            if (benchmarksMetadata.get(className) != null) {            	
+            if (benchmarksMetadata.get(className) != null) {
                 if (benchmarksMetadata.get(className).get("category") != null) {
                     benchmarkProperties.put("benchCategory", benchmarksMetadata.get(className).get("category"));
                 }
@@ -206,7 +206,8 @@ public class ReportingService {
                     benchmarkProperties.put("benchProject", benchmarksMetadata.get(className).get("project"));
                 }
                 if (benchmarksMetadata.get(className).get("projectVersion") != null) {
-                	benchmarkProperties.put("benchProjectVersion", benchmarksMetadata.get(className).get("projectVersion"));
+                    benchmarkProperties.put("benchProjectVersion",
+                            benchmarksMetadata.get(className).get("projectVersion"));
                 }
             } else {
                 benchmarkProperties.put("benchCategory", "CUSTOM");
@@ -235,7 +236,8 @@ public class ReportingService {
                     benchmarkProperties.put("benchProject", benchmarksMetadata.get(className).get("project"));
                 }
                 if (benchmarksMetadata.get(className).get("projectVersion") != null) {
-                	benchmarkProperties.put("benchProjectVersion", benchmarksMetadata.get(className).get("projectVersion"));
+                    benchmarkProperties.put("benchProjectVersion",
+                            benchmarksMetadata.get(className).get("projectVersion"));
                 }
             } else {
                 benchmarkProperties.put("benchContext", "Custom");

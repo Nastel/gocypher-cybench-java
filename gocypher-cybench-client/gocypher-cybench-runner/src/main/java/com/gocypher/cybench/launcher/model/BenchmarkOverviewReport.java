@@ -26,12 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.github.javaparser.utils.Log;
-import com.gocypher.cybench.launcher.report.ReportingService;
 import com.gocypher.cybench.launcher.utils.ComputationUtils;
 
 public class BenchmarkOverviewReport implements Serializable {
@@ -132,24 +127,24 @@ public class BenchmarkOverviewReport implements Serializable {
     public void setTotalScore(BigDecimal totalScore) {
         this.totalScore = totalScore;
     }
-    
+
     public String getProject() {
-    	return project;
+        return project;
     }
-    
+
     public void setProject(String project) {
-    	this.project = project;
+        this.project = project;
     }
 
     public String getProjectVersion() {
-		return projectVersion;
-	}
+        return projectVersion;
+    }
 
-	public void setProjectVersion(String projectVersion) {
-		this.projectVersion = projectVersion;
-	}
+    public void setProjectVersion(String projectVersion) {
+        this.projectVersion = projectVersion;
+    }
 
-	public Map<String, List<BenchmarkReport>> getBenchmarks() {
+    public Map<String, List<BenchmarkReport>> getBenchmarks() {
         return benchmarks;
     }
 
@@ -208,8 +203,9 @@ public class BenchmarkOverviewReport implements Serializable {
     @Override
     public String toString() {
         return "BenchmarkOverviewReport{" + "timestamp=" + timestamp + ", timestampUTC=" + timestampUTC
-                + ", totalScore=" + totalScore + ", project=" + project + ", projectVersion=" + projectVersion + ", categoriesOverview=" + categoriesOverview + ", environmentSettings="
-                + environmentSettings + ", benchmarks=" + benchmarks + ", reportURL=" + reportURL + '}';
+                + ", totalScore=" + totalScore + ", project=" + project + ", projectVersion=" + projectVersion
+                + ", categoriesOverview=" + categoriesOverview + ", environmentSettings=" + environmentSettings
+                + ", benchmarks=" + benchmarks + ", reportURL=" + reportURL + '}';
     }
 
 }

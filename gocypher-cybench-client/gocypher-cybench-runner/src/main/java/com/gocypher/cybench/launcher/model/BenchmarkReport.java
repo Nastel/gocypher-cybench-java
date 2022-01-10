@@ -253,20 +253,20 @@ public class BenchmarkReport implements Serializable {
     public String getProject() {
         return project;
     }
-    
+
     public void setProject(String project) {
         this.project = project;
     }
 
     public String getProjectVersion() {
-		return projectVersion;
-	}
+        return projectVersion;
+    }
 
-	public void setProjectVersion(String projectVersion) {
-		this.projectVersion = projectVersion;
-	}
+    public void setProjectVersion(String projectVersion) {
+        this.projectVersion = projectVersion;
+    }
 
-	public Double getMeanScore() {
+    public Double getMeanScore() {
         return meanScore;
     }
 
