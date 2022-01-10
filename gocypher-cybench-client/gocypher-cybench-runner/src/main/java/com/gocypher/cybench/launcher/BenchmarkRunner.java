@@ -714,7 +714,6 @@ public class BenchmarkRunner {
 		// ** consider it as a proof of concept
 		// ** currently working with a sample gradle project
 		// ** kotlin projects need more testing
-		LOG.info("HELLO WORLD");
 		LOG.info("* Gradle project detected, grabbing missing metadata from gradle build files");
 		LOG.info("* Checking for Groovy or Kotlin style build instructions");
 		String property = "";
@@ -809,7 +808,7 @@ public class BenchmarkRunner {
 					prop = "PROJECT_VERSION";
 					buildFileKTS = new File(dir + "/config/project.properties");
 				}
-				BufferedReader reader = new BufferedReader(new FileReader(buildFile));
+				BufferedReader reader = new BufferedReader(new FileReader(buildFileKTS));
 				Properties props = new Properties();
 				props.load(reader);
 				String tempProp = props.getProperty(prop);
