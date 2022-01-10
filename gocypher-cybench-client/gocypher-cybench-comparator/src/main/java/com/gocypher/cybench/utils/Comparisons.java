@@ -159,11 +159,7 @@ public final class Comparisons {
                 compareMean);
         double SDfromMean = 0;
         if (compareSD != 0) {
-            SDfromMean = (Math.abs(newScore) + compareMean) / compareSD;
-        }
-
-        if (newScore < compareMean) {
-            SDfromMean *= -1;
+            SDfromMean = (newScore - compareMean) / compareSD;
         }
 
         return SDfromMean;

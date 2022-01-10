@@ -169,7 +169,7 @@ public class Requests {
 
     public boolean fetchBenchmarks(String name, String benchmarkFingerprint, String accessToken) {
         if (!allBenchmarks.containsKey(benchmarkFingerprint)) {
-            String serviceUrl = localBenchmarkViewBenchmarksServiceUrl + benchmarkFingerprint + "?typeOfFingerprint="
+            String serviceUrl = benchmarkViewBenchmarksServiceUrl + benchmarkFingerprint + "?typeOfFingerprint="
                     + tagFingerprint;
             log.info("* Fetching benchmark data for {}", name);
             try {
