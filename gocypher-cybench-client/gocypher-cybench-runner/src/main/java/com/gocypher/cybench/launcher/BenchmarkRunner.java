@@ -713,88 +713,134 @@ public class BenchmarkRunner {
         return property;
     }
 
-    private static String getMetaDataFromGradle(String prop) {
-        // TODO ** Clean up, optimize, refactor.
-        // ** This implementation works but needs more error handling + file checking
-        // ** consider it as a proof of concept
-        // ** currently working with a sample gradle project
-        // ** kotlin projects need more testing
+	private static String getMetaDataFromGradle(String prop) {
+		// TODO ** Clean up, optimize, refactor.
+		// ** This implementation works but needs more error handling + file checking
+		// ** consider it as a proof of concept
+		// ** currently working with a sample gradle project
+		// ** kotlin projects need more testing
+		LOG.info("HELLO WORLD");
+		LOG.info("* Gradle project detected, grabbing missing metadata from gradle build files");
+		LOG.info("* Checking for Groovy or Kotlin style build instructions");
+		String property = "";
+		String dir = System.getProperty("user.dir");
+		String switcher = null;
+		File buildFile = new File(dir + "/settings.gradle");
+		File buildFileKTS = new File(dir + "/settings.gradle.kts");
 
-        LOG.info("* Gradle project detected, grabbing missing metadata from gradle build files");
-        LOG.info("* Checking for Groovy or Kotlin style build instructions");
-        String property = "";
-        String dir = System.getProperty("user.dir");
-        String switcher;
-        File buildFile = new File(dir + "/settings.gradle");
-        File buildFileKTS = new File(dir + "/settings.gradle.kts");
+		if (buildFile.exists()) {
+			switcher = "groovy";
+		} else {
+			switcher = "kotlin";
+		}
 
-        if (buildFile.exists()) {
-            switcher = "groovy";
-        } else {
-            switcher = "kotlin";
-        }
+		switch (switcher) {
+		case "groovy":
+			System.out.println("Prop is currently: " + prop);
+			LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
+			try {
 
-        switch (switcher) {
-        case "groovy":
-            LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
-            try {
+				String temp = null;
+				if (prop == "artifactId") {
+					prop = "PROJECT_ARTIFACT";
+					buildFile = new File(dir + "/config/project.properties");
+					System.out.println("NEW PROP: " + prop);
+				} else {
+					prop = "PROJECT_VERSION";
+					System.out.println("NEW VERSION: " + prop);
+					buildFile = new File(dir + "/config/project.properties");
+				}
+				BufferedReader reader = new BufferedReader(new FileReader(buildFile));
+				Properties props = new Properties();
 
-                String temp;
-                if (prop == "artifactId") {
-                    prop = "rootProject";
-                } else {
-                    prop = "version";
-                    buildFile = new File(dir + "/version.gradle");
-                    if (!buildFile.exists()) {
-                        buildFile = new File(dir + "/build.gradle");
-                    }
-                }
-                BufferedReader reader = new BufferedReader(new FileReader(buildFile));
-                while ((temp = reader.readLine()) != null) {
-                    if (temp.contains(prop)) {
-                        LOG.info("Found relevant metadata: {}", temp);
-                        temp = temp.replaceAll("\\s", "");
-                        property = temp.split("'")[1];
-                        reader.close();
-                        return property;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            break;
-        case "kotlin":
-            LOG.info("* Kotlin style build file detected, looking for possible metadata..");
-            try {
+				props.load(reader);
+				System.out.println("GETTING PROPERTY FOR " + prop);
 
-                if (prop == "artifactId") {
-                    prop = "rootProject";
-                } else {
-                    prop = "version";
-                    buildFileKTS = new File(dir + "/version.gradle.kts");
-                    if (!buildFileKTS.exists()) {
-                        buildFileKTS = new File(dir + "/build.gradle.kts");
-                    }
-                }
+				String tempProp = props.getProperty(prop);
 
-                String temp;
-                BufferedReader reader = new BufferedReader(new FileReader(buildFileKTS));
-                while ((temp = reader.readLine()) != null) {
-                    if (temp.contains(prop)) {
-                        // LOG.info("Found relevant metadata: {}", temp);
-                        temp = temp.replaceAll("\\s", "");
-                        property = temp.split("\"")[1];
-                        reader.close();
-                        return property;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            break;
+				if (prop == "PROJECT_ARTIFACT" && (tempProp.isBlank() || tempProp == null || tempProp.equals("unspecified"))) {
+					reader.close();
+					props.clear();
+					buildFile = new File(dir + "/settings.gradle");
+					BufferedReader reader2 = new BufferedReader(new FileReader(buildFile));
+					prop = "rootProject.name";
+					while ((temp = reader2.readLine()) != null) {
+						if (temp.contains(prop)) {
+							LOG.info("Found relevant metadata: {}", temp);
+							temp = temp.replaceAll("\\s", "");
+							property = temp.split("'")[1];
+							reader2.close();
+							return property;
+						} else {
+							reader2.close();
+							property = "UnknownProject";
+							return property;
+						}
+					}
+				}
 
-        }
-        return property;
+				if (prop == "PROJECT_VERSION" && (tempProp.isBlank() || tempProp == null || tempProp.equals("unspecified"))) {
+					reader.close();
+					props.clear();
+					System.out.println("Checking version.gradle.....");
+					buildFile = new File(dir + "/version.gradle");
+					BufferedReader reader2 = new BufferedReader(new FileReader(buildFile));
+					prop = "version =";
+					while ((temp = reader2.readLine()) != null) {
+						if (temp.contains(prop)) {
+							LOG.info("Found relevant metadata: {}", temp);
+							temp = temp.replaceAll("\\s", "");
+							property = temp.split("'")[1];
+							reader2.close();
+							return property;
+						} else {
+							reader2.close();
+							property = "UnknownVersion";
+							return property;
+						}
+					}
+					reader2.close();
+				}
+				reader.close();
 
-    }
+				return tempProp;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			break;
+		case "kotlin":
+			LOG.info("* Kotlin style build file detected, looking for possible metadata..");
+			try {
+
+				if (prop == "artifactId") {
+					prop = "PROJECT_ARTIFACT";
+				} else {
+					prop = "PROJECT_VERSION";
+					buildFileKTS = new File(dir + "/config/project.properties");
+					if (!buildFileKTS.exists()) {
+						buildFileKTS = new File(dir + "/build.gradle.kts");
+					}
+				}
+
+				String temp = null;
+				BufferedReader reader = new BufferedReader(new FileReader(buildFileKTS));
+				while ((temp = reader.readLine()) != null) {
+					if (temp.contains(prop)) {
+						System.out.println("**CURRENTLY PROP IS: " + prop);
+						// LOG.info("Found relevant metadata: {}", temp);
+						temp = temp.replaceAll("\\s", "");
+						property = temp.split("\"")[1];
+						reader.close();
+						return property;
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			break;
+
+		}
+		return property;
+
+	}
 }
