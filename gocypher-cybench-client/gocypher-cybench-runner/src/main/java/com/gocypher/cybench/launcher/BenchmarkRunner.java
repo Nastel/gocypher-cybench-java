@@ -144,7 +144,7 @@ public class BenchmarkRunner {
                     SecurityUtils.computeClassHashForMethods(classObj, generatedFingerprints);
                     tempBenchmark = classObj.getName();
 
-                    if (!classObj.getName().isEmpty()) {
+                    if (!tempBenchmark.isEmpty()) {
                         optBuild.include(classObj.getName());
                         foundBenchmarks = true;
                         if (classObj.getName().startsWith("com.gocypher.cybench.")) {
@@ -262,15 +262,14 @@ public class BenchmarkRunner {
                     benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
                     LOG.info("Placed Runner Version");
                     try {
-                        if (benchmarkReport.getProject() != null && !benchmarkReport.getProject().isEmpty()) {
+                        if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                             report.setProject(benchmarkReport.getProject());
                         } else {
                             LOG.info("* Project name metadata not defined, grabbing it from build files..");
                             report.setProject(getMetadataFromBuildFile("artifactId"));
                         }
 
-                        if (benchmarkReport.getProjectVersion() != null
-                                && !benchmarkReport.getProjectVersion().isEmpty()) {
+                        if (StringUtils.isNotEmpty(benchmarkReport.getProjectVersion())) {
                             report.setProjectVersion(benchmarkReport.getProjectVersion());
                         } else {
                             LOG.info("* Project version metadata not defined, grabbing it from build files...");
@@ -285,7 +284,7 @@ public class BenchmarkRunner {
                 report.setBenchmarkSettings(benchmarkSetting);
             });
         }
-        if (report.getBenchmarks() != null && report.getBenchmarks().size() > 0) {
+        if (report.getBenchmarks() != null && !report.getBenchmarks().isEmpty()) {
             List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
             report.getBenchmarks().remove("CUSTOM");
             for (BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
@@ -309,7 +308,7 @@ public class BenchmarkRunner {
                 String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, tokenAndEmail);
                 response = JSONUtils.parseJsonIntoMap(responseWithUrl);
-                if (!response.containsKey("ERROR") && responseWithUrl != null && !responseWithUrl.isEmpty()) {
+                if (!response.containsKey("ERROR") && StringUtils.isNotEmpty(responseWithUrl)) {
                     deviceReports = response.get(Constants.REPORT_USER_URL).toString();
                     resultURL = response.get(Constants.REPORT_URL).toString();
                     report.setDeviceReportsURL(deviceReports);
@@ -338,7 +337,7 @@ public class BenchmarkRunner {
             LOG.info("Removing all temporary auto-generated files....");
             IOUtils.removeTestDataFiles();
             LOG.info("Removed all temporary auto-generated files!!!");
-            if (!response.containsKey("ERROR") && responseWithUrl != null && !responseWithUrl.isEmpty()) {
+            if (!response.containsKey("ERROR") && StringUtils.isNotEmpty(responseWithUrl)) {
                 LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
                 LOG.info("You can find all device benchmarks on {}", deviceReports);
                 LOG.info("Your report is available at {}", resultURL);
