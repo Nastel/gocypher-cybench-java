@@ -84,7 +84,6 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
                         "Annotations created and files are updated. You need to recompile.");
             }
-
         }
 
         return false;
@@ -132,7 +131,6 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
             }
         } catch (IOException e) {
             e.printStackTrace();
-
         }
 
         return null;
