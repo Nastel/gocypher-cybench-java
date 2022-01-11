@@ -33,6 +33,10 @@
 
     <name>gocypher-cybench-core</name>
 
+    <properties>
+        <bcel.version>6.5.0</bcel.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.gocypher.cybench.client</groupId>
@@ -54,7 +58,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
+            <version>${httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -88,19 +92,19 @@
         <dependency>
             <groupId>org.apache.bcel</groupId>
             <artifactId>bcel</artifactId>
-            <version>6.5.0</version>
+            <version>${bcel.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
+            <version>${commons.lang3.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

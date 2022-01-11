@@ -34,6 +34,11 @@
 
     <name>gocypher-cybench-annotations</name>
 
+    <properties>
+        <auto.service.version>1.0.1</auto.service.version>
+        <symbol.solver.version>3.23.1</symbol.solver.version>
+    </properties>
+
     <profiles>
         <profile>
             <id>java9-plus</id>
@@ -96,13 +101,13 @@
         <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
-            <version>1.0.1</version>
+            <version>${auto.service.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
-            <version>3.23.1</version>
+            <version>${symbol.solver.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>

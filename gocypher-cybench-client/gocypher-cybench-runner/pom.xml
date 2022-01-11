@@ -33,6 +33,13 @@
 
     <name>gocypher-cybench-runner</name>
 
+    <properties>
+        <jcabi.manifests.version>1.1</jcabi.manifests.version>
+        <jhardware.version>0.8.6</jhardware.version>
+        <reflections.version>0.10.2</reflections.version>
+        <oshi.version>5.8.6</oshi.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.gocypher.cybench.client</groupId>
@@ -42,12 +49,12 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>5.8.5</version>
+            <version>${oshi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.10.2</version>
+            <version>${reflections.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>javassist</artifactId>
@@ -58,7 +65,7 @@
         <dependency>
             <groupId>org.jhardware</groupId>
             <artifactId>jHardware</artifactId>
-            <version>0.8.6</version>
+            <version>${jhardware.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jna</artifactId>
@@ -73,7 +80,7 @@
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-manifests</artifactId>
-            <version>1.1</version>
+            <version>${jcabi.manifests.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -84,7 +91,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
