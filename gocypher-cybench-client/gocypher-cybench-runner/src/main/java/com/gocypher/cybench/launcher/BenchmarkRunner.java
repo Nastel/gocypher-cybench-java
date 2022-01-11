@@ -760,6 +760,12 @@ public class BenchmarkRunner {
                 props.load(reader);
             }
             String tempProp = props.getProperty(prop);
+            if (prop == "PROJECT_ARTIFACT" && !isPropUnspecified("PROJECT_ROOT")) { // for subprojects
+            	String parent = props.getProperty("PROJECT_ROOT");
+            	parent = parent.replaceAll("\\s", "").split("'")[1];
+            	
+            	return parent + "/" + props.getProperty(prop);         	        	
+            }
             if (prop == "PROJECT_ARTIFACT" && isPropUnspecified(tempProp)) {
                 buildFile = new File(dir + cfgFiles[1]);
                 try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
