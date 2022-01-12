@@ -13,14 +13,14 @@ Dependencies for your project:
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-comparator</artifactId>
-        <version>1.2.1</version>
+        <version>1.3.0</version>
         <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.1'
+    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0'
     ```
 
 ## Running Cybench Comparator
@@ -48,7 +48,7 @@ java -jar gocypher-cybench-comparator.jar [args]
                     <dependency>
                         <groupId>com.gocypher.cybench.client</groupId>
                         <artifactId>gocypher-cybench-comparator</artifactId>
-                        <version>1.2.1</version>
+                        <version>1.3.0</version>
                         <scope>test</scope>
                     </dependency>
                 </dependencies>
@@ -150,7 +150,7 @@ java -jar gocypher-cybench-comparator.jar [args]
         // ...
         dependencies {
             // ...
-            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.1'
+            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0'
         }
         // ...
         task compareBenchmarks(type: JavaExec) {
@@ -178,7 +178,7 @@ java -jar gocypher-cybench-comparator.jar [args]
         // ...
         dependencies {
           // ...
-          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.1")
+          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0")
         }
         // ...
   
