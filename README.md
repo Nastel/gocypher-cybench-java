@@ -8,12 +8,12 @@ community, compare and choose the right libraries for your application.
 
 CyBench Launcher contains a set of default performance tests developed by the CyBench team to benchmark Java Core
 services. These tests are executed by default every time CyBench benchmarks are executed via `cybench` shell script and
-results are automatically submitted to a public [CyBench Repository](https://www.gocypher.com/cybench/).
+results are automatically submitted to a public [CyBench Repository](https://app.cybench.io).
 
 Default benchmark execution and automated reporting can be configured
 via `<cybench-home>/conf/cybench-launcher.properties`
 Download and run CyBench [here](https://github.com/K2NIO/cybench-java-benchmarks/releases). Visit
-our [page](https://www.gocypher.com/cybench/)
+our [page](https://app.cybench.io)
 to analyze your results.
 
 ## Running User-defined Benchmarks using CyBench Launcher
