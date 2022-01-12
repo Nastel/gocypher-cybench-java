@@ -1,5 +1,14 @@
 # What is CyBench Launcher
 
+-----------------------
+**NOTE:** CyBench services moved to dedicated host `https://app.cybench.io` from previous `https://www.gocypher.com/`. 
+This change is reflected in CyBench client version `1.3.0`. For previous versions, set Java System Property 
+`sendReportToURL` when running CyBench Launcher:
+```
+-DsendReportToURL=https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/report
+```
+-----------------------
+
 **CyBench Launcher** is a standalone Java application designed to
 execute [JMH](https://openjdk.java.net/projects/code-tools/jmh/) benchmarks. Speed-test Java classes, collections,
 modules, libraries and other application building blocks under varying runtime conditions. Share your results with the
@@ -8,12 +17,12 @@ community, compare and choose the right libraries for your application.
 
 CyBench Launcher contains a set of default performance tests developed by the CyBench team to benchmark Java Core
 services. These tests are executed by default every time CyBench benchmarks are executed via `cybench` shell script and
-results are automatically submitted to a public [CyBench Repository](https://www.gocypher.com/cybench/).
+results are automatically submitted to a public [CyBench Repository](https://app.cybench.io).
 
 Default benchmark execution and automated reporting can be configured
 via `<cybench-home>/conf/cybench-launcher.properties`
 Download and run CyBench [here](https://github.com/K2NIO/cybench-java-benchmarks/releases). Visit
-our [page](https://www.gocypher.com/cybench/)
+our [page](https://app.cybench.io)
 to analyze your results.
 
 ## Running User-defined Benchmarks using CyBench Launcher

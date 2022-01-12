@@ -67,8 +67,6 @@ import com.gocypher.cybench.launcher.utils.SecurityBuilder;
 public class BenchmarkRunner {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
 
-    public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",
-            "https://app.cybench.io/cybench/upload");
     private static final String CYB_REPORT_FOLDER = System.getProperty("cybench.report.folder",
             "." + File.separator + "reports" + File.separator);
     public static final String CYB_REPORT_JSON_FILE = CYB_REPORT_FOLDER
@@ -315,7 +313,7 @@ public class BenchmarkRunner {
                     report.setReportURL(resultURL);
                 }
             } else {
-                LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
+                LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
             // LOG.info("-----------------------------------------------------------------------------------------");
             // LOG.info("REPORT '{}'", report);
@@ -344,11 +342,11 @@ public class BenchmarkRunner {
                 LOG.info("NOTE: It may take a few minutes for your report to appear online");
             } else {
                 LOG.info((String) response.get("ERROR"));
-                LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
+                LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
         } catch (Exception e) {
             LOG.error("Failed to save test results", e);
-            LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, CYB_UPLOAD_URL);
+            LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
         } finally {
         }
         LOG.info("-----------------------------------------------------------------------------------------");

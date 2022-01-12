@@ -42,8 +42,12 @@ import com.gocypher.cybench.utils.WebpageGenerator;
 public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
 
-    private static final String benchmarkViewBenchmarksServiceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/";
-    private static final String localBenchmarkViewBenchmarksServiceUrl = "http://localhost:8080/gocypher-benchmarks-reports-1.0-SNAPSHOT/services/v1/reports/benchmark/view/";
+    private static final String benchmarkViewBenchmarksServiceUrl = System.getProperty("cybench.reports.view.url",
+            "https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/");
+    // private static final String localBenchmarkViewBenchmarksServiceUrl =
+    // "http://localhost:8080/gocypher-benchmarks-reports-1.0-SNAPSHOT/services/v1/reports/benchmark/view/";
+    private static final String benchmarkBaseUrl = System.getProperty("cybench.benchmark.base.url",
+            "https://app.cybench.io/cybench/benchmark/");
 
     private static Requests instance;
     private static final String tagFingerprint = "benchmarkTag";
@@ -308,7 +312,7 @@ public class Requests {
                 String reportID = null;
                 String reportURL = (String) benchmarkReport.get("reportURL");
                 if (reportURL != null) {
-                    String[] parsedURL = reportURL.split("https://app.cybench.io/cybench/benchmark/");
+                    String[] parsedURL = reportURL.split(benchmarkBaseUrl);
                     reportID = parsedURL[1].split("/")[0];
                 }
                 JSONObject packages = (JSONObject) benchmarkReport.get("benchmarks");

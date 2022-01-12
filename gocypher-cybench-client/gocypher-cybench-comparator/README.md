@@ -13,14 +13,14 @@ Dependencies for your project:
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-comparator</artifactId>
-        <version>1.2.1</version>
+        <version>1.3.0</version>
         <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.1'
+    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0'
     ```
 
 ## Running Cybench Comparator
@@ -48,7 +48,7 @@ java -jar gocypher-cybench-comparator.jar [args]
                     <dependency>
                         <groupId>com.gocypher.cybench.client</groupId>
                         <artifactId>gocypher-cybench-comparator</artifactId>
-                        <version>1.2.1</version>
+                        <version>1.3.0</version>
                         <scope>test</scope>
                     </dependency>
                 </dependencies>
@@ -150,7 +150,7 @@ java -jar gocypher-cybench-comparator.jar [args]
         // ...
         dependencies {
             // ...
-            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.1'
+            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0'
         }
         // ...
         task compareBenchmarks(type: JavaExec) {
@@ -178,22 +178,22 @@ java -jar gocypher-cybench-comparator.jar [args]
         // ...
         dependencies {
           // ...
-          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.2.1")
+          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0")
         }
         // ...
-  
+
         tasks {
           val compareBenchmarks by registering(JavaExec::class) {
             group = "cybench-comparator"
             description = "Compare Benchmarks"
             javaLauncher.set(launcher)
-  
+
             classpath(
               sourceSets["main"].runtimeClasspath,
               sourceSets["test"].runtimeClasspath,
               configurations.getByName("cybenchComparator")
             )
-            
+
             mainClass.set("com.gocypher.cybench.CompareBenchmarks")
             args ("-C config/comparator.yaml")
           }
@@ -223,7 +223,7 @@ java -jar gocypher-cybench-comparator.jar [args]
 ## Adding Comparator to Jenkins
 
 Comparator has the ability to fail a Jenkins build in the case of comparison failures. Just add a Jenkins stage with a
-Comparator run command for your appropriate operating system.  
+Comparator run command for your appropriate operating system.
 For different run configurations, refer to [running the comparator](#running-cybench-comparator).
 
 ### Windows
@@ -246,7 +246,16 @@ stage('Compare Benchmarks') {
         }
 ```
 
-## Configuration Args
+## Configuration
+
+### Dedicated Java System properties
+
+* `cybench.reports.view.url` - defines CyBench service endpoint URL to obtain benchmark reports. Default value - 
+  `https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/`.
+* `cybench.benchmark.base.url` - defines default CyBench benchmark report base URL. Default value - 
+  `https://app.cybench.io/cybench/benchmark/`.
+
+### Configuration Args
 
 * **NOTE**
     * `-C` must be specified for using [YAML Configuration](#yaml-configuration), the rest of the arguments are used
@@ -345,8 +354,7 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 
 ```javascript
 // EXAMPLE ARGS PASSED VIA COMMAND LINE
-// -F -S scripts/Delta-BetweenVersions-PercentChange.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r ALL -m DELTA -t PERCENT_CHANGE -p 10 
-
+// -F -S scripts/Delta-BetweenVersions-PercentChange.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r ALL -m DELTA -t PERCENT_CHANGE -p 10
 
 // loop through the fingerprints in my report
 forEach.call(myFingerprints, function (fingerprint) {
@@ -463,7 +471,6 @@ the background as you execute the script.
 #compare.{} = specific comparison configurations 
 ### {} can be any identifier of your choice ###
 ### Make sure to include {package} to specify which package you want these comparisons to run on ###
-
 
 ### Comparison Configurations ###
 

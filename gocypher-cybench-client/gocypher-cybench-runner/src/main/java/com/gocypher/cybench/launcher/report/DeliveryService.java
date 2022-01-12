@@ -38,10 +38,11 @@ public class DeliveryService {
 
     private static DeliveryService instance;
 
-    private static String serviceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/report";
+    private static String serviceUrl = System.getProperty(Constants.SEND_REPORT_URL,
+            "https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/report");
     // private static String serviceUrl =
     // "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report";
-    private CloseableHttpClient httpClient = HttpClients.createDefault();
+    private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private DeliveryService() {
     }
@@ -55,10 +56,6 @@ public class DeliveryService {
 
     public String sendReportForStoring(String reportJSON, String token) {
         try {
-
-            if (System.getProperty(Constants.SEND_REPORT_URL) != null) {
-                serviceUrl = System.getProperty(Constants.SEND_REPORT_URL);
-            }
             LOG.info("--> Sending benchmark report to URL {}", serviceUrl);
             HttpPost request = new HttpPost(serviceUrl);
             // request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
