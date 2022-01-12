@@ -38,7 +38,7 @@ public class DeliveryService {
 
     private static DeliveryService instance;
 
-    private static String serviceUrl = "https://www.gocypher.com/gocypher-benchmarks-reports/services/v1/reports/report";
+    private static String serviceUrl = "https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/report";
     // private static String serviceUrl =
     // "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report";
     private CloseableHttpClient httpClient = HttpClients.createDefault();
