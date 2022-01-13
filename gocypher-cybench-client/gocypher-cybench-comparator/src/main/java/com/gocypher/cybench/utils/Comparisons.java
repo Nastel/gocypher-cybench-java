@@ -224,12 +224,12 @@ public final class Comparisons {
     }
 
     public static Double calculateSD(List<Double> scores, Double mean) {
-        List<Double> temp = new ArrayList<>();
+        Double sumOfSquares = 0.0;
 
         for (Double score : scores) {
-            temp.add(Math.pow(score - mean, 2));
+            sumOfSquares += Math.pow(score - mean, 2);
         }
-        return Math.sqrt(calculateMean(temp));
+        return Math.sqrt(sumOfSquares / scores.size());
     }
 
     private static Double calculatePercentChange(Double newScore, Double compareScore) {
