@@ -726,7 +726,7 @@ public class BenchmarkRunner {
             switcher = "kotlin";
         }
 
-        //System.out.println("Prop is currently: " + prop);
+        // System.out.println("Prop is currently: " + prop);
         switch (switcher) {
         case "groovy":
             LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
@@ -759,13 +759,13 @@ public class BenchmarkRunner {
             }
             String tempProp = props.getProperty(prop);
             if (prop == "PROJECT_ARTIFACT" && !isPropUnspecified("PROJECT_ROOT")) { // for subprojects
-            	String parent = props.getProperty("PROJECT_ROOT");
-            	parent = parent.replaceAll("\\s", "").split("'")[1];
-            	if (parent.equals(tempProp)) {
-            		return tempProp;
-            	} else {
-            	return parent + "/" + tempProp;         	        	
-            }
+                String parent = props.getProperty("PROJECT_ROOT");
+                parent = parent.replaceAll("\\s", "").split("'")[1];
+                if (parent.equals(tempProp)) {
+                    return tempProp;
+                } else {
+                    return parent + "/" + tempProp;
+                }
             }
             if (prop == "PROJECT_ARTIFACT" && isPropUnspecified(tempProp)) {
                 buildFile = new File(dir + cfgFiles[1]);
@@ -810,5 +810,4 @@ public class BenchmarkRunner {
     private static boolean isPropUnspecified(String prop) {
         return StringUtils.isBlank(prop) || "unspecified".equals(prop);
     }
-   
 }
