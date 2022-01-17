@@ -120,7 +120,7 @@ public class BenchmarkRunner {
         Set<Mode> modes = setExecutionModes(getProperty(Constants.BENCHMARK_MODES));
         String jmhArguments = setExecutionStringProperty(getProperty(Constants.JMH_ARGUMENTS));
 
-        String tempBenchmark = null;
+        String tempBenchmark;
         SecurityBuilder securityBuilder = new SecurityBuilder();
         Map<String, Object> benchmarkSetting = new HashMap<>();
         Map<String, String> generatedFingerprints = new HashMap<>();
@@ -705,7 +705,7 @@ public class BenchmarkRunner {
             LOG.error("IO Error");
             e.printStackTrace();
             failBuildFromMissingMetaData();
-        } 
+        }
         return property;
     }
 
@@ -728,15 +728,15 @@ public class BenchmarkRunner {
             switcher = "kotlin";
         }
 
-        //System.out.println("Prop is currently: " + prop);
+        // System.out.println("Prop is currently: " + prop);
         switch (switcher) {
         case "groovy":
-        //    LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
+            // LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
             property = getGradleProperty(prop, dir,
                     new String[] { "/config/project.properties", "/settings.gradle", "/version.gradle" });
             break;
         case "kotlin":
-        //    LOG.info("* Kotlin style build file detected, looking for possible metadata..");
+            // LOG.info("* Kotlin style build file detected, looking for possible metadata..");
             property = getGradleProperty(prop, dir,
                     new String[] { "/config/project.properties", "/settings.gradle.kts", "/version.gradle.kts" });
             break;
@@ -745,123 +745,124 @@ public class BenchmarkRunner {
         return property;
     }
 
-	private static String getGradleProperty(String prop, String dir, String[] cfgFiles) {
-		String property = "";
-		try {
-			String temp;
-			if (prop == "artifactId") {
-				prop = "PROJECT_ARTIFACT";
-			} else {
-				prop = "PROJECT_VERSION";
-			}
-			Properties props = new Properties();
-			File buildFile = new File(dir + cfgFiles[0]);
-			try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
-				props.load(reader);
-			}
-			String tempProp = props.getProperty(prop);
-			if (prop == "PROJECT_ARTIFACT" && !isPropUnspecified("PROJECT_ROOT")) { // for subprojects
-				String parent = props.getProperty("PROJECT_ROOT");
-				parent = parent.replaceAll("\\s", "").split("'")[1];
-				if (parent.equals(tempProp)) {
-					return tempProp;
-				} else {
-					return parent + "/" + tempProp;
-				}
-			}
-			if (prop == "PROJECT_ARTIFACT" && isPropUnspecified(tempProp)) {
-				buildFile = new File(dir + cfgFiles[1]);
-				try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
-					prop = "rootProject.name";
-					while ((temp = reader.readLine()) != null) {
-						if (temp.contains(prop)) {
-							// LOG.info("Found relevant metadata: {}", temp);
-							temp = temp.replaceAll("\\s", "");
-							property = temp.split("'")[1];
-						}
-					}
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-					failBuildFromMissingMetaData("Project");
-				}
-				return property;
-			}
+    private static String getGradleProperty(String prop, String dir, String[] cfgFiles) {
+        String property = "";
+        try {
+            String temp;
+            if (prop == "artifactId") {
+                prop = "PROJECT_ARTIFACT";
+            } else {
+                prop = "PROJECT_VERSION";
+            }
+            Properties props = new Properties();
+            File buildFile = new File(dir + cfgFiles[0]);
+            try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
+                props.load(reader);
+            }
+            String tempProp = props.getProperty(prop);
+            if (prop == "PROJECT_ARTIFACT" && !isPropUnspecified("PROJECT_ROOT")) { // for subprojects
+                String parent = props.getProperty("PROJECT_ROOT");
+                parent = parent.replaceAll("\\s", "").split("'")[1];
+                if (parent.equals(tempProp)) {
+                    return tempProp;
+                } else {
+                    return parent + "/" + tempProp;
+                }
+            }
+            if (prop == "PROJECT_ARTIFACT" && isPropUnspecified(tempProp)) {
+                buildFile = new File(dir + cfgFiles[1]);
+                try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
+                    prop = "rootProject.name";
+                    while ((temp = reader.readLine()) != null) {
+                        if (temp.contains(prop)) {
+                            // LOG.info("Found relevant metadata: {}", temp);
+                            temp = temp.replaceAll("\\s", "");
+                            property = temp.split("'")[1];
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    failBuildFromMissingMetaData("Project");
+                }
+                return property;
+            }
 
-			if (prop == "PROJECT_VERSION" && isPropUnspecified(tempProp)) {
-				buildFile = new File(dir + cfgFiles[2]);
-				try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
-					prop = "version =";
-					while ((temp = reader.readLine()) != null) {
-						if (temp.contains(prop)) {
-							LOG.info("Found relevant metadata: {}", temp);
-							temp = temp.replaceAll("\\s", "");
-							property = temp.split("'")[1];
-						}
-					}
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-					failBuildFromMissingMetaData("Version");
-				}
-				return property;
-			}
-			return tempProp;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return property;
-	}
+            if (prop == "PROJECT_VERSION" && isPropUnspecified(tempProp)) {
+                buildFile = new File(dir + cfgFiles[2]);
+                try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
+                    prop = "version =";
+                    while ((temp = reader.readLine()) != null) {
+                        if (temp.contains(prop)) {
+                            LOG.info("Found relevant metadata: {}", temp);
+                            temp = temp.replaceAll("\\s", "");
+                            property = temp.split("'")[1];
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    failBuildFromMissingMetaData("Version");
+                }
+                return property;
+            }
+            return tempProp;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return property;
+    }
 
     private static boolean isPropUnspecified(String prop) {
         return StringUtils.isBlank(prop) || "unspecified".equals(prop);
     }
+
     private static void failBuildFromMissingMetaData(String metadata) {
-    	LOG.error("* ===[Build failed from lack of metadata ({})]===", metadata);
-    	LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
-    	if (metadata.contains("Version")) {
-    		LOG.error("* Project version metadata was unable to be processed.");
-    		LOG.error("* Project version can be set or parsed dynamically a few different ways: \n");
-    		LOG.error("*** For Gradle (groovy) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
-    				+ "'build.gradle' or 'version.gradle'.");
-    		LOG.error("*** For Gradle (kotlin) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
-    				+ "'build.gradle.kts' or 'version.gradle.kts'.");
-    		LOG.error("*** For Maven projects, please make sure '<version>' tag is set correctly.\n");
-    		LOG.error("*** If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..),");
-    		LOG.error("*** please set the @BenchmarkMetaData projectVersion tag at the class level");
-    		LOG.error("**** e.g.: '@BenchmarkMetaData(key = \"projectVersion\", value = \"1.6.0\")'");
-    		LOG.error("*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
-    		LOG.error("*** If setting project version via 'metadata.properties', please add the following: ");
-    		LOG.error("*** 'class.version=<yourProjectVersionNumber>'\n");
-    		LOG.error("* For more information and instructions on this process, please visit the CyBench wiki at "
-    				+ "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");  
-    		System.exit(1);
-    	} else if (metadata.contains("Project")) {
-    		LOG.error("* Project name metadata was unable to be processed.");
-    		LOG.error("* Project name can be set or parsed dynamically a few different ways: \n");
-    		LOG.error("*** For Gradle (groovy) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle'.");
-    		LOG.error("*** For Gradle (kotlin) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle.kts'.");
-    		LOG.error("**** Important note regarding Gradle project's name: This value is read-only in 'build.gradle(.kts)'. This value *MUST*"
-    				+ " be set in 'settings.gradle(.kts)' if the project name isn't able to be dynamically parsed.");
-    		LOG.error("*** For Maven projects, please make sure '<artifactId>' tag is set correctly.\n");
-    		LOG.error("*** If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..), "
-    				+ "please set the @BenchmarkMetaData project tag at the class level");
-    		LOG.error("**** e.g.: '@BenchmarkMetaData(key = \"project\", value = \"myTestProject\")'");
-    		LOG.error("*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
-    		LOG.error("*** If setting project version via 'metadata.properties', please add the following: ");
-    		LOG.error("*** 'class.project=<yourProjectName>'\n");
-    		LOG.error("* For more information and instructions on this process, please visit the CyBench wiki at "
-    				+ "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");	
-    		System.exit(1);
-    	}     	
+        LOG.error("* ===[Build failed from lack of metadata ({})]===", metadata);
+        LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
+        if (metadata.contains("Version")) {
+            LOG.error("* Project version metadata was unable to be processed.");
+            LOG.error("* Project version can be set or parsed dynamically a few different ways: \n");
+            LOG.error("*** For Gradle (groovy) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
+                            + "'build.gradle' or 'version.gradle'.");
+            LOG.error("*** For Gradle (kotlin) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
+                            + "'build.gradle.kts' or 'version.gradle.kts'.");
+            LOG.error("*** For Maven projects, please make sure '<version>' tag is set correctly.\n");
+            LOG.error("*** If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..),");
+            LOG.error("*** please set the @BenchmarkMetaData projectVersion tag at the class level");
+            LOG.error("**** e.g.: '@BenchmarkMetaData(key = \"projectVersion\", value = \"1.6.0\")'");
+            LOG.error("*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
+            LOG.error("*** If setting project version via 'metadata.properties', please add the following: ");
+            LOG.error("*** 'class.version=<yourProjectVersionNumber>'\n");
+            LOG.error("* For more information and instructions on this process, please visit the CyBench wiki at "
+                    + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
+            System.exit(1);
+        } else if (metadata.contains("Project")) {
+            LOG.error("* Project name metadata was unable to be processed.");
+            LOG.error("* Project name can be set or parsed dynamically a few different ways: \n");
+            LOG.error("*** For Gradle (groovy) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle'.");
+            LOG.error("*** For Gradle (kotlin) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle.kts'.");
+            LOG.error("**** Important note regarding Gradle project's name: This value is read-only in 'build.gradle(.kts)'. This value *MUST*"
+                            + " be set in 'settings.gradle(.kts)' if the project name isn't able to be dynamically parsed.");
+            LOG.error("*** For Maven projects, please make sure '<artifactId>' tag is set correctly.\n");
+            LOG.error("*** If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..), "
+                            + "please set the @BenchmarkMetaData project tag at the class level");
+            LOG.error("**** e.g.: '@BenchmarkMetaData(key = \"project\", value = \"myTestProject\")'");
+            LOG.error("*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
+            LOG.error("*** If setting project version via 'metadata.properties', please add the following: ");
+            LOG.error("*** 'class.project=<yourProjectName>'\n");
+            LOG.error("* For more information and instructions on this process, please visit the CyBench wiki at "
+                    + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
+            System.exit(1);
+        }
     }
-    
+
     private static void failBuildFromMissingMetaData() {
-    	LOG.error("* ===[Build failed from lack of metadata]===");
-    	LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
-   		LOG.error("* Error while parsing Maven project's 'pom.xml' file.");
-		LOG.error("* 'artifactId' or 'version' tag was unable to be parsed. ");
-		LOG.error("* Refer to the exception thrown for reasons why the .xml file was unable to be parsed.");
-		LOG.error("* For more information on CyBench metadata (setting it, how it is used, etc.), please visit the CyBench wiki at "
-				+ "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
-		System.exit(1);
-    }    
+        LOG.error("* ===[Build failed from lack of metadata]===");
+        LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
+        LOG.error("* Error while parsing Maven project's 'pom.xml' file.");
+        LOG.error("* 'artifactId' or 'version' tag was unable to be parsed. ");
+        LOG.error("* Refer to the exception thrown for reasons why the .xml file was unable to be parsed.");
+        LOG.error("* For more information on CyBench metadata (setting it, how it is used, etc.), please visit the CyBench wiki at "
+                        + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
+        System.exit(1);
+    }
 }
