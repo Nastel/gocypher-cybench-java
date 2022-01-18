@@ -265,6 +265,7 @@ public class BenchmarkRunner {
                         } else {
                             LOG.info("* Project name metadata not defined, grabbing it from build files..");
                             report.setProject(getMetadataFromBuildFile("artifactId"));
+                            benchmarkReport.setProject(getMetadataFromBuildFile("artifactId"));
                         }
 
                         if (StringUtils.isNotEmpty(benchmarkReport.getProjectVersion())) {
@@ -272,6 +273,7 @@ public class BenchmarkRunner {
                         } else {
                             LOG.info("* Project version metadata not defined, grabbing it from build files...");
                             report.setProjectVersion(getMetadataFromBuildFile("version")); // default
+                            benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
                         }
                     } catch (Exception e) {
                         LOG.error("Error while attempting to setProject from runner: ", e);
@@ -710,11 +712,6 @@ public class BenchmarkRunner {
     }
 
     private static String getMetaDataFromGradle(String prop) {
-        // TODO ** Clean up, optimize, refactor.
-        // ** This implementation works but needs more error handling + file checking
-        // ** consider it as a proof of concept
-        // ** currently working with a sample gradle project
-        // ** kotlin projects need more testing
         // LOG.info("* Gradle project detected, grabbing missing metadata from gradle build files");
         // LOG.info("* Checking for Groovy or Kotlin style build instructions");
         String property = "";
