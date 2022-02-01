@@ -89,6 +89,7 @@ java -jar gocypher-cybench-comparator.jar [args]
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>exec-maven-plugin</artifactId>
                             <version>3.0.0</version>
+                            <executions>    
                                 <!-- @@@ Compare benchmarks @@@ -->
                                 <execution>
                                     <id>compare-benchmarks</id>
