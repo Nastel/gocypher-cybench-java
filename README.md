@@ -46,7 +46,7 @@ to analyze your results.
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-runner</artifactId>
-        <version>1.0.0</version>
+        <version>1.3.0</version>
     </dependency>
 </dependencies>
 ```
