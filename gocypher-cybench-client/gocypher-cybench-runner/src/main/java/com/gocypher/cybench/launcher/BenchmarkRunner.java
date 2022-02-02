@@ -238,8 +238,6 @@ public class BenchmarkRunner {
             benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
         }
 
-        LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
-
         for (String s : report.getBenchmarks().keySet()) {
             List<BenchmarkReport> custom = new ArrayList<>(report.getBenchmarks().get(s));
             custom.forEach(benchmarkReport -> {
@@ -258,9 +256,7 @@ public class BenchmarkRunner {
                     appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
                     benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
-                    LOG.info("Placed Runner Version");
                     try {
-                        benchmarkReport.setVersion(getMetadataFromBuildFile("version")); //tempfix for missing version
                         if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                             report.setProject(benchmarkReport.getProject());
                         } else {
@@ -276,6 +272,11 @@ public class BenchmarkRunner {
                             report.setProjectVersion(getMetadataFromBuildFile("version")); // default
                             
                             benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
+                        }
+
+                        if (StringUtils.isEmpty(benchmarkReport.getVersion())) {
+                            benchmarkReport.setVersion(getMetadataFromBuildFile("version"));
+
                         }
                     } catch (Exception e) {
                         LOG.error("Error while attempting to setProject from runner: ", e);
@@ -448,7 +449,6 @@ public class BenchmarkRunner {
             if (singleAnnotation != null) {
                 checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
                 benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-                LOG.info("added metadata(2) " + singleAnnotation.key() + "=" + singleAnnotation.value());
             }
         }
     }

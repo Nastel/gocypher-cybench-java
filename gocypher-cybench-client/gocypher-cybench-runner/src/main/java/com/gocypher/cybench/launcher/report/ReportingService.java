@@ -212,7 +212,7 @@ public class ReportingService {
             } else {
                 benchmarkProperties.put("benchCategory", "CUSTOM");
                 benchmarkProperties.put("benchContext", "Custom");
-                benchmarkProperties.put("benchVersion", "1.0.0");
+                
             }
             return benchmarkProperties;
         } catch (Exception e) {
@@ -241,12 +241,11 @@ public class ReportingService {
                 }
             } else {
                 benchmarkProperties.put("benchContext", "Custom");
-                benchmarkProperties.put("benchVersion", "1.0.0");
+                
             }
             return benchmarkProperties;
         } catch (Exception e) {
             benchmarkProperties.put("benchContext", "Custom");
-            benchmarkProperties.put("benchVersion", "1.0.0");
             benchmarkProperties.put("project", "Custom");
             LOG.error("Error on resolving category: class={}", className, e);
         }
