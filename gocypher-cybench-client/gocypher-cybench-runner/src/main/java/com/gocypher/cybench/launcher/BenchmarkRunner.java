@@ -260,6 +260,7 @@ public class BenchmarkRunner {
                     benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
                     LOG.info("Placed Runner Version");
                     try {
+                        benchmarkReport.setVersion(getMetadataFromBuildFile("version")); //tempfix for missing version
                         if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                             report.setProject(benchmarkReport.getProject());
                         } else {
@@ -273,6 +274,7 @@ public class BenchmarkRunner {
                         } else {
                             LOG.info("* Project version metadata not defined, grabbing it from build files...");
                             report.setProjectVersion(getMetadataFromBuildFile("version")); // default
+                            
                             benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
                         }
                     } catch (Exception e) {
