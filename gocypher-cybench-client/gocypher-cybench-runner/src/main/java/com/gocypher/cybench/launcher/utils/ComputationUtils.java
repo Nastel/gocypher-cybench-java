@@ -158,7 +158,7 @@ public final class ComputationUtils {
 
     public static String createFileNameForReport(String reportName, long timestamp, BigDecimal totalScore,
             boolean isEncryptedFile) {
-        if (reportName != null && !reportName.isEmpty() && totalScore != null) {
+        if (StringUtils.isNotEmpty(reportName) && totalScore != null) {
             return reportName.replaceAll(" ", "_").toLowerCase() + "-" + timestamp + "-" + totalScore + (isEncryptedFile
                     ? Constants.CYB_ENCRYPTED_REPORT_FILE_EXTENSION : Constants.CYB_REPORT_FILE_EXTENSION);
         }

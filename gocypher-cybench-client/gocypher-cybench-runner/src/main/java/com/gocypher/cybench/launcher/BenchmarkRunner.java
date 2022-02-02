@@ -308,9 +308,9 @@ public class BenchmarkRunner {
                 String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, tokenAndEmail);
                 response = JSONUtils.parseJsonIntoMap(responseWithUrl);
-                if (!response.containsKey("ERROR") && StringUtils.isNotEmpty(responseWithUrl)) {
-                    deviceReports = response.get(Constants.REPORT_USER_URL).toString();
-                    resultURL = response.get(Constants.REPORT_URL).toString();
+                if (!response.containsKey("error") && StringUtils.isNotEmpty(responseWithUrl)) {
+                    deviceReports = String.valueOf(response.get(Constants.REPORT_USER_URL));
+                    resultURL = String.valueOf(response.get(Constants.REPORT_URL));
                     report.setDeviceReportsURL(deviceReports);
                     report.setReportURL(resultURL);
                 }
@@ -337,13 +337,13 @@ public class BenchmarkRunner {
             LOG.info("Removing all temporary auto-generated files....");
             IOUtils.removeTestDataFiles();
             LOG.info("Removed all temporary auto-generated files!!!");
-            if (!response.containsKey("ERROR") && StringUtils.isNotEmpty(responseWithUrl)) {
+            if (!response.containsKey("error") && StringUtils.isNotEmpty(responseWithUrl)) {
                 LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
                 LOG.info("You can find all device benchmarks on {}", deviceReports);
                 LOG.info("Your report is available at {}", resultURL);
                 LOG.info("NOTE: It may take a few minutes for your report to appear online");
             } else {
-                LOG.info((String) response.get("ERROR"));
+                LOG.info((String) response.get("error"));
                 LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
         } catch (Exception e) {
