@@ -36,6 +36,7 @@ public class BenchmarkOverviewReport implements Serializable {
     private long timestampUTC;
     private String project;
     private String projectVersion;
+    private String benchmarkSessionId;
     private String reportURL;
     private String deviceReportsURL;
     private BigDecimal totalScore;
@@ -144,6 +145,14 @@ public class BenchmarkOverviewReport implements Serializable {
         this.projectVersion = projectVersion;
     }
 
+    public String getBenchmarkSessionId() {
+        return benchmarkSessionId;
+    }
+
+    public void setBenchmarkSessionId(String benchmarkSessionId) {
+        this.benchmarkSessionId = benchmarkSessionId;
+    }
+
     public Map<String, List<BenchmarkReport>> getBenchmarks() {
         return benchmarks;
     }
@@ -204,8 +213,9 @@ public class BenchmarkOverviewReport implements Serializable {
     public String toString() {
         return "BenchmarkOverviewReport{" + "timestamp=" + timestamp + ", timestampUTC=" + timestampUTC
                 + ", totalScore=" + totalScore + ", project=" + project + ", projectVersion=" + projectVersion
-                + ", categoriesOverview=" + categoriesOverview + ", environmentSettings=" + environmentSettings
-                + ", benchmarks=" + benchmarks + ", reportURL=" + reportURL + '}';
+                + ", sessionId=" + benchmarkSessionId + ", categoriesOverview=" + categoriesOverview
+                + ", environmentSettings=" + environmentSettings + ", benchmarks=" + benchmarks + ", reportURL="
+                + reportURL + '}';
     }
 
 }

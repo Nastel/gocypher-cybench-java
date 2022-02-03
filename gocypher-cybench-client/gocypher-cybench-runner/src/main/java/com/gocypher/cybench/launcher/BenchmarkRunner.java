@@ -240,9 +240,9 @@ public class BenchmarkRunner {
 
         LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
 
-        for (String s : report.getBenchmarks().keySet()) {
-            List<BenchmarkReport> custom = new ArrayList<>(report.getBenchmarks().get(s));
-            custom.forEach(benchmarkReport -> {
+        for (Map.Entry<String, List<BenchmarkReport>> benchmarksEntry : report.getBenchmarks().entrySet()) {
+            List<BenchmarkReport> benchmarks = benchmarksEntry.getValue();
+            benchmarks.forEach(benchmarkReport -> {
                 String name = benchmarkReport.getName();
                 benchmarkReport.setClassFingerprint(classFingerprints.get(name));
                 benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
@@ -274,6 +274,16 @@ public class BenchmarkRunner {
                             LOG.info("* Project version metadata not defined, grabbing it from build files...");
                             report.setProjectVersion(getMetadataFromBuildFile("version")); // default
                             benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
+                        }
+
+                        if (StringUtils.isEmpty(report.getBenchmarkSessionId())) {
+                            Map<String, String> bMetadata = benchmarkReport.getMetadata();
+                            if (bMetadata != null) {
+                                String sessionId = bMetadata.get("benchSession");
+                                if (StringUtils.isNotEmpty(sessionId)) {
+                                    report.setBenchmarkSessionId(sessionId);
+                                }
+                            }
                         }
                     } catch (Exception e) {
                         LOG.error("Error while attempting to setProject from runner: ", e);
