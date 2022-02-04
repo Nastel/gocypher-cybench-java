@@ -258,7 +258,6 @@ public class BenchmarkRunner {
                     appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
                     benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
-                    LOG.info("Placed Runner Version");
                     try {
                         if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                             report.setProject(benchmarkReport.getProject());
@@ -273,7 +272,12 @@ public class BenchmarkRunner {
                         } else {
                             LOG.info("* Project version metadata not defined, grabbing it from build files...");
                             report.setProjectVersion(getMetadataFromBuildFile("version")); // default
+                            
                             benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
+                        }
+
+                        if (StringUtils.isEmpty(benchmarkReport.getVersion())) {
+                            benchmarkReport.setVersion(getMetadataFromBuildFile("version"));
                         }
 
                         if (StringUtils.isEmpty(report.getBenchmarkSessionId())) {
@@ -456,7 +460,6 @@ public class BenchmarkRunner {
             if (singleAnnotation != null) {
                 checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
                 benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-                LOG.info("added metadata(2) " + singleAnnotation.key() + "=" + singleAnnotation.value());
             }
         }
     }
