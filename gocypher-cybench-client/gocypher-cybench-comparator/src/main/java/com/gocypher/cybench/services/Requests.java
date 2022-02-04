@@ -120,6 +120,7 @@ public class Requests {
                     comparedBenchmark.setDisplayName(name);
                     comparedBenchmark.setMode(mode);
                     comparedBenchmark.setScore(score);
+                    comparedBenchmark.setFingerprint(fingerprint);
                     
                     Map<String, ComparedBenchmark> comparedBenchmarkMap = result.containsKey(fingerprint)
                             ? result.get(fingerprint) : new HashMap<>();

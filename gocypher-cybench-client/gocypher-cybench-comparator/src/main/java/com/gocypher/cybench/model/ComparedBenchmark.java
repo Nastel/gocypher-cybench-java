@@ -29,6 +29,8 @@ public class ComparedBenchmark {
     private String datasetID;
     private Map<String, Object> benchProperties = new HashMap<>();
     private ComparisonConfig comparisonConfig;
+
+    private String fingerprint;
     private String displayName;
     private Double score;
     private String mode;
@@ -85,6 +87,14 @@ public class ComparedBenchmark {
 
     public ComparisonConfig getComparisonConfig() {
         return this.comparisonConfig;
+    }
+
+    public void setFingerprint(String fingerprint) {
+        this.fingerprint = fingerprint;
+    }
+
+    public String getFingerprint() {
+        return fingerprint;
     }
 
     public void setDisplayName(String displayName) {

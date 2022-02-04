@@ -340,11 +340,11 @@ public class CompareBenchmarks {
                 if (compareState.equals(CompareState.PASS)) {
                     logInfo(log.toString(), "PASSED", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getScore(), comparisonConfig.getCompareVersion(),
                         comparisonConfig.getMethod(), comparisonConfig.getRange(), benchmark.getCompareMean(), benchmark.getDelta(), 
-                        benchmark.getPercentChange(), benchmark.getDeviationsFromMean(), benchmark.getBenchProperties().get("generatedFingerprint"));
+                        benchmark.getPercentChange(), benchmark.getDeviationsFromMean(), benchmark.getFingerprint());
                 } else {
                     logErr(log.toString(), "ANOMALY", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getScore(), comparisonConfig.getCompareVersion(),
                         comparisonConfig.getMethod(), comparisonConfig.getRange(), benchmark.getCompareMean(), benchmark.getDelta(), 
-                        benchmark.getPercentChange(), benchmark.getDeviationsFromMean(), benchmark.getBenchProperties().get("generatedFingerprint"));
+                        benchmark.getPercentChange(), benchmark.getDeviationsFromMean(), benchmark.getFingerprint());
                 }
             } else {
                 logInfo("   NO COMPARISON: test.name={}, test.mode={}, test.score={}", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getScore());

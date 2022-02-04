@@ -86,73 +86,37 @@ public final class Comparisons {
         Double deviationsAllowed = comparisonConfig.getDeviationsAllowed();
         Double percentChangeAllowed = comparisonConfig.getPercentChangeAllowed();
 
-        if (method.equals(Method.DELTA)) {
-            if (threshold.equals(Threshold.GREATER)) {
-                state = compareWithDeltaGreater(benchmarkToCompare, benchmarksToCompareAgainst);
-            } else if (threshold.equals(Threshold.PERCENT_CHANGE)) {
-                state = compareWithDeltaPercentChange(benchmarkToCompare, benchmarksToCompareAgainst,
-                        percentChangeAllowed);
-            }
-        } else if (method.equals(Method.SD)) {
-            state = compareWithSD(benchmarkToCompare, benchmarksToCompareAgainst, deviationsAllowed);
-        }
-
-        return state;
-    }
-
-    private static CompareState compareWithDeltaGreater(ComparedBenchmark benchmarkToCompare, List<ComparedBenchmark> benchmarksToCompareAgainst) {
-        if (!benchmarksToCompareAgainst.isEmpty()) {
-            Double score = benchmarkToCompare.getScore();
-            Double compareMean = calculateMean(extractScoresFromComparedBenchmarkList(benchmarksToCompareAgainst));
-            benchmarkToCompare.setCompareMean(compareMean);
-            Double delta = score - compareMean;
-            benchmarkToCompare.setDelta(delta);
-            if (passAssertionPositive(delta)) {
-                return CompareState.PASS;
-            } else {
-                return CompareState.FAIL;
-            }
-        } else {
-            return CompareState.SKIP;
-        }
-    }
-
-    private static CompareState compareWithDeltaPercentChange(ComparedBenchmark benchmarkToCompare, List<ComparedBenchmark> benchmarksToCompareAgainst, Double percentChangeAllowed) {
-        if (!benchmarksToCompareAgainst.isEmpty()) {
-            Double score = benchmarkToCompare.getScore();
-            Double compareMean = calculateMean(extractScoresFromComparedBenchmarkList(benchmarksToCompareAgainst));
-            benchmarkToCompare.setCompareMean(compareMean);
-            Double percentChange = calculatePercentChange(score, compareMean);
-            benchmarkToCompare.setPercentChange(percentChange);
-
-            if (passAssertionPercentage(percentChange, percentChangeAllowed)) {
-                return CompareState.PASS;
-            } else {
-                return CompareState.FAIL;
-            }
-        } else {
-            return CompareState.SKIP;
-        }
-    }
-
-    private static CompareState compareWithSD(ComparedBenchmark benchmarkToCompare, List<ComparedBenchmark> benchmarksToCompareAgainst, Double deviationsAllowed) {
+        
         if (!benchmarksToCompareAgainst.isEmpty()) {
             Double score = benchmarkToCompare.getScore();
             List<Double> compareScores = extractScoresFromComparedBenchmarkList(benchmarksToCompareAgainst);
             Double compareMean = calculateMean(compareScores);
             benchmarkToCompare.setCompareMean(compareMean);
+
+            Double delta = score - compareMean;
+            benchmarkToCompare.setDelta(delta);
+            Double percentChange = calculatePercentChange(score, compareMean);
+            benchmarkToCompare.setPercentChange(percentChange);
             Double compareSD = calculateSD(compareScores, compareMean);
             benchmarkToCompare.setCompareSD(compareSD);
+
             Double deviationsFromMean = calculateDeviationsFromMean(score, compareMean, compareSD);
             benchmarkToCompare.setDeviationsFromMean(deviationsFromMean);
-            if (passAssertionDeviation(deviationsFromMean, deviationsAllowed)) {
-                return CompareState.PASS;
-            } else {
-                return CompareState.FAIL;
+
+            if (method.equals(Method.DELTA)) {
+                if (threshold.equals(Threshold.GREATER)) {
+                    state = passAssertionPositive(delta);
+                } else if (threshold.equals(Threshold.PERCENT_CHANGE)) {
+                    state = passAssertionPercentage(percentChange, percentChangeAllowed);
+                }
+            } else if (method.equals(Method.SD)) {
+                state = passAssertionDeviation(deviationsFromMean, deviationsAllowed);
             }
         } else {
-            return CompareState.SKIP;
+            state = CompareState.SKIP;
         }
+
+        return state;
     }
 
     private static List<Double> extractScoresFromComparedBenchmarkList(List<ComparedBenchmark> comparedBenchmarks) {
@@ -199,16 +163,28 @@ public final class Comparisons {
         return 100 * ((newScore - compareScore) / compareScore);
     }
 
-    private static boolean passAssertionPositive(Double val) {
-        return val >= 0;
+    private static CompareState passAssertionPositive(Double val) {
+        if (val >= 0) {
+            return CompareState.PASS;
+        } else {
+            return CompareState.FAIL;
+        }
     }
 
-    private static boolean passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
-        return Math.abs(deviationsFromMean) < deviationsAllowed;
+    private static CompareState passAssertionDeviation(Double deviationsFromMean, Double deviationsAllowed) {
+        if (Math.abs(deviationsFromMean) < deviationsAllowed) {
+            return CompareState.PASS;
+        } else {
+            return CompareState.FAIL;
+        }
     }
 
-    private static boolean passAssertionPercentage(Double percentChange, Double percentageAllowed) {
-        return Math.abs(percentChange) < percentageAllowed;
+    private static CompareState passAssertionPercentage(Double percentChange, Double percentageAllowed) {
+        if (Math.abs(percentChange) < percentageAllowed) {
+            return CompareState.PASS;
+        } else {
+            return CompareState.FAIL;
+        }
     }
     
     public static Double roundHandling(Double value) {
