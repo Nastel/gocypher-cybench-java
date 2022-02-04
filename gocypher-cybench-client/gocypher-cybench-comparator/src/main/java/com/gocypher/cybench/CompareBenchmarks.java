@@ -50,27 +50,17 @@ public class CompareBenchmarks {
     private static final Logger log = LoggerFactory.getLogger(CompareBenchmarks.class);
 
     private static String accessToken = null;
-        
-    public static int totalComparedBenchmarksTest = 0;
-    public static int totalPassedBenchmarksTest = 0;
-    public static int totalFailedBenchmarksTest = 0;
-    public static int totalSkippedBenchmarksTest = 0;
-    public static List<ComparedBenchmark> comparedBenchmarksTest = new ArrayList<>();
-    public static List<ComparedBenchmark> passedBenchmarksTest = new ArrayList<>();
-    public static List<ComparedBenchmark> failedBenchmarksTest = new ArrayList<>();
-    public static List<ComparedBenchmark> skippedBenchmarksTest = new ArrayList<>();
-
-
-
     private static boolean useScriptConfigForPage = false;
-    public static int totalComparedBenchmarks = 0;
-    public static final Map<String, Map<String, Map<String, Map<String, Object>>>> passedBenchmarks = new HashMap<>();
-    public static int totalPassedBenchmarks = 0;
-    public static final Map<String, Map<String, Map<String, Map<String, Object>>>> skippedBenchmarks = new HashMap<>();
-    public static int totalSkippedBenchmarks = 0;
-    public static final Map<String, Map<String, Map<String, Map<String, Object>>>> failedBenchmarks = new HashMap<>();
-    public static int totalFailedBenchmarks = 0;
     public static boolean failBuildFlag = false;
+        
+    public static int totalComparedBenchmarks = 0;
+    public static int totalPassedBenchmarks = 0;
+    public static int totalFailedBenchmarks = 0;
+    public static int totalSkippedBenchmarks = 0;
+    public static List<ComparedBenchmark> comparedBenchmarks = new ArrayList<>();
+    public static List<ComparedBenchmark> passedBenchmarks = new ArrayList<>();
+    public static List<ComparedBenchmark> failedBenchmarks = new ArrayList<>();
+    public static List<ComparedBenchmark> skippedBenchmarks = new ArrayList<>();
 
     public static void main(String... args) throws Exception {
         logInfo("* Analyzing benchmark performance...");
@@ -160,57 +150,48 @@ public class CompareBenchmarks {
 
     private static void analyzeBenchmarks(File recentReport, Map<String, Object> allConfigs,
             Map<String, String> configuredCategories) throws Exception {
-                // System.out.println("\nCONF ALL: "+allConfigs.toString()+"\n");
-                // System.out.println("\nCONF CATEGORIIES: "+configuredCategories.toString()+"\n");
-                Map<String, Map<String, ComparedBenchmark>> recentBenchmarks = Requests.parseRecentReport(recentReport);
-                // System.out.println("\nRECENT BENCHMAKS: "+recentBenchmarks.toString()+"\n");
-                if (recentBenchmarks != null && Requests.getInstance().getProjectSummary(Requests.project, accessToken)) {
-                    // System.out.println("\nALL PROJECT REPORT SUMMARIES : "+Requests.allProjectReportSummaries.toString()+"\n");
-                    // System.out.println("\nALL PROJECT VERSIONS: "+Requests.allProjectVersions+"\n");
-                    // System.out.println("\nLATEST V: "+Requests.latestVersion+"\n");
-                    // System.out.println("\nPREV V: "+Requests.previousVersion+"\n");
+        Map<String, Map<String, ComparedBenchmark>> recentBenchmarks = Requests.parseRecentReport(recentReport);
+        if (recentBenchmarks != null && Requests.getInstance().getProjectSummary(Requests.project, accessToken)) {
+            for (Map.Entry<String, Map<String, ComparedBenchmark>> benchEntry : recentBenchmarks.entrySet()) {
+                String benchmarkFingerprint = benchEntry.getKey();
+                Map<String, ComparedBenchmark> benchEntryModeMap = benchEntry.getValue();
+                for (Map.Entry<String, ComparedBenchmark> comparedBenchEntry : benchEntryModeMap.entrySet()) {
+                    String mode = comparedBenchEntry.getKey();
+                    ComparedBenchmark benchmarkToCompare = comparedBenchEntry.getValue();
+                    Map<String, Object> configMap = getConfigs(benchmarkToCompare.getDisplayName(), allConfigs, configuredCategories);
+                    if (configMap != null) {
+                        ComparisonConfig comparisonConfig = new ComparisonConfig(configMap);
+                        benchmarkToCompare.setComparisonConfig(comparisonConfig);
+                    }
+                    CompareState compareState = compareSingleBenchmark(benchmarkToCompare, benchmarkFingerprint);
 
-                    for (Map.Entry<String, Map<String, ComparedBenchmark>> benchEntry : recentBenchmarks.entrySet()) {
-                        String benchmarkFingerprint = benchEntry.getKey();
-                        Map<String, ComparedBenchmark> benchEntryModeMap = benchEntry.getValue();
-                        for (Map.Entry<String, ComparedBenchmark> comparedBenchEntry : benchEntryModeMap.entrySet()) {
-                            String mode = comparedBenchEntry.getKey();
-                            ComparedBenchmark benchmarkToCompare = comparedBenchEntry.getValue();
-                            Map<String, Object> configMap = getConfigs(benchmarkToCompare.getDisplayName(), allConfigs, configuredCategories);
-                            if (configMap != null) {
-                                ComparisonConfig comparisonConfig = new ComparisonConfig(configMap);
-                                benchmarkToCompare.setComparisonConfig(comparisonConfig);
-                            }
-                            CompareState compareState = compareSingleBenchmark(benchmarkToCompare, benchmarkFingerprint);
-
-                            totalComparedBenchmarksTest++;
-                            comparedBenchmarksTest.add(benchmarkToCompare);
-                            switch (compareState) {
-                                case PASS: {
-                                    benchmarkToCompare.setCompareState(CompareState.PASS);
-                                    totalPassedBenchmarksTest++;
-                                    passedBenchmarksTest.add(benchmarkToCompare);
-                                    break;
-                                }
-                                case FAIL: {
-                                    benchmarkToCompare.setCompareState(CompareState.FAIL);
-                                    totalFailedBenchmarksTest++;
-                                    failedBenchmarksTest.add(benchmarkToCompare);
-                                    break;
-                                }
-                                case SKIP: {
-                                    benchmarkToCompare.setCompareState(CompareState.SKIP);
-                                    totalSkippedBenchmarksTest++;
-                                    skippedBenchmarksTest.add(benchmarkToCompare);
-                                    break;
-                                }
-                            }
-
+                    totalComparedBenchmarks++;
+                    comparedBenchmarks.add(benchmarkToCompare);
+                    switch (compareState) {
+                        case PASS: {
+                            benchmarkToCompare.setCompareState(CompareState.PASS);
+                            totalPassedBenchmarks++;
+                            passedBenchmarks.add(benchmarkToCompare);
+                            break;
+                        }
+                        case FAIL: {
+                            benchmarkToCompare.setCompareState(CompareState.FAIL);
+                            totalFailedBenchmarks++;
+                            failedBenchmarks.add(benchmarkToCompare);
+                            break;
+                        }
+                        case SKIP: {
+                            benchmarkToCompare.setCompareState(CompareState.SKIP);
+                            totalSkippedBenchmarks++;
+                            skippedBenchmarks.add(benchmarkToCompare);
+                            break;
                         }
                     }
                 }
-                Requests.getInstance().close();
-                logResults();
+            }
+        }
+        Requests.getInstance().close();
+        logResults();
     }
 
     private static CompareState compareSingleBenchmark(ComparedBenchmark benchmarkToCompare, String benchmarkFingerprint) {
@@ -269,7 +250,7 @@ public class CompareBenchmarks {
                     
                 }
 
-                return Comparisons.runComparison(benchmarkToCompare, benchmarksToCompareAgainst);
+                return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst);
 
             } else {
                 logWarn("SKIP COMPARISON - {} : mode={} - There are no reports for {}, version {}", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.project, compareVersion);
@@ -281,14 +262,24 @@ public class CompareBenchmarks {
         }
     }
 
+    // TODO for the UI to call
+    private static Map<String, Object> compareAllBenchmarks(ComparisonConfig comparisonConfig,
+            Map<String, Map<String, ComparedBenchmark>> benchmarksToCompare,
+            Map<String, Map<String, List<ComparedBenchmark>>> benchmarksToCompareAgainst) {
+        Map<String, Object> resultMap = new HashMap<>();
+
+
+        return resultMap;
+    }
+
     public static void logResults() throws Exception {
         System.out.print("\n\n");
         logInfo("Comparing {}, version {}", Requests.project, Requests.currentVersion);
-        logInfo("compared={}, passed={}, (skipped={}), anomalies={}", totalComparedBenchmarksTest, totalPassedBenchmarksTest,
-                totalSkippedBenchmarksTest, totalFailedBenchmarksTest);
+        logInfo("compared={}, passed={}, (skipped={}), anomalies={}", totalComparedBenchmarks, totalPassedBenchmarks,
+                totalSkippedBenchmarks, totalFailedBenchmarks);
         System.out.print("\n");
         logComparison();
-        if (totalFailedBenchmarksTest > 0) {
+        if (totalFailedBenchmarks > 0) {
             logWarn("* There are benchmark comparison failures! *");
             if (failBuildFlag) {
                 String error = "* Build failed due to benchmark anomalies *";
@@ -301,19 +292,19 @@ public class CompareBenchmarks {
     }
 
     private static void logComparison() {
-        if (totalPassedBenchmarksTest > 0) {
-            logInfo("** {}/{} benchmarks PASSED:", totalPassedBenchmarksTest, totalComparedBenchmarksTest);
-            printComparedBenchmarks(CompareState.PASS, passedBenchmarksTest, totalPassedBenchmarksTest);
+        if (totalPassedBenchmarks > 0) {
+            logInfo("** {}/{} benchmarks PASSED:", totalPassedBenchmarks, totalComparedBenchmarks);
+            printComparedBenchmarks(CompareState.PASS, passedBenchmarks, totalPassedBenchmarks);
         }
         System.out.print("\n");
-        if (totalSkippedBenchmarksTest > 0) {
-            logInfo("** {}/{} benchmarks SKIPPED:", totalSkippedBenchmarksTest, totalComparedBenchmarksTest);
-            printComparedBenchmarks(CompareState.SKIP, skippedBenchmarksTest, totalSkippedBenchmarksTest);
+        if (totalSkippedBenchmarks > 0) {
+            logInfo("** {}/{} benchmarks SKIPPED:", totalSkippedBenchmarks, totalComparedBenchmarks);
+            printComparedBenchmarks(CompareState.SKIP, skippedBenchmarks, totalSkippedBenchmarks);
         }
         System.out.print("\n");
-        if (totalFailedBenchmarksTest > 0) {
-            logInfo("** {}/{} benchmark ANOMALIES:", totalFailedBenchmarksTest, totalComparedBenchmarksTest);
-            printComparedBenchmarks(CompareState.FAIL, failedBenchmarksTest, totalFailedBenchmarksTest);
+        if (totalFailedBenchmarks > 0) {
+            logInfo("** {}/{} benchmark ANOMALIES:", totalFailedBenchmarks, totalComparedBenchmarks);
+            printComparedBenchmarks(CompareState.FAIL, failedBenchmarks, totalFailedBenchmarks);
         }
         System.out.print("\n");
         logInfo("* Completed benchmark analysis\n");

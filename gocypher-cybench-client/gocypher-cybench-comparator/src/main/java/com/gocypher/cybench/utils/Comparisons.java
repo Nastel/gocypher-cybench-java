@@ -77,7 +77,7 @@ public final class Comparisons {
         return resultMap;
     }
 
-    public static CompareState runComparison(ComparedBenchmark benchmarkToCompare, List<ComparedBenchmark> benchmarksToCompareAgainst) {
+    public static CompareState runSingleComparison(ComparedBenchmark benchmarkToCompare, List<ComparedBenchmark> benchmarksToCompareAgainst) {
         
         CompareState state = null;
         ComparisonConfig comparisonConfig = benchmarkToCompare.getComparisonConfig();

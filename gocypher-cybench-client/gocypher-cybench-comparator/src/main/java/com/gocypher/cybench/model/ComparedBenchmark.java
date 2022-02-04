@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class ComparedBenchmark {
     public static enum CompareState {
-        RUNNING, PASS, FAIL, SKIP
+        PASS, FAIL, SKIP
     }
 
     private String datasetID;
