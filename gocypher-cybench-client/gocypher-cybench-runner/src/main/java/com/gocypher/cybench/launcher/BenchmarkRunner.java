@@ -240,9 +240,9 @@ public class BenchmarkRunner {
 
         LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
 
-        for (String s : report.getBenchmarks().keySet()) {
-            List<BenchmarkReport> custom = new ArrayList<>(report.getBenchmarks().get(s));
-            custom.forEach(benchmarkReport -> {
+        for (Map.Entry<String, List<BenchmarkReport>> benchmarksEntry : report.getBenchmarks().entrySet()) {
+            List<BenchmarkReport> benchmarks = benchmarksEntry.getValue();
+            benchmarks.forEach(benchmarkReport -> {
                 String name = benchmarkReport.getName();
                 benchmarkReport.setClassFingerprint(classFingerprints.get(name));
                 benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
@@ -258,7 +258,6 @@ public class BenchmarkRunner {
                     appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
                     benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
-                    LOG.info("Placed Runner Version");
                     try {
                         if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                             report.setProject(benchmarkReport.getProject());
@@ -273,7 +272,22 @@ public class BenchmarkRunner {
                         } else {
                             LOG.info("* Project version metadata not defined, grabbing it from build files...");
                             report.setProjectVersion(getMetadataFromBuildFile("version")); // default
+                            
                             benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
+                        }
+
+                        if (StringUtils.isEmpty(benchmarkReport.getVersion())) {
+                            benchmarkReport.setVersion(getMetadataFromBuildFile("version"));
+                        }
+
+                        if (StringUtils.isEmpty(report.getBenchmarkSessionId())) {
+                            Map<String, String> bMetadata = benchmarkReport.getMetadata();
+                            if (bMetadata != null) {
+                                String sessionId = bMetadata.get("benchSession");
+                                if (StringUtils.isNotEmpty(sessionId)) {
+                                    report.setBenchmarkSessionId(sessionId);
+                                }
+                            }
                         }
                     } catch (Exception e) {
                         LOG.error("Error while attempting to setProject from runner: ", e);
@@ -308,9 +322,9 @@ public class BenchmarkRunner {
                 String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
                 responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, tokenAndEmail);
                 response = JSONUtils.parseJsonIntoMap(responseWithUrl);
-                if (!response.containsKey("ERROR") && StringUtils.isNotEmpty(responseWithUrl)) {
-                    deviceReports = response.get(Constants.REPORT_USER_URL).toString();
-                    resultURL = response.get(Constants.REPORT_URL).toString();
+                if (!response.containsKey("error") && StringUtils.isNotEmpty(responseWithUrl)) {
+                    deviceReports = String.valueOf(response.get(Constants.REPORT_USER_URL));
+                    resultURL = String.valueOf(response.get(Constants.REPORT_URL));
                     report.setDeviceReportsURL(deviceReports);
                     report.setReportURL(resultURL);
                 }
@@ -337,13 +351,13 @@ public class BenchmarkRunner {
             LOG.info("Removing all temporary auto-generated files....");
             IOUtils.removeTestDataFiles();
             LOG.info("Removed all temporary auto-generated files!!!");
-            if (!response.containsKey("ERROR") && StringUtils.isNotEmpty(responseWithUrl)) {
+            if (!response.containsKey("error") && StringUtils.isNotEmpty(responseWithUrl)) {
                 LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
                 LOG.info("You can find all device benchmarks on {}", deviceReports);
                 LOG.info("Your report is available at {}", resultURL);
                 LOG.info("NOTE: It may take a few minutes for your report to appear online");
             } else {
-                LOG.info((String) response.get("ERROR"));
+                LOG.info((String) response.get("error"));
                 LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
         } catch (Exception e) {
@@ -446,7 +460,6 @@ public class BenchmarkRunner {
             if (singleAnnotation != null) {
                 checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
                 benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
-                LOG.info("added metadata(2) " + singleAnnotation.key() + "=" + singleAnnotation.value());
             }
         }
     }

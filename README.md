@@ -2,9 +2,9 @@
 
 -----------------------
 **NOTE:** CyBench services moved to dedicated host `https://app.cybench.io` from previous `https://www.gocypher.com/`. 
-This change is reflected in CyBench client version `1.3.0`. For previous versions, set Java System Property 
+This change is reflected in CyBench client version `1.3.1`. For previous versions, set Java System Property 
 `sendReportToURL` when running CyBench Launcher:
-```
+```cmd
 -DsendReportToURL=https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/report
 ```
 -----------------------
@@ -19,11 +19,10 @@ CyBench Launcher contains a set of default performance tests developed by the Cy
 services. These tests are executed by default every time CyBench benchmarks are executed via `cybench` shell script and
 results are automatically submitted to a public [CyBench Repository](https://app.cybench.io).
 
-Default benchmark execution and automated reporting can be configured
-via `<cybench-home>/conf/cybench-launcher.properties`
-Download and run CyBench [here](https://github.com/K2NIO/cybench-java-benchmarks/releases). Visit
-our [page](https://app.cybench.io)
-to analyze your results.
+Default benchmark execution and automated reporting can be configured via 
+`<cybench-home>/conf/cybench-launcher.properties`. Download and run CyBench 
+[here](https://github.com/K2NIO/cybench-java-benchmarks/releases). Visit our [page](https://app.cybench.io) to analyze 
+your results.
 
 ## Running User-defined Benchmarks using CyBench Launcher
 
@@ -35,18 +34,18 @@ to analyze your results.
     <dependency>
         <groupId>org.openjdk.jmh</groupId>
         <artifactId>jmh-generator-annprocess</artifactId>
-        <version>1.33</version>
+        <version>1.34</version>
         <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.openjdk.jmh</groupId>
         <artifactId>jmh-core</artifactId>
-        <version>1.33</version>
+        <version>1.34</version>
     </dependency>
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-runner</artifactId>
-        <version>1.3.0</version>
+        <version>1.3.1</version>
     </dependency>
 </dependencies>
 ```
@@ -144,4 +143,4 @@ Update CyBench configuration in order to run only user-defined tests:
 Java app comparing most recently ran CyBench benchmarks to previously ran benchmarks hosted on the CyBench site.
 
 See [gocypher-cybench-comparator](gocypher-cybench-client/gocypher-cybench-comparator) [readme](gocypher-cybench-client/gocypher-cybench-comparator/README.md)
-file for usage details. 
+file for usage details.

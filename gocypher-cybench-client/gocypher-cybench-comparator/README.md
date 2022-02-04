@@ -13,14 +13,14 @@ Dependencies for your project:
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
         <artifactId>gocypher-cybench-comparator</artifactId>
-        <version>1.3.0</version>
+        <version>1.3.1</version>
         <scope>test</scope>
     </dependency>
     ```
 
 * Gradle:
     ```groovy
-    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0'
+    runtime 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.1'
     ```
 
 ## Running Cybench Comparator
@@ -48,7 +48,7 @@ java -jar gocypher-cybench-comparator.jar [args]
                     <dependency>
                         <groupId>com.gocypher.cybench.client</groupId>
                         <artifactId>gocypher-cybench-comparator</artifactId>
-                        <version>1.3.0</version>
+                        <version>1.3.1</version>
                         <scope>test</scope>
                     </dependency>
                 </dependencies>
@@ -89,7 +89,7 @@ java -jar gocypher-cybench-comparator.jar [args]
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>exec-maven-plugin</artifactId>
                             <version>3.0.0</version>
-                            <executions>    
+                            <executions>
                                 <!-- @@@ Compare benchmarks @@@ -->
                                 <execution>
                                     <id>compare-benchmarks</id>
@@ -151,7 +151,7 @@ java -jar gocypher-cybench-comparator.jar [args]
         // ...
         dependencies {
             // ...
-            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0'
+            cybenchComparator 'com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.1'
         }
         // ...
         task compareBenchmarks(type: JavaExec) {
@@ -179,7 +179,7 @@ java -jar gocypher-cybench-comparator.jar [args]
         // ...
         dependencies {
           // ...
-          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.0")
+          cybenchComparator ("com.gocypher.cybench.client:gocypher-cybench-comparator:1.3.1")
         }
         // ...
 
