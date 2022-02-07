@@ -212,7 +212,6 @@ public class ReportingService {
             } else {
                 benchmarkProperties.put("benchCategory", "CUSTOM");
                 benchmarkProperties.put("benchContext", "Custom");
-                
             }
             return benchmarkProperties;
         } catch (Exception e) {
@@ -241,7 +240,6 @@ public class ReportingService {
                 }
             } else {
                 benchmarkProperties.put("benchContext", "Custom");
-                
             }
             return benchmarkProperties;
         } catch (Exception e) {
