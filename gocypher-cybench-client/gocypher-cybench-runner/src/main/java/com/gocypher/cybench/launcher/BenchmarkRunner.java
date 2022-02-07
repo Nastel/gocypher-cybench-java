@@ -670,7 +670,7 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
     }
 
-    private static String getMetadataFromBuildFile(String prop) {
+    public static String getMetadataFromBuildFile(String prop) {
         String property = "";
         String temp2 = System.getProperty("user.dir");
         File gradle = new File(temp2 + "/build.gradle");
