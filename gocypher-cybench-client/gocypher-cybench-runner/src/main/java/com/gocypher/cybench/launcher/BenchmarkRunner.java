@@ -272,7 +272,6 @@ public class BenchmarkRunner {
                         } else {
                             LOG.info("* Project version metadata not defined, grabbing it from build files...");
                             report.setProjectVersion(getMetadataFromBuildFile("version")); // default
-                            
                             benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
                         }
 
