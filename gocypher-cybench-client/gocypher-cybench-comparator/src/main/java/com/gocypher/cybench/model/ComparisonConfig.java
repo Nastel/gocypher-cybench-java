@@ -53,9 +53,13 @@ public class ComparisonConfig {
     }
 
     public ComparisonConfig(Map<String, Object> configs) {
-        setScope((Scope) configs.get("scope"));
-        setMethod((Method) configs.get("method"));
-        setThreshold((Threshold) configs.get("threshold"));
+        String scope = (String) configs.get("scope");
+        String method = (String) configs.get("method");
+        String threshold = (String) configs.get("threshold");
+        setScope(Scope.valueOf(scope));
+        setMethod(Method.valueOf(method));
+        setThreshold(Threshold.valueOf(threshold));
+
         setRange((String) configs.get("range"));
         setProjectName((String) configs.get("projectName"));
         setProjectVersion((String) configs.get("projectVersion"));

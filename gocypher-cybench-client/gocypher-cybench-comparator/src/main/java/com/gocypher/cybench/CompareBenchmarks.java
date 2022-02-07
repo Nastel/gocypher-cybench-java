@@ -21,6 +21,8 @@ package com.gocypher.cybench;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -262,13 +264,12 @@ public class CompareBenchmarks {
         }
     }
 
-    // TODO for the UI to call
-    private static Map<String, Object> compareAllBenchmarks(ComparisonConfig comparisonConfig,
+    public static Map<String, Object> compareAllBenchmarks(ComparisonConfig comparisonConfig,
             Map<String, Map<String, ComparedBenchmark>> benchmarksToCompare,
             Map<String, Map<String, List<ComparedBenchmark>>> benchmarksToCompareAgainst) {
         Map<String, Object> resultMap = new HashMap<>();
-
-
+        resultMap = Comparisons.runComparison(comparisonConfig, benchmarksToCompare, benchmarksToCompareAgainst);
+        resultMap.put("timestampUTC", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toString());
         return resultMap;
     }
 

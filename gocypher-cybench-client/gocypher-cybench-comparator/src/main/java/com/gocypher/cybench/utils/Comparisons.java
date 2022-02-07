@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import com.gocypher.cybench.model.ComparedBenchmark;
 import com.gocypher.cybench.model.ComparedBenchmark.CompareState;
 import com.gocypher.cybench.model.ComparisonConfig;
-import com.gocypher.cybench.model.ComparisonConfig.Scope;
 import com.gocypher.cybench.model.ComparisonConfig.Method;
 import com.gocypher.cybench.model.ComparisonConfig.Threshold;
 
@@ -41,39 +40,96 @@ public final class Comparisons {
     private Comparisons() {
     }
 
-    public static Map<String, Object> runComparison(Map<String, Object> configMap,
-            Map<String, Map<String, ComparedBenchmark>> projectVersionBenchmarks,
-            Map<String, Map<String, List<ComparedBenchmark>>> compareVersionBenchmarks) {
+    // TODO can maybe simplify by calling runSingleComparison
+    public static Map<String, Object> runComparison(ComparisonConfig comparisonConfig,
+            Map<String, Map<String, ComparedBenchmark>> benchmarksToCompare,
+            Map<String, Map<String, List<ComparedBenchmark>>> benchmarksToCompareAgainst) {
         Map<String, Object> resultMap = new HashMap<>();
 
-        
-        Method method = (Method) configMap.get(ConfigHandling.METHOD);
-        Threshold threshold = (Threshold) configMap.get(ConfigHandling.THRESHOLD);
-        Number deviationsAllowedNum = (Number) configMap.get(ConfigHandling.DEVIATIONS_ALLOWED);
-        Number percentChangeAllowedNum = (Number) configMap.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
-        Double deviationsAllowed = null;
-        Double percentChangeAllowed = null;
+        Method method = comparisonConfig.getMethod();
+        Threshold threshold = comparisonConfig.getThreshold();
+        Double deviationsAllowed = comparisonConfig.getDeviationsAllowed();
+        Double percentChangeAllowed = comparisonConfig.getPercentChangeAllowed();
 
-        if (deviationsAllowedNum != null) {
-            deviationsAllowed = deviationsAllowedNum.doubleValue();
+        int totalComparedBenchmarks = 0;
+        int totalPassedBenchmarks = 0;
+        int totalFailedBenchmarks = 0;
+        int totalSkippedBenchmarks = 0;
+        List<ComparedBenchmark> comparedBenchmarks = new ArrayList<>();
+        List<ComparedBenchmark> passedBenchmarks = new ArrayList<>();
+        List<ComparedBenchmark> failedBenchmarks = new ArrayList<>();
+        List<ComparedBenchmark> skippedBenchmarks = new ArrayList<>();
+
+
+        for (Map.Entry<String, Map<String, ComparedBenchmark>> benchmarksToCompareEntry : benchmarksToCompare.entrySet()) {
+            String fingerprint = benchmarksToCompareEntry.getKey();
+            Map<String, ComparedBenchmark> benchmarksByMode = benchmarksToCompareEntry.getValue();
+            for (Map.Entry<String, ComparedBenchmark> benchmarksByModeEntry : benchmarksByMode.entrySet()) {
+                String mode = benchmarksByModeEntry.getKey();
+                ComparedBenchmark benchmarkToCompare = benchmarksByModeEntry.getValue();
+                Double score = benchmarkToCompare.getScore();
+
+                if (benchmarksToCompareAgainst.containsKey(fingerprint)) {
+                    if (benchmarksToCompareAgainst.get(fingerprint).containsKey(mode)) {
+                        List<Double> compareScores = extractScoresFromComparedBenchmarkList(
+                            benchmarksToCompareAgainst.get(fingerprint).get(mode));
+                        Double compareMean = calculateMean(compareScores);
+                        benchmarkToCompare.setCompareMean(compareMean);
+
+                        Double delta = score - compareMean;
+                        benchmarkToCompare.setDelta(delta);
+                        Double percentChange = calculatePercentChange(score, compareMean);
+                        benchmarkToCompare.setPercentChange(percentChange);
+                        Double compareSD = calculateSD(compareScores, compareMean);
+                        benchmarkToCompare.setCompareSD(compareSD);
+
+                        Double deviationsFromMean = calculateDeviationsFromMean(score, compareMean, compareSD);
+                        benchmarkToCompare.setDeviationsFromMean(deviationsFromMean);
+                        
+                        CompareState compareState = null;
+                        if (method.equals(Method.DELTA)) {
+                            if (threshold.equals(Threshold.GREATER)) {
+                                compareState = passAssertionPositive(delta);
+                            } else if (threshold.equals(Threshold.PERCENT_CHANGE)) {
+                                compareState = passAssertionPercentage(percentChange, percentChangeAllowed);
+                            }
+                        } else if (method.equals(Method.SD)) {
+                            compareState = passAssertionDeviation(deviationsFromMean, deviationsAllowed);
+                        }
+
+                        if (compareState == CompareState.PASS) {
+                            totalPassedBenchmarks++;
+                            benchmarkToCompare.setCompareState(CompareState.PASS);
+                            passedBenchmarks.add(benchmarkToCompare);
+                        } else if (compareState == CompareState.FAIL) {
+                            totalFailedBenchmarks++;
+                            benchmarkToCompare.setCompareState(CompareState.FAIL);
+                            failedBenchmarks.add(benchmarkToCompare);
+                        }
+                    } else {
+                        totalSkippedBenchmarks++;
+                        benchmarkToCompare.setCompareState(CompareState.SKIP);
+                        skippedBenchmarks.add(benchmarkToCompare);
+                    }
+                } else {
+                    totalSkippedBenchmarks++;
+                    benchmarkToCompare.setCompareState(CompareState.SKIP);
+                    skippedBenchmarks.add(benchmarkToCompare);
+                }
+
+                totalComparedBenchmarks++;
+                comparedBenchmarks.add(benchmarkToCompare);
+            }
         }
-        if (percentChangeAllowedNum != null) {
-            percentChangeAllowed = percentChangeAllowedNum.doubleValue();
-        }
 
-        // if (method.equals(Method.DELTA)) {
-        //     if (threshold.equals(Threshold.GREATER)) {
-        //         resultMap = compareWithDeltaGreater(projectVersionBenchmarks, compareVersionBenchmarks,
-        //                 percentChangeAllowed);
-        //     } else if (threshold.equals(PERCENT_CHANGE)) {
-        //         resultMap = compareWithDeltaPercentChange(projectVersionBenchmarks, compareVersionBenchmarks,
-        //                 percentChangeAllowed);
-        //     }
-        // } else if (method.equals(SD)) {
-        //     resultMap = compareWithSD(projectVersionBenchmarks, compareVersionBenchmarks, deviationsAllowed);
-        // }
-
-        // resultMap.put("timestampUTC", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toString());
+        resultMap.put("totalComparedBenchmarks", totalComparedBenchmarks);
+        resultMap.put("totalPassedBenchmarks", totalPassedBenchmarks);
+        resultMap.put("totalFailedBenchmarks", totalFailedBenchmarks);
+        resultMap.put("totalSkippedBenchmarks", totalSkippedBenchmarks);
+        resultMap.put("comparedBenchmarks", comparedBenchmarks);
+        resultMap.put("passedBenchmarks", passedBenchmarks);
+        resultMap.put("failedBenchmarks", failedBenchmarks);
+        resultMap.put("skippedBenchmarks", skippedBenchmarks);
         return resultMap;
     }
 
