@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,13 +225,13 @@ public class CompareBenchmarks {
             
             if (Requests.allProjectVersions.contains(compareVersion)) {
                 int range;
-                int maxRange = Requests.allProjectReportSummaries.get(compareVersion).size();
+                int maxRange = Requests.reportSummaries.get(compareVersion).size();
                 if (compareRange.equals("ALL")) {
                     range = maxRange;
                 } else {
                     range = Integer.parseInt(compareRange);
                     if (range > maxRange) {
-                        logWarn("SKIP COMPARISON - {} : mode={} - There are not enough values to compare to in version={} with specific range={}",
+                        logWarn("SKIP COMPARISON - {} : mode={} - There are not enough reports to compare to in version={} with specific range={}",
                                 benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, range);
                         return CompareState.SKIP;
                     }
@@ -240,16 +241,27 @@ public class CompareBenchmarks {
 
 
                 List<ComparedBenchmark> benchmarksToCompareAgainst = new ArrayList<>();
-                for (int i=0; i < range; i++) {
-                    String reportID = (String) Requests.allProjectReportSummaries.get(compareVersion).get(i).get("reportId");
-                    if (!Requests.fetchedBenchmarks.containsKey(reportID)) {
-                        Requests.getInstance().getBenchmarksInReport(reportID, accessToken);
+                int added = 0;
+                for (int i=0; i < Requests.reportSummaries.get(compareVersion).size() && added < range; i++) {
+                    String reportID = (String) Requests.reportSummaries.get(compareVersion).get(i).get("reportId");
+                    Number timestampNum = (Number) Requests.reportSummaries.get(compareVersion).get(i).get("timestamp");
+                    Date reportDateTime = new Date(timestampNum.longValue() / 1000);
+                    if (reportID != Requests.recentReportID && Requests.recentReportDateTime.compareTo(reportDateTime) != 0) {
+                        if (!Requests.fetchedBenchmarks.containsKey(reportID)) {
+                            Requests.getInstance().getBenchmarksInReport(reportID, accessToken);
+                        }
+                        Map<String, List<ComparedBenchmark>> benchmaksInReportWithSameFingerprint = Requests.fetchedBenchmarks.get(reportID).get(benchmarkFingerprint);
+                        if (benchmaksInReportWithSameFingerprint.containsKey(benchmarkToCompare.getMode())) {
+                            benchmarksToCompareAgainst.addAll(benchmaksInReportWithSameFingerprint.get(benchmarkToCompare.getMode()));
+                            added++;
+                        }
                     }
-                    Map<String, List<ComparedBenchmark>> benchmaksInReportWithSameFingerprint = Requests.fetchedBenchmarks.get(reportID).get(benchmarkFingerprint);
-                    if (benchmaksInReportWithSameFingerprint.containsKey(benchmarkToCompare.getMode())) {
-                        benchmarksToCompareAgainst.addAll(benchmaksInReportWithSameFingerprint.get(benchmarkToCompare.getMode()));
-                    }
-                    
+                }
+
+                if (benchmarksToCompareAgainst.size() == 0) {
+                    logWarn("SKIP COMPARISON - {} : mode={} - There are not enough benchmarks to compare to in version={} with specific range={}",
+                                benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, range);
+                        return CompareState.SKIP;
                 }
 
                 return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst);

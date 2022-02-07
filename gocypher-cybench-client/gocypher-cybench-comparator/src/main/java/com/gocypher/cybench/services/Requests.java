@@ -53,9 +53,14 @@ public class Requests {
     public static String currentVersion = null;
     public static String latestVersion = null;
     public static String previousVersion = null;
+
+    // recent report identifiers
+    public static String recentReportID = null;
+    public static Date recentReportDateTime = null;
+    
     public static ArrayList<String> allProjectVersions = new ArrayList<>();
     // version: list of reports
-    public static Map<String, ArrayList<Map<String, Object>>> allProjectReportSummaries = new HashMap<>();
+    public static Map<String, ArrayList<Map<String, Object>>> reportSummaries = new HashMap<>();
     // <ReportID: <Benchmark Fingerprint : <Mode : List<ComparedBenchmark>>>>>
     public static Map<String, Map<String, Map<String, List<ComparedBenchmark>>>> fetchedBenchmarks = new HashMap<>();
 
@@ -100,6 +105,9 @@ public class Requests {
                 String[] parsedURL = reportURL.split(benchmarkBaseUrl);
                 reportID = parsedURL[1].split("/")[0];
             }
+            recentReportID = reportID;
+            Number timestampNum = (Number) report.get("timestamp");
+            recentReportDateTime = new Date(timestampNum.longValue());
             project = (String) report.get("project");
             currentVersion = (String) report.get("projectVersion");
             JSONObject categories = (JSONObject) report.get("benchmarks");
@@ -154,7 +162,7 @@ public class Requests {
                 latestVersion = (String) projectSummary.get("latestVersion");
                 previousVersion = (String) projectSummary.get("previousVersion");
                 allProjectVersions = (ArrayList<String>) projectSummary.get("versions");
-                allProjectReportSummaries = (Map<String, ArrayList<Map<String, Object>>>) projectSummary.get("reports");
+                reportSummaries = (Map<String, ArrayList<Map<String, Object>>>) projectSummary.get("reports");
             } catch (Exception e) {
                 log.error("* Failed to fetch project data for " + projectName, e);
                 return false;
