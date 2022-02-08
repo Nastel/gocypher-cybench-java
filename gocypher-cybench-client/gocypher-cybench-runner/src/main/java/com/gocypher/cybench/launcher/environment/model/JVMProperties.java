@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021, K2N.IO.
+ * Copyright (C) 2020-2022, K2N.IO.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -210,27 +210,26 @@ public class JVMProperties {
 
     @Override
     public String toString() {
-        return "JVMProperties{" +System.getProperty("line.separator") +
-                    "   jvmMemoryInitialMB : " + jvmMemoryInitialMB + ","+System.getProperty("line.separator") +
-                    "   jvmMemoryUsedHeapMB : " + jvmMemoryUsedHeapMB + ","+System.getProperty("line.separator") +
-                    "   jvmMemoryMaxHeapMB : " + jvmMemoryMaxHeapMB + ","+System.getProperty("line.separator") +
-                    "   jvmMemoryCommittedMB : " + jvmMemoryCommittedMB + ","+System.getProperty("line.separator") +
-                    "   jvmUserJavaHome : " + jvmUserJavaHome + ","+System.getProperty("line.separator") +
-                    "   jvmUserLanguage : " + jvmUserLanguage + ","+System.getProperty("line.separator") +
-                    "   jvmUserBootLibraryPath : " + jvmUserBootLibraryPath + ","+System.getProperty("line.separator") +
-                    "   jvmVmVersion : " + jvmVmVersion + ","+System.getProperty("line.separator") +
-                    "   jvmVmInfo : " + jvmVmInfo + ","+System.getProperty("line.separator") +
-                    "   jvmVmName : " + jvmVmName + ","+System.getProperty("line.separator") +
-                    "   jvmVendorURL : " + jvmVendorURL + ","+System.getProperty("line.separator") +
-                    "   jvmVendor : " + jvmVendor + ","+System.getProperty("line.separator") +
-                    "   jvmRuntimeName : " + jvmRuntimeName + ","+System.getProperty("line.separator") +
-                    "   jvmRuntimeVersion : " + jvmRuntimeVersion + ","+System.getProperty("line.separator") +
-                    "   jvmJavaClassVersion : " + jvmJavaClassVersion + ","+System.getProperty("line.separator") +
-                    "   jvmJavaVersion : " + jvmJavaVersion + ","+System.getProperty("line.separator") +
-                    "   jvmJavaSpecificationName : " + jvmJavaSpecificationName + ","+System.getProperty("line.separator") +
-                    "   jvmOtherEncoding  : " + jvmOtherEncoding  + ","+System.getProperty("line.separator") +
-                    "   jvmOtherIOUnicodeEncoding : " + jvmOtherIOUnicodeEncoding + System.getProperty("line.separator")  +
-                    "   jvmOtherManagementCompiler : " + jvmOtherManagementCompiler + System.getProperty("line.separator")  +
-                '}';
+        return "JVMProperties{" + System.getProperty("line.separator") + "   jvmMemoryInitialMB : " + jvmMemoryInitialMB
+                + "," + System.getProperty("line.separator") + "   jvmMemoryUsedHeapMB : " + jvmMemoryUsedHeapMB + ","
+                + System.getProperty("line.separator") + "   jvmMemoryMaxHeapMB : " + jvmMemoryMaxHeapMB + ","
+                + System.getProperty("line.separator") + "   jvmMemoryCommittedMB : " + jvmMemoryCommittedMB + ","
+                + System.getProperty("line.separator") + "   jvmUserJavaHome : " + jvmUserJavaHome + ","
+                + System.getProperty("line.separator") + "   jvmUserLanguage : " + jvmUserLanguage + ","
+                + System.getProperty("line.separator") + "   jvmUserBootLibraryPath : " + jvmUserBootLibraryPath + ","
+                + System.getProperty("line.separator") + "   jvmVmVersion : " + jvmVmVersion + ","
+                + System.getProperty("line.separator") + "   jvmVmInfo : " + jvmVmInfo + ","
+                + System.getProperty("line.separator") + "   jvmVmName : " + jvmVmName + ","
+                + System.getProperty("line.separator") + "   jvmVendorURL : " + jvmVendorURL + ","
+                + System.getProperty("line.separator") + "   jvmVendor : " + jvmVendor + ","
+                + System.getProperty("line.separator") + "   jvmRuntimeName : " + jvmRuntimeName + ","
+                + System.getProperty("line.separator") + "   jvmRuntimeVersion : " + jvmRuntimeVersion + ","
+                + System.getProperty("line.separator") + "   jvmJavaClassVersion : " + jvmJavaClassVersion + ","
+                + System.getProperty("line.separator") + "   jvmJavaVersion : " + jvmJavaVersion + ","
+                + System.getProperty("line.separator") + "   jvmJavaSpecificationName : " + jvmJavaSpecificationName
+                + "," + System.getProperty("line.separator") + "   jvmOtherEncoding  : " + jvmOtherEncoding + ","
+                + System.getProperty("line.separator") + "   jvmOtherIOUnicodeEncoding : " + jvmOtherIOUnicodeEncoding
+                + System.getProperty("line.separator") + "   jvmOtherManagementCompiler : " + jvmOtherManagementCompiler
+                + System.getProperty("line.separator") + '}';
     }
 }
