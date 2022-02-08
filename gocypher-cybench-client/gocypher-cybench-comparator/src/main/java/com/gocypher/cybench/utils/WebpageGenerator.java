@@ -32,7 +32,6 @@ import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -382,32 +381,21 @@ public class WebpageGenerator {
     }
 
     private static void changeVersion() {
-        List<String> names = new ArrayList<>();
         if (!CompareBenchmarks.passedBenchmarks.isEmpty()) {
-            for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
-                    .entrySet()) {
-                String tempName = benchmark.getKey();
-                names.add(tempName);
-            }
-            for (String pName : names) {
-                String tempFingerprint = Requests.namesToFingerprints.get(pName);
-                version = Requests.getCurrentVersion(tempFingerprint);
-            }
+            setVersionFromBenchmarks(CompareBenchmarks.passedBenchmarks);
         } else if (!CompareBenchmarks.failedBenchmarks.isEmpty()) {
-            for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.failedBenchmarks
-                    .entrySet()) {
-                String tempName = benchmark.getKey();
-                names.add(tempName);
-            }
-            for (String fName : names) {
-                String tempFPrint = Requests.namesToFingerprints.get(fName);
-                version = Requests.getCurrentVersion(tempFPrint);
-            }
-
-        }
-
-        else {
+            setVersionFromBenchmarks(CompareBenchmarks.failedBenchmarks);
+        } else {
             log.error("* Error while attempting to grab current version from Passed/Failed Benchmarks map");
+        }
+    }
+
+    private static void setVersionFromBenchmarks(
+            Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks) {
+        for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : benchmarks.entrySet()) {
+            String tempName = benchmark.getKey();
+            String tempFingerprint = Requests.namesToFingerprints.get(tempName);
+            version = Requests.getCurrentVersion(tempFingerprint);
         }
     }
 
