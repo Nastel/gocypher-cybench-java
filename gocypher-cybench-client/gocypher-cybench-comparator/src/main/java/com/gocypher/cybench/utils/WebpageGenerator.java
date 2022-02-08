@@ -32,7 +32,6 @@ import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -44,37 +43,37 @@ import com.gocypher.cybench.services.Requests;
 
 // TODO NEEDS PATCH
 public class WebpageGenerator {
-    private static final Logger log = LoggerFactory.getLogger(WebpageGenerator.class);
+    // private static final Logger log = LoggerFactory.getLogger(WebpageGenerator.class);
 
-    String passed = String.valueOf(CompareBenchmarks.totalPassedBenchmarks);
-    String failed = String.valueOf(CompareBenchmarks.totalFailedBenchmarks);
-    String total = String.valueOf(CompareBenchmarks.totalComparedBenchmarks);
-    String skipped = String.valueOf(CompareBenchmarks.totalSkippedBenchmarks);
+    // String passed = String.valueOf(CompareBenchmarks.totalPassedBenchmarks);
+    // String failed = String.valueOf(CompareBenchmarks.totalFailedBenchmarks);
+    // String total = String.valueOf(CompareBenchmarks.totalComparedBenchmarks);
+    // String skipped = String.valueOf(CompareBenchmarks.totalSkippedBenchmarks);
 
-    static String version = "";
-    static String name = "";
-    static String range = "";
-    static String scope = "";
-    static String method = "";
-    static String compareVersion = "";
-    static String threshold = "";
-    static String percentChangeAllowed = "";
-    static String deviationsAllowed = "";
-    static String configType = "";
-    static String dateTime = "";
-    static String scriptName = "";
-    static int packNum = 0;
-    static BigDecimal roundPercentChange;
-    static ArrayList<String> packageNames;
-    static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields", "gen",
-            "roundPercentChange");
-    static Map<String, Object> allConfigs;
-    static Charset utf8 = StandardCharsets.UTF_8;
-    static WebpageGenerator gen = new WebpageGenerator();
+    // static String version = "";
+    // static String name = "";
+    // static String range = "";
+    // static String scope = "";
+    // static String method = "";
+    // static String compareVersion = "";
+    // static String threshold = "";
+    // static String percentChangeAllowed = "";
+    // static String deviationsAllowed = "";
+    // static String configType = "";
+    // static String dateTime = "";
+    // static String scriptName = "";
+    // static int packNum = 0;
+    // static BigDecimal roundPercentChange;
+    // static ArrayList<String> packageNames;
+    // static List<String> skippedFields = Arrays.asList("utf8", "allConfigs", "skippedFields", "gen",
+    //         "roundPercentChange");
+    // static Map<String, Object> allConfigs;
+    // static Charset utf8 = StandardCharsets.UTF_8;
+    // static WebpageGenerator gen = new WebpageGenerator();
 
-    public WebpageGenerator() {
+    // public WebpageGenerator() {
 
-    }
+    // }
 
     // // for comparator configuration
     // public static void generatePage() throws IOException, URISyntaxException {
@@ -383,30 +382,21 @@ public class WebpageGenerator {
     // }
 
     // private static void changeVersion() {
-    //     List<String> names = new ArrayList<>();
     //     if (!CompareBenchmarks.passedBenchmarks.isEmpty()) {
-    //         for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.passedBenchmarks
-    //                 .entrySet()) {
-    //             String tempName = benchmark.getKey();
-    //             names.add(tempName);
-
-    //         }
-    //         for (String pName : names) {
-    //             String tempFingerprint = Requests.namesToFingerprints.get(pName);
-    //             version = Requests.getCurrentVersion(tempFingerprint);
-    //         }
+    //         setVersionFromBenchmarks(CompareBenchmarks.passedBenchmarks);
     //     } else if (!CompareBenchmarks.failedBenchmarks.isEmpty()) {
-    //         for (Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : CompareBenchmarks.failedBenchmarks
-    //                 .entrySet()) {
-    //             String tempName = benchmark.getKey();
-    //             names.add(tempName);
-    //         }
-    //         for (String fName : names) {
-    //             String tempFPrint = Requests.namesToFingerprints.get(fName);
-    //             version = Requests.getCurrentVersion(tempFPrint);
-    //         }
+    //         setVersionFromBenchmarks(CompareBenchmarks.failedBenchmarks);
     //     } else {
-    //         log.error("* No passed or failed benchmarks found");
+    //         log.error("* Error while attempting to grab current version from Passed/Failed Benchmarks map");
+    //     }
+    // }
+
+    // private static void setVersionFromBenchmarks(
+    //         Map<String, Map<String, Map<String, Map<String, Object>>>> benchmarks) {
+    //     for (Map.Entry<String, Map<String, Map<String, Map<String, Object>>>> benchmark : benchmarks.entrySet()) {
+    //         String tempName = benchmark.getKey();
+    //         String tempFingerprint = Requests.namesToFingerprints.get(tempName);
+    //         version = Requests.getCurrentVersion(tempFingerprint);
     //     }
     // }
 
@@ -426,7 +416,7 @@ public class WebpageGenerator {
     //             packageNames = packNames;
 
     //         } catch (Exception e) {
-    //             log.error("* Error grabbing package names from benchmark");
+    //             log.error("* Error grabbing package names from benchmark test");
     //         }
     //     } else {
     //         log.error("* List of package names was empty.");
@@ -457,16 +447,16 @@ public class WebpageGenerator {
 
     // }
 
-    public static void logInfo(String msg, Object... args) {
-        log.info(msg, args);
-    }
+    // public static void logInfo(String msg, Object... args) {
+    //     log.info(msg, args);
+    // }
 
-    public static void logWarn(String msg, Object... args) {
-        log.warn(msg, args);
-    }
+    // public static void logWarn(String msg, Object... args) {
+    //     log.warn(msg, args);
+    // }
 
-    public static void logErr(String msg, Object... args) {
-        log.error(msg, args);
-    }
+    // public static void logErr(String msg, Object... args) {
+    //     log.error(msg, args);
+    // }
 
 }
