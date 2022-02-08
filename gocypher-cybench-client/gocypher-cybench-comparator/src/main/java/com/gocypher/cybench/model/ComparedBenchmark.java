@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, K2N.IO. All Rights Reserved.
+ * Copyright (C) 2020-2022, K2N.IO. All Rights Reserved.
  *
  * This software is the confidential and proprietary information of
  * K2N.IO. ("Confidential Information").  You shall not disclose
