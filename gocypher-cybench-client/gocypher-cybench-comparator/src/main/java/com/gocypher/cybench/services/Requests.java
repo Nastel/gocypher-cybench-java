@@ -39,16 +39,14 @@ import com.gocypher.cybench.model.ComparedBenchmark;
 
 public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
-
-    // private static final String benchmarkViewBenchmarksServiceUrl = System.getProperty("cybench.reports.view.url",
-    //         "https://app.cybench.io/gocypher-benchmarks-services/services/v1/benchmarks/benchmark/");
-    private static final String localBenchmarkViewBenchmarksServiceUrl =
-    "http://localhost:8080/gocypher-benchmarks-services/services/v1/benchmarks/benchmark/";
     private static final String benchmarkBaseUrl = System.getProperty("cybench.benchmark.base.url",
             "https://app.cybench.io/cybench/benchmark/");
 
-    private static final String localProjectSummaryUrl = "http://localhost:8080/gocypher-benchmarks-services/services/v1/projects/";
-    private static final String localBenchmarksByReportIDUrl = "http://localhost:8080/gocypher-benchmarks-services/services/v1/benchmarks/report/compare/";
+    private static String prodHost = "http://app.cybench.io/";
+    private static String localHost = "http://localhost:8080/";
+    private static final String projectSummaryUrl = localHost + "gocypher-benchmarks-services/services/v1/projects/";
+    private static final String benchmarksByReportIDUrl = localHost + "gocypher-benchmarks-services/services/v1/benchmarks/report/compare/";
+
     public static String project = null;
     public static String currentVersion = null;
     public static String latestVersion = null;
@@ -141,7 +139,7 @@ public class Requests {
     }
 
     public boolean getProjectSummary(String projectName, String accessToken) {
-        String serviceUrl = localProjectSummaryUrl + projectName + "/providedAccessToken";
+        String serviceUrl = projectSummaryUrl + projectName + "/providedAccessToken";
         if (serviceUrl != null && projectName != null) {
             try {
                 log.info("* Fetching project data for {}", projectName);
@@ -173,7 +171,7 @@ public class Requests {
     }
 
     public boolean getBenchmarksInReport(String reportID, String accessToken) {
-        String serviceUrl = localBenchmarksByReportIDUrl + reportID + "/providedAccessToken";
+        String serviceUrl = benchmarksByReportIDUrl + reportID + "/providedAccessToken";
         if (serviceUrl != null && reportID != null) {
             try {
                 log.info("* Fetching benchmark data for report {}", reportID);
