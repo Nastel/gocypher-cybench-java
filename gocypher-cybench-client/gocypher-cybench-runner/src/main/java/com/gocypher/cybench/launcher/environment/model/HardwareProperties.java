@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021, K2N.IO.
+ * Copyright (C) 2020-2022, K2N.IO.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,14 +22,9 @@ package com.gocypher.cybench.launcher.environment.model;
 public class HardwareProperties {
 
     /**
-     * hw stand for hardware information.
-     * proc - stand for processor information.
-     * mem - stand for memory information.
-     * bios - stand for bios information.
-     * moth - stand for motherboard information.
-     * os - stand for Operating System information.
-     * graphicC - stand for graphic card information.
-     * hardD - hard drive memory information.
+     * hw stand for hardware information. proc - stand for processor information. mem - stand for memory information.
+     * bios - stand for bios information. moth - stand for motherboard information. os - stand for Operating System
+     * information. graphicC - stand for graphic card information. hardD - hard drive memory information.
      */
     private String hwProcName;
     private String hwProcSpeed;
@@ -306,44 +301,46 @@ public class HardwareProperties {
 
     @Override
     public String toString() {
-        return "HardwareProperties{" + System.getProperty("line.separator") +
-                " hwProcName : " + hwProcName + "," + System.getProperty("line.separator") +
-                " hwProcManufacturer : " + hwProcManufacturer + "," + System.getProperty("line.separator") +
-                " hwProcMicroArchitecture : " + hwProcMicroArchitecture + "," + System.getProperty("line.separator") +
-                " hwProcSpeed : " + hwProcSpeed + "," + System.getProperty("line.separator") +
-                " hwProcCoresCount : " + hwProcCoresCount + "," + System.getProperty("line.separator") +
-                " hwProcLogicalThreadsCount : " + hwProcLogicalThreadsCount + "," + System.getProperty("line.separator") +
+        return "HardwareProperties{" + System.getProperty("line.separator") + " hwProcName : " + hwProcName + ","
+                + System.getProperty("line.separator") + " hwProcManufacturer : " + hwProcManufacturer + ","
+                + System.getProperty("line.separator") + " hwProcMicroArchitecture : " + hwProcMicroArchitecture + ","
+                + System.getProperty("line.separator") + " hwProcSpeed : " + hwProcSpeed + ","
+                + System.getProperty("line.separator") + " hwProcCoresCount : " + hwProcCoresCount + ","
+                + System.getProperty("line.separator") + " hwProcLogicalThreadsCount : " + hwProcLogicalThreadsCount
+                + "," + System.getProperty("line.separator") +
 
-                " hwMemPartNumber : " + hwMemPartNumber + "," + System.getProperty("line.separator") +
-                " hwMemSpeed : " + formatString(hwMemSpeed, 0) + "," + System.getProperty("line.separator") +
-                " hwMemTotalMemoryBytes : " + formatString(hwMemTotalMemoryBytes, 0) + "," + System.getProperty("line.separator") +
-                " hwMemAvailableMemoryBytes : " + formatString(hwMemAvailableMemoryBytes, 0) + "," + System.getProperty("line.separator") +
-                " hwMemManufacturer : " + hwMemManufacturer + "," + System.getProperty("line.separator") +
+                " hwMemPartNumber : " + hwMemPartNumber + "," + System.getProperty("line.separator") + " hwMemSpeed : "
+                + formatString(hwMemSpeed, 0) + "," + System.getProperty("line.separator") + " hwMemTotalMemoryBytes : "
+                + formatString(hwMemTotalMemoryBytes, 0) + "," + System.getProperty("line.separator")
+                + " hwMemAvailableMemoryBytes : " + formatString(hwMemAvailableMemoryBytes, 0) + ","
+                + System.getProperty("line.separator") + " hwMemManufacturer : " + hwMemManufacturer + ","
+                + System.getProperty("line.separator") +
 
-                " hwBiosPrimaryBios : " + hwBiosPrimaryBios + "," + System.getProperty("line.separator") +
-                " hwBiosManufacturer : " + hwBiosManufacturer + "," + System.getProperty("line.separator") +
-                " hwBiosSerialNumber : " + hwBiosSerialNumber + "," + System.getProperty("line.separator") +
-                " hwBiosName : " + hwBiosName + "," + System.getProperty("line.separator") +
-                " hwBiosVersion : " + hwBiosVersion + "," + System.getProperty("line.separator") +
+                " hwBiosPrimaryBios : " + hwBiosPrimaryBios + "," + System.getProperty("line.separator")
+                + " hwBiosManufacturer : " + hwBiosManufacturer + "," + System.getProperty("line.separator")
+                + " hwBiosSerialNumber : " + hwBiosSerialNumber + "," + System.getProperty("line.separator")
+                + " hwBiosName : " + hwBiosName + "," + System.getProperty("line.separator") + " hwBiosVersion : "
+                + hwBiosVersion + "," + System.getProperty("line.separator") +
 
-                " hwMothVersion : " + hwMothVersion + "," + System.getProperty("line.separator") +
-                " hwMothProduct : " + hwMothProduct + "," + System.getProperty("line.separator") +
-                " hwMothManufacturer : " + hwMothManufacturer + "," + System.getProperty("line.separator") +
+                " hwMothVersion : " + hwMothVersion + "," + System.getProperty("line.separator") + " hwMothProduct : "
+                + hwMothProduct + "," + System.getProperty("line.separator") + " hwMothManufacturer : "
+                + hwMothManufacturer + "," + System.getProperty("line.separator") +
 
-                " hwOsName : " + hwOsName + "," + System.getProperty("line.separator") +
-                " hwOsLocalDateTime : " + hwOsLocalDateTime + "," + System.getProperty("line.separator") +
-                " hwOsBuildNumber : " + hwOsBuildNumber + "," + System.getProperty("line.separator") +
+                " hwOsName : " + hwOsName + "," + System.getProperty("line.separator") + " hwOsLocalDateTime : "
+                + hwOsLocalDateTime + "," + System.getProperty("line.separator") + " hwOsBuildNumber : "
+                + hwOsBuildNumber + "," + System.getProperty("line.separator") +
 
                 " hwGraphicCName : " + hwGraphicCName + "," + System.getProperty("line.separator") +
 
-                " hwLaunchDiskModel : " + hwLaunchDiskModel + "," + System.getProperty("line.separator") +
-                " hwLaunchDiskType : " + hwLaunchDiskType + "," + System.getProperty("line.separator") +
-                " hwLaunchDiskTotalMemoryGB : " + formatString(hwLaunchDiskTotalMemoryGB, 4) + "," + System.getProperty("line.separator") +
-                " hwLaunchDiskFreeMemoryGB : " + formatString(hwLaunchDiskFreeMemoryGB, 4) + "," + System.getProperty("line.separator") +
+                " hwLaunchDiskModel : " + hwLaunchDiskModel + "," + System.getProperty("line.separator")
+                + " hwLaunchDiskType : " + hwLaunchDiskType + "," + System.getProperty("line.separator")
+                + " hwLaunchDiskTotalMemoryGB : " + formatString(hwLaunchDiskTotalMemoryGB, 4) + ","
+                + System.getProperty("line.separator") + " hwLaunchDiskFreeMemoryGB : "
+                + formatString(hwLaunchDiskFreeMemoryGB, 4) + "," + System.getProperty("line.separator") +
 
-                " hwNetworkMACAddress : " + hwNetworkMACAddress + System.getProperty("line.separator") +
-                " hwNetworkClientIPAddress : " + hwNetworkClientIPAddress + System.getProperty("line.separator") +
-                '}';
+                " hwNetworkMACAddress : " + hwNetworkMACAddress + System.getProperty("line.separator")
+                + " hwNetworkClientIPAddress : " + hwNetworkClientIPAddress + System.getProperty("line.separator")
+                + '}';
     }
 
     public static class EmptyHardwareProperties extends HardwareProperties {
