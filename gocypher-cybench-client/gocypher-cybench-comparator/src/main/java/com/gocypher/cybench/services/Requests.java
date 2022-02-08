@@ -136,8 +136,6 @@ public class Requests {
                     result.put(fingerprint, comparedBenchmarkMap);
                 }
             }
-
-            
         }
         return result;
     }
@@ -158,6 +156,9 @@ public class Requests {
         
                 JSONParser parser = new JSONParser();
                 JSONObject projectSummary = (JSONObject) parser.parse(responseString);
+                if (projectSummary.isEmpty()) {
+                    throw new Exception("No project data found!");
+                }
 
                 latestVersion = (String) projectSummary.get("latestVersion");
                 previousVersion = (String) projectSummary.get("previousVersion");
@@ -189,6 +190,10 @@ public class Requests {
                 JSONObject results = (JSONObject) parser.parse(responseString);
                 Map<String, Map<String, List<Map<String, Object>>>> benchmarkObj = (Map<String, Map<String, List<Map<String, Object>>>>) results.get("benchmarks");
                 Map<String, Map<String, List<ComparedBenchmark>>> benchmarks = new HashMap<>();
+                if (benchmarkObj.isEmpty()) {
+                    throw new Exception("No report data found!");
+                }
+
                 for (Map.Entry<String, Map<String, List<Map<String, Object>>>> benchmarkObjEntry : benchmarkObj.entrySet()) {
                     String fingerprint = benchmarkObjEntry.getKey();
                     Map<String, List<Map<String, Object>>> fingerprintMap = benchmarkObjEntry.getValue();
@@ -198,7 +203,17 @@ public class Requests {
                         List<Map<String, Object>> comparedBenchmarkObjects = modeMap.getValue();
                         List<ComparedBenchmark> comparedBenchmarks = new ArrayList<>();
                         for (Map<String, Object> comparedBenchmarkObj : comparedBenchmarkObjects) {
-                            ComparedBenchmark comparedBenchmark = new ComparedBenchmark(comparedBenchmarkObj);
+                            ComparedBenchmark comparedBenchmark = new ComparedBenchmark();
+                            comparedBenchmark.setDatasetID((String) comparedBenchmarkObj.get("datasetID"));
+                            comparedBenchmark.setBenchProperties((Map<String, Object>) comparedBenchmarkObj.get("benchProperties"));
+                            comparedBenchmark.setDisplayName((String) comparedBenchmarkObj.get("displayName"));
+                            comparedBenchmark.setFingerprint((String) comparedBenchmarkObj.get("fingerprint"));
+                            comparedBenchmark.setMode((String) comparedBenchmarkObj.get("mode"));
+                            Number score = (Number) comparedBenchmarkObj.get("score");
+                            if (score != null) {
+                                comparedBenchmark.setScore(score.doubleValue());
+                            }
+
                             comparedBenchmarks.add(comparedBenchmark);
                         }
                         benchmarksInMode.put(mode, comparedBenchmarks);

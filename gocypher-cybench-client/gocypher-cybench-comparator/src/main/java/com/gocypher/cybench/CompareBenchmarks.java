@@ -118,7 +118,7 @@ public class CompareBenchmarks {
         if (scriptPath != null) {
             logInfo("Attempting to evaluate custom defined script at {}\n", scriptPath);
             // WebpageGenerator.sendToWebpageGenerator(scriptPath);
-            // ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps, scriptPath);
+            ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps, scriptPath);
             useScriptConfigForPage = true;
         } else {
             if (configPath == null) {
@@ -133,7 +133,7 @@ public class CompareBenchmarks {
 
             File recentReport = ConfigHandling
                     .identifyRecentReport((String) allConfigs.get(ConfigHandling.REPORT_PATH));
-            accessToken = (String) allConfigs.get(ConfigHandling.TOKEN);
+            setAccessToken((String) allConfigs.get(ConfigHandling.TOKEN));
 
             if (recentReport != null && accessToken != null) {
                 analyzeBenchmarks(recentReport, allConfigs, configuredCategories);
@@ -151,6 +151,10 @@ public class CompareBenchmarks {
         }
     }
 
+    public static void setAccessToken(String token) {
+        accessToken = token;
+    }
+
     private static void analyzeBenchmarks(File recentReport, Map<String, Object> allConfigs,
             Map<String, String> configuredCategories) throws Exception {
         Map<String, Map<String, ComparedBenchmark>> recentBenchmarks = Requests.parseRecentReport(recentReport);
@@ -166,30 +170,7 @@ public class CompareBenchmarks {
                         ComparisonConfig comparisonConfig = new ComparisonConfig(configMap);
                         benchmarkToCompare.setComparisonConfig(comparisonConfig);
                     }
-                    CompareState compareState = compareSingleBenchmark(benchmarkToCompare, benchmarkFingerprint);
-
-                    totalComparedBenchmarks++;
-                    comparedBenchmarks.add(benchmarkToCompare);
-                    switch (compareState) {
-                        case PASS: {
-                            benchmarkToCompare.setCompareState(CompareState.PASS);
-                            totalPassedBenchmarks++;
-                            passedBenchmarks.add(benchmarkToCompare);
-                            break;
-                        }
-                        case FAIL: {
-                            benchmarkToCompare.setCompareState(CompareState.FAIL);
-                            totalFailedBenchmarks++;
-                            failedBenchmarks.add(benchmarkToCompare);
-                            break;
-                        }
-                        case SKIP: {
-                            benchmarkToCompare.setCompareState(CompareState.SKIP);
-                            totalSkippedBenchmarks++;
-                            skippedBenchmarks.add(benchmarkToCompare);
-                            break;
-                        }
-                    }
+                    CompareState compareState = compareSingleBenchmark(benchmarkToCompare);
                 }
             }
         }
@@ -197,83 +178,110 @@ public class CompareBenchmarks {
         logResults();
     }
 
-    private static CompareState compareSingleBenchmark(ComparedBenchmark benchmarkToCompare, String benchmarkFingerprint) {
+    private static CompareState compareSingleBenchmark(ComparedBenchmark benchmarkToCompare) {
         ComparisonConfig comparisonConfig = benchmarkToCompare.getComparisonConfig();
         if (comparisonConfig != null) {
-            String compareRange = comparisonConfig.getRange();
-            Scope compareScope = comparisonConfig.getScope();
-            String compareVersion = comparisonConfig.getCompareVersion();
+            List<ComparedBenchmark> benchmarksToCompareAgainst = getBenchmarksToCompareAgainst(benchmarkToCompare);
 
-            if (compareScope.equals(Scope.BETWEEN)) {
-                if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
-                    compareVersion = Requests.previousVersion;
-                    logInfo("{} : mode={} - Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version={}",
-                            benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion);
+            if (benchmarksToCompareAgainst.size() == 0) {
+                logWarn("SKIP COMPARISON - {} : mode={} - There are not enough benchmarks to compare to in version={} with specific range={}",
+                            benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, comparisonConfig.getRange());
+                if (benchmarkToCompare.getCompareState() == null) {
+                    // handling in case skip flag wasn't raised in getBenchmarksToCompareAgainst method
+                    skipBenchmark(benchmarkToCompare);
                 }
-
-                if (Requests.currentVersion.equals(compareVersion)) {
-                    logWarn("{} : mode={} - the compare version specified ({}) is the same as the currently benchmarked version={}, will perform WITHIN VERSION comparisons",
-                        benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion, Requests.currentVersion);
-                    compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
-                }
-            } else if (compareScope.equals(Scope.WITHIN)) {
-                compareVersion = Requests.currentVersion;
+                return CompareState.SKIP;
             }
-            comparisonConfig.setScope(compareScope);
-            comparisonConfig.setCompareVersion(compareVersion);
 
-            
-            if (Requests.allProjectVersions.contains(compareVersion)) {
-                int range;
-                int maxRange = Requests.reportSummaries.get(compareVersion).size();
-                if (compareRange.equals("ALL")) {
-                    range = maxRange;
-                } else {
-                    range = Integer.parseInt(compareRange);
-                    if (range > maxRange) {
-                        logWarn("SKIP COMPARISON - {} : mode={} - There are not enough reports to compare to in version={} with specific range={}",
-                                benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, range);
-                        return CompareState.SKIP;
-                    }
+            return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst);            
+        } else {
+            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode());
+            skipBenchmark(benchmarkToCompare);
+            return CompareState.SKIP;
+        }
+    }
+
+    public static boolean thereExistsReportsToCompareAgainst(ComparedBenchmark benchmarkToCompare) {
+        ComparisonConfig comparisonConfig = benchmarkToCompare.getComparisonConfig();
+        Scope compareScope = comparisonConfig.getScope();
+        String compareVersion = comparisonConfig.getCompareVersion();
+        String compareRange = comparisonConfig.getRange();
+
+        if (compareScope.equals(Scope.BETWEEN)) {
+            if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
+                logInfo("{} : mode={} - Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version={}",
+                    benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion);
+                compareVersion = Requests.previousVersion;
+            }
+
+            if (Requests.currentVersion.equals(compareVersion)) {
+                logWarn("{} : mode={} - the Compare Version specified ({}) is the same as the currently benchmarked version={}, will perform WITHIN VERSION comparisons",
+                    benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion, Requests.currentVersion);
+                compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
+            }
+        } else if (compareScope.equals(Scope.WITHIN)) {
+            if (compareVersion == null) {
+                compareVersion = Requests.currentVersion;
+            } else {
+                logWarn("{} : mode={} - Compare Version was specified as {}, but scope was set to WITHIN, will perform BETWEEN VERSION comparisons",
+                    benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion);
+                compareScope = Scope.BETWEEN;
+            }
+        }
+        comparisonConfig.setScope(compareScope);
+        comparisonConfig.setCompareVersion(compareVersion);
+        
+        if (Requests.allProjectVersions.contains(compareVersion)) {
+            int range;
+            int maxRange = Requests.reportSummaries.get(compareVersion).size();
+            if (compareRange.equals("ALL")) {
+                range = maxRange;
+            } else {
+                range = Integer.parseInt(compareRange);
+                if (range > maxRange) {
+                    logWarn("SKIP COMPARISON - {} : mode={} - There are not enough reports to compare to in version={} with specific range={}",
+                        benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, range);
+                    skipBenchmark(benchmarkToCompare);
+                    return false;
                 }
-                compareRange = String.valueOf(range);
-                comparisonConfig.setRange(compareRange);
+            }    
+            compareRange = String.valueOf(range);
+            comparisonConfig.setRange(compareRange);
+            return true;
+        } else {
+            logWarn("SKIP COMPARISON - {} : mode={} - There are no reports for {}, version {}", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.project, compareVersion);
+            skipBenchmark(benchmarkToCompare);
+            return false;
+        }
+    }
 
+    public static List<ComparedBenchmark> getBenchmarksToCompareAgainst(ComparedBenchmark benchmarkToCompare) {
+        List<ComparedBenchmark> benchmarksToCompareAgainst = new ArrayList<>();
+        if (thereExistsReportsToCompareAgainst(benchmarkToCompare)) {
+            String compareVersion = benchmarkToCompare.getComparisonConfig().getCompareVersion();
+            int range = Integer.parseInt(benchmarkToCompare.getComparisonConfig().getRange());
+            int added = 0;
+            for (int i=0; i < Requests.reportSummaries.get(compareVersion).size() && added < range; i++) {
+                String reportID = (String) Requests.reportSummaries.get(compareVersion).get(i).get("reportId");
+                Number timestampNum = (Number) Requests.reportSummaries.get(compareVersion).get(i).get("timestamp");
+                Date reportDateTime = new Date(timestampNum.longValue() / 1000);
+                if (reportID != Requests.recentReportID && Requests.recentReportDateTime.compareTo(reportDateTime) != 0) {
+                    boolean fetchSuccess = true;
+                    if (!Requests.fetchedBenchmarks.containsKey(reportID)) {
+                        fetchSuccess = Requests.getInstance().getBenchmarksInReport(reportID, accessToken);
+                    }
 
-                List<ComparedBenchmark> benchmarksToCompareAgainst = new ArrayList<>();
-                int added = 0;
-                for (int i=0; i < Requests.reportSummaries.get(compareVersion).size() && added < range; i++) {
-                    String reportID = (String) Requests.reportSummaries.get(compareVersion).get(i).get("reportId");
-                    Number timestampNum = (Number) Requests.reportSummaries.get(compareVersion).get(i).get("timestamp");
-                    Date reportDateTime = new Date(timestampNum.longValue() / 1000);
-                    if (reportID != Requests.recentReportID && Requests.recentReportDateTime.compareTo(reportDateTime) != 0) {
-                        if (!Requests.fetchedBenchmarks.containsKey(reportID)) {
-                            Requests.getInstance().getBenchmarksInReport(reportID, accessToken);
-                        }
-                        Map<String, List<ComparedBenchmark>> benchmaksInReportWithSameFingerprint = Requests.fetchedBenchmarks.get(reportID).get(benchmarkFingerprint);
+                    if (fetchSuccess) {
+                        Map<String, List<ComparedBenchmark>> benchmaksInReportWithSameFingerprint = Requests.fetchedBenchmarks.get(reportID).get(benchmarkToCompare.getFingerprint());
                         if (benchmaksInReportWithSameFingerprint.containsKey(benchmarkToCompare.getMode())) {
                             benchmarksToCompareAgainst.addAll(benchmaksInReportWithSameFingerprint.get(benchmarkToCompare.getMode()));
                             added++;
                         }
                     }
                 }
-
-                if (benchmarksToCompareAgainst.size() == 0) {
-                    logWarn("SKIP COMPARISON - {} : mode={} - There are not enough benchmarks to compare to in version={} with specific range={}",
-                                benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, range);
-                        return CompareState.SKIP;
-                }
-
-                return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst);
-
-            } else {
-                logWarn("SKIP COMPARISON - {} : mode={} - There are no reports for {}, version {}", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.project, compareVersion);
-                return CompareState.SKIP;
             }
-        } else {
-            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode());
-            return CompareState.SKIP;
         }
+        return benchmarksToCompareAgainst;
     }
 
     public static Map<String, Object> compareAllBenchmarks(ComparisonConfig comparisonConfig,
@@ -283,6 +291,30 @@ public class CompareBenchmarks {
         resultMap = Comparisons.runComparison(comparisonConfig, benchmarksToCompare, benchmarksToCompareAgainst);
         resultMap.put("timestampUTC", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toString());
         return resultMap;
+    }
+
+    public static void passBenchmark(ComparedBenchmark benchmarkToCompare) {
+        totalComparedBenchmarks++;
+        comparedBenchmarks.add(benchmarkToCompare);
+        benchmarkToCompare.setCompareState(CompareState.PASS);
+        totalPassedBenchmarks++;
+        passedBenchmarks.add(benchmarkToCompare);
+    }
+
+    public static void failBenchmark(ComparedBenchmark benchmarkToCompare) {
+        totalComparedBenchmarks++;
+        comparedBenchmarks.add(benchmarkToCompare);
+        benchmarkToCompare.setCompareState(CompareState.FAIL);
+        totalFailedBenchmarks++;
+        failedBenchmarks.add(benchmarkToCompare);
+    }
+
+    public static void skipBenchmark(ComparedBenchmark benchmarkToCompare) {
+        totalComparedBenchmarks++;
+        comparedBenchmarks.add(benchmarkToCompare);
+        benchmarkToCompare.setCompareState(CompareState.SKIP);
+        totalSkippedBenchmarks++;
+        skippedBenchmarks.add(benchmarkToCompare);
     }
 
     public static void logResults() throws Exception {

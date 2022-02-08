@@ -46,17 +46,6 @@ public class ComparedBenchmark {
     public ComparedBenchmark() {
 
     }
-
-    public ComparedBenchmark(Map<String, Object> fetchedBenchmarkData) {
-        setDatasetID((String) fetchedBenchmarkData.get("datasetID"));
-        setBenchProperties((Map<String, Object>) fetchedBenchmarkData.get("benchProperties"));
-        setDisplayName((String) fetchedBenchmarkData.get("displayName"));
-        
-        Number score = (Number) fetchedBenchmarkData.get("score");
-        if (score != null) {
-            setScore(score.doubleValue());
-        }
-    }
     
     public ComparedBenchmark(String datasetID, Map<String, Object> benchProperties) {
         setDatasetID(datasetID);
@@ -72,8 +61,6 @@ public class ComparedBenchmark {
     }
 
     public void setBenchProperties(Map<String, Object> benchProperties) {
-        String name = (String) benchProperties.get("name");
-        benchProperties.put("displayName", name);
         this.benchProperties = benchProperties;
     }
 

@@ -17,68 +17,39 @@
  *
  */
 
-// depending on compare method set (DELTA / SD), returns (change in value within/between versions OR deviations from mean within/between versions)
-// params: {String, String, String, List<Double>, List<Double> (optional)}
-function compareScores(benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores) {
-    if (!compareVersionScores) {
-        compareVersionScores = new ArrayList(currentVersionScores);
-        // remove new score to have a comparative list
-        compareVersionScores.remove(currentVersionScores.size() - 1);
+
+// returns List<ComparedBenchmark>
+// params {ComparedBenchmark, String (optional), String (optional)}
+function getBenchmarksToCompareAgainst(benchmarkToCompare, compareVersion, range) {
+    comparisonConfig = new ComparisonConfig(configMap);
+    benchmarkToCompare.setComparisonConfig(comparisonConfig);
+    if(!compareVersion) {
+        compareVersion = configMap.get(ConfigHandling.COMPARE_VERSION);
+    } else {
+        comparisonConfig.getComparisonConfig().setCompareVersion(compareVersion);
     }
-    return Comparisons.compareScores(new HashMap(logConfigs), benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
+    if (!range) {
+        range = configMap.get(ConfigHandling.RANGE);
+    } else {
+        comparisonConfig.setRange(range);
+    }
+    return CompareBenchmarks.getBenchmarksToCompareAgainst(benchmarkToCompare);
 }
 
-// returns percent change in value within/between versions
-// params: {String, String, String, String, Double, List<Double>, List<Double> (optional)}
-function compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMode, range, percentChangeAllowed, currentVersionScores, compareVersionScores) {
-    if (!compareVersionScores) {
-        compareVersionScores = new ArrayList(currentVersionScores);
-        // remove new score to have a comparative list
-        compareVersionScores.remove(currentVersionScores.size() - 1);
-    }
-    var tempConfigMap = new HashMap(logConfigs);
-    tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
-    tempConfigMap.put(ConfigHandling.RANGE, range.toString());
-    tempConfigMap.put(ConfigHandling.THRESHOLD, Comparisons.Threshold.PERCENT_CHANGE);
-    tempConfigMap.put(ConfigHandling.PERCENT_CHANGE_ALLOWED, new Double(percentChangeAllowed));
-    return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
+
+// returns List<Double> list of scores
+// params: {List<ComparedBenchmark>}
+function getBenchmarkScores(benchmarks) {
+    return Comparisons.extractScoresFromComparedBenchmarkList(benchmarks);
 }
 
-// returns change in value within/between versions
-// params: {String, String, String, String, List<Double>, List<Double> (optional)}
-function compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, range, currentVersionScores, compareVersionScores) {
-    if (!compareVersionScores) {
-        compareVersionScores = new ArrayList(currentVersionScores);
-        // remove new score to have a comparative list
-        compareVersionScores.remove(currentVersionScores.size() - 1);
-    }
-    var tempConfigMap = new HashMap(logConfigs);
-    tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.DELTA);
-    tempConfigMap.put(ConfigHandling.RANGE, range.toString());
-    tempConfigMap.put(ConfigHandling.THRESHOLD, Comparisons.Threshold.GREATER);
-    return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
+// returns CompareState (ENUM representing PASS, FAIL, SKIP)
+// params: {ComparedBenchmark, List<ComparedBenchmark>}
+function runComparison(benchmarkToCompare, benchmarksToCompareAgainst) {
+    return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst)
 }
 
-// returns deviations from mean within/between versions
-// params: {String, String, String, String, Double, List<Double>, List<Double> (optional)}
-function compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviationsAllowed, currentVersionScores, compareVersionScores) {
-    if (!compareVersionScores) {
-        compareVersionScores = new ArrayList(currentVersionScores);
-        // remove new score to have a comparative list
-        compareVersionScores.remove(currentVersionScores.size() - 1);
-    }
-    var tempConfigMap = new HashMap(logConfigs);
-    tempConfigMap.put(ConfigHandling.METHOD, Comparisons.Method.SD);
-    tempConfigMap.put(ConfigHandling.RANGE, range.toString());
-    tempConfigMap.put(ConfigHandling.DEVIATIONS_ALLOWED, new Double(deviationsAllowed));
-    return Comparisons.compareScores(tempConfigMap, benchmarkName, benchmarkVersion, benchmarkMode, currentVersionScores, compareVersionScores);
-}
 
-// return change in value
-// params: {Double, Double}
-function calculateDelta(newScore, compareValue) {
-    return Comparisons.calculateDelta(newScore, compareValue, Comparisons.Threshold.GREATER);
-}
 
 // returns mean
 // params: {List<Double>}
@@ -92,60 +63,18 @@ function calculateSD(scores) {
     return Comparisons.calculateSD(scores);
 }
 
+// returns: deviations from a mean
+// params: {Double, Double, Double}
+function calculateDeviationsFromMean(score, compareMean, compareStandardDeviation) {
+    return Comparisons.calculateDeviationsFromMean(score, compareMean, compareStandardDeviation);
+}
+
 // returns percent change
 // params: {Double, Double}
 function calculatePercentChange(newScore, compareScore) {
     return Comparisons.calculatePercentChange(newScore, compareScore);
 }
 
-// returns Map<String, Map<String, Map<String, List<Double>>>> 
-// Map represents <Benchmark Fingerprint : <Version : <Mode : <List of Scores in Test Order>>>>
-function getAllBenchmarks() {
-    return Requests.getBenchmarks();
-}
-
-// returns Map<String, Map<String, List<Double>>>
-// Map represents <Version : <Mode : <List of Scores in Test Order>>>
-// params: {String}
-function getBenchmarksByFingerprint(benchmarkFingerprint) {
-    return Requests.getBenchmarks(benchmarkFingerprint);
-}
-
-// returns Map<String, List<Double>>
-// Map represents <Mode : <List of Scores in Test Order>>
-// params: {String}
-function getBenchmarksByVersion(benchmarkFingerprint, version) {
-    return Requests.getBenchmarks(benchmarkFingerprint, version);
-}
-
-// returns List<Double>
-// List represents <List of Scores in Test Order>
-// params: {String, String, String}
-function getBenchmarksByMode(benchmarkFingerprint, version, mode) {
-    return Requests.getBenchmarks(benchmarkFingerprint, version, mode);
-}
-
-// returns all the recently benchmarked modes within the current report by the passed fingerprint
-// List represents list of modes 
-// params: {String, String}
-function getRecentlyBenchmarkedModes(benchmarkFingerprint, currentVersion) {
-    return new ArrayList(myBenchmarks.get(benchmarkFingerprint).get(currentVersion).keySet());
-}
-
-// depending on deviationsAllowed test, percentChangeAllowed test, or GREATER test, returns boolean representing a passed test
-// params: {Double}
-function passAssertion(val) {
-    if (method === Comparisons.Method.SD) {
-        // val = deviationsFromMean
-        return Comparisons.passAssertionDeviation(val, deviationsAllowed);
-    } else if (threshold === Comparisons.Threshold.PERCENT_CHANGE) {
-        // val = percentChange
-        return Comparisons.passAssertionPercentage(percentChange, percentageAllowed);
-    } else {
-        // val = simple delta value
-        return Comparisons.passAssertionPositive(val);
-    }
-}
 
 // returns boolean that represents whether or not deviationsFromMean is within deviationsAllowed
 // params: {Double, Double}
@@ -163,17 +92,4 @@ function passAssertionPercentage(percentChange, percentageAllowed) {
 // params: {Double}
 function passAssertionPositive(val) {
     return Comparisons.passAssertionPositive(val);
-}
-
-
-// returns current version of the fingerprint
-// params: {String}
-function getCurrentVersion(fingerprint) {
-    return Requests.getCurrentVersion(fingerprint);
-}
-
-// returns previous version of the fingerprint
-// params: {String}
-function getPreviousVersion(fingerprint) {
-    return Requests.getPreviousVersion(fingerprint);
 }

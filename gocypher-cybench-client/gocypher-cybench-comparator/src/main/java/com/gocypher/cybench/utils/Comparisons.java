@@ -28,6 +28,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gocypher.cybench.CompareBenchmarks;
 import com.gocypher.cybench.model.ComparedBenchmark;
 import com.gocypher.cybench.model.ComparedBenchmark.CompareState;
 import com.gocypher.cybench.model.ComparisonConfig;
@@ -172,10 +173,25 @@ public final class Comparisons {
             state = CompareState.SKIP;
         }
 
+        switch (state) {
+            case PASS: {
+                CompareBenchmarks.passBenchmark(benchmarkToCompare);
+                break;
+            }
+            case FAIL: {
+                CompareBenchmarks.failBenchmark(benchmarkToCompare);
+                break;
+            }
+            case SKIP: {
+                CompareBenchmarks.skipBenchmark(benchmarkToCompare);
+                break;
+            }
+        }
+
         return state;
     }
 
-    private static List<Double> extractScoresFromComparedBenchmarkList(List<ComparedBenchmark> comparedBenchmarks) {
+    public static List<Double> extractScoresFromComparedBenchmarkList(List<ComparedBenchmark> comparedBenchmarks) {
         List<Double> scores = new ArrayList<>();
         for (ComparedBenchmark comparedBenchmark : comparedBenchmarks) {
             scores.add(comparedBenchmark.getScore());
