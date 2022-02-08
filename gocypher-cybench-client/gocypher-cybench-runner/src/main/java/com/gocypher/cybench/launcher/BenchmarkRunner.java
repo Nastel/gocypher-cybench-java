@@ -257,40 +257,8 @@ public class BenchmarkRunner {
                     appendMetadataFromClass(aClass, benchmarkReport);
                     appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
+                    syncReportsMetadata(report, benchmarkReport);
                     benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
-                    try {
-                        if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
-                            report.setProject(benchmarkReport.getProject());
-                        } else {
-                            LOG.info("* Project name metadata not defined, grabbing it from build files..");
-                            report.setProject(getMetadataFromBuildFile("artifactId"));
-                            benchmarkReport.setProject(getMetadataFromBuildFile("artifactId"));
-                        }
-
-                        if (StringUtils.isNotEmpty(benchmarkReport.getProjectVersion())) {
-                            report.setProjectVersion(benchmarkReport.getProjectVersion());
-                        } else {
-                            LOG.info("* Project version metadata not defined, grabbing it from build files...");
-                            report.setProjectVersion(getMetadataFromBuildFile("version")); // default
-                            benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
-                        }
-
-                        if (StringUtils.isEmpty(benchmarkReport.getVersion())) {
-                            benchmarkReport.setVersion(getMetadataFromBuildFile("version"));
-                        }
-
-                        if (StringUtils.isEmpty(report.getBenchmarkSessionId())) {
-                            Map<String, String> bMetadata = benchmarkReport.getMetadata();
-                            if (bMetadata != null) {
-                                String sessionId = bMetadata.get("benchSession");
-                                if (StringUtils.isNotEmpty(sessionId)) {
-                                    report.setBenchmarkSessionId(sessionId);
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        LOG.error("Error while attempting to setProject from runner: ", e);
-                    }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -460,6 +428,50 @@ public class BenchmarkRunner {
                 checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
                 benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
             }
+        }
+    }
+
+    /**
+     * Synchronizes overview and benchmark reports metadata.
+     * 
+     * @param report
+     *            overview report object
+     * @param benchmarkReport
+     *            report data object
+     */
+    public static void syncReportsMetadata(BenchmarkOverviewReport report, BenchmarkReport benchmarkReport) {
+        try {
+            if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
+                report.setProject(benchmarkReport.getProject());
+            } else {
+                LOG.info("* Project name metadata not defined, grabbing it from build files..");
+                report.setProject(getMetadataFromBuildFile("artifactId"));
+                benchmarkReport.setProject(getMetadataFromBuildFile("artifactId"));
+            }
+
+            if (StringUtils.isNotEmpty(benchmarkReport.getProjectVersion())) {
+                report.setProjectVersion(benchmarkReport.getProjectVersion());
+            } else {
+                LOG.info("* Project version metadata not defined, grabbing it from build files...");
+                report.setProjectVersion(getMetadataFromBuildFile("version")); // default
+                benchmarkReport.setProjectVersion(getMetadataFromBuildFile("version"));
+            }
+
+            if (StringUtils.isEmpty(benchmarkReport.getVersion())) {
+                benchmarkReport.setVersion(getMetadataFromBuildFile("version"));
+            }
+
+            if (StringUtils.isEmpty(report.getBenchmarkSessionId())) {
+                Map<String, String> bMetadata = benchmarkReport.getMetadata();
+                if (bMetadata != null) {
+                    String sessionId = bMetadata.get("benchSession");
+                    if (StringUtils.isNotEmpty(sessionId)) {
+                        report.setBenchmarkSessionId(sessionId);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Error while attempting to setProject from runner: ", e);
         }
     }
 
@@ -670,6 +682,13 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
     }
 
+    /**
+     * Resolved metadata property value from set of project configuration files: pom.xml, build.gradle, etc.
+     * 
+     * @param prop
+     *            metadata property name
+     * @return metadata property value
+     */
     public static String getMetadataFromBuildFile(String prop) {
         String property = "";
         String temp2 = System.getProperty("user.dir");
