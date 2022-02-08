@@ -249,14 +249,7 @@ public class Requests {
             if (getLatestVersion(fingerprint) == null || isNewerVersion(version, getLatestVersion(fingerprint))) {
                 setLatestVersion(fingerprint, version);
             }
-            if (getPreviousVersion(fingerprint) == null) {
-                setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
-            }
-            if (isNewerVersion(getCurrentVersion(fingerprint), version)
-                    && (isNewerVersion(version, getPreviousVersion(fingerprint))
-                            || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
-                setPreviousVersion(fingerprint, version);
-            }
+            syncVersionByFingerprint(fingerprint, version);
         }
         if (!benchTable.get(version).containsKey(mode)) {
             List<Double> testScores = new ArrayList<>();
@@ -266,6 +259,17 @@ public class Requests {
         testsWithinVersion.add(score);
 
         return true;
+    }
+
+    private static void syncVersionByFingerprint(String fingerprint, String version) {
+        if (getPreviousVersion(fingerprint) == null) {
+            setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
+        }
+        if (isNewerVersion(getCurrentVersion(fingerprint), version)
+                && (isNewerVersion(version, getPreviousVersion(fingerprint))
+                        || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
+            setPreviousVersion(fingerprint, version);
+        }
     }
 
     public static void storeRecentBenchmark(String fingerprint, String version, String mode, Double score) {
@@ -285,14 +289,7 @@ public class Requests {
         if (getCurrentVersion(fingerprint) == null || isNewerVersion(version, getCurrentVersion(fingerprint))) {
             setCurrentVersion(fingerprint, version);
         }
-        if (getPreviousVersion(fingerprint) == null) {
-            setPreviousVersion(fingerprint, getCurrentVersion(fingerprint));
-        }
-        if (isNewerVersion(getCurrentVersion(fingerprint), version)
-                && (isNewerVersion(version, getPreviousVersion(fingerprint))
-                        || getCurrentVersion(fingerprint).equals(getPreviousVersion(fingerprint)))) {
-            setPreviousVersion(fingerprint, version);
-        }
+        syncVersionByFingerprint(fingerprint, version);
     }
 
     public static Map<String, Map<String, Map<String, Double>>> getBenchmarksFromReport(String accessToken,

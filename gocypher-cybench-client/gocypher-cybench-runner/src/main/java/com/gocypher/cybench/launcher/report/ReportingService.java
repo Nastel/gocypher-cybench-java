@@ -191,24 +191,15 @@ public class ReportingService {
     public Map<String, String> prepareBenchmarkProperties(String className,
             Map<String, Map<String, String>> benchmarksMetadata) {
         Map<String, String> benchmarkProperties = new HashMap<>();
+        Map<String, String> classMetadata = benchmarksMetadata.get(className);
         try {
-            if (benchmarksMetadata.get(className) != null) {
-                if (benchmarksMetadata.get(className).get("category") != null) {
-                    benchmarkProperties.put("benchCategory", benchmarksMetadata.get(className).get("category"));
+            if (classMetadata != null) {
+                String mProp = classMetadata.get("category");
+                if (mProp != null) {
+                    benchmarkProperties.put("benchCategory", mProp);
                 }
-                if (benchmarksMetadata.get(className).get("context") != null) {
-                    benchmarkProperties.put("benchContext", benchmarksMetadata.get(className).get("context"));
-                }
-                if (benchmarksMetadata.get(className).get("version") != null) {
-                    benchmarkProperties.put("benchVersion", benchmarksMetadata.get(className).get("version"));
-                }
-                if (benchmarksMetadata.get(className).get("project") != null) {
-                    benchmarkProperties.put("benchProject", benchmarksMetadata.get(className).get("project"));
-                }
-                if (benchmarksMetadata.get(className).get("projectVersion") != null) {
-                    benchmarkProperties.put("benchProjectVersion",
-                            benchmarksMetadata.get(className).get("projectVersion"));
-                }
+
+                syncClassMetadata(classMetadata, benchmarkProperties);
             } else {
                 benchmarkProperties.put("benchCategory", "CUSTOM");
                 benchmarkProperties.put("benchContext", "Custom");
@@ -220,24 +211,32 @@ public class ReportingService {
         return benchmarkProperties;
     }
 
+    private void syncClassMetadata(Map<String, String> classMetadata, Map<String, String> benchmarkProperties) {
+        String mProp = classMetadata.get("context");
+        if (mProp != null) {
+            benchmarkProperties.put("benchContext", mProp);
+        }
+        mProp = classMetadata.get("version");
+        if (mProp != null) {
+            benchmarkProperties.put("benchVersion", mProp);
+        }
+        mProp = classMetadata.get("project");
+        if (mProp != null) {
+            benchmarkProperties.put("benchProject", mProp);
+        }
+        mProp = classMetadata.get("projectVersion");
+        if (mProp != null) {
+            benchmarkProperties.put("benchProjectVersion", mProp);
+        }
+    }
+
     public Map<String, String> prepareBenchmarkSettings(String className,
             Map<String, Map<String, String>> benchmarksMetadata) {
         Map<String, String> benchmarkProperties = new HashMap<>();
+        Map<String, String> classMetadata = benchmarksMetadata.get(className);
         try {
-            if (benchmarksMetadata.get(className) != null) {
-                if (benchmarksMetadata.get(className).get("context") != null) {
-                    benchmarkProperties.put("benchContext", benchmarksMetadata.get(className).get("context"));
-                }
-                if (benchmarksMetadata.get(className).get("version") != null) {
-                    benchmarkProperties.put("benchVersion", benchmarksMetadata.get(className).get("version"));
-                }
-                if (benchmarksMetadata.get(className).get("project") != null) {
-                    benchmarkProperties.put("benchProject", benchmarksMetadata.get(className).get("project"));
-                }
-                if (benchmarksMetadata.get(className).get("projectVersion") != null) {
-                    benchmarkProperties.put("benchProjectVersion",
-                            benchmarksMetadata.get(className).get("projectVersion"));
-                }
+            if (classMetadata != null) {
+                syncClassMetadata(classMetadata, benchmarkProperties);
             } else {
                 benchmarkProperties.put("benchContext", "Custom");
             }

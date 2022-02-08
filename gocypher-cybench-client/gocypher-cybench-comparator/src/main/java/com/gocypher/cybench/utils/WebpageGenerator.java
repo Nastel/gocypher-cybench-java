@@ -388,7 +388,6 @@ public class WebpageGenerator {
                     .entrySet()) {
                 String tempName = benchmark.getKey();
                 names.add(tempName);
-
             }
             for (String pName : names) {
                 String tempFingerprint = Requests.namesToFingerprints.get(pName);
