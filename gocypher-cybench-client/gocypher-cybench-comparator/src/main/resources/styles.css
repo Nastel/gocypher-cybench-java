@@ -42,7 +42,7 @@ table {
 }
 
 .dataTables_wrapper .dataTables_filter input {
-    background-color: #e9edef;
+    background-color: #e9edef !important;
 }
 
 .dataTables_wrapper .dataTables_paginate {
@@ -73,8 +73,6 @@ table.dataTable.no-footer {
 }
 
 .wrapper {
-    margin-left: auto;
-    margin-right: auto;
     border-style: double;
     background-color: #ecfbff;
     width: 25%;

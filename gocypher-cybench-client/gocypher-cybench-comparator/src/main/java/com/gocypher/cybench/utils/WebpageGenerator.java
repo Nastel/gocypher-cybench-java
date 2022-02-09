@@ -123,7 +123,7 @@ public class WebpageGenerator {
                 }
             }
 
-            FileUtils.write(htmlFile, "<table id=\" \"" + table + "class=\"display compact " + table + "\">"
+            FileUtils.write(htmlFile, "<table id=\""+ table + "\" class=\"display compact " + table + "\">"
                     + "<caption class=\"" + captionClass + "\">" + caption + "</caption><thead><tr>"
                     + "<th>Test Type</th>"
                     + "<th>Name</th>"

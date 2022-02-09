@@ -30,7 +30,7 @@
         $(document).ready(function () {
             $('#passedTable').DataTable({
                 "pageLength": 50,
-                "order": [[8, "asc"]]
+                "order": [[1, "desc"]]
             });
             $('#anomalyTable').DataTable({
                 "pageLength": 50,
@@ -38,7 +38,7 @@
             });
             $('#skippedTable').DataTable({
                 "pageLength": 50,
-                "order": [[8, "desc"]]
+                "order": [[1, "desc"]]
             });
 
         });
@@ -59,7 +59,7 @@
     <p style="font-size: 13px;">Previous Version: $previousVersion</p>
 </div>
 <br>
-<div style="padding-left: 33%">
+<div style="text-align: center;">
     <table class="VTPFStable">
         <caption class="VTPFStableCaption">Tests</caption>
         <tr style="border-bottom-style: dotted;">
@@ -73,7 +73,6 @@
             <th style="color: green;">$passed</th>
             <th style="color: red;">$failed</th>
             <th style="color: goldenrod;">$skipped</th>
-
         </tr>
     </table>
 </div>
