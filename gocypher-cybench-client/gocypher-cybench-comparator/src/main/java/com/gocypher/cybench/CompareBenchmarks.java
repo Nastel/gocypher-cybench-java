@@ -20,7 +20,7 @@
 package com.gocypher.cybench;
 
 import java.io.File;
-import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -53,7 +53,6 @@ public class CompareBenchmarks {
     private static final Logger log = LoggerFactory.getLogger(CompareBenchmarks.class);
 
     private static String accessToken = null;
-    private static boolean useScriptConfigForPage = false;
     public static boolean failBuildFlag = false;
         
     public static int totalComparedBenchmarks = 0;
@@ -64,6 +63,8 @@ public class CompareBenchmarks {
     public static List<ComparedBenchmark> passedBenchmarks = new ArrayList<>();
     public static List<ComparedBenchmark> failedBenchmarks = new ArrayList<>();
     public static List<ComparedBenchmark> skippedBenchmarks = new ArrayList<>();
+
+    public static Instant comparisonRunTime;
 
     public static void main(String... args) throws Exception {
         logInfo("* Analyzing benchmark performance...");
@@ -117,9 +118,7 @@ public class CompareBenchmarks {
 
         if (scriptPath != null) {
             logInfo("Attempting to evaluate custom defined script at {}\n", scriptPath);
-            // WebpageGenerator.sendToWebpageGenerator(scriptPath);
             ComparatorScriptEngine cse = new ComparatorScriptEngine(passedProps, scriptPath);
-            useScriptConfigForPage = true;
         } else {
             if (configPath == null) {
                 logInfo("No script or config file specified, looking for comparator.yaml in default location");
@@ -129,7 +128,6 @@ public class CompareBenchmarks {
             logInfo("Attempting to load comparator configurations at {}\n", configPath);
             Map<String, Object> allConfigs = ConfigHandling.loadYaml(configPath);
             Map<String, String> configuredCategories = ConfigHandling.identifyAndValidifySpecificConfigs(allConfigs);
-            // WebpageGenerator.sendToWebpageGenerator(allConfigs, configuredCategories);
 
             File recentReport = ConfigHandling
                     .identifyRecentReport((String) allConfigs.get(ConfigHandling.REPORT_PATH));
@@ -145,9 +143,6 @@ public class CompareBenchmarks {
                     logErr("* Failed to authorize provided access token!");
                 }
             }
-        }
-        if (!useScriptConfigForPage) {
-            // WebpageGenerator.generatePage();
         }
     }
 
@@ -176,6 +171,7 @@ public class CompareBenchmarks {
         }
         Requests.getInstance().close();
         logResults();
+        WebpageGenerator.generatePage();
     }
 
     private static CompareState compareSingleBenchmark(ComparedBenchmark benchmarkToCompare) {
@@ -289,7 +285,8 @@ public class CompareBenchmarks {
             Map<String, Map<String, List<ComparedBenchmark>>> benchmarksToCompareAgainst) {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap = Comparisons.runComparison(comparisonConfig, benchmarksToCompare, benchmarksToCompareAgainst);
-        resultMap.put("timestampUTC", ZonedDateTime.now(ZoneOffset.UTC).toInstant().toString());
+        comparisonRunTime = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
+        resultMap.put("timestampUTC", comparisonRunTime.toString());
         return resultMap;
     }
 
@@ -318,6 +315,7 @@ public class CompareBenchmarks {
     }
 
     public static void logResults() throws Exception {
+        comparisonRunTime = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
         System.out.print("\n\n");
         logInfo("Comparing {}, version {}", Requests.project, Requests.currentVersion);
         logInfo("compared={}, passed={}, (skipped={}), anomalies={}", totalComparedBenchmarks, totalPassedBenchmarks,

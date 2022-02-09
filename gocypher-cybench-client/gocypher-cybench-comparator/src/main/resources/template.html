@@ -21,27 +21,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-    </style>
-    <link rel="stylesheet" type="text/css"
-          href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>    
     <link rel="stylesheet" type="text/css" href="styles/styles.css">
-    <script
-            src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
-
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.js"></script>
 
     <script>
         $(document).ready(function () {
-            $('#table1').DataTable({
+            $('#passedTable').DataTable({
                 "pageLength": 50,
                 "order": [[8, "asc"]]
             });
-            $('#table2').DataTable({
+            $('#anomalyTable').DataTable({
                 "pageLength": 50,
                 "order": [[1, "desc"]]
             });
-            $('#table3').DataTable({
+            $('#skippedTable').DataTable({
                 "pageLength": 50,
                 "order": [[8, "desc"]]
             });
@@ -52,75 +47,34 @@
     <title>Comparison Report</title>
 </head>
 <body>
-<div class="cybCompResultsDiv">
-    <p class="cybCompResults">CyBench Comparator Results</p>
-    <p class="reportTime">Time of report: $dateTime</p>
+<div class="wrapper">
+    <p style="font-size: 20px; font-weight: bold;">CyBench Comparator Results</p>
+    <p style="font-size: 15px;">Comparison ran at: $runTime</p>
 </div>
-<div class="pkgNameDiv">
-    <p class="pkgNamesP">$packNum Packages Tested In This Report:</p>
-    <p class="pkgNames">$packageNames</p>
+<div class="wrapper">
+    <p style="font-size: 15px; font-weight: bold;">Project Info:</p>
+    <p style="font-size: 14px;">Project: $projectName</p>
+    <p style="font-size: 13px;">Current Version: $currentVersion</p>
+    <p style="font-size: 13px;">Latest Version: $latestVersion</p>
+    <p style="font-size: 13px;">Previous Version: $previousVersion</p>
 </div>
 <br>
 <div style="padding-left: 33%">
     <table class="VTPFStable">
         <caption class="VTPFStableCaption">Tests</caption>
         <tr style="border-bottom-style: dotted;">
-            <th>Version</th>
             <th>Total</th>
-            <th>Failed</th>
-            <th>Skipped</th>
             <th>Passed</th>
+            <th>Anomalies</th>
+            <th>Skipped</th>
         </tr>
         <tr>
-            <th>$version</th>
             <th>$total</th>
+            <th style="color: green;">$passed</th>
             <th style="color: red;">$failed</th>
             <th style="color: goldenrod;">$skipped</th>
-            <th style="color: green;">$passed</th>
 
-        </tr>
-    </table>
-    <table class="VTPFStable">
-        <caption class="VTPFStableCaption">Configurations
-            ($configType)
-        </caption>
-        <tr style="border: 1px dotted black;">
-            <th>Method</th>
-            <th>Range</th>
-            <th>Scope</th>
-            <th>Threshold</th>
-            <th>Version</th>
-            <th>Compare Version</th>
-            <th>% Change Allowed</th>
-            <th>Deviations Allowed</th>
-        </tr>
-        <tr style="border: 1px dotted black; color: #391a8b">
-            <th>$method</th>
-            <th>$range</th>
-            <th>$scope</th>
-            <th>$threshold</th>
-            <th>$version</th>
-            <th>$compareVersion</th>
-            <th>$percentChangeAllowed</th>
-            <th>$deviationsAllowed</th>
         </tr>
     </table>
 </div>
 <br>
-<table id="table1" class="display compact">
-    <caption class="anomalyCaption">Test Anomalies</caption>
-    <thead>
-    <tr>
-        <th>Fingerprint</th>
-        <th>Name</th>
-        <th>Version</th>
-        <th>Compare Version</th>
-        <th>Mode</th>
-        <th>Score</th>
-        <th>Compare Value</th>
-        <th>Delta</th>
-        <th>Percent Change</th>
-        <th>SD from Mean</th>
-    </tr>
-    </thead>
-    <tbody>

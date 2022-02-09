@@ -20,6 +20,8 @@
 package com.gocypher.cybench.utils;
 
 import java.io.*;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -183,6 +185,7 @@ public class ComparatorScriptEngine {
             reader = new FileReader(script);
             engine.eval(reader);
             CompareBenchmarks.logResults();
+            WebpageGenerator.generatePage();
         } catch (Exception e) {
             e.printStackTrace();
         }

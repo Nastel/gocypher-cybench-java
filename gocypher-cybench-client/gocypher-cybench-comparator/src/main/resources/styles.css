@@ -72,7 +72,7 @@ table.dataTable.no-footer {
     font-weight: bold;
 }
 
-.cybCompResultsDiv {
+.wrapper {
     margin-left: auto;
     margin-right: auto;
     border-style: double;
@@ -80,34 +80,6 @@ table.dataTable.no-footer {
     width: 25%;
     margin: auto;
     text-align: center;
-}
-
-.cybCompResults {
-    font-weight: bold;
-    font-size: 20px;
-}
-
-.reportTime {
-    font-size: 15px;
-}
-
-.pkgNameDiv {
-    margin-left: auto;
-    margin-right: auto;
-    border-style: double;
-    background-color: #ecf5ff;
-    width: 25%;
-    margin: auto;
-    text-align: center;
-}
-
-.pkgNamesP {
-    font-size: 15px;
-    font-weight: bold;
-}
-
-.pkgNames {
-    font-size: 13px;
 }
 
 .VTPFStable {
@@ -130,6 +102,12 @@ table.dataTable.no-footer {
     margin-right: auto;
     border-style: double;
     background-color: #e5fbe5;
+}
+
+.passedTable {
+    margin-left: auto;
+    margin-right: auto;
+    border-style: double;
 }
 
 .passedTableCaption {
