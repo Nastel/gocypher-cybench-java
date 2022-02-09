@@ -23,6 +23,8 @@ import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -303,4 +305,56 @@ public final class IOUtils {
         return reportsFolder + reportFileName;
     }
 
+    public static String getJavaClassFileVersion(Class<?> clazz) throws IOException {
+        return getJavaClassFileVersion(clazz.getName());
+    }
+
+    public static String getJavaClassFileVersion(String className) throws IOException {
+        try (InputStream in = IOUtils.class.getClassLoader()
+                .getResourceAsStream(className.replace('.', '/') + ".class");
+                DataInputStream data = new DataInputStream(in)) {
+            int magic = data.readInt();
+            if (magic != 0xCAFEBABE) {
+                throw new IOException("Invalid Java class");
+            }
+            int minor = 0xFFFF & data.readShort();
+            int major = 0xFFFF & data.readShort();
+
+            return major + "." + minor;
+        }
+    }
+
+    private static final Map<String, String> JAVA_VERSIONS_MAP = new HashMap<>();
+    static {
+        JAVA_VERSIONS_MAP.put("45.0", "1.0");
+        JAVA_VERSIONS_MAP.put("45.3", "1.1");
+        JAVA_VERSIONS_MAP.put("46.0", "1.2");
+        JAVA_VERSIONS_MAP.put("47.0", "1.3");
+        JAVA_VERSIONS_MAP.put("48.0", "1.4");
+        JAVA_VERSIONS_MAP.put("49.0", "5");
+        JAVA_VERSIONS_MAP.put("50.0", "6");
+        JAVA_VERSIONS_MAP.put("51.0", "7");
+        JAVA_VERSIONS_MAP.put("52.0", "8");
+        JAVA_VERSIONS_MAP.put("53.0", "9");
+        JAVA_VERSIONS_MAP.put("54.0", "10");
+        JAVA_VERSIONS_MAP.put("55.0", "11");
+        JAVA_VERSIONS_MAP.put("56.0", "12");
+        JAVA_VERSIONS_MAP.put("57.0", "13");
+        JAVA_VERSIONS_MAP.put("58.0", "14");
+        JAVA_VERSIONS_MAP.put("59.0", "15");
+        JAVA_VERSIONS_MAP.put("60.0", "16");
+        JAVA_VERSIONS_MAP.put("61.0", "17");
+        JAVA_VERSIONS_MAP.put("62.0", "18");
+        JAVA_VERSIONS_MAP.put("63.0", "19");
+        JAVA_VERSIONS_MAP.put("64.0", "20");
+    }
+
+    public static String getJavaVersionByClassVersion(String clsVersion) {
+        if (clsVersion != null) {
+            String jVersion = JAVA_VERSIONS_MAP.get(clsVersion);
+            return jVersion == null ? "Unknown" : jVersion;
+        }
+
+        return null;
+    }
 }
