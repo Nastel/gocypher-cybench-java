@@ -40,6 +40,7 @@ import com.gocypher.cybench.model.ComparisonConfig;
 import com.gocypher.cybench.model.ComparedBenchmark.CompareState;
 import com.gocypher.cybench.model.ComparisonConfig.Method;
 import com.gocypher.cybench.model.ComparisonConfig.Threshold;
+import com.gocypher.cybench.model.ComparisonConfig.Type;
 import com.gocypher.cybench.services.Requests;
 
 public class WebpageGenerator {
@@ -144,13 +145,13 @@ public class WebpageGenerator {
                         + "<td>" + testType + "</td>"
                         + "<td style='text-align:left'>" + benchmark.getDisplayName() + "</td>"
                         + "<td>" + benchmark.getMode() + "</td>"
-                        + "<td>" + BigDecimal.valueOf(benchmark.getScore()) + "</td>"
+                        + "<td>" + benchmark.getRoundedScore() + "</td>"
                         + "<td>" + comparisonConfig.getCompareVersion() + "</td>"
-                        + "<td>" + benchmark.getCompareMean() + "</td>"
-                        + "<td>" + benchmark.getCompareSD() + "</td>"
-                        + "<td>" + benchmark.getDelta() + "</td>"
-                        + "<td>" + benchmark.getPercentChange() + "</td>"
-                        + "<td>" + benchmark.getDeviationsFromMean() + "</td>"
+                        + "<td>" + benchmark.getRoundedCompareMean() + "</td>"
+                        + "<td>" + benchmark.getRoundedCompareSD() + "</td>"
+                        + "<td>" + benchmark.getRoundedDelta() + "</td>"
+                        + "<td>" + benchmark.getRoundedPercentChange() + "%</td>"
+                        + "<td>" + benchmark.getRoundedDeviationsFromMean() + "</td>"
                         + "</tr></tbody></table><br>", utf8, true);
             }
         } catch (Exception e) {
@@ -160,9 +161,9 @@ public class WebpageGenerator {
     }
 
     private static String getTestType(ComparisonConfig comparisonConfig) {
-        if (comparisonConfig.getMethod() == Method.SD) {
+        if (comparisonConfig.getTestType() == Type.SD) {
             return "SD Test: " + comparisonConfig.getDeviationsAllowed() + " deviations allowed";
-        } else if (comparisonConfig.getThreshold() == Threshold.GREATER) {
+        } else if (comparisonConfig.getTestType() == Type.DELTA) {
             return "Delta Test";
         } else {
             return "% Change Test: " + comparisonConfig.getPercentChangeAllowed() + "% change allowed";

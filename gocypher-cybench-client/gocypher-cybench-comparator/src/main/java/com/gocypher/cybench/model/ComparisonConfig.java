@@ -34,6 +34,11 @@ public class ComparisonConfig {
         PERCENT_CHANGE, GREATER
     }
 
+    public static enum Type {
+        SD, DELTA, PERCENT_CHANGE
+    }
+
+    private Type testType;
     private Scope scope;
     private Method method;
     private Threshold threshold;
@@ -80,6 +85,24 @@ public class ComparisonConfig {
         setConfigID((String) configs.get("configID"));
     }
 
+    public void setTestType() {
+        if (method == Method.SD) {
+            setTestType(Type.SD);
+        } else if (threshold == Threshold.GREATER) {
+            setTestType(Type.DELTA);
+        } else if (threshold == Threshold.PERCENT_CHANGE) {
+            setTestType(Type.PERCENT_CHANGE);
+        }
+    }
+
+    public void setTestType(Type testType) {
+        this.testType = testType;
+    }
+
+    public Type getTestType() {
+        return testType;
+    }
+
     public void setScope(Scope scope) {
         this.scope = scope;
     }
@@ -90,6 +113,7 @@ public class ComparisonConfig {
 
     public void setMethod(Method method) {
         this.method = method;
+        setTestType();
     }
 
     public Method getMethod() {
@@ -98,6 +122,7 @@ public class ComparisonConfig {
 
     public void setThreshold(Threshold threshold) {
         this.threshold = threshold;
+        setTestType();
     }
 
     public Threshold getThreshold() {

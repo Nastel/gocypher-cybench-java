@@ -17,6 +17,8 @@
  */
 package com.gocypher.cybench.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,14 +35,20 @@ public class ComparedBenchmark {
     private String fingerprint;
     private String displayName;
     private Double score;
+    private BigDecimal roundedScore;
     private String mode;
 
     private CompareState compareState;
     private Double delta;
+    private BigDecimal roundedDelta;
     private Double percentChange;
+    private BigDecimal roundedPercentChange;
     private Double compareMean;
+    private BigDecimal roundedCompareMean;
     private Double compareSD;
+    private BigDecimal roundedCompareSD; 
     private Double deviationsFromMean;
+    private BigDecimal roundedDeviationsfromMean;
 
 
     public ComparedBenchmark() {
@@ -94,10 +102,19 @@ public class ComparedBenchmark {
 
     public void setScore(Double score) {
         this.score = score;
+        setRoundedScore(score);
     }
 
     public Double getScore() {
         return score;
+    }
+
+    public void setRoundedScore(Double score) {
+        this.roundedScore = new BigDecimal(score).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getRoundedScore() {
+        return roundedScore;
     }
 
     public void setMode(String mode) {
@@ -118,42 +135,87 @@ public class ComparedBenchmark {
 
     public void setDelta(Double delta) {
         this.delta = delta;
+        setRoundedDelta(delta);
     }
 
     public Double getDelta() {
         return delta;
     }
 
+    public void setRoundedDelta(Double delta) {
+        this.roundedDelta = new BigDecimal(delta).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getRoundedDelta() {
+        return roundedDelta;
+    }
+
     public void setPercentChange(Double percentChange) {
         this.percentChange = percentChange;
+        setRoundedPercentChange(percentChange);
     }
 
     public Double getPercentChange() {
         return percentChange;
     }
 
+    public void setRoundedPercentChange(Double percentChange) {
+        this.roundedPercentChange = new BigDecimal(percentChange).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getRoundedPercentChange() {
+        return roundedPercentChange;
+    }
+
     public void setCompareMean(Double compareMean) {
         this.compareMean = compareMean;
+        setRoundedCompareMean(compareMean);
     }
 
     public Double getCompareMean() {
         return compareMean;
     }
 
+    public void setRoundedCompareMean(Double compareMean) {
+        this.roundedCompareMean = new BigDecimal(compareMean).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getRoundedCompareMean() {
+        return roundedCompareMean;
+    }
+
     public void setCompareSD(Double compareSD) {
         this.compareSD = compareSD;
+        setRoundedCompareSD(compareSD);
     }
 
     public Double getCompareSD() {
         return compareSD;
     }
 
+    public void setRoundedCompareSD(Double compareSD) {
+        this.roundedCompareSD = new BigDecimal(compareSD).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getRoundedCompareSD() {
+        return roundedCompareSD;
+    }
+
     public void setDeviationsFromMean(Double deviationsFromMean) {
         this.deviationsFromMean = deviationsFromMean;
+        setRoundedDeviationsFromMean(deviationsFromMean);
     }
 
     public Double getDeviationsFromMean() {
         return deviationsFromMean;
+    }
+
+    public void setRoundedDeviationsFromMean(Double deviationsFromMean) {
+        this.roundedDeviationsfromMean = new BigDecimal(deviationsFromMean).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getRoundedDeviationsFromMean() {
+        return roundedDeviationsfromMean;
     }
 
     public String toString() {

@@ -43,6 +43,7 @@ import com.gocypher.cybench.model.ComparisonConfig;
 import com.gocypher.cybench.model.ComparisonConfig.Scope;
 import com.gocypher.cybench.model.ComparisonConfig.Method;
 import com.gocypher.cybench.model.ComparisonConfig.Threshold;
+import com.gocypher.cybench.model.ComparisonConfig.Type;
 import com.gocypher.cybench.services.Requests;
 import com.gocypher.cybench.utils.ComparatorScriptEngine;
 import com.gocypher.cybench.utils.Comparisons;
@@ -316,7 +317,6 @@ public class CompareBenchmarks {
 
     public static void logResults() throws Exception {
         comparisonRunTime = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-        System.out.print("\n\n");
         logInfo("Comparing {}, version {}", Requests.project, Requests.currentVersion);
         logInfo("compared={}, passed={}, (skipped={}), anomalies={}", totalComparedBenchmarks, totalPassedBenchmarks,
                 totalSkippedBenchmarks, totalFailedBenchmarks);
@@ -358,30 +358,27 @@ public class CompareBenchmarks {
             if (!compareState.equals(CompareState.SKIP)) {
                 ComparisonConfig comparisonConfig = benchmark.getComparisonConfig();
                 StringBuilder log = new StringBuilder(
-                        "   {}: test.name={}, test.mode={}, test.score={}, test.compare.version={}, test.compare.method={}, test.compare.range={}, test.compare.mean={}, ");
+                        "   {}: test.type={}, test.name={}, test.mode={}, test.score={}, test.compare.version={}, test.compare.method={}, test.compare.range={}, test.compare.mean={}, test.compare.SD={}, ");
     
-                if (comparisonConfig.getMethod().equals(Method.DELTA)) {
-                    log.append("test.compare.threshold=").append(comparisonConfig.getThreshold()).append(", ");
-                    if (comparisonConfig.getThreshold().equals(Threshold.PERCENT_CHANGE)) {
-                        log.append("test.percentChangeAllowed=").append(comparisonConfig.getPercentChangeAllowed()).append(", ");
-                    }
-                } else {
+                if (comparisonConfig.getTestType() == Type.PERCENT_CHANGE) {
+                    log.append("test.percentChangeAllowed=").append(comparisonConfig.getPercentChangeAllowed()).append(", ");
+                } else if (comparisonConfig.getTestType() == Type.SD) {
                     log.append("test.deviationsAllowed=").append(comparisonConfig.getDeviationsAllowed()).append(", ");
                 }
     
                 log.append("test.compare.delta={}, test.compare.percentChange={}%, test.compare.SDsFromMean={}, test.id={}");
     
                 if (compareState.equals(CompareState.PASS)) {
-                    logInfo(log.toString(), "PASSED", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getScore(), comparisonConfig.getCompareVersion(),
-                        comparisonConfig.getMethod(), comparisonConfig.getRange(), benchmark.getCompareMean(), benchmark.getDelta(), 
-                        benchmark.getPercentChange(), benchmark.getDeviationsFromMean(), benchmark.getFingerprint());
+                    logInfo(log.toString(), "PASSED", comparisonConfig.getTestType(), benchmark.getDisplayName(), benchmark.getMode(), benchmark.getRoundedScore(), comparisonConfig.getCompareVersion(),
+                        comparisonConfig.getMethod(), comparisonConfig.getRange(), benchmark.getRoundedCompareMean(), benchmark.getRoundedCompareSD(), benchmark.getRoundedDelta(), 
+                        benchmark.getRoundedPercentChange(), benchmark.getRoundedDeviationsFromMean(), benchmark.getFingerprint());
                 } else {
-                    logErr(log.toString(), "ANOMALY", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getScore(), comparisonConfig.getCompareVersion(),
-                        comparisonConfig.getMethod(), comparisonConfig.getRange(), benchmark.getCompareMean(), benchmark.getDelta(), 
-                        benchmark.getPercentChange(), benchmark.getDeviationsFromMean(), benchmark.getFingerprint());
+                    logErr(log.toString(), "ANOMALY", comparisonConfig.getTestType(), benchmark.getDisplayName(), benchmark.getMode(), benchmark.getRoundedScore(), comparisonConfig.getCompareVersion(),
+                        comparisonConfig.getMethod(), comparisonConfig.getRange(), benchmark.getRoundedCompareMean(), benchmark.getRoundedCompareSD(), benchmark.getRoundedDelta(), 
+                        benchmark.getRoundedPercentChange(), benchmark.getRoundedDeviationsFromMean(), benchmark.getFingerprint());
                 }
             } else {
-                logInfo("   NO COMPARISON: test.name={}, test.mode={}, test.score={}", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getScore());
+                logInfo("   NO COMPARISON: test.name={}, test.mode={}, test.score={}", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getRoundedScore());
             } 
         }
     }
