@@ -20,6 +20,8 @@
 package com.gocypher.cybench.services;
 
 import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import org.apache.commons.io.FileUtils;
@@ -139,7 +141,7 @@ public class Requests {
     }
 
     public boolean getProjectSummary(String projectName, String accessToken) {
-        String serviceUrl = projectSummaryUrl + projectName + "/providedAccessToken";
+        String serviceUrl = projectSummaryUrl + URLEncoder.encode(projectName, StandardCharsets.UTF_8).toString() + "/providedAccessToken";
         if (serviceUrl != null && projectName != null) {
             try {
                 log.info("* Fetching project data for {}", projectName);

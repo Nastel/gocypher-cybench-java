@@ -21,7 +21,6 @@ package com.gocypher.cybench.utils;
 
 import java.io.File;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
@@ -38,8 +37,6 @@ import com.gocypher.cybench.CompareBenchmarks;
 import com.gocypher.cybench.model.ComparedBenchmark;
 import com.gocypher.cybench.model.ComparisonConfig;
 import com.gocypher.cybench.model.ComparedBenchmark.CompareState;
-import com.gocypher.cybench.model.ComparisonConfig.Method;
-import com.gocypher.cybench.model.ComparisonConfig.Threshold;
 import com.gocypher.cybench.model.ComparisonConfig.Type;
 import com.gocypher.cybench.services.Requests;
 
@@ -72,8 +69,9 @@ public class WebpageGenerator {
     
             String runTime = getDateTimeForFileName();
             htmlStr = htmlStr.replace("$" + "runTime", runTime);
+            String projectName = Requests.project.replace("/", " ");
             File htmlFile = new File(
-                    "htmlReports/" + Requests.project + " v" + Requests.currentVersion + " - " + runTime + ".html");
+                    "htmlReports/" + projectName + " v" + Requests.currentVersion + " - " + runTime + ".html");
             FileUtils.writeStringToFile(htmlFile, htmlStr, utf8);
     
     
@@ -136,12 +134,12 @@ public class WebpageGenerator {
                     + "<th>Delta</th>"
                     + "<th>Percent Change</th>"
                     + "<th>Deviations From Mean</th>"
-                    + "</tr></thead>", utf8, true);
+                    + "</tr></thead><tbody>", utf8, true);
 
             for (ComparedBenchmark benchmark : benchmarks) {
                 ComparisonConfig comparisonConfig = benchmark.getComparisonConfig();
                 String testType = getTestType(comparisonConfig);
-                FileUtils.writeStringToFile(htmlFile, "<tbody><tr>"
+                FileUtils.writeStringToFile(htmlFile, "<tr>"
                         + "<td>" + testType + "</td>"
                         + "<td style='text-align:left'>" + benchmark.getDisplayName() + "</td>"
                         + "<td>" + benchmark.getMode() + "</td>"
@@ -152,8 +150,9 @@ public class WebpageGenerator {
                         + "<td>" + benchmark.getRoundedDelta() + "</td>"
                         + "<td>" + benchmark.getRoundedPercentChange() + "%</td>"
                         + "<td>" + benchmark.getRoundedDeviationsFromMean() + "</td>"
-                        + "</tr></tbody></table><br>", utf8, true);
+                        + "</tr>", utf8, true);
             }
+            FileUtils.writeStringToFile(htmlFile, "</tbody></table><br>", utf8, true);
         } catch (Exception e) {
             log.error("Error filling HTML table with benchmark data!");
             throw e;
@@ -171,19 +170,17 @@ public class WebpageGenerator {
     }
 
     
-    private static void generateStylingFile() throws Exception{
-        InputStream styleIn = WebpageGenerator.class.getResourceAsStream("/styles.css");
-        File tempStyleFile = new File("htmlReports/styles/styles.css");
-        String resultStyle;
+    private static void generateStylingFile() throws Exception {
+        InputStream stream = WebpageGenerator.class.getResourceAsStream("/styles.css");
+        File styleFile = new File("htmlReports/styles/styles.css");
         try {
-            resultStyle = IOUtils.toString(styleIn, utf8);
-            FileUtils.writeStringToFile(tempStyleFile, resultStyle, utf8);
-            styleIn.close();
+            String styles = IOUtils.toString(stream, utf8);
+            FileUtils.writeStringToFile(styleFile, styles, utf8);
+            stream.close();
         } catch (Exception e) {
-            log.error("Failed to generate styling for HTML report.");
+            log.error("Failed to generate HTML styling");
             throw e;
         }
-
     }
 
     private static void deleteTempFiles() throws Exception {
