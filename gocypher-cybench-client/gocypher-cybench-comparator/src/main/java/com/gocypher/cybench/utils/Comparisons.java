@@ -183,7 +183,7 @@ public final class Comparisons {
                 break;
             }
             case SKIP: {
-                CompareBenchmarks.skipBenchmark(benchmarkToCompare);
+                CompareBenchmarks.skipBenchmark(benchmarkToCompare, "Benchmark not found in compared to reports");
                 break;
             }
         }

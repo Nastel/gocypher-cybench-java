@@ -50,6 +50,8 @@ public class ComparedBenchmark {
     private Double deviationsFromMean;
     private BigDecimal roundedDeviationsfromMean;
 
+    private String skipReason;
+
 
     public ComparedBenchmark() {
 
@@ -216,6 +218,14 @@ public class ComparedBenchmark {
 
     public BigDecimal getRoundedDeviationsFromMean() {
         return roundedDeviationsfromMean;
+    }
+
+    public void setSkipReason(String skipReason) {
+        this.skipReason = skipReason;
+    }
+    
+    public String getSkipReason() {
+        return this.skipReason;
     }
 
     public String toString() {

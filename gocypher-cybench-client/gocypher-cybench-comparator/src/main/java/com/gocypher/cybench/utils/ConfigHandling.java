@@ -229,11 +229,18 @@ public class ConfigHandling {
                 Method compareMethod = (Method) compareVals.get(METHOD);
                 if (compareMethod.equals(Method.SD)) {
                     if (!compareVals.containsKey(DEVIATIONS_ALLOWED)) {
-                        compareVals.put(DEVIATIONS_ALLOWED, defaultDeviations);
-                        log.warn("'{}': Deviations Allowed not specified, will allow: {}", simplifiedIdentifier,
-                                defaultDeviations);
+                        if (defaultVals.containsKey(DEVIATIONS_ALLOWED)) {
+                            compareVals.put(DEVIATIONS_ALLOWED, defaultDeviations);
+                            log.warn("'{}': Deviations Allowed not specified, will allow: {}", simplifiedIdentifier,
+                                    defaultDeviations);
+                        } else {
+                            log.warn(
+                                    "'{}': Method recognized as 'SD' but deviations allowed were not specified!",
+                                    simplifiedIdentifier);
+                            throw (new Exception());
+                        }
                     } else {
-                        String deviationsStr = (String) compareVals.get(DEVIATIONS_ALLOWED);
+                        String deviationsStr = compareVals.get(DEVIATIONS_ALLOWED).toString();
                         try {
                             Double deviations = Double.parseDouble(deviationsStr);
                             compareVals.put(DEVIATIONS_ALLOWED, deviationsStr);
@@ -242,6 +249,12 @@ public class ConfigHandling {
                             log.warn("'{}': '{}' passed is not a valid number!", simplifiedIdentifier, deviationsStr);
                             throw (new Exception());
                         }
+                    }
+         
+                    if (compareVals.containsKey(THRESHOLD)) {
+                        log.warn("'{}': Threshold was specified but method was specified as 'SD' - will ignore threshold configuration",
+                            simplifiedIdentifier);
+                        compareVals.remove(THRESHOLD);
                     }
                 } else {
                     if (compareVals.containsKey(DEVIATIONS_ALLOWED)) {
@@ -256,7 +269,7 @@ public class ConfigHandling {
                     log.warn("'{}': Range not defined, will use: {}", simplifiedIdentifier, defaultRange);
                     compareVals.put(RANGE, defaultRange);
                 } else {
-                    String range = (String) compareVals.get(RANGE);
+                    String range = compareVals.get(RANGE).toString();
                     range = range.toUpperCase();
                     if (!range.equals("ALL")) {
                         try {
@@ -342,7 +355,7 @@ public class ConfigHandling {
                                 throw (new Exception());
                             }
                         } else {
-                            String percentageStr = (String) compareVals.get(PERCENT_CHANGE_ALLOWED);
+                            String percentageStr = compareVals.get(PERCENT_CHANGE_ALLOWED).toString();
                             try {
                                 Double percentage = Double.parseDouble(percentageStr);
                                 compareVals.put(PERCENT_CHANGE_ALLOWED, percentage);

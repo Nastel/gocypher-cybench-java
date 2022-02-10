@@ -181,19 +181,19 @@ public class CompareBenchmarks {
             List<ComparedBenchmark> benchmarksToCompareAgainst = getBenchmarksToCompareAgainst(benchmarkToCompare);
 
             if (benchmarksToCompareAgainst.size() == 0) {
-                logWarn("SKIP COMPARISON - {} : mode={} - There are not enough benchmarks to compare to in version={} with specific range={}",
-                            benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, comparisonConfig.getRange());
+                // logWarn("SKIP COMPARISON - {} : mode={} - There are not enough benchmarks to compare to in version={} with specific range={}",
+                //             benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, comparisonConfig.getRange());
                 if (benchmarkToCompare.getCompareState() == null) {
                     // handling in case skip flag wasn't raised in getBenchmarksToCompareAgainst method
-                    skipBenchmark(benchmarkToCompare);
+                    skipBenchmark(benchmarkToCompare, "There are not enough benchmarks to compare to in version " + Requests.currentVersion + " with specific range " + comparisonConfig.getRange());
                 }
                 return CompareState.SKIP;
             }
 
             return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst);            
         } else {
-            logWarn("SKIP COMPARISON - {} : mode={} - There are no configurations set", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode());
-            skipBenchmark(benchmarkToCompare);
+            // logWarn("SKIP COMPARISON - {} : mode={} - Configuration not defined properly", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode());
+            skipBenchmark(benchmarkToCompare, "Configuration not defined properly");
             return CompareState.SKIP;
         }
     }
@@ -236,9 +236,9 @@ public class CompareBenchmarks {
             } else {
                 range = Integer.parseInt(compareRange);
                 if (range > maxRange) {
-                    logWarn("SKIP COMPARISON - {} : mode={} - There are not enough reports to compare to in version={} with specific range={}",
-                        benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, range);
-                    skipBenchmark(benchmarkToCompare);
+                    // logWarn("SKIP COMPARISON - {} : mode={} - There are not enough reports to compare to in version={} with specific range={}",
+                    //     benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, range);
+                    skipBenchmark(benchmarkToCompare, "There are not enough reports to compare to in version " + Requests.currentVersion + " with specific range " + comparisonConfig.getRange());
                     return false;
                 }
             }    
@@ -246,8 +246,8 @@ public class CompareBenchmarks {
             comparisonConfig.setRange(compareRange);
             return true;
         } else {
-            logWarn("SKIP COMPARISON - {} : mode={} - There are no reports for {}, version {}", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.project, compareVersion);
-            skipBenchmark(benchmarkToCompare);
+            // logWarn("SKIP COMPARISON - {} : mode={} - There are no reports for {}, version {}", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.project, compareVersion);
+            skipBenchmark(benchmarkToCompare, "There are no reports for " + Requests.project + ", version " + compareVersion);
             return false;
         }
     }
@@ -307,7 +307,8 @@ public class CompareBenchmarks {
         failedBenchmarks.add(benchmarkToCompare);
     }
 
-    public static void skipBenchmark(ComparedBenchmark benchmarkToCompare) {
+    public static void skipBenchmark(ComparedBenchmark benchmarkToCompare, String reason) {
+        benchmarkToCompare.setSkipReason(reason);
         totalComparedBenchmarks++;
         comparedBenchmarks.add(benchmarkToCompare);
         benchmarkToCompare.setCompareState(CompareState.SKIP);
@@ -378,7 +379,7 @@ public class CompareBenchmarks {
                         benchmark.getRoundedPercentChange(), benchmark.getRoundedDeviationsFromMean(), benchmark.getFingerprint());
                 }
             } else {
-                logInfo("   NO COMPARISON: test.name={}, test.mode={}, test.score={}", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getRoundedScore());
+                logInfo("   NO COMPARISON: test.name={}, test.mode={}, test.score={}, {}", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getRoundedScore(), benchmark.getSkipReason());
             } 
         }
     }
@@ -405,12 +406,13 @@ public class CompareBenchmarks {
             compareScope = (Scope) defaultConfigs.get(ConfigHandling.SCOPE);
             compareRange = (String) defaultConfigs.get(ConfigHandling.RANGE);
             compareThreshold = (Threshold) defaultConfigs.get(ConfigHandling.THRESHOLD);
-            percentChangeAllowed = (Double) defaultConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED);
             compareVersion = (String) defaultConfigs.get(ConfigHandling.COMPARE_VERSION);
-            if ((defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED) != null)) {
-                deviationsAllowed = Double.parseDouble((String) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED));
+            if (defaultConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED) != null) {
+                percentChangeAllowed = Double.parseDouble(defaultConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
             }
-            // deviationsAllowed = (Double) defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED);
+            if ((defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED) != null)) {
+                deviationsAllowed = Double.parseDouble(defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
+            }
 
             configs = createConfigMap(compareMethod, compareScope, compareRange, compareThreshold, percentChangeAllowed,
                     compareVersion, deviationsAllowed);
@@ -425,11 +427,11 @@ public class CompareBenchmarks {
                 compareRange = (String) specificConfigs.get(ConfigHandling.RANGE);
                 compareThreshold = (Threshold) specificConfigs.get(ConfigHandling.THRESHOLD);
                 compareVersion = (String) specificConfigs.get(ConfigHandling.COMPARE_VERSION);
-                if (specificConfigs.containsKey(ConfigHandling.PERCENT_CHANGE_ALLOWED)) {
+                if (specificConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED) != null) {
                     percentChangeAllowed = Double
                             .parseDouble(specificConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
                 }
-                if (specificConfigs.containsKey(ConfigHandling.DEVIATIONS_ALLOWED)) {
+                if (specificConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED) != null) {
                     deviationsAllowed = Double
                             .parseDouble(specificConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
                 }

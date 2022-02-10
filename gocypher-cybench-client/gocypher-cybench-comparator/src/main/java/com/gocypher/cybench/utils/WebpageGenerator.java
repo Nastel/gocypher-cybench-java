@@ -45,14 +45,21 @@ public class WebpageGenerator {
     private static Charset utf8 = StandardCharsets.UTF_8;
 
     public static void generatePage() {
+        String runTime = getDateTimeForFileName();
+        String projectName = Requests.project.replace("/", " ");
+        File templateDir = new File("htmlReports/tmp/");
+        String fileName = "htmlReports/" + projectName + " v" + Requests.currentVersion + " - " + runTime + ".html";
+        File htmlFile = new File(fileName);
+
         try {
             InputStream in = WebpageGenerator.class.getResourceAsStream("/template.html");
-            File template = new File("src/main/tmp/tempHTML.tmp");
+            File template = new File("htmlReports/tmp/tempHTML.tmp");
             String result = IOUtils.toString(in, utf8);
             FileUtils.writeStringToFile(template, result, utf8);
             in.close();
 
             String htmlStr = FileUtils.readFileToString(template, utf8);
+            htmlStr = htmlStr.replace("$" + "runTime", runTime);
             htmlStr = htmlStr.replace("$" + "total", CompareBenchmarks.totalComparedBenchmarks + "");
             htmlStr = htmlStr.replace("$" + "passed", CompareBenchmarks.totalPassedBenchmarks + "");
             htmlStr = htmlStr.replace("$" + "failed", CompareBenchmarks.totalFailedBenchmarks + "");
@@ -65,13 +72,6 @@ public class WebpageGenerator {
             } else {
                 htmlStr = htmlStr.replace("$" + "previousVersion", "N/A");
             }
-
-    
-            String runTime = getDateTimeForFileName();
-            htmlStr = htmlStr.replace("$" + "runTime", runTime);
-            String projectName = Requests.project.replace("/", " ");
-            File htmlFile = new File(
-                    "htmlReports/" + projectName + " v" + Requests.currentVersion + " - " + runTime + ".html");
             FileUtils.writeStringToFile(htmlFile, htmlStr, utf8);
     
     
@@ -87,12 +87,17 @@ public class WebpageGenerator {
             FileUtils.write(htmlFile, "</body>\n</html>", utf8, true);
     
             generateStylingFile();
-            deleteTempFiles();
+            FileUtils.deleteDirectory(templateDir);
 
-            // log.info("* Finished creating HTML report.");
             log.info("* Generated HTML report can be found at {}", htmlFile.getAbsolutePath());
         } catch (Exception e) {
             log.error("* Error generating HTML report!", e);
+            try {
+                FileUtils.delete(htmlFile);
+                FileUtils.deleteDirectory(templateDir);
+            } catch (Exception deleteFilesException) {
+
+            }
         }
     }
 
@@ -101,6 +106,7 @@ public class WebpageGenerator {
             String table = "";
             String captionClass = "";
             String caption = "";
+            boolean skippedBenchmarks = false;
             switch (benchmarkState) {
                 case PASS: {
                     table = "passedTable";
@@ -118,39 +124,47 @@ public class WebpageGenerator {
                     table = "skippedTable";
                     captionClass = "skippedCaption";
                     caption = "Skipped Benchmarks";
+                    skippedBenchmarks = true;
                     break;
                 }
             }
 
             FileUtils.write(htmlFile, "<table id=\""+ table + "\" class=\"display compact " + table + "\">"
-                    + "<caption class=\"" + captionClass + "\">" + caption + "</caption><thead><tr>"
-                    + "<th>Test Type</th>"
-                    + "<th>Name</th>"
+                    + "<caption class=\"" + captionClass + "\">" + caption + "</caption><thead><tr>", utf8, true);
+            if (!skippedBenchmarks) {
+                FileUtils.write(htmlFile, "<th>Test Type</th>", utf8, true);
+            }
+            FileUtils.write(htmlFile, "<th>Name</th>" 
                     + "<th>Mode</th>"
-                    + "<th>Score</th>"
-                    + "<th>Compared Against Version</th>"
+                    + "<th>Score</th>", utf8, true);
+            if (!skippedBenchmarks) {
+                FileUtils.write(htmlFile, "<th>Compared Against Version</th>"
                     + "<th>Mean</th>"
                     + "<th>SD</th>"
                     + "<th>Delta</th>"
                     + "<th>Percent Change</th>"
-                    + "<th>Deviations From Mean</th>"
-                    + "</tr></thead><tbody>", utf8, true);
+                    + "<th>Deviations From Mean</th>", utf8, true);
+            }
+            FileUtils.write(htmlFile, "</tr></thead><tbody>", utf8, true);
 
             for (ComparedBenchmark benchmark : benchmarks) {
                 ComparisonConfig comparisonConfig = benchmark.getComparisonConfig();
-                String testType = getTestType(comparisonConfig);
-                FileUtils.writeStringToFile(htmlFile, "<tr>"
-                        + "<td>" + testType + "</td>"
-                        + "<td style='text-align:left'>" + benchmark.getDisplayName() + "</td>"
+                FileUtils.writeStringToFile(htmlFile, "<tr>", utf8, true);
+                if (!skippedBenchmarks) {
+                    FileUtils.writeStringToFile(htmlFile, "<td>" + getTestType(comparisonConfig) + "</td>", utf8, true);
+                }
+                FileUtils.writeStringToFile(htmlFile, "<td style='text-align: left;'>" + benchmark.getDisplayName() + "</td>"
                         + "<td>" + benchmark.getMode() + "</td>"
-                        + "<td>" + benchmark.getRoundedScore() + "</td>"
-                        + "<td>" + comparisonConfig.getCompareVersion() + "</td>"
-                        + "<td>" + benchmark.getRoundedCompareMean() + "</td>"
-                        + "<td>" + benchmark.getRoundedCompareSD() + "</td>"
-                        + "<td>" + benchmark.getRoundedDelta() + "</td>"
-                        + "<td>" + benchmark.getRoundedPercentChange() + "%</td>"
-                        + "<td>" + benchmark.getRoundedDeviationsFromMean() + "</td>"
-                        + "</tr>", utf8, true);
+                        + "<td>" + benchmark.getRoundedScore() + "</td>", utf8, true);
+                if (!skippedBenchmarks) {
+                    FileUtils.writeStringToFile(htmlFile, "<td>" + comparisonConfig.getCompareVersion() + "</td>"
+                            + "<td>" + benchmark.getRoundedCompareMean() + "</td>"
+                            + "<td>" + benchmark.getRoundedCompareSD() + "</td>"
+                            + "<td>" + benchmark.getRoundedDelta() + "</td>"
+                            + "<td>" + benchmark.getRoundedPercentChange() + "%</td>"
+                            + "<td>" + benchmark.getRoundedDeviationsFromMean() + "</td>", utf8, true);
+                }
+                FileUtils.writeStringToFile(htmlFile, "</tr>", utf8, true);
             }
             FileUtils.writeStringToFile(htmlFile, "</tbody></table><br>", utf8, true);
         } catch (Exception e) {
@@ -161,11 +175,11 @@ public class WebpageGenerator {
 
     private static String getTestType(ComparisonConfig comparisonConfig) {
         if (comparisonConfig.getTestType() == Type.SD) {
-            return "SD Test: " + comparisonConfig.getDeviationsAllowed() + " deviations allowed";
+            return comparisonConfig.getDeviationsAllowed() + " deviations allowed";
         } else if (comparisonConfig.getTestType() == Type.DELTA) {
             return "Delta Test";
         } else {
-            return "% Change Test: " + comparisonConfig.getPercentChangeAllowed() + "% change allowed";
+            return comparisonConfig.getPercentChangeAllowed() + "% change allowed";
         }
     }
 
@@ -179,17 +193,6 @@ public class WebpageGenerator {
             stream.close();
         } catch (Exception e) {
             log.error("Failed to generate HTML styling");
-            throw e;
-        }
-    }
-
-    private static void deleteTempFiles() throws Exception {
-        File tempDir = new File("src/main/tmp/");
-        try {
-            FileUtils.deleteDirectory(tempDir);
-            // log.info("* Temporary files deleted.");
-        } catch (Exception e) {
-            log.error("Error while deleting temporary files directory.");
             throw e;
         }
     }

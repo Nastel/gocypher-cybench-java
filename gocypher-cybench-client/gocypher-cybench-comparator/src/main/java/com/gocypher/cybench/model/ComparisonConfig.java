@@ -60,10 +60,13 @@ public class ComparisonConfig {
     public ComparisonConfig(Map<String, Object> configs) {
         String scope = configs.get("scope").toString();
         String method = configs.get("method").toString();
-        String threshold = configs.get("threshold").toString();
         setScope(Scope.valueOf(scope));
         setMethod(Method.valueOf(method));
-        setThreshold(Threshold.valueOf(threshold));
+        if (configs.containsKey("threshold") && configs.get("threshold") != null) {
+            System.out.println(configs.get("threshold"));
+            String threshold = configs.get("threshold").toString();
+            setThreshold(Threshold.valueOf(threshold));
+        }
 
         setRange((String) configs.get("range"));
         setProjectName((String) configs.get("projectName"));
