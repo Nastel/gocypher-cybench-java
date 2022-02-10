@@ -83,7 +83,7 @@
         <uberjar.name>gocypher-cybench-client</uberjar.name>
         <product.name.hr>CyBench-client</product.name.hr>
         <product.copyright.html>
-            <![CDATA[<font size="-1">Copyright &#169; 2014-2021 ${project.organization.name}. All Rights Reserved.</font>]]>
+            <![CDATA[<font size="-1">Copyright &#169; 2014-2022 ${project.organization.name}. All Rights Reserved.</font>]]>
         </product.copyright.html>
 
         <maven.source.skip>true</maven.source.skip>
