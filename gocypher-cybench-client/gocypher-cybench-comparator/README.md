@@ -251,8 +251,6 @@ stage('Compare Benchmarks') {
 
 ### Dedicated Java System properties
 
-* `cybench.reports.view.url` - defines CyBench service endpoint URL to obtain benchmark reports. Default value - 
-  `https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/`.
 * `cybench.benchmark.base.url` - defines default CyBench benchmark report base URL. Default value - 
   `https://app.cybench.io/cybench/benchmark/`.
 
@@ -288,12 +286,14 @@ Template scripts located in the scripts folder [scripts](scripts/)
   set for you. Benchmarks are fetched in the background immediately once configuration arguments are passed to the main
   class. Refer to the [exposed methods](#exposed-methods-for-use) section to view accessible methods. Below is a list of
   variables accessible in the scripts:
-    * `myBenchmarks` - a Java `Map` of all the benchmarks from your report. `myBenchmarks` is
-      a `Map<String, Map<String, Map<String, Double>>>` object, which maps
-      to `<Benchmark Fingerprint: <Version : <Mode : <Score>>>`
-    * `myFingerprints` - an `ArrayList<String>` that contains every method's unique CyBench fingerprints in your report.
-    * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
-      method's name
+    * `myBenchmarks` - a Java `ArrayList` of all the benchmarks from your report. `myBenchmarks` is
+      a `ArrayList<ComparedBenchmark>` object. `ComparedBenchmark` is a custom object that contains information about benchmark scores, modes, etc. Once
+      a comparison is run on that benchmark, comparison statistics are scored in the model (delta, standard deviation, percent change...).
+      You can look at the model here: [ComparedBenchmark](src/main/java/com/gocypher/cybench/model/ComparedBenchmark.java)
+    * `project` - the name of the project you ran your report on
+    * `currentVersion` - the project version of the report you are comparing with
+    * `latestVersion` - the latest version of your project (given you have run a report on it)
+    * `previousVersion` - the previous version of your project (given you have run a report on it)
 
 The configuration arguments you pass via command line or build instructions (
 see: [Configuration Args](#configuration-args)) are also accessible:
@@ -355,59 +355,43 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 
 ```javascript
 // EXAMPLE ARGS PASSED VIA COMMAND LINE
-// -F -S scripts/Delta-BetweenVersions-PercentChange.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r ALL -m DELTA -t PERCENT_CHANGE -p 10
+// -F -S scripts/myScript.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s WITHIN -r ALL -m DELTA -t GREATER 
 
-// loop through the fingerprints in my report
-forEach.call(myFingerprints, function (fingerprint) {
-    var currentVersion = getCurrentVersion(fingerprint);
-    var benchmarkName = fingerprintsToNames.get(fingerprint);
-    var benchmarkedModes = getRecentlyBenchmarkedModes(fingerprint, currentVersion);
+// loop through the my benchmarks
+forEach.call(myBenchmarks, function (benchmark) {
+    // var benchmark represents a ComparedBenchmark Model
 
-    // loop through the modes tested within the current version of the fingerprint (current version = version benchmarked with)
-    forEach.call(benchmarkedModes, function (mode) {
-        currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
-        compareVersionScores = getBenchmarksByMode(fingerprint, compareVersion, mode);
+    // returns a list of benchmarks previously tested (with the same fingerprint and mode)
+    benchmarksToCompareAgainst = getBenchmarksToCompareAgainst(benchmark);
 
-        var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);
-    });
+    // represents an ENUM (PASS, FAIL, SKIP) - SKIP means this benchmark was not previously tested
+    compareState = runComparison(benchmark, benchmarksToCompareAgainst);
+
+    // after running a comparison, benchmark object will have contain properties that represent comparison statistics
+    comparedAgainstMean = benchmark.getCompareMean();
+    comapredAgainstStandardDeviation = benchmark.getCompareSD();
+
+    score = benchmark.getScore();
+    delta = benchmark.getDelta();
+    percentChange = benchmark.getPercentChange();
+    deviationsFromMean = benchmark.getDeviationsFromMean();
 });
 ```
 
 Detailed below is a walkthrough of the script above, explaining what each line of code means, and what is happening in
 the background as you execute the script.
 
+
 ### Template Walkthrough
 
-* First, we loop through the fingerprints for each report
-    * `getCurrentVersion(fingerprint)` is called first to establish the current version and set it to a
-      variable `currentVersion`. The variable `fingerprint` is automatically set for you in the background.
-    * The next line sets `benchmarkName` to the method name corresponding to the given fingerprint, it reads from
-      the `fingerprintsToNames` HashMap.
-    * After that, we call a function `getRecentlyBenchmarkedModes` that grabs an ArrayList `benchmarkedModes`, which
-      contains the modes benchmarked by the specific fingerprint in the recent report.
-    * **NOTE:** `myBenchmarks` is automatically defined for you, you do not have to set it manually.
-* After these variables are set, another loop cycles through the modes tested within the current version
-    * Two `List<Double>` objects are created, `currentVersionScores` and `compareVersionScores`. These lists of scores
-      get populated via multiple calls of `getBenchmarksByMode(fingerprint, currentVersion/compareVersion, mode)`
-    * **NOTE:** While `currentVersion` is set within the script, `compareVersion` has to be passed via arguments. The
-      default compare version is the previous version of `currentVersion`. You can pass the compare version with the (
-      -v) flag.
-* Next come the comparisons and assertions
-    * `var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);`
-      calls a generalized compare method that has been defined by [exposed methods](#exposed-methods-for-use) mentioned
-      below
-        * It compares the current version scores under a specific mode to the previous version scores under the same
-          mode. (`currentVersionScores`, `compareVersionScores`)
-        * Method, threshold, and range are all gathered from the flags you passed via the command line (for this
-          generalized compare method)
-        * Method (`method`) is passed via the (-m) flag. In this example, method was set to `DELTA` which will allow the
-          DELTA comparison to run.
-        * Threshold ('threshold') is passed via the (-t)
-          flag. In this example, threshold was set to `PERCENT_CHANGE` which will allow the test to pass even if it
-          performs slower, as long as it is within a given `percentChangeAllowed` (-p)
-        * Range (`range`) is passed via the (-r) flag. The range is `1` which means in this example, we are looking at
-          the last (most recent) value of `currentVersionScores` and comparing it to the most recent score
-          in `compareVersionScores`
+* In order to compare the benchmarks, we loop through `myBenchmarks` which is retrieved from your report
+    * Each of these benchmarks are `ComparedBenchmark` objects (details of the object can be found [here](src/main/java/com/gocypher/cybench/model/ComparedBenchmark.java)
+* The method `getBenchmarksToCompareAgainst(benchmark)` is a required method you must call in order to execute a fetch and grab the benchmarks to compare against
+    * This method allows you to pass a different version to compare to and a different range than specified via command args (read the exposed methods section for more info)
+    * It returns a list of ComparedBenchmarks
+* Next we run the comparison using `runComparison(benchmark, benchmarksToCompareAgainst)`. This will return either `PASS`, `FAIL`, or `SKIP`.
+* Finally, after runnning the comparison, all of the benchmark properties (score, mode, comparison values) are stored within `benchmark`. The methods you can call are
+  found within the `ComparedBenchmark` model. You can print any of these for viewing with `print(score)` for example.
 * **NOTE:** As a reminder, a table of [passable arguments](#configuration-args)
   and [exposed methods](#exposed-methods-for-use) can be found below in their corresponding sections.
 
@@ -416,34 +400,15 @@ the background as you execute the script.
 * [Exposed Methods](src/main/resources/ComparatorScriptBindings.js)
     * These methods can be called in your .js script
 
-* `getAllBenchmarks`, `getBenchmarksByFingerprint`, `getBenchmarksByVersion`, `getBenchmarksByMode`, are different ways
-  to access the benchmarks stored in `Java Maps`
-* `getRecentlyBenchmarkedModes` will allow you to grab the modes benchmarked by the passed fingerprint and the version (
-  currentVersion). It grabs from myBenchmarks which contains benchmark information from only your recent report (not
-  including fetched information).
-* `getCurrentVerison` and `getPreviousVersion` are methods that return version Strings of the fingerprint being
-  compared. Current Version represents the current version of the fingerprint being benchmarked, and previous version
-  will be passed back as the most previous version found in the fingerprint fetch based on dot notation. It is possible
-  previous version returns null.
-* `compareScores` is a generalized compare method which collects information from the command line flag arguments to
-  decide which comparison method to run, for more specific comparisons, you can use the functions below
-* `compareDelta`, `compareDeltaPercentChange`, and `compareSD` are specific compare methods you can call with your
-  scores that run all calculations behind the scenes and return Double values
-    * **NOTE:** When calling `compareSD`, you must supply `deviationsAllowed` (a `Double` type), example below:
-        * `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, range, deviationsAllowed, currentVersionScores, compareVersionScores)`
-        * A filled out `compareSD()` may look like
-          this: `compareSD(benchmarkName, benchmarkVersion, benchmarkMode, 5, 1, currentVersionScores, compareVersionScores)`
-            * where `5` is the `range`, and `1` is the `deviationsAllowed`. Refer to `ComparatorScriptBindings.js` for
-              full parameters/expectations.
-    * **NOTE:** When calling `compareDeltaPercentChange`, you must supply `percentChangeAllowed`
-        * `compareDeltaPercentChange(benchmarkName, benchmarkVersion, benchmarkMode, range, percentChangeAllowed, currentVersionScores, compareVersionScores)`
-        * A filled out `compareDelta()` may look like
-          this: `compareDelta(benchmarkName, benchmarkVersion, benchmarkMode, 5, 15, currentVersionScores, compareVersionScore)`
-            * where `5` is the `range` and `15` is the `percentChangeAllowed`.
-* `calculateDelta`, `calculateMean`, `calculateSD`, and `calculatePercentChange` are specific simple methods you can
+* `getBenchmarksToCompareAgainst` is a method that you pass a `ComparedBenchmark` to and uses the metadata from that model to make appropriate fetches
+  and grab the benchmarks you can compare it against given your configuration. It also allows you to pass a different version to compare to and a different range 
+  than what you provided via command args.
+* `getBenchmarkScores` is a method you can pass a List of `ComparedBenchmarks` to in case you wanted an easy way to extract all of the scores from the list. It will
+  return a List of `Double` values.
+* `runComparison` is the method you call in order to run an actual comparison. It will take all a `ComparedBenchmark` and a List of `ComparedBenchmarks` and return a
+  string representing `PASS`, `FAIL`, or `SKIP`. (`SKIP`) is passed back in the result of a configuration error, or benchmarks not being found to compare against.
+* `calculateMean`, `calculateSD`, `calculateDeviatonsFromMean`, and `calculatePercentChange` are specific simple methods you can
   quickly access for your own calculations and return `Double` values
-* `passAssertion` is a generalized assert method which collects information from the command line flag arguments to
-  decide which assertion to run, for more specific assertions, you can use the functions below
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to
   return boolean values that represent pass/fail
 
@@ -530,7 +495,7 @@ compare.A:
   scope: "WITHIN"
   threshold: "PERCENT_CHANGE"
   percentChangeAllowed: "15"
-  range: "ALL_VALUES"
+  range: "ALL"
 ```
 
 In the above example, the package `calctest.ClockTest` and all its benchmarks will test for a percent change of no less

@@ -20,6 +20,8 @@
 package com.gocypher.cybench.utils;
 
 import java.io.*;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,19 +34,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.CompareBenchmarks;
+import com.gocypher.cybench.model.ComparedBenchmark;
 import com.gocypher.cybench.services.Requests;
 
+// TODO NEEDS PATCH
 public class ComparatorScriptEngine {
     private static final Logger log = LoggerFactory.getLogger(ComparatorScriptEngine.class);
 
     private final String[] engineDefs = { "var Comparisons = Java.type('com.gocypher.cybench.utils.Comparisons');",
-            "var ConfigHandling = Java.type('com.gocypher.cybench.utils.ConfigHandling')",
-            "var Requests = Java.type('com.gocypher.cybench.services.Requests');",
+            "var CompareBenchmarks = Java.type('com.gocypher.cybench.CompareBenchmarks');",
+            "var ConfigHandling = Java.type('com.gocypher.cybench.utils.ConfigHandling');",
+            "var ComparedBenchmark = Java.type('com.gocypher.cybench.model.ComparedBenchmark');",
+            "var ComparisonConfig = Java.type('com.gocypher.cybench.model.ComparisonConfig');",
             "var forEach = Array.prototype.forEach;", "var HashMap = Java.type('java.util.HashMap');",
             "var ArrayList = Java.type('java.util.ArrayList');",
             "var Double = Java.type('java.lang.Double');" };
-    private Map<String, Map<String, Map<String, Double>>> myBenchmarks;
-    private ArrayList<String> myFingerprints;
+    private ArrayList<ComparedBenchmark> myBenchmarks;
     private Map<String, Object> passedProps;
 
     public static Map<String, Object> comparatorProps;
@@ -61,29 +66,45 @@ public class ComparatorScriptEngine {
         String deviationsAllowed = passedProps.get(ConfigHandling.DEVIATIONS_ALLOWED);
         comparatorProps = new HashMap<>();
 
-        initiateFetch(token, reportPath);
-        if (handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed,
+        if (parseReportAndFetchProjectInfo(token, reportPath)) {
+            if (handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed,
                 deviationsAllowed)) {
             File userScript = loadUserScript(scriptPath);
             ScriptEngine engine = prepareScriptEngine();
             runUserScript(engine, userScript);
-        } else {
-            log.warn("No comparisons can be run with invalid configurations!");
+            } else {
+                log.error("No comparisons can be run with invalid configurations!");
+            }
         }
     }
 
-    private void initiateFetch(String token, String reportPath) {
+    private boolean parseReportAndFetchProjectInfo(String token, String reportPath) {
         if (token == null) {
             log.warn("No access token provided!");
             token = ConfigHandling.DEFAULT_TOKEN;
         }
+        CompareBenchmarks.setAccessToken(token);
 
         if (reportPath == null) {
             log.warn("No report location provided, using default: {}", ConfigHandling.DEFAULT_REPORTS_LOCATION);
             reportPath = ConfigHandling.DEFAULT_REPORTS_LOCATION;
         }
-        myBenchmarks = Requests.getBenchmarksFromReport(token, ConfigHandling.identifyRecentReport(reportPath));
-        myFingerprints = new ArrayList<>(myBenchmarks.keySet());
+        myBenchmarks = condenseRecentBenchmarksToList(Requests.parseRecentReport(ConfigHandling.identifyRecentReport(reportPath)));
+        if (myBenchmarks.isEmpty()) {
+            log.warn("No benchmarks found in report!");
+            return false;
+        }
+        return Requests.getInstance().getProjectSummary(Requests.project, token);
+    }
+
+    private ArrayList<ComparedBenchmark> condenseRecentBenchmarksToList(Map<String, Map<String, ComparedBenchmark>> recentBenchmarks) {
+        ArrayList<ComparedBenchmark> myBenchmarks = new ArrayList<>();
+        for (Map<String, ComparedBenchmark> entry : recentBenchmarks.values()) {
+            for (ComparedBenchmark benchmark : entry.values()) {
+                myBenchmarks.add(benchmark);
+            }
+        }
+        return myBenchmarks;
     }
 
     private boolean handleComparatorConfigs(String method, String range, String scope, String compareVersion,
@@ -136,9 +157,11 @@ public class ComparatorScriptEngine {
             }
 
             engine.put("myBenchmarks", myBenchmarks);
-            engine.put("myFingerprints", myFingerprints);
-            engine.put("fingerprintsToNames", Requests.fingerprintsToNames);
-            engine.put("logConfigs", passedProps);
+            engine.put("configMap", passedProps);
+            engine.put("currentVersion", Requests.currentVersion);
+            engine.put("latestVersion", Requests.latestVersion);
+            engine.put("previousVersion", Requests.previousVersion);
+            engine.put("project", Requests.project);
             engine.put(ConfigHandling.METHOD, passedProps.get(ConfigHandling.METHOD));
             engine.put(ConfigHandling.SCOPE, passedProps.get(ConfigHandling.SCOPE));
             engine.put(ConfigHandling.RANGE, passedProps.get(ConfigHandling.RANGE));
@@ -158,14 +181,13 @@ public class ComparatorScriptEngine {
 
     private void runUserScript(ScriptEngine engine, File script) throws Exception {
         Reader reader;
-
         try {
             reader = new FileReader(script);
             engine.eval(reader);
+            CompareBenchmarks.logResults();
+            WebpageGenerator.generatePage();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        CompareBenchmarks.finalizeComparisonLogs(comparatorProps);
     }
 }
