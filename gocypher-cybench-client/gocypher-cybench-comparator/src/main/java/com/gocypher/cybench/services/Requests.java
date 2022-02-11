@@ -141,34 +141,34 @@ public class Requests {
     }
 
     public boolean getProjectSummary(String projectName, String accessToken) {
-        String serviceUrl = projectSummaryUrl + URLEncoder.encode(projectName, StandardCharsets.UTF_8) + "/providedAccessToken";
-        if (serviceUrl != null && projectName != null) {
             try {
-                log.info("* Fetching project data for {}", projectName);
-                URIBuilder uri = new URIBuilder(serviceUrl);
+                String serviceUrl = projectSummaryUrl + URLEncoder.encode(projectName, StandardCharsets.UTF_8.toString()) + "/providedAccessToken";
+                if (serviceUrl != null && projectName != null) {
+                    log.info("* Fetching project data for {}", projectName);
+                    URIBuilder uri = new URIBuilder(serviceUrl);
 
-                HttpGet request = new HttpGet(uri.build());
-                request.setHeader("x-api-key", accessToken);
-        
-                CloseableHttpResponse response = httpClient.execute(request);
-                String responseString = EntityUtils.toString(response.getEntity());
-                EntityUtils.consume(response.getEntity());
-        
-                JSONParser parser = new JSONParser();
-                JSONObject projectSummary = (JSONObject) parser.parse(responseString);
-                if (projectSummary.isEmpty()) {
-                    throw new Exception("No project data found!");
+                    HttpGet request = new HttpGet(uri.build());
+                    request.setHeader("x-api-key", accessToken);
+            
+                    CloseableHttpResponse response = httpClient.execute(request);
+                    String responseString = EntityUtils.toString(response.getEntity());
+                    EntityUtils.consume(response.getEntity());
+            
+                    JSONParser parser = new JSONParser();
+                    JSONObject projectSummary = (JSONObject) parser.parse(responseString);
+                    if (projectSummary.isEmpty()) {
+                        throw new Exception("No project data found!");
+                    }
+
+                    latestVersion = (String) projectSummary.get("latestVersion");
+                    previousVersion = (String) projectSummary.get("previousVersion");
+                    allProjectVersions = (ArrayList<String>) projectSummary.get("versions");
+                    reportSummaries = (Map<String, ArrayList<Map<String, Object>>>) projectSummary.get("reports");
                 }
-
-                latestVersion = (String) projectSummary.get("latestVersion");
-                previousVersion = (String) projectSummary.get("previousVersion");
-                allProjectVersions = (ArrayList<String>) projectSummary.get("versions");
-                reportSummaries = (Map<String, ArrayList<Map<String, Object>>>) projectSummary.get("reports");
             } catch (Exception e) {
                 log.error("* Failed to fetch project data for " + projectName, e);
                 return false;
             }
-        }
         return true;
     }
 
