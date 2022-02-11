@@ -251,8 +251,6 @@ stage('Compare Benchmarks') {
 
 ### Dedicated Java System properties
 
-* `cybench.reports.view.url` - defines CyBench service endpoint URL to obtain benchmark reports. Default value - 
-  `https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/benchmark/view/`.
 * `cybench.benchmark.base.url` - defines default CyBench benchmark report base URL. Default value - 
   `https://app.cybench.io/cybench/benchmark/`.
 
@@ -288,12 +286,14 @@ Template scripts located in the scripts folder [scripts](scripts/)
   set for you. Benchmarks are fetched in the background immediately once configuration arguments are passed to the main
   class. Refer to the [exposed methods](#exposed-methods-for-use) section to view accessible methods. Below is a list of
   variables accessible in the scripts:
-    * `myBenchmarks` - a Java `Map` of all the benchmarks from your report. `myBenchmarks` is
-      a `Map<String, Map<String, Map<String, Double>>>` object, which maps
-      to `<Benchmark Fingerprint: <Version : <Mode : <Score>>>`
-    * `myFingerprints` - an `ArrayList<String>` that contains every method's unique CyBench fingerprints in your report.
-    * `fingerprintsToNames` - a `HashMap` that maps the aforementioned CyBench fingerprints to its corresponding
-      method's name
+    * `myBenchmarks` - a Java `ArrayList` of all the benchmarks from your report. `myBenchmarks` is
+      a `ArrayList<ComparedBenchmark>` object. `ComparedBenchmark` is a custom object that contains information about benchmark scores, modes, etc. Once
+      a comparison is run on that benchmark, comparison statistics are scored in the model (delta, standard deviation, percent change...).
+      You can look at the model here: [ComparedBenchmark](src/main/java/com/gocypher/cybench/model/ComparedBenchmark.java)
+    * `project` - the name of the project you ran your report on
+    * `currentVersion` - the project version of the report you are comparing with
+    * `latestVersion` - the latest version of your project (given you have run a report on it)
+    * `previousVersion` - the previous version of your project (given you have run a report on it)
 
 The configuration arguments you pass via command line or build instructions (
 see: [Configuration Args](#configuration-args)) are also accessible:
@@ -355,26 +355,43 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 
 ```javascript
 // EXAMPLE ARGS PASSED VIA COMMAND LINE
-// -F -S scripts/Delta-BetweenVersions-PercentChange.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s BETWEEN -v PREVIOUS -r ALL -m DELTA -t PERCENT_CHANGE -p 10
+// -F -S scripts/myScript.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s WITHIN -r ALL -m DELTA -t GREATER 
 
-// loop through the fingerprints in my report
-forEach.call(myFingerprints, function (fingerprint) {
-    var currentVersion = getCurrentVersion(fingerprint);
-    var benchmarkName = fingerprintsToNames.get(fingerprint);
-    var benchmarkedModes = getRecentlyBenchmarkedModes(fingerprint, currentVersion);
+// loop through the my benchmarks
+forEach.call(myBenchmarks, function (benchmark) {
+    // var benchmark represents a ComparedBenchmark Model
 
-    // loop through the modes tested within the current version of the fingerprint (current version = version benchmarked with)
-    forEach.call(benchmarkedModes, function (mode) {
-        currentVersionScores = getBenchmarksByMode(fingerprint, currentVersion, mode);
-        compareVersionScores = getBenchmarksByMode(fingerprint, compareVersion, mode);
+    // returns a list of benchmarks previously tested (with the same fingerprint and mode)
+    benchmarksToCompareAgainst = getBenchmarksToCompareAgainst(benchmark);
 
-        var percentChange = compareScores(benchmarkName, currentVersion, mode, currentVersionScores, compareVersionScores);
-    });
+    // represents an ENUM (PASS, FAIL, SKIP) - SKIP means this benchmark was not previously tested
+    compareState = runComparison(benchmark, benchmarksToCompareAgainst);
+
+    // after running a comparison, benchmark object will have contain properties that represent comparison statistics
+    comparedAgainstMean = benchmark.getCompareMean();
+    comapredAgainstStandardDeviation = benchmark.getCompareSD();
+
+    score = benchmark.getScore();
+    delta = benchmark.getDelta();
+    percentChange = benchmark.getPercentChange();
+    deviationsFromMean = benchmark.getDeviationsFromMean();
 });
 ```
 
 Detailed below is a walkthrough of the script above, explaining what each line of code means, and what is happening in
 the background as you execute the script.
+
+
+
+
+
+
+
+
+
+
+#TODO
+
 
 ### Template Walkthrough
 
