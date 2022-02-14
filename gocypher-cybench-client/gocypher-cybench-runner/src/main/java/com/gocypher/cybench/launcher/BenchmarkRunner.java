@@ -302,7 +302,7 @@ public class BenchmarkRunner {
                     report.setReportURL(resultURL);
                 }
             } else {
-                LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
+                // LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
             // LOG.info("-----------------------------------------------------------------------------------------");
             // LOG.info("REPORT '{}'", report);
@@ -330,7 +330,9 @@ public class BenchmarkRunner {
                 LOG.info("Your report is available at {}", resultURL);
                 LOG.info("NOTE: It may take a few minutes for your report to appear online");
             } else {
-                LOG.info((String) response.get("error"));
+                if (response.containsKey("error")) {
+                    LOG.info((String) response.get("error"));
+                }
                 LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
         } catch (Exception e) {
