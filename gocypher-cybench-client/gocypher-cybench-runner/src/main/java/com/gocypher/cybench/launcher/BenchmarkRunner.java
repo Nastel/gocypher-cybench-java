@@ -95,15 +95,16 @@ public class BenchmarkRunner {
         HardwareProperties hwProperties = CollectSystemInformation.getEnvironmentProperties();
         LOG.info("Collecting JVM properties...");
         JVMProperties jvmProperties = CollectSystemInformation.getJavaVirtualMachineProperties();
-        LOG.info("Executing benchmarks...");
 
         Map<String, Map<String, String>> defaultBenchmarksMetadata = ComputationUtils
                 .parseBenchmarkMetadata(getProperty(Constants.BENCHMARK_METADATA));
 
         // make sure gradle metadata can be parsed BEFORE benchmarks are run
+        LOG.info("** Checking for valid Metadata before proceeding...");
         if (!checkValidMetadataProps("artifactId") || !checkValidMetadataProps("version")) {
             System.exit(1);
         }
+        LOG.info("Executing benchmarks...");
 
         LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
         OptionsBuilder optBuild = new OptionsBuilder();
@@ -688,37 +689,32 @@ public class BenchmarkRunner {
     }
 
     public static boolean checkValidMetadataProps(String prop) {
-        LOG.info("** Checking for valid Metadata before proceeding...");
         String temp2 = System.getProperty("user.dir");
         File gradle = new File(temp2 + "/build.gradle");
         File gradleKTS = new File(temp2 + "/build.gradle.kts");
         String temp;
         if (gradle.exists() || gradleKTS.exists()) {
-            LOG.info("** Gradle probject detected. Will now check for project.properties.");
-            try {
-                File projProps = new File(temp2 + "/config/project.properties");
-                if (projProps.exists()) {
-                    try (BufferedReader reader = new BufferedReader(new FileReader(projProps))) {
-                        while ((temp = reader.readLine()) != null) {
-                            if (temp.contains(prop)) {
-                                LOG.info("Found required metadata ({})", prop);
-                                return true;
-                            }
+            // LOG.info("** Gradle project detected. Will now check for project.properties.");
+            File projProps = new File(temp2 + "/config/project.properties");
+            if (projProps.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(projProps))) {
+                    while ((temp = reader.readLine()) != null) {
+                        if (temp.contains(prop)) {
+                            LOG.info("Found required metadata ({})", prop);
+                            return true;
                         }
-                    } catch (Exception e) {
-                        LOG.error(e.toString());
                     }
-                } else {
+                } catch (Exception e) {
+                    LOG.error("** Error reading project.properties file", e);
                     return false;
                 }
-            } catch (Exception e) {
+            } else {
                 LOG.error("** File project.properties not found. Please make sure to add the necessary ant tasks to your build file to generate project.properties");
                 LOG.info("** CyBench requires the metadata found in this file in order to annotate benchmark reports correctly.");
                 LOG.info("** In order to generate this file, you must add two ant tasks to your Gradle build file. These tasks can be found at CyBench Gradle Plugin's README");
                 LOG.info("** For more information, please visit the CyBench Wiki (https://github.com/K2NIO/gocypher-cybench-java/wiki)");
-                System.exit(1);
+                return false;
             }
-
         }
         return true;
     }

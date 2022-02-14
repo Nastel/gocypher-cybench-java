@@ -20,7 +20,7 @@ services. These tests are executed by default every time CyBench benchmarks are 
 results are automatically submitted to a public [CyBench Repository](https://app.cybench.io).
 
 Default benchmark execution and automated reporting can be configured via 
-`<cybench-home>/conf/cybench-launcher.properties`. Download and run CyBench 
+`<cybench-home>/config/cybench-launcher.properties`. Download and run CyBench 
 [here](https://github.com/K2NIO/cybench-java-benchmarks/releases). Visit our [page](https://app.cybench.io) to analyze 
 your results.
 
@@ -62,7 +62,7 @@ your results.
 ```
 
 - Analyze results in your console, reports folder or [app.cybench.io](https://app.cybench.io/cybench/)
-- **Optional:** Add CyBench configuration file into `<project-path>/conf/cybench-launcher.properties` directory to
+- **Optional:** Add CyBench configuration file into `<project-path>/config/cybench-launcher.properties` directory to
   manage your benchmarking run
   configuration. [Configuration example](https://github.com/K2NIO/gocypher-cybench-java/blob/master/gocypher-cybench-client/gocypher-cybench-runner/src/main/resources/cybench-launcher.properties)
 
@@ -91,7 +91,7 @@ your results.
 
 ### Adding Custom Benchmarks for Execution
 
-Update CyBench Launcher configuration located in `<cybench-home>/conf/cybench-launcher.properties`:
+Update CyBench Launcher configuration located in `<cybench-home>/config/cybench-launcher.properties`:
 
 * __required__: add or update property `benchmarks`, set path to jar file which contains your JMH benchmark, this path
   will be added to the

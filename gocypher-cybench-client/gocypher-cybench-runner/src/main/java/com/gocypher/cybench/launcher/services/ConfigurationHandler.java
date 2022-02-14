@@ -31,7 +31,7 @@ public class ConfigurationHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHandler.class);
 
     private static final String CONFIG_FILE = System.getProperty("cybench.config.file",
-            "/conf/cybench-launcher.properties");
+            "/config/cybench-launcher.properties");
 
     public static Properties loadConfiguration(String filePath) {
         Properties prop = new Properties();
