@@ -46,8 +46,8 @@ public class Requests {
 
     private static final String prodHost = "http://app.cybench.io/";
     private static final String localHost = "http://localhost:8080/";
-    private static final String projectSummaryUrl = localHost + "gocypher-benchmarks-services/services/v1/projects/";
-    private static final String benchmarksByReportIDUrl = localHost
+    private static final String projectSummaryUrl = prodHost + "gocypher-benchmarks-services/services/v1/projects/";
+    private static final String benchmarksByReportIDUrl = prodHost
             + "gocypher-benchmarks-services/services/v1/benchmarks/report/compare/";
 
     public static String project = null;

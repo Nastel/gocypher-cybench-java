@@ -70,6 +70,8 @@ public class ComparedBenchmark {
     }
 
     public void setBenchProperties(Map<String, Object> benchProperties) {
+        String name = (String) benchProperties.get("name");
+        benchProperties.put("displayName", name);
         this.benchProperties = benchProperties;
     }
 
