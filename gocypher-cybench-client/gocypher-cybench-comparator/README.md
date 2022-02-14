@@ -224,8 +224,8 @@ java -jar gocypher-cybench-comparator.jar [args]
 ## Adding Comparator to Jenkins
 
 Comparator has the ability to fail a Jenkins build in the case of comparison failures. Just add a Jenkins stage with a
-Comparator run command for your appropriate operating system.
-For different run configurations, refer to [running the comparator](#running-cybench-comparator).
+Comparator run command for your appropriate operating system. For different run configurations, refer
+to [running the comparator](#running-cybench-comparator).
 
 ### Windows
 
@@ -251,7 +251,7 @@ stage('Compare Benchmarks') {
 
 ### Dedicated Java System properties
 
-* `cybench.benchmark.base.url` - defines default CyBench benchmark report base URL. Default value - 
+* `cybench.benchmark.base.url` - defines default CyBench benchmark report base URL. Default value -
   `https://app.cybench.io/cybench/benchmark/`.
 
 ### Configuration Args
@@ -287,9 +287,10 @@ Template scripts located in the scripts folder [scripts](scripts/)
   class. Refer to the [exposed methods](#exposed-methods-for-use) section to view accessible methods. Below is a list of
   variables accessible in the scripts:
     * `myBenchmarks` - a Java `ArrayList` of all the benchmarks from your report. `myBenchmarks` is
-      a `ArrayList<ComparedBenchmark>` object. `ComparedBenchmark` is a custom object that contains information about benchmark scores, modes, etc. Once
-      a comparison is run on that benchmark, comparison statistics are scored in the model (delta, standard deviation, percent change...).
-      You can look at the model here: [ComparedBenchmark](src/main/java/com/gocypher/cybench/model/ComparedBenchmark.java)
+      a `ArrayList<ComparedBenchmark>` object. `ComparedBenchmark` is a custom object that contains information about
+      benchmark scores, modes, etc. Once a comparison is run on that benchmark, comparison statistics are scored in the
+      model (delta, standard deviation, percent change...). You can look at the model
+      here: [ComparedBenchmark](src/main/java/com/gocypher/cybench/model/ComparedBenchmark.java)
     * `project` - the name of the project you ran your report on
     * `currentVersion` - the project version of the report you are comparing with
     * `latestVersion` - the latest version of your project (given you have run a report on it)
@@ -355,7 +356,7 @@ see: [Configuration Args](#configuration-args)) are also accessible:
 
 ```javascript
 // EXAMPLE ARGS PASSED VIA COMMAND LINE
-// -F -S scripts/myScript.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s WITHIN -r ALL -m DELTA -t GREATER 
+// -F -S scripts/myScript.js -T ws_0a1evpqm-scv3-g43c-h3x2-f0pqm79f2d39_query -R reports/ -s WITHIN -r ALL -m DELTA -t GREATER
 
 // loop through the my benchmarks
 forEach.call(myBenchmarks, function (benchmark) {
@@ -381,17 +382,21 @@ forEach.call(myBenchmarks, function (benchmark) {
 Detailed below is a walkthrough of the script above, explaining what each line of code means, and what is happening in
 the background as you execute the script.
 
-
 ### Template Walkthrough
 
 * In order to compare the benchmarks, we loop through `myBenchmarks` which is retrieved from your report
-    * Each of these benchmarks are `ComparedBenchmark` objects (details of the object can be found [here](src/main/java/com/gocypher/cybench/model/ComparedBenchmark.java)
-* The method `getBenchmarksToCompareAgainst(benchmark)` is a required method you must call in order to execute a fetch and grab the benchmarks to compare against
-    * This method allows you to pass a different version to compare to and a different range than specified via command args (read the exposed methods section for more info)
+    * Each of these benchmarks are `ComparedBenchmark` objects (details of the object can be
+      found [here](src/main/java/com/gocypher/cybench/model/ComparedBenchmark.java)
+* The method `getBenchmarksToCompareAgainst(benchmark)` is a required method you must call in order to execute a fetch
+  and grab the benchmarks to compare against
+    * This method allows you to pass a different version to compare to and a different range than specified via command
+      args (read the exposed methods section for more info)
     * It returns a list of ComparedBenchmarks
-* Next we run the comparison using `runComparison(benchmark, benchmarksToCompareAgainst)`. This will return either `PASS`, `FAIL`, or `SKIP`.
-* Finally, after runnning the comparison, all of the benchmark properties (score, mode, comparison values) are stored within `benchmark`. The methods you can call are
-  found within the `ComparedBenchmark` model. You can print any of these for viewing with `print(score)` for example.
+* Next we run the comparison using `runComparison(benchmark, benchmarksToCompareAgainst)`. This will return
+  either `PASS`, `FAIL`, or `SKIP`.
+* Finally, after running the comparison, all the benchmark properties (score, mode, comparison values) are stored within
+  `benchmark`. The methods you can call are found within the `ComparedBenchmark` model. You can print any of these for
+  viewing with `print(score)` for example.
 * **NOTE:** As a reminder, a table of [passable arguments](#configuration-args)
   and [exposed methods](#exposed-methods-for-use) can be found below in their corresponding sections.
 
@@ -400,15 +405,16 @@ the background as you execute the script.
 * [Exposed Methods](src/main/resources/ComparatorScriptBindings.js)
     * These methods can be called in your .js script
 
-* `getBenchmarksToCompareAgainst` is a method that you pass a `ComparedBenchmark` to and uses the metadata from that model to make appropriate fetches
-  and grab the benchmarks you can compare it against given your configuration. It also allows you to pass a different version to compare to and a different range 
-  than what you provided via command args.
-* `getBenchmarkScores` is a method you can pass a List of `ComparedBenchmarks` to in case you wanted an easy way to extract all of the scores from the list. It will
-  return a List of `Double` values.
-* `runComparison` is the method you call in order to run an actual comparison. It will take all a `ComparedBenchmark` and a List of `ComparedBenchmarks` and return a
-  string representing `PASS`, `FAIL`, or `SKIP`. (`SKIP`) is passed back in the result of a configuration error, or benchmarks not being found to compare against.
-* `calculateMean`, `calculateSD`, `calculateDeviatonsFromMean`, and `calculatePercentChange` are specific simple methods you can
-  quickly access for your own calculations and return `Double` values
+* `getBenchmarksToCompareAgainst` is a method that you pass a `ComparedBenchmark` to and uses the metadata from that
+  model to make appropriate fetches and grab the benchmarks you can compare it against given your configuration. It also
+  allows you to pass a different version to compare to and a different range than what you provided via command args.
+* `getBenchmarkScores` is a method you can pass a List of `ComparedBenchmarks` to in case you wanted an easy way to
+  extract all the scores from the list. It will return a List of `Double` values.
+* `runComparison` is the method you call in order to run an actual comparison. It will take all a `ComparedBenchmark`
+  and a List of `ComparedBenchmarks` and return a string representing `PASS`, `FAIL`, or `SKIP`. (`SKIP`) is passed back
+  in the result of a configuration error, or benchmarks not being found to compare against.
+* `calculateMean`, `calculateSD`, `calculateDeviatonsFromMean`, and `calculatePercentChange` are specific simple methods
+  you can quickly access for your own calculations and return `Double` values
 * `passAssertionDeviation`, `passAssertionPercentage`, and `passAssertionPositive` are assertion methods you can use to
   return boolean values that represent pass/fail
 
@@ -568,7 +574,7 @@ out `comparator.yaml`
 ### Property File for Cybench Comparator Tool ###
 
 failBuild: true
-reportPath: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/report-1633702919786-14.35352973095467.cybnech"
+reportPath: "C:/Users/MUSR/eclipse-workspace/myMavenProject/reports/report-1633702919786-14.35352973095467.cybench"
 token: "ws_874a4eb4-fzsa-48fb-pr58-g8lwa7820e132_query"
 
 compare.default:

@@ -61,8 +61,8 @@ public final class Comparisons {
         List<ComparedBenchmark> failedBenchmarks = new ArrayList<>();
         List<ComparedBenchmark> skippedBenchmarks = new ArrayList<>();
 
-
-        for (Map.Entry<String, Map<String, ComparedBenchmark>> benchmarksToCompareEntry : benchmarksToCompare.entrySet()) {
+        for (Map.Entry<String, Map<String, ComparedBenchmark>> benchmarksToCompareEntry : benchmarksToCompare
+                .entrySet()) {
             String fingerprint = benchmarksToCompareEntry.getKey();
             Map<String, ComparedBenchmark> benchmarksByMode = benchmarksToCompareEntry.getValue();
             for (Map.Entry<String, ComparedBenchmark> benchmarksByModeEntry : benchmarksByMode.entrySet()) {
@@ -72,31 +72,12 @@ public final class Comparisons {
 
                 if (benchmarksToCompareAgainst.containsKey(fingerprint)) {
                     if (benchmarksToCompareAgainst.get(fingerprint).containsKey(mode)) {
-                        List<Double> compareScores = extractScoresFromComparedBenchmarkList(
-                            benchmarksToCompareAgainst.get(fingerprint).get(mode));
-                        Double compareMean = calculateMean(compareScores);
-                        benchmarkToCompare.setCompareMean(compareMean);
+                        List<ComparedBenchmark> cbl = benchmarksToCompareAgainst.get(fingerprint).get(mode);
 
-                        Double delta = score - compareMean;
-                        benchmarkToCompare.setDelta(delta);
-                        Double percentChange = calculatePercentChange(score, compareMean);
-                        benchmarkToCompare.setPercentChange(percentChange);
-                        Double compareSD = calculateSD(compareScores, compareMean);
-                        benchmarkToCompare.setCompareSD(compareSD);
+                        calculatePercentage(cbl, benchmarkToCompare, score);
 
-                        Double deviationsFromMean = calculateDeviationsFromMean(score, compareMean, compareSD);
-                        benchmarkToCompare.setDeviationsFromMean(deviationsFromMean);
-                        
-                        CompareState compareState = null;
-                        if (method.equals(Method.DELTA)) {
-                            if (threshold.equals(Threshold.GREATER)) {
-                                compareState = passAssertionPositive(delta);
-                            } else if (threshold.equals(Threshold.PERCENT_CHANGE)) {
-                                compareState = passAssertionPercentage(percentChange, percentChangeAllowed);
-                            }
-                        } else if (method.equals(Method.SD)) {
-                            compareState = passAssertionDeviation(deviationsFromMean, deviationsAllowed);
-                        }
+                        CompareState compareState = findCompareState(method, threshold, benchmarkToCompare,
+                                percentChangeAllowed, deviationsAllowed);
 
                         if (compareState == CompareState.PASS) {
                             totalPassedBenchmarks++;
@@ -134,8 +115,42 @@ public final class Comparisons {
         return resultMap;
     }
 
-    public static CompareState runSingleComparison(ComparedBenchmark benchmarkToCompare, List<ComparedBenchmark> benchmarksToCompareAgainst) {
-        
+    private static void calculatePercentage(List<ComparedBenchmark> comparedBenchmarks,
+            ComparedBenchmark benchmarkToCompare, Double score) {
+        List<Double> compareScores = extractScoresFromComparedBenchmarkList(comparedBenchmarks);
+        Double compareMean = calculateMean(compareScores);
+        benchmarkToCompare.setCompareMean(compareMean);
+
+        Double delta = score - compareMean;
+        benchmarkToCompare.setDelta(delta);
+        Double percentChange = calculatePercentChange(score, compareMean);
+        benchmarkToCompare.setPercentChange(percentChange);
+        Double compareSD = calculateSD(compareScores, compareMean);
+        benchmarkToCompare.setCompareSD(compareSD);
+
+        Double deviationsFromMean = calculateDeviationsFromMean(score, compareMean, compareSD);
+        benchmarkToCompare.setDeviationsFromMean(deviationsFromMean);
+    }
+
+    private static CompareState findCompareState(Method method, Threshold threshold,
+            ComparedBenchmark benchmarkToCompare, Double percentChangeAllowed, Double deviationsAllowed) {
+        CompareState compareState = null;
+        if (method.equals(Method.DELTA)) {
+            if (threshold.equals(Threshold.GREATER)) {
+                compareState = passAssertionPositive(benchmarkToCompare.getDelta());
+            } else if (threshold.equals(Threshold.PERCENT_CHANGE)) {
+                compareState = passAssertionPercentage(benchmarkToCompare.getPercentChange(), percentChangeAllowed);
+            }
+        } else if (method.equals(Method.SD)) {
+            compareState = passAssertionDeviation(benchmarkToCompare.getDeviationsFromMean(), deviationsAllowed);
+        }
+
+        return compareState;
+    }
+
+    public static CompareState runSingleComparison(ComparedBenchmark benchmarkToCompare,
+            List<ComparedBenchmark> benchmarksToCompareAgainst) {
+
         CompareState state = null;
         ComparisonConfig comparisonConfig = benchmarkToCompare.getComparisonConfig();
         Method method = comparisonConfig.getMethod();
@@ -143,49 +158,29 @@ public final class Comparisons {
         Double deviationsAllowed = comparisonConfig.getDeviationsAllowed();
         Double percentChangeAllowed = comparisonConfig.getPercentChangeAllowed();
 
-        
         if (!benchmarksToCompareAgainst.isEmpty()) {
             Double score = benchmarkToCompare.getScore();
-            List<Double> compareScores = extractScoresFromComparedBenchmarkList(benchmarksToCompareAgainst);
-            Double compareMean = calculateMean(compareScores);
-            benchmarkToCompare.setCompareMean(compareMean);
 
-            Double delta = score - compareMean;
-            benchmarkToCompare.setDelta(delta);
-            Double percentChange = calculatePercentChange(score, compareMean);
-            benchmarkToCompare.setPercentChange(percentChange);
-            Double compareSD = calculateSD(compareScores, compareMean);
-            benchmarkToCompare.setCompareSD(compareSD);
+            calculatePercentage(benchmarksToCompareAgainst, benchmarkToCompare, score);
 
-            Double deviationsFromMean = calculateDeviationsFromMean(score, compareMean, compareSD);
-            benchmarkToCompare.setDeviationsFromMean(deviationsFromMean);
-
-            if (method.equals(Method.DELTA)) {
-                if (threshold.equals(Threshold.GREATER)) {
-                    state = passAssertionPositive(delta);
-                } else if (threshold.equals(Threshold.PERCENT_CHANGE)) {
-                    state = passAssertionPercentage(percentChange, percentChangeAllowed);
-                }
-            } else if (method.equals(Method.SD)) {
-                state = passAssertionDeviation(deviationsFromMean, deviationsAllowed);
-            }
+            state = findCompareState(method, threshold, benchmarkToCompare, percentChangeAllowed, deviationsAllowed);
         } else {
             state = CompareState.SKIP;
         }
 
         switch (state) {
-            case PASS: {
-                CompareBenchmarks.passBenchmark(benchmarkToCompare);
-                break;
-            }
-            case FAIL: {
-                CompareBenchmarks.failBenchmark(benchmarkToCompare);
-                break;
-            }
-            case SKIP: {
-                CompareBenchmarks.skipBenchmark(benchmarkToCompare, "Benchmark not found in compared to reports");
-                break;
-            }
+        case PASS: {
+            CompareBenchmarks.passBenchmark(benchmarkToCompare);
+            break;
+        }
+        case FAIL: {
+            CompareBenchmarks.failBenchmark(benchmarkToCompare);
+            break;
+        }
+        case SKIP: {
+            CompareBenchmarks.skipBenchmark(benchmarkToCompare, "Benchmark not found in compared to reports");
+            break;
+        }
         }
 
         return state;
@@ -198,7 +193,6 @@ public final class Comparisons {
         }
         return scores;
     }
-
 
     // Calculate Methods
     private static Double calculateMean(List<Double> scores) {
@@ -224,7 +218,7 @@ public final class Comparisons {
     }
 
     private static Double calculateDeviationsFromMean(Double score, Double compareMean, Double compareSD) {
-        Double deviationsFromMean = 0.0;
+        double deviationsFromMean = 0.0;
         if (compareSD != 0) {
             deviationsFromMean = (score - compareMean) / compareSD;
         }
@@ -258,7 +252,7 @@ public final class Comparisons {
             return CompareState.FAIL;
         }
     }
-    
+
     public static Double roundHandling(Double value) {
 
         DecimalFormat df1 = new DecimalFormat("#.00");

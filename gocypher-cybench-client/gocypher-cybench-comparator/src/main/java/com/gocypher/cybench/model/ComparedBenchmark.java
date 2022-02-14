@@ -1,19 +1,20 @@
 /*
- * Copyright (C) 2020-2022, K2N.IO. All Rights Reserved.
+ * Copyright (C) 2020-2022, K2N.IO.
  *
- * This software is the confidential and proprietary information of
- * K2N.IO. ("Confidential Information").  You shall not disclose
- * such Confidential Information and shall use it only in accordance with
- * the terms of the license agreement you entered into with K2N.IO.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * K2N.IO MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE SUITABILITY OF
- * THE SOFTWARE, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
- * PURPOSE, OR NON-INFRINGEMENT. K2N.IO SHALL NOT BE LIABLE FOR ANY DAMAGES
- * SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING
- * THIS SOFTWARE OR ITS DERIVATIVES.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- * CopyrightVersion 1.0
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ *
  */
 package com.gocypher.cybench.model;
 
@@ -21,7 +22,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
-
 
 public class ComparedBenchmark {
     public static enum CompareState {
@@ -46,17 +46,16 @@ public class ComparedBenchmark {
     private Double compareMean;
     private BigDecimal roundedCompareMean;
     private Double compareSD;
-    private BigDecimal roundedCompareSD; 
+    private BigDecimal roundedCompareSD;
     private Double deviationsFromMean;
     private BigDecimal roundedDeviationsfromMean;
 
     private String skipReason;
 
-
     public ComparedBenchmark() {
 
     }
-    
+
     public ComparedBenchmark(String datasetID, Map<String, Object> benchProperties) {
         setDatasetID(datasetID);
         setBenchProperties(benchProperties);
@@ -83,7 +82,7 @@ public class ComparedBenchmark {
     }
 
     public ComparisonConfig getComparisonConfig() {
-        return this.comparisonConfig;
+        return comparisonConfig;
     }
 
     public void setFingerprint(String fingerprint) {
@@ -112,7 +111,7 @@ public class ComparedBenchmark {
     }
 
     public void setRoundedScore(Double score) {
-        this.roundedScore = new BigDecimal(score).setScale(2, RoundingMode.HALF_UP);
+        roundedScore = new BigDecimal(score).setScale(2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getRoundedScore() {
@@ -145,7 +144,7 @@ public class ComparedBenchmark {
     }
 
     public void setRoundedDelta(Double delta) {
-        this.roundedDelta = new BigDecimal(delta).setScale(2, RoundingMode.HALF_UP);
+        roundedDelta = new BigDecimal(delta).setScale(2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getRoundedDelta() {
@@ -162,7 +161,7 @@ public class ComparedBenchmark {
     }
 
     public void setRoundedPercentChange(Double percentChange) {
-        this.roundedPercentChange = new BigDecimal(percentChange).setScale(2, RoundingMode.HALF_UP);
+        roundedPercentChange = new BigDecimal(percentChange).setScale(2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getRoundedPercentChange() {
@@ -179,7 +178,7 @@ public class ComparedBenchmark {
     }
 
     public void setRoundedCompareMean(Double compareMean) {
-        this.roundedCompareMean = new BigDecimal(compareMean).setScale(2, RoundingMode.HALF_UP);
+        roundedCompareMean = new BigDecimal(compareMean).setScale(2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getRoundedCompareMean() {
@@ -196,7 +195,7 @@ public class ComparedBenchmark {
     }
 
     public void setRoundedCompareSD(Double compareSD) {
-        this.roundedCompareSD = new BigDecimal(compareSD).setScale(2, RoundingMode.HALF_UP);
+        roundedCompareSD = new BigDecimal(compareSD).setScale(2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getRoundedCompareSD() {
@@ -213,7 +212,7 @@ public class ComparedBenchmark {
     }
 
     public void setRoundedDeviationsFromMean(Double deviationsFromMean) {
-        this.roundedDeviationsfromMean = new BigDecimal(deviationsFromMean).setScale(2, RoundingMode.HALF_UP);
+        roundedDeviationsfromMean = new BigDecimal(deviationsFromMean).setScale(2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getRoundedDeviationsFromMean() {
@@ -223,11 +222,12 @@ public class ComparedBenchmark {
     public void setSkipReason(String skipReason) {
         this.skipReason = skipReason;
     }
-    
+
     public String getSkipReason() {
-        return this.skipReason;
+        return skipReason;
     }
 
+    @Override
     public String toString() {
         return displayName + ": " + score;
     }

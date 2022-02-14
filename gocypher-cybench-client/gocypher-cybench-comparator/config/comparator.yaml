@@ -45,7 +45,7 @@
 
 
 failBuild: true
-reportPath: "reports/report-1633702919786-14.35352973095467.cybnech"
+reportPath: "reports/report-1633702919786-14.35352973095467.cybench"
 token: "MY TOKEN"
 
 compare.default:

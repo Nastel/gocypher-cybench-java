@@ -234,8 +234,7 @@ public class ConfigHandling {
                             log.warn("'{}': Deviations Allowed not specified, will allow: {}", simplifiedIdentifier,
                                     defaultDeviations);
                         } else {
-                            log.warn(
-                                    "'{}': Method recognized as 'SD' but deviations allowed were not specified!",
+                            log.warn("'{}': Method recognized as 'SD' but deviations allowed were not specified!",
                                     simplifiedIdentifier);
                             throw (new Exception());
                         }
@@ -250,10 +249,11 @@ public class ConfigHandling {
                             throw (new Exception());
                         }
                     }
-         
+
                     if (compareVals.containsKey(THRESHOLD)) {
-                        log.warn("'{}': Threshold was specified but method was specified as 'SD' - will ignore threshold configuration",
-                            simplifiedIdentifier);
+                        log.warn(
+                                "'{}': Threshold was specified but method was specified as 'SD' - will ignore threshold configuration",
+                                simplifiedIdentifier);
                         compareVals.remove(THRESHOLD);
                     }
                 } else {

@@ -23,7 +23,7 @@
 function getBenchmarksToCompareAgainst(benchmarkToCompare, compareVersion, range) {
     comparisonConfig = new ComparisonConfig(configMap);
     benchmarkToCompare.setComparisonConfig(comparisonConfig);
-    if(!compareVersion) {
+    if (!compareVersion) {
         compareVersion = configMap.get(ConfigHandling.COMPARE_VERSION);
     } else {
         comparisonConfig.getComparisonConfig().setCompareVersion(compareVersion);
@@ -48,7 +48,6 @@ function getBenchmarkScores(benchmarks) {
 function runComparison(benchmarkToCompare, benchmarksToCompareAgainst) {
     return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst)
 }
-
 
 
 // returns mean

@@ -25,7 +25,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -35,14 +36,14 @@ import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.CompareBenchmarks;
 import com.gocypher.cybench.model.ComparedBenchmark;
-import com.gocypher.cybench.model.ComparisonConfig;
 import com.gocypher.cybench.model.ComparedBenchmark.CompareState;
+import com.gocypher.cybench.model.ComparisonConfig;
 import com.gocypher.cybench.model.ComparisonConfig.Type;
 import com.gocypher.cybench.services.Requests;
 
 public class WebpageGenerator {
     private static final Logger log = LoggerFactory.getLogger(WebpageGenerator.class);
-    private static Charset utf8 = StandardCharsets.UTF_8;
+    private static final Charset utf8 = StandardCharsets.UTF_8;
 
     public static void generatePage() {
         String runTime = getDateTimeForFileName();
@@ -60,10 +61,10 @@ public class WebpageGenerator {
 
             String htmlStr = FileUtils.readFileToString(template, utf8);
             htmlStr = htmlStr.replace("$" + "runTime", runTime);
-            htmlStr = htmlStr.replace("$" + "total", CompareBenchmarks.totalComparedBenchmarks + "");
-            htmlStr = htmlStr.replace("$" + "passed", CompareBenchmarks.totalPassedBenchmarks + "");
-            htmlStr = htmlStr.replace("$" + "failed", CompareBenchmarks.totalFailedBenchmarks + "");
-            htmlStr = htmlStr.replace("$" + "skipped", CompareBenchmarks.totalSkippedBenchmarks + "");
+            htmlStr = htmlStr.replace("$" + "total", String.valueOf(CompareBenchmarks.totalComparedBenchmarks));
+            htmlStr = htmlStr.replace("$" + "passed", String.valueOf(CompareBenchmarks.totalPassedBenchmarks));
+            htmlStr = htmlStr.replace("$" + "failed", String.valueOf(CompareBenchmarks.totalFailedBenchmarks));
+            htmlStr = htmlStr.replace("$" + "skipped", String.valueOf(CompareBenchmarks.totalSkippedBenchmarks));
             htmlStr = htmlStr.replace("$" + "projectName", Requests.project);
             htmlStr = htmlStr.replace("$" + "currentVersion", Requests.currentVersion);
             htmlStr = htmlStr.replace("$" + "latestVersion", Requests.latestVersion);
@@ -73,8 +74,7 @@ public class WebpageGenerator {
                 htmlStr = htmlStr.replace("$" + "previousVersion", "N/A");
             }
             FileUtils.writeStringToFile(htmlFile, htmlStr, utf8);
-    
-    
+
             if (CompareBenchmarks.totalPassedBenchmarks != 0) {
                 fillBenchmarkTable(htmlFile, CompareBenchmarks.passedBenchmarks, CompareState.PASS);
             }
@@ -85,7 +85,7 @@ public class WebpageGenerator {
                 fillBenchmarkTable(htmlFile, CompareBenchmarks.skippedBenchmarks, CompareState.SKIP);
             }
             FileUtils.write(htmlFile, "</body>\n</html>", utf8, true);
-    
+
             generateStylingFile();
             FileUtils.deleteDirectory(templateDir);
 
@@ -96,37 +96,37 @@ public class WebpageGenerator {
                 FileUtils.delete(htmlFile);
                 FileUtils.deleteDirectory(templateDir);
             } catch (Exception deleteFilesException) {
-
             }
         }
     }
 
-    private static void fillBenchmarkTable(File htmlFile, List<ComparedBenchmark> benchmarks, CompareState benchmarkState) throws Exception{
+    private static void fillBenchmarkTable(File htmlFile, List<ComparedBenchmark> benchmarks,
+            CompareState benchmarkState) throws Exception {
         try {
             String table = "";
             String captionClass = "";
             String caption = "";
             boolean skippedBenchmarks = false;
             switch (benchmarkState) {
-                case PASS: {
-                    table = "passedTable";
-                    captionClass = "passedCaption";
-                    caption = "Passed Benchmarks";
-                    break;
-                }
-                case FAIL: {
-                    table = "anomalyTable";
-                    captionClass = "anomalyCaption";
-                    caption = "Anomaly Benchmarks";
-                    break;
-                }
-                case SKIP: {
-                    table = "skippedTable";
-                    captionClass = "skippedCaption";
-                    caption = "Skipped Benchmarks";
-                    skippedBenchmarks = true;
-                    break;
-                }
+            case PASS: {
+                table = "passedTable";
+                captionClass = "passedCaption";
+                caption = "Passed Benchmarks";
+                break;
+            }
+            case FAIL: {
+                table = "anomalyTable";
+                captionClass = "anomalyCaption";
+                caption = "Anomaly Benchmarks";
+                break;
+            }
+            case SKIP: {
+                table = "skippedTable";
+                captionClass = "skippedCaption";
+                caption = "Skipped Benchmarks";
+                skippedBenchmarks = true;
+                break;
+            }
             }
 
             FileUtils.write(htmlFile, "<table id=\""+ table + "\" class=\"display compact " + table + "\">"
@@ -183,7 +183,6 @@ public class WebpageGenerator {
         }
     }
 
-    
     private static void generateStylingFile() throws Exception {
         InputStream stream = WebpageGenerator.class.getResourceAsStream("/styles.css");
         File styleFile = new File("htmlReports/styles/styles.css");

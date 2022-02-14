@@ -20,8 +20,6 @@
 package com.gocypher.cybench.utils;
 
 import java.io.*;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,10 +66,10 @@ public class ComparatorScriptEngine {
 
         if (parseReportAndFetchProjectInfo(token, reportPath)) {
             if (handleComparatorConfigs(method, range, scope, compareVersion, threshold, percentChangeAllowed,
-                deviationsAllowed)) {
-            File userScript = loadUserScript(scriptPath);
-            ScriptEngine engine = prepareScriptEngine();
-            runUserScript(engine, userScript);
+                    deviationsAllowed)) {
+                File userScript = loadUserScript(scriptPath);
+                ScriptEngine engine = prepareScriptEngine();
+                runUserScript(engine, userScript);
             } else {
                 log.error("No comparisons can be run with invalid configurations!");
             }
@@ -89,7 +87,8 @@ public class ComparatorScriptEngine {
             log.warn("No report location provided, using default: {}", ConfigHandling.DEFAULT_REPORTS_LOCATION);
             reportPath = ConfigHandling.DEFAULT_REPORTS_LOCATION;
         }
-        myBenchmarks = condenseRecentBenchmarksToList(Requests.parseRecentReport(ConfigHandling.identifyRecentReport(reportPath)));
+        myBenchmarks = condenseRecentBenchmarksToList(
+                Requests.parseRecentReport(ConfigHandling.identifyRecentReport(reportPath)));
         if (myBenchmarks.isEmpty()) {
             log.warn("No benchmarks found in report!");
             return false;
@@ -97,12 +96,11 @@ public class ComparatorScriptEngine {
         return Requests.getInstance().getProjectSummary(Requests.project, token);
     }
 
-    private ArrayList<ComparedBenchmark> condenseRecentBenchmarksToList(Map<String, Map<String, ComparedBenchmark>> recentBenchmarks) {
+    private ArrayList<ComparedBenchmark> condenseRecentBenchmarksToList(
+            Map<String, Map<String, ComparedBenchmark>> recentBenchmarks) {
         ArrayList<ComparedBenchmark> myBenchmarks = new ArrayList<>();
         for (Map<String, ComparedBenchmark> entry : recentBenchmarks.values()) {
-            for (ComparedBenchmark benchmark : entry.values()) {
-                myBenchmarks.add(benchmark);
-            }
+            myBenchmarks.addAll(entry.values());
         }
         return myBenchmarks;
     }

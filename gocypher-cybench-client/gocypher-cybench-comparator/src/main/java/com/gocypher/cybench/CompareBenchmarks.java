@@ -23,11 +23,7 @@ import java.io.File;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
@@ -40,8 +36,8 @@ import org.slf4j.LoggerFactory;
 import com.gocypher.cybench.model.ComparedBenchmark;
 import com.gocypher.cybench.model.ComparedBenchmark.CompareState;
 import com.gocypher.cybench.model.ComparisonConfig;
-import com.gocypher.cybench.model.ComparisonConfig.Scope;
 import com.gocypher.cybench.model.ComparisonConfig.Method;
+import com.gocypher.cybench.model.ComparisonConfig.Scope;
 import com.gocypher.cybench.model.ComparisonConfig.Threshold;
 import com.gocypher.cybench.model.ComparisonConfig.Type;
 import com.gocypher.cybench.services.Requests;
@@ -55,15 +51,15 @@ public class CompareBenchmarks {
 
     private static String accessToken = null;
     public static boolean failBuildFlag = false;
-        
+
     public static int totalComparedBenchmarks = 0;
     public static int totalPassedBenchmarks = 0;
     public static int totalFailedBenchmarks = 0;
     public static int totalSkippedBenchmarks = 0;
-    public static List<ComparedBenchmark> comparedBenchmarks = new ArrayList<>();
-    public static List<ComparedBenchmark> passedBenchmarks = new ArrayList<>();
-    public static List<ComparedBenchmark> failedBenchmarks = new ArrayList<>();
-    public static List<ComparedBenchmark> skippedBenchmarks = new ArrayList<>();
+    public static final List<ComparedBenchmark> comparedBenchmarks = new ArrayList<>();
+    public static final List<ComparedBenchmark> passedBenchmarks = new ArrayList<>();
+    public static final List<ComparedBenchmark> failedBenchmarks = new ArrayList<>();
+    public static final List<ComparedBenchmark> skippedBenchmarks = new ArrayList<>();
 
     public static Instant comparisonRunTime;
 
@@ -161,7 +157,8 @@ public class CompareBenchmarks {
                 for (Map.Entry<String, ComparedBenchmark> comparedBenchEntry : benchEntryModeMap.entrySet()) {
                     String mode = comparedBenchEntry.getKey();
                     ComparedBenchmark benchmarkToCompare = comparedBenchEntry.getValue();
-                    Map<String, Object> configMap = getConfigs(benchmarkToCompare.getDisplayName(), allConfigs, configuredCategories);
+                    Map<String, Object> configMap = getConfigs(benchmarkToCompare.getDisplayName(), allConfigs,
+                            configuredCategories);
                     if (configMap != null) {
                         ComparisonConfig comparisonConfig = new ComparisonConfig(configMap);
                         benchmarkToCompare.setComparisonConfig(comparisonConfig);
@@ -181,18 +178,22 @@ public class CompareBenchmarks {
             List<ComparedBenchmark> benchmarksToCompareAgainst = getBenchmarksToCompareAgainst(benchmarkToCompare);
 
             if (benchmarksToCompareAgainst.size() == 0) {
-                // logWarn("SKIP COMPARISON - {} : mode={} - There are not enough benchmarks to compare to in version={} with specific range={}",
-                //             benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, comparisonConfig.getRange());
+                // logWarn("SKIP COMPARISON - {} : mode={} - There are not enough benchmarks to compare to in version={}
+                // with specific range={}",
+                // benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion,
+                // comparisonConfig.getRange());
                 if (benchmarkToCompare.getCompareState() == null) {
                     // handling in case skip flag wasn't raised in getBenchmarksToCompareAgainst method
-                    skipBenchmark(benchmarkToCompare, "There are not enough benchmarks to compare to in version " + Requests.currentVersion + " with specific range " + comparisonConfig.getRange());
+                    skipBenchmark(benchmarkToCompare, "There are not enough benchmarks to compare to in version "
+                            + Requests.currentVersion + " with specific range " + comparisonConfig.getRange());
                 }
                 return CompareState.SKIP;
             }
 
-            return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst);            
+            return Comparisons.runSingleComparison(benchmarkToCompare, benchmarksToCompareAgainst);
         } else {
-            // logWarn("SKIP COMPARISON - {} : mode={} - Configuration not defined properly", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode());
+            // logWarn("SKIP COMPARISON - {} : mode={} - Configuration not defined properly",
+            // benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode());
             skipBenchmark(benchmarkToCompare, "Configuration not defined properly");
             return CompareState.SKIP;
         }
@@ -207,13 +208,14 @@ public class CompareBenchmarks {
         if (compareScope.equals(Scope.BETWEEN)) {
             if (compareVersion.equals(ConfigHandling.DEFAULT_COMPARE_VERSION)) {
                 logInfo("{} : mode={} - Compare Version specified as 'PREVIOUS', setting compare version to previous benchmarked version={}",
-                    benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion);
+                        benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion);
                 compareVersion = Requests.previousVersion;
             }
 
             if (Requests.currentVersion.equals(compareVersion)) {
                 logWarn("{} : mode={} - the Compare Version specified ({}) is the same as the currently benchmarked version={}, will perform WITHIN VERSION comparisons",
-                    benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion, Requests.currentVersion);
+                        benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion,
+                        Requests.currentVersion);
                 compareScope = ConfigHandling.DEFAULT_COMPARE_SCOPE;
             }
         } else if (compareScope.equals(Scope.WITHIN)) {
@@ -221,13 +223,13 @@ public class CompareBenchmarks {
                 compareVersion = Requests.currentVersion;
             } else {
                 logWarn("{} : mode={} - Compare Version was specified as {}, but scope was set to WITHIN, will perform BETWEEN VERSION comparisons",
-                    benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion);
+                        benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), compareVersion);
                 compareScope = Scope.BETWEEN;
             }
         }
         comparisonConfig.setScope(compareScope);
         comparisonConfig.setCompareVersion(compareVersion);
-        
+
         if (Requests.allProjectVersions.contains(compareVersion)) {
             int range;
             int maxRange = Requests.reportSummaries.get(compareVersion).size();
@@ -236,18 +238,23 @@ public class CompareBenchmarks {
             } else {
                 range = Integer.parseInt(compareRange);
                 if (range > maxRange) {
-                    // logWarn("SKIP COMPARISON - {} : mode={} - There are not enough reports to compare to in version={} with specific range={}",
-                    //     benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion, range);
-                    skipBenchmark(benchmarkToCompare, "There are not enough reports to compare to in version " + Requests.currentVersion + " with specific range " + comparisonConfig.getRange());
+                    // logWarn("SKIP COMPARISON - {} : mode={} - There are not enough reports to compare to in
+                    // version={} with specific range={}",
+                    // benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.currentVersion,
+                    // range);
+                    skipBenchmark(benchmarkToCompare, "There are not enough reports to compare to in version "
+                            + Requests.currentVersion + " with specific range " + comparisonConfig.getRange());
                     return false;
                 }
-            }    
+            }
             compareRange = String.valueOf(range);
             comparisonConfig.setRange(compareRange);
             return true;
         } else {
-            // logWarn("SKIP COMPARISON - {} : mode={} - There are no reports for {}, version {}", benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.project, compareVersion);
-            skipBenchmark(benchmarkToCompare, "There are no reports for " + Requests.project + ", version " + compareVersion);
+            // logWarn("SKIP COMPARISON - {} : mode={} - There are no reports for {}, version {}",
+            // benchmarkToCompare.getDisplayName(), benchmarkToCompare.getMode(), Requests.project, compareVersion);
+            skipBenchmark(benchmarkToCompare,
+                    "There are no reports for " + Requests.project + ", version " + compareVersion);
             return false;
         }
     }
@@ -258,20 +265,23 @@ public class CompareBenchmarks {
             String compareVersion = benchmarkToCompare.getComparisonConfig().getCompareVersion();
             int range = Integer.parseInt(benchmarkToCompare.getComparisonConfig().getRange());
             int added = 0;
-            for (int i=0; i < Requests.reportSummaries.get(compareVersion).size() && added < range; i++) {
+            for (int i = 0; i < Requests.reportSummaries.get(compareVersion).size() && added < range; i++) {
                 String reportID = (String) Requests.reportSummaries.get(compareVersion).get(i).get("reportId");
                 Number timestampNum = (Number) Requests.reportSummaries.get(compareVersion).get(i).get("timestamp");
                 Date reportDateTime = new Date(timestampNum.longValue() / 1000);
-                if (reportID != Requests.recentReportID && Requests.recentReportDateTime.compareTo(reportDateTime) != 0) {
+                if (reportID != Requests.recentReportID
+                        && Requests.recentReportDateTime.compareTo(reportDateTime) != 0) {
                     boolean fetchSuccess = true;
                     if (!Requests.fetchedBenchmarks.containsKey(reportID)) {
                         fetchSuccess = Requests.getInstance().getBenchmarksInReport(reportID, accessToken);
                     }
 
                     if (fetchSuccess) {
-                        Map<String, List<ComparedBenchmark>> benchmaksInReportWithSameFingerprint = Requests.fetchedBenchmarks.get(reportID).get(benchmarkToCompare.getFingerprint());
+                        Map<String, List<ComparedBenchmark>> benchmaksInReportWithSameFingerprint = Requests.fetchedBenchmarks
+                                .get(reportID).get(benchmarkToCompare.getFingerprint());
                         if (benchmaksInReportWithSameFingerprint.containsKey(benchmarkToCompare.getMode())) {
-                            benchmarksToCompareAgainst.addAll(benchmaksInReportWithSameFingerprint.get(benchmarkToCompare.getMode()));
+                            benchmarksToCompareAgainst
+                                    .addAll(benchmaksInReportWithSameFingerprint.get(benchmarkToCompare.getMode()));
                             added++;
                         }
                     }
@@ -284,8 +294,8 @@ public class CompareBenchmarks {
     public static Map<String, Object> compareAllBenchmarks(ComparisonConfig comparisonConfig,
             Map<String, Map<String, ComparedBenchmark>> benchmarksToCompare,
             Map<String, Map<String, List<ComparedBenchmark>>> benchmarksToCompareAgainst) {
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap = Comparisons.runComparison(comparisonConfig, benchmarksToCompare, benchmarksToCompareAgainst);
+        Map<String, Object> resultMap = Comparisons.runComparison(comparisonConfig, benchmarksToCompare,
+                benchmarksToCompareAgainst);
         comparisonRunTime = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
         resultMap.put("timestampUTC", comparisonRunTime.toString());
         return resultMap;
@@ -354,36 +364,45 @@ public class CompareBenchmarks {
         logInfo("* Completed benchmark analysis\n");
     }
 
-    private static void printComparedBenchmarks(CompareState compareState, List<ComparedBenchmark> benchmarks, int total) {
+    private static void printComparedBenchmarks(CompareState compareState, List<ComparedBenchmark> benchmarks,
+            int total) {
         for (ComparedBenchmark benchmark : benchmarks) {
             if (!compareState.equals(CompareState.SKIP)) {
                 ComparisonConfig comparisonConfig = benchmark.getComparisonConfig();
                 StringBuilder log = new StringBuilder(
                         "   {}: test.type={}, test.name={}, test.mode={}, test.score={}, test.compare.version={}, test.compare.method={}, test.compare.range={}, test.compare.mean={}, test.compare.SD={}, ");
-    
+
                 if (comparisonConfig.getTestType() == Type.PERCENT_CHANGE) {
-                    log.append("test.percentChangeAllowed=").append(comparisonConfig.getPercentChangeAllowed()).append(", ");
+                    log.append("test.percentChangeAllowed=").append(comparisonConfig.getPercentChangeAllowed())
+                            .append(", ");
                 } else if (comparisonConfig.getTestType() == Type.SD) {
                     log.append("test.deviationsAllowed=").append(comparisonConfig.getDeviationsAllowed()).append(", ");
                 }
-    
-                log.append("test.compare.delta={}, test.compare.percentChange={}%, test.compare.SDsFromMean={}, test.id={}");
-    
+
+                log.append(
+                        "test.compare.delta={}, test.compare.percentChange={}%, test.compare.SDsFromMean={}, test.id={}");
+
                 if (compareState.equals(CompareState.PASS)) {
-                    logInfo(log.toString(), "PASSED", comparisonConfig.getTestType(), benchmark.getDisplayName(), benchmark.getMode(), benchmark.getRoundedScore(), comparisonConfig.getCompareVersion(),
-                        comparisonConfig.getMethod(), comparisonConfig.getRange(), benchmark.getRoundedCompareMean(), benchmark.getRoundedCompareSD(), benchmark.getRoundedDelta(), 
-                        benchmark.getRoundedPercentChange(), benchmark.getRoundedDeviationsFromMean(), benchmark.getFingerprint());
+                    logInfo(log.toString(), "PASSED", comparisonConfig.getTestType(), benchmark.getDisplayName(),
+                            benchmark.getMode(), benchmark.getRoundedScore(), comparisonConfig.getCompareVersion(),
+                            comparisonConfig.getMethod(), comparisonConfig.getRange(),
+                            benchmark.getRoundedCompareMean(), benchmark.getRoundedCompareSD(),
+                            benchmark.getRoundedDelta(), benchmark.getRoundedPercentChange(),
+                            benchmark.getRoundedDeviationsFromMean(), benchmark.getFingerprint());
                 } else {
-                    logErr(log.toString(), "ANOMALY", comparisonConfig.getTestType(), benchmark.getDisplayName(), benchmark.getMode(), benchmark.getRoundedScore(), comparisonConfig.getCompareVersion(),
-                        comparisonConfig.getMethod(), comparisonConfig.getRange(), benchmark.getRoundedCompareMean(), benchmark.getRoundedCompareSD(), benchmark.getRoundedDelta(), 
-                        benchmark.getRoundedPercentChange(), benchmark.getRoundedDeviationsFromMean(), benchmark.getFingerprint());
+                    logErr(log.toString(), "ANOMALY", comparisonConfig.getTestType(), benchmark.getDisplayName(),
+                            benchmark.getMode(), benchmark.getRoundedScore(), comparisonConfig.getCompareVersion(),
+                            comparisonConfig.getMethod(), comparisonConfig.getRange(),
+                            benchmark.getRoundedCompareMean(), benchmark.getRoundedCompareSD(),
+                            benchmark.getRoundedDelta(), benchmark.getRoundedPercentChange(),
+                            benchmark.getRoundedDeviationsFromMean(), benchmark.getFingerprint());
                 }
             } else {
-                logInfo("   NO COMPARISON: test.name={}, test.mode={}, test.score={}, {}", benchmark.getDisplayName(), benchmark.getMode(), benchmark.getRoundedScore(), benchmark.getSkipReason());
-            } 
+                logInfo("   NO COMPARISON: test.name={}, test.mode={}, test.score={}, {}", benchmark.getDisplayName(),
+                        benchmark.getMode(), benchmark.getRoundedScore(), benchmark.getSkipReason());
+            }
         }
     }
-
 
     // TODO should utilize ComparisonConfig class
     @SuppressWarnings("unchecked")
@@ -391,61 +410,43 @@ public class CompareBenchmarks {
             Map<String, String> configuredCategories) {
         Map<String, Object> configs = null;
 
-        Method compareMethod = null;
-        Scope compareScope = null;
-        String compareRange = null;
-        Threshold compareThreshold = null;
-        Double percentChangeAllowed = null;
-        String compareVersion = null;
-        Double deviationsAllowed = null;
-
         if (allConfigs.containsKey(ConfigHandling.DEFAULT_IDENTIFIER_HEADER)) {
-            Map<String, Object> defaultConfigs = (Map<String, Object>) allConfigs
-                    .get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER);
-            compareMethod = (Method) defaultConfigs.get(ConfigHandling.METHOD);
-            compareScope = (Scope) defaultConfigs.get(ConfigHandling.SCOPE);
-            compareRange = (String) defaultConfigs.get(ConfigHandling.RANGE);
-            compareThreshold = (Threshold) defaultConfigs.get(ConfigHandling.THRESHOLD);
-            compareVersion = (String) defaultConfigs.get(ConfigHandling.COMPARE_VERSION);
-            if (defaultConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED) != null) {
-                percentChangeAllowed = Double.parseDouble(defaultConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
-            }
-            if ((defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED) != null)) {
-                deviationsAllowed = Double.parseDouble(defaultConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
-            }
-
-            configs = createConfigMap(compareMethod, compareScope, compareRange, compareThreshold, percentChangeAllowed,
-                    compareVersion, deviationsAllowed);
+            configs = createGroupConfigs(
+                    (Map<String, Object>) allConfigs.get(ConfigHandling.DEFAULT_IDENTIFIER_HEADER));
         }
 
         for (Map.Entry<String, String> categoryEntry : configuredCategories.entrySet()) {
             if (categoryEntry.getKey() != null && benchmarkName.startsWith(categoryEntry.getKey())) {
                 String identifier = categoryEntry.getValue();
-                Map<String, Object> specificConfigs = (Map<String, Object>) allConfigs.get(identifier);
-                compareMethod = (Method) specificConfigs.get(ConfigHandling.METHOD);
-                compareScope = (Scope) specificConfigs.get(ConfigHandling.SCOPE);
-                compareRange = (String) specificConfigs.get(ConfigHandling.RANGE);
-                compareThreshold = (Threshold) specificConfigs.get(ConfigHandling.THRESHOLD);
-                compareVersion = (String) specificConfigs.get(ConfigHandling.COMPARE_VERSION);
-                if (specificConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED) != null) {
-                    percentChangeAllowed = Double
-                            .parseDouble(specificConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
-                }
-                if (specificConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED) != null) {
-                    deviationsAllowed = Double
-                            .parseDouble(specificConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
-                }
-                configs = createConfigMap(compareMethod, compareScope, compareRange, compareThreshold,
-                        percentChangeAllowed, compareVersion, deviationsAllowed);
+                configs = createGroupConfigs((Map<String, Object>) allConfigs.get(identifier));
                 break;
             }
         }
         return configs;
     }
 
-    private static Map<String, Object> createConfigMap(Method compareMethod, Scope compareScope,
-            String compareRange, Threshold compareThreshold, Double percentChangeAllowed,
-            String compareVersion, Double deviationsAllowed) {
+    private static Map<String, Object> createGroupConfigs(Map<String, Object> groupConfigs) {
+        Method compareMethod = (Method) groupConfigs.get(ConfigHandling.METHOD);
+        Scope compareScope = (Scope) groupConfigs.get(ConfigHandling.SCOPE);
+        String compareRange = (String) groupConfigs.get(ConfigHandling.RANGE);
+        Threshold compareThreshold = (Threshold) groupConfigs.get(ConfigHandling.THRESHOLD);
+        String compareVersion = (String) groupConfigs.get(ConfigHandling.COMPARE_VERSION);
+        Double percentChangeAllowed = null;
+        if (groupConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED) != null) {
+            percentChangeAllowed = Double
+                    .parseDouble(groupConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
+        }
+        Double deviationsAllowed = null;
+        if (groupConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED) != null) {
+            deviationsAllowed = Double.parseDouble(groupConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
+        }
+
+        return createConfigMap(compareMethod, compareScope, compareRange, compareThreshold, percentChangeAllowed,
+                compareVersion, deviationsAllowed);
+    }
+
+    private static Map<String, Object> createConfigMap(Method compareMethod, Scope compareScope, String compareRange,
+            Threshold compareThreshold, Double percentChangeAllowed, String compareVersion, Double deviationsAllowed) {
         Map<String, Object> configs = new HashMap<>();
         configs.put(ConfigHandling.METHOD, compareMethod);
         configs.put(ConfigHandling.SCOPE, compareScope);
