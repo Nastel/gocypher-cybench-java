@@ -103,7 +103,12 @@ public class BenchmarkRunner {
 
         // make sure gradle metadata can be parsed BEFORE benchmarks are run
         LOG.info("** Checking for valid Metadata before proceeding...");
-        if (!checkValidMetadataProps("artifactId") || !checkValidMetadataProps("version")) {
+        if (!checkValidMetadata("artifactId")) {
+            failBuildFromMissingMetadata("Project");
+            System.exit(1);
+        }
+        if (!checkValidMetadata("version")) {
+            failBuildFromMissingMetadata("Version");
             System.exit(1);
         }
         LOG.info("Executing benchmarks...");
@@ -692,35 +697,19 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
     }
 
-    public static boolean checkValidMetadataProps(String prop) {
-        String temp2 = System.getProperty("user.dir");
-        File gradle = new File(temp2 + "/build.gradle");
-        File gradleKTS = new File(temp2 + "/build.gradle.kts");
-        String temp;
-        if (gradle.exists() || gradleKTS.exists()) {
-            // LOG.info("** Gradle project detected. Will now check for project.properties.");
-            File projProps = new File(temp2 + "/config/project.properties");
-            if (projProps.exists()) {
-                try (BufferedReader reader = new BufferedReader(new FileReader(projProps))) {
-                    while ((temp = reader.readLine()) != null) {
-                        if (temp.contains(prop)) {
-                            LOG.info("Found required metadata ({})", prop);
-                            return true;
-                        }
-                    }
-                } catch (Exception e) {
-                    LOG.error("** Error reading project.properties file", e);
-                    return false;
-                }
-            } else {
-                LOG.error("** File project.properties not found. Please make sure to add the necessary ant tasks to your build file to generate project.properties");
-                LOG.info("** CyBench requires the metadata found in this file in order to annotate benchmark reports correctly.");
-                LOG.info("** In order to generate this file, you must add two ant tasks to your Gradle build file. These tasks can be found at CyBench Gradle Plugin's README");
-                LOG.info("** For more information, please visit the CyBench Wiki (https://github.com/K2NIO/gocypher-cybench-java/wiki)");
-                return false;
-            }
-        }
-        return true;
+    /**
+     * Checks if gradle's metadata property value is null/unspecified, used BEFORE benchmarks are ran as lacking this
+     * metadata causes the build/test to fail
+     * 
+     * @param prop
+     *            the property to check exists in project.properties
+     * 
+     * @return {@code false} if checked property is {@code null} or unspecified, {@code true} - otherwise
+     */
+    public static boolean checkValidMetadata(String prop) {
+        String tempProp = getMetaDataFromGradle(prop);
+
+        return !isPropUnspecified(tempProp);
     }
 
     /**
@@ -770,15 +759,15 @@ public class BenchmarkRunner {
         } catch (ParserConfigurationException e) {
             LOG.error("Error creating DocumentBuilder");
             e.printStackTrace();
-            failBuildFromMissingMetaData();
+            failBuildFromMissingMetadata();
         } catch (SAXException e) {
             LOG.error("SAX error");
             e.printStackTrace();
-            failBuildFromMissingMetaData();
+            failBuildFromMissingMetadata();
         } catch (IOException e) {
             LOG.error("IO Error");
             e.printStackTrace();
-            failBuildFromMissingMetaData();
+            failBuildFromMissingMetadata();
         }
         return property;
     }
@@ -851,7 +840,7 @@ public class BenchmarkRunner {
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    failBuildFromMissingMetaData("Project");
+                    failBuildFromMissingMetadata("Project");
                 }
                 return property;
             }
@@ -869,7 +858,7 @@ public class BenchmarkRunner {
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    failBuildFromMissingMetaData("Version");
+                    failBuildFromMissingMetadata("Version");
                 }
                 return property;
             }
@@ -884,7 +873,7 @@ public class BenchmarkRunner {
         return StringUtils.isBlank(prop) || "unspecified".equals(prop);
     }
 
-    private static void failBuildFromMissingMetaData(String metadata) {
+    private static void failBuildFromMissingMetadata(String metadata) {
         LOG.error("* ===[Build failed from lack of metadata ({})]===", metadata);
         LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
         if (metadata.contains("Version")) {
@@ -924,7 +913,7 @@ public class BenchmarkRunner {
         }
     }
 
-    private static void failBuildFromMissingMetaData() {
+    private static void failBuildFromMissingMetadata() {
         LOG.error("* ===[Build failed from lack of metadata]===");
         LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
         LOG.error("* Error while parsing Maven project's 'pom.xml' file.");
