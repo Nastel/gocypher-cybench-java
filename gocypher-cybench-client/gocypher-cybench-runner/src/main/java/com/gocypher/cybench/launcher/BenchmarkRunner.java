@@ -102,12 +102,12 @@ public class BenchmarkRunner {
         // make sure gradle metadata can be parsed BEFORE benchmarks are run
         LOG.info("** Checking for valid Metadata before proceeding...");
         if (!checkValidMetadata("artifactId")) {
-        	failBuildFromMissingMetadata("Project");
-        	System.exit(1);
+            failBuildFromMissingMetadata("Project");
+            System.exit(1);
         }
         if (!checkValidMetadata("version")) {
-        	failBuildFromMissingMetadata("Version");
-        	System.exit(1);
+            failBuildFromMissingMetadata("Version");
+            System.exit(1);
         }
         LOG.info("Executing benchmarks...");
 
@@ -694,25 +694,20 @@ public class BenchmarkRunner {
         System.out.println("Total Garbage Collections: " + totalGarbageCollections);
         System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
     }
-    
+
     /**
-     * Checks if gradle's metadata property value is null/unspecified, used BEFORE benchmarks are ran
-     * as lacking this metadata causes the build/test to fail
+     * Checks if gradle's metadata property value is null/unspecified, used BEFORE benchmarks are ran as lacking this
+     * metadata causes the build/test to fail
      * 
-     * @param prop 
-     *           the property to check exists in project.properties
-     *           
-     * @return true
-     *           returns FALSE if checked property is null or unspecified 
-     */    
+     * @param prop
+     *            the property to check exists in project.properties
+     * 
+     * @return {@code false} if checked property is {@code null} or unspecified, {@code true} - otherwise
+     */
     public static boolean checkValidMetadata(String prop) {
-    	String tempProp = "";
-    	tempProp = getMetaDataFromGradle(prop);
-    	
-    	if (isPropUnspecified(tempProp)) {
-    		return false;
-    	}
-    	return true;
+        String tempProp = getMetaDataFromGradle(prop);
+
+        return !isPropUnspecified(tempProp);
     }
 
     /**

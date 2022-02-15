@@ -136,7 +136,8 @@ public final class Comparisons {
         return state;
     }
 
-    private static void calculateCompareValues(ComparedBenchmark benchmarkToCompare, List<ComparedBenchmark> benchmarksToCompareAgainst) {
+    private static void calculateCompareValues(ComparedBenchmark benchmarkToCompare,
+            List<ComparedBenchmark> benchmarksToCompareAgainst) {
         List<Double> compareScores = extractScoresFromComparedBenchmarkList(benchmarksToCompareAgainst);
         Double compareMean = calculateMean(compareScores);
         benchmarkToCompare.setCompareMean(compareMean);
