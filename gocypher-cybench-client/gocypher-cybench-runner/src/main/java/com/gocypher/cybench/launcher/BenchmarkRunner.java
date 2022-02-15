@@ -82,7 +82,9 @@ public class BenchmarkRunner {
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Starting CyBench benchmarks                             ");
         LOG.info("-----------------------------------------------------------------------------------------");
-        identifyPropertiesFromArguments(args);
+        if (!checkIfConfigurationPropertyIsSet(getProperty(Constants.INTELLIJ_PLUGIN)) || !Boolean.parseBoolean(getProperty(Constants.INTELLIJ_PLUGIN))) {
+            identifyPropertiesFromArguments(args);
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override

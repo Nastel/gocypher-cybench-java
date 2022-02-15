@@ -33,6 +33,7 @@ public class Constants {
     public static final String REPORT_SOURCE = "benchSource";
     public static final String REPORT_VERSION = "benchVersion";
     public static final String SEND_REPORT_URL = "sendReportToURL";
+    public static final String INTELLIJ_PLUGIN = "intelliJPlugin";
 
     // --------------------------- Properties that configure the runner execution
     // ------------------------------------------
