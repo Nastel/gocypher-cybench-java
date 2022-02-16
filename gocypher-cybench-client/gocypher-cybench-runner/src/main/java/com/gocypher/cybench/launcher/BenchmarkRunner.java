@@ -281,8 +281,10 @@ public class BenchmarkRunner {
         if (report.getBenchmarks() != null && !report.getBenchmarks().isEmpty()) {
             List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
             report.getBenchmarks().remove("CUSTOM");
-            for (BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
-                report.addToBenchmarks(benchReport);
+            if (customBenchmarksCategoryCheck != null) {
+                for (BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
+                    report.addToBenchmarks(benchReport);
+                }
             }
             report.computeScores();
             getReportUploadStatus(report);
@@ -485,8 +487,15 @@ public class BenchmarkRunner {
                     }
                 }
             }
+
+            if (benchmarkReport.getCategory().equals("CUSTOM")) {
+                int index = benchmarkReport.getName().lastIndexOf(".");
+                if (index > 0) {
+                    benchmarkReport.setCategory(benchmarkReport.getName().substring(0, index));
+                }
+            }
         } catch (Exception e) {
-            LOG.error("Error while attempting to setProject from runner: ", e);
+            LOG.error("Error while attempting to synchronize benchmark metadata from runner: ", e);
         }
     }
 
