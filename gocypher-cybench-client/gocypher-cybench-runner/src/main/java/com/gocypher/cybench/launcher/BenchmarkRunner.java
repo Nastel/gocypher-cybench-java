@@ -489,9 +489,16 @@ public class BenchmarkRunner {
             }
 
             if (benchmarkReport.getCategory().equals("CUSTOM")) {
-                int index = benchmarkReport.getName().lastIndexOf(".");
-                if (index > 0) {
-                    benchmarkReport.setCategory(benchmarkReport.getName().substring(0, index));
+                int classIndex = benchmarkReport.getName().lastIndexOf(".");
+                if (classIndex > 0) {
+                    String pckgAndClass = benchmarkReport.getName().substring(0, classIndex);
+                    int pckgIndex = pckgAndClass.lastIndexOf(".");
+                    if (pckgIndex > 0) {
+                        String pckg = pckgAndClass.substring(0, pckgIndex);
+                        benchmarkReport.setCategory(pckg);
+                    } else {
+                        benchmarkReport.setCategory(pckgAndClass);
+                    }
                 }
             }
         } catch (Exception e) {
