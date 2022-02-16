@@ -489,9 +489,16 @@ public class BenchmarkRunner {
             }
 
             if (benchmarkReport.getCategory().equals("CUSTOM")) {
-                int index = benchmarkReport.getName().lastIndexOf(".");
-                if (index > 0) {
-                    benchmarkReport.setCategory(benchmarkReport.getName().substring(0, index));
+                int classIndex = benchmarkReport.getName().lastIndexOf(".");
+                if (classIndex > 0) {
+                    String pckgAndClass = benchmarkReport.getName().substring(0, classIndex);
+                    int pckgIndex = pckgAndClass.lastIndexOf(".");
+                    if (pckgIndex > 0) {
+                        String pckg = pckgAndClass.substring(0, pckgIndex);
+                        benchmarkReport.setCategory(pckg);
+                    } else {
+                        benchmarkReport.setCategory(pckgAndClass);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -723,7 +730,6 @@ public class BenchmarkRunner {
 		File pomCheck = new File(userDir + "/pom.xml");
 		
 		if (!pomCheck.exists()) {
-			System.out.println("No pom.xml file detected, checking for Gradle files..");
 			tempProp = getMetadataFromGradle(prop);
 			if(isPropUnspecified(tempProp)) {
 				return false;
@@ -894,15 +900,15 @@ public class BenchmarkRunner {
         return StringUtils.isBlank(prop) || "unspecified".equals(prop);
     }
 
-    private static void failBuildFromMissingMetadata(String metadata) {
+    public static void failBuildFromMissingMetadata(String metadata) {
         LOG.error("* ===[Build failed from lack of metadata: ("+ metadata + ")]===");
         LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
         if (metadata.contains("Version")) {
             LOG.error("* Project version metadata was unable to be processed.");
-            LOG.info("* Project version can be set or parsed dynamically a few different ways: \n");
-            LOG.info("*** The quickest and easiest (Gradle) solution is by adding an Ant task to 'build.gradle'"
+            LOG.warn("* Project version can be set or parsed dynamically a few different ways: \n");
+            LOG.warn("*** The quickest and easiest (Gradle) solution is by adding an Ant task to 'build.gradle'"
             		+ " to generate 'project.properties' file.");
-            LOG.info("*** This Ant task can be found in the README for CyBench Gradle Plugin"
+            LOG.warn("*** This Ant task can be found in the README for CyBench Gradle Plugin"
             				+ " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
             LOG.info("*** For Gradle (groovy) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
                             + "'build.gradle' or 'version.gradle'.");
@@ -915,15 +921,15 @@ public class BenchmarkRunner {
             LOG.info("* Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
             LOG.info("* If setting project version via 'metadata.properties', please add the following: ");
             LOG.info("* 'class.version=<yourProjectVersionNumber>'\n");
-            LOG.info("* For more information and instructions on this process, please visit the CyBench wiki at "
+            LOG.warn("* For more information and instructions on this process, please visit the CyBench wiki at "
                     + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
             System.exit(1);
         } else if (metadata.contains("Project")) {
             LOG.error("* Project name metadata was unable to be processed.");
-            LOG.info("* Project name can be set or parsed dynamically a few different ways: \n");
-            LOG.info("*** The quickest and easiest (Gradle) solution is by adding an Ant task to 'build.gradle'"
+            LOG.warn("* Project name can be set or parsed dynamically a few different ways: \n");
+            LOG.warn("*** The quickest and easiest (Gradle) solution is by adding an Ant task to 'build.gradle'"
             		+ " to generate 'project.properties' file.");
-            LOG.info("*** This Ant task can be found in the README for CyBench Gradle Plugin"
+            LOG.warn("*** This Ant task can be found in the README for CyBench Gradle Plugin"
             				+ " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
             LOG.info("*** For Gradle (groovy) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle'.");
             LOG.info("*** For Gradle (kotlin) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle.kts'.");
@@ -936,13 +942,13 @@ public class BenchmarkRunner {
             LOG.info("*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
             LOG.info("*** If setting project version via 'metadata.properties', please add the following: ");
             LOG.info("*** 'class.project=<yourProjectName>'\n");
-            LOG.info("* For more information and instructions on this process, please visit the CyBench wiki at "
+            LOG.warn("* For more information and instructions on this process, please visit the CyBench wiki at "
                     + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
             System.exit(1);
         }
     }
 
-    private static void failBuildFromMissingMetadata() {
+    public static void failBuildFromMissingMetadata() {
         LOG.error("* ===[Build failed from lack of metadata]===");
         LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
         LOG.error("* Error while parsing Maven project's 'pom.xml' file.");
