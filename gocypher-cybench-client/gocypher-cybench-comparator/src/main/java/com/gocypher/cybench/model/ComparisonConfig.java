@@ -65,7 +65,6 @@ public class ComparisonConfig {
         setScope(Scope.valueOf(scope));
         setMethod(Method.valueOf(method));
         if (configs.containsKey("threshold") && configs.get("threshold") != null) {
-            System.out.println(configs.get("threshold"));
             String threshold = configs.get("threshold").toString();
             setThreshold(Threshold.valueOf(threshold));
         }

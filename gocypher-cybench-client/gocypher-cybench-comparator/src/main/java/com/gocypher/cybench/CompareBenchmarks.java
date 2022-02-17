@@ -331,7 +331,7 @@ public class CompareBenchmarks {
         logInfo("Comparing {}, version {}", Requests.project, Requests.currentVersion);
         logInfo("compared={}, passed={}, (skipped={}), anomalies={}", totalComparedBenchmarks, totalPassedBenchmarks,
                 totalSkippedBenchmarks, totalFailedBenchmarks);
-        System.out.print("\n");
+        logInfo("\n");
         logComparison();
         if (totalFailedBenchmarks > 0) {
             logWarn("* There are benchmark comparison failures! *");
@@ -350,17 +350,17 @@ public class CompareBenchmarks {
             logInfo("** {}/{} benchmarks PASSED:", totalPassedBenchmarks, totalComparedBenchmarks);
             printComparedBenchmarks(CompareState.PASS, passedBenchmarks, totalPassedBenchmarks);
         }
-        System.out.print("\n");
+        logInfo("\n");
         if (totalSkippedBenchmarks > 0) {
             logInfo("** {}/{} benchmarks SKIPPED:", totalSkippedBenchmarks, totalComparedBenchmarks);
             printComparedBenchmarks(CompareState.SKIP, skippedBenchmarks, totalSkippedBenchmarks);
         }
-        System.out.print("\n");
+        logInfo("\n");
         if (totalFailedBenchmarks > 0) {
             logInfo("** {}/{} benchmark ANOMALIES:", totalFailedBenchmarks, totalComparedBenchmarks);
             printComparedBenchmarks(CompareState.FAIL, failedBenchmarks, totalFailedBenchmarks);
         }
-        System.out.print("\n");
+        logInfo("\n");
         logInfo("* Completed benchmark analysis\n");
     }
 

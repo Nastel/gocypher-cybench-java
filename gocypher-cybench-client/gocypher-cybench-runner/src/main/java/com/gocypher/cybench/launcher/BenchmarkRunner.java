@@ -24,7 +24,6 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,7 +82,8 @@ public class BenchmarkRunner {
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Starting CyBench benchmarks                             ");
         LOG.info("-----------------------------------------------------------------------------------------");
-        if (!checkIfConfigurationPropertyIsSet(getProperty(Constants.INTELLIJ_PLUGIN)) || !Boolean.parseBoolean(getProperty(Constants.INTELLIJ_PLUGIN))) {
+        if (!checkIfConfigurationPropertyIsSet(getProperty(Constants.INTELLIJ_PLUGIN))
+                || !Boolean.parseBoolean(getProperty(Constants.INTELLIJ_PLUGIN))) {
             identifyPropertiesFromArguments(args);
         }
 
@@ -648,45 +648,47 @@ public class BenchmarkRunner {
         String nameOS = "os.name";
         String versionOS = "os.version";
         String architectureOS = "os.arch";
-        System.out.println("\n  Info about OS");
-        System.out.println("\nName of the OS: " + System.getProperty(nameOS));
-        System.out.println("Version of the OS: " + System.getProperty(versionOS));
-        System.out.println("Architecture of The OS: " + System.getProperty(architectureOS));
+        LOG.info("\n  Info about OS");
+        LOG.info("\nName of the OS: {}", System.getProperty(nameOS));
+        LOG.info("Version of the OS: {}", System.getProperty(versionOS));
+        LOG.info("Architecture of The OS: {}", System.getProperty(architectureOS));
         Map<String, String> env = System.getenv();
-        System.out.println("Environment values");
+        LOG.info("Environment values");
         for (Map.Entry<String, String> stringStringEntry : env.entrySet()) {
-            System.out.println("K: " + stringStringEntry.getKey() + " \n\tV: " + stringStringEntry.getValue());
+            LOG.info("K: {} \n\tV: {}", stringStringEntry.getKey(), stringStringEntry.getValue());
         }
         /* Total number of processors or cores available to the JVM */
-        System.out.println("\nAvailable processors (cores): " + Runtime.getRuntime().availableProcessors());
+        LOG.info("\nAvailable processors (cores): {}", Runtime.getRuntime().availableProcessors());
 
         /* Total amount of free memory available to the JVM */
-        System.out.println("Free memory (megabytes): " + Runtime.getRuntime().freeMemory() / (float) megabytes);
+        LOG.info("Free memory (megabytes): {}", Runtime.getRuntime().freeMemory() / (float) megabytes);
 
         /* This will return Long.MAX_VALUE if there is no preset limit */
         long maxMemory = Runtime.getRuntime().maxMemory();
         /* Maximum amount of memory the JVM will attempt to use */
-        System.out.println("Maximum memory (megabytes): "
-                + (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory / (float) megabytes));
+        LOG.info("Maximum memory (megabytes): {}",
+                (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory / (float) megabytes));
 
         /* Total memory currently available to the JVM */
-        System.out.println(
-                "Total memory available to JVM (megabytes): " + Runtime.getRuntime().totalMemory() / (float) megabytes);
+        LOG.info("Total memory available to JVM (megabytes): {}",
+                Runtime.getRuntime().totalMemory() / (float) megabytes);
 
         /* Get a list of all filesystem roots on this system */
         File[] roots = File.listRoots();
 
         /* For each filesystem root, print some info */
         for (File root : roots) {
-            System.out.println("\nFile system root: " + root.getAbsolutePath());
-            System.out.println("Total space (gigabytes): " + (root.getTotalSpace() / (float) gigabytes));
-            System.out.println("Free space (gigabytes): " + (root.getFreeSpace() / (float) gigabytes));
-            System.out.println("Usable space (gigabytes): " + (root.getUsableSpace() / (float) gigabytes));
+            LOG.info("\nFile system root: {}", root.getAbsolutePath());
+            LOG.info("Total space (gigabytes): {}", (root.getTotalSpace() / (float) gigabytes));
+            LOG.info("Free space (gigabytes): {}", (root.getFreeSpace() / (float) gigabytes));
+            LOG.info("Usable space (gigabytes): {}", (root.getUsableSpace() / (float) gigabytes));
 
         }
-        System.out.println("\n\nProperties:\n------\n");
-        System.getProperties().list(System.out);
-
+        LOG.info("\n\nProperties:\n------\n");
+        try (PrintWriter pw = new PrintWriter(new StringWriter())) {
+            System.getProperties().list(pw);
+            LOG.info(pw.toString());
+        }
     }
 
     public static void printGCStats() {
@@ -694,7 +696,7 @@ public class BenchmarkRunner {
         long garbageCollectionTime = 0;
 
         for (GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
-            System.out.println("GC: " + gc.getName() + ";" + gc.getClass());
+            LOG.info("GC: {};{}", gc.getName(), gc.getClass());
 
             long count = gc.getCollectionCount();
 
@@ -709,8 +711,8 @@ public class BenchmarkRunner {
             }
         }
 
-        System.out.println("Total Garbage Collections: " + totalGarbageCollections);
-        System.out.println("Total Garbage Collection Time (ms): " + garbageCollectionTime);
+        LOG.info("Total Garbage Collections: {}", totalGarbageCollections);
+        LOG.info("Total Garbage Collection Time (ms): {}", garbageCollectionTime);
     }
 
     /**
@@ -723,20 +725,20 @@ public class BenchmarkRunner {
      * @return {@code false} if checked property is {@code null} or unspecified, {@code true} - otherwise
      */
     public static boolean checkValidMetadata(String prop) {
-		System.out.println("** Checking for valid metadata (" + prop + ") before proceeding...");
-		
-		String tempProp = "";
-		String userDir = System.getProperty("user.dir");
-		File pomCheck = new File(userDir + "/pom.xml");
-		
-		if (!pomCheck.exists()) {
-			tempProp = getMetadataFromGradle(prop);
-			if(isPropUnspecified(tempProp)) {
-				return false;
-			}
-		}
-	   	System.out.println("** (" + prop + ") metadata OK");
-    	return true;
+        LOG.info("** Checking for valid metadata ({}) before proceeding...", prop);
+
+        String tempProp = "";
+        String userDir = System.getProperty("user.dir");
+        File pomCheck = new File(userDir + "/pom.xml");
+
+        if (!pomCheck.exists()) {
+            tempProp = getMetadataFromGradle(prop);
+            if (isPropUnspecified(tempProp)) {
+                return false;
+            }
+        }
+        LOG.info("** ({}) metadata OK", prop);
+        return true;
     }
 
     /**
@@ -813,7 +815,7 @@ public class BenchmarkRunner {
             switcher = "kotlin";
         }
 
-        // System.out.println("Prop is currently: " + prop);
+        // LOG.info("Prop is currently: {}", prop);
         switch (switcher) {
         case "groovy":
             // LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
@@ -901,15 +903,15 @@ public class BenchmarkRunner {
     }
 
     public static void failBuildFromMissingMetadata(String metadata) {
-        LOG.error("* ===[Build failed from lack of metadata: ("+ metadata + ")]===");
+        LOG.error("* ===[Build failed from lack of metadata: (" + metadata + ")]===");
         LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
         if (metadata.contains("Version")) {
             LOG.error("* Project version metadata was unable to be processed.");
             LOG.warn("* Project version can be set or parsed dynamically a few different ways: \n");
             LOG.warn("*** The quickest and easiest (Gradle) solution is by adding an Ant task to 'build.gradle'"
-            		+ " to generate 'project.properties' file.");
+                    + " to generate 'project.properties' file.");
             LOG.warn("*** This Ant task can be found in the README for CyBench Gradle Plugin"
-            				+ " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
+                    + " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
             LOG.info("*** For Gradle (groovy) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
                             + "'build.gradle' or 'version.gradle'.");
             LOG.info("*** For Gradle (kotlin) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
@@ -928,9 +930,9 @@ public class BenchmarkRunner {
             LOG.error("* Project name metadata was unable to be processed.");
             LOG.warn("* Project name can be set or parsed dynamically a few different ways: \n");
             LOG.warn("*** The quickest and easiest (Gradle) solution is by adding an Ant task to 'build.gradle'"
-            		+ " to generate 'project.properties' file.");
+                    + " to generate 'project.properties' file.");
             LOG.warn("*** This Ant task can be found in the README for CyBench Gradle Plugin"
-            				+ " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
+                    + " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
             LOG.info("*** For Gradle (groovy) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle'.");
             LOG.info("*** For Gradle (kotlin) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle.kts'.");
             LOG.info("**** Important note regarding Gradle project's name: This value is read-only in 'build.gradle(.kts)'. This value *MUST*"

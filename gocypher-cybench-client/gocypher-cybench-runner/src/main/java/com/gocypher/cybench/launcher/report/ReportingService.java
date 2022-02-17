@@ -79,8 +79,6 @@ public class ReportingService {
             if (item.getParams() != null) {
                 report.setName(item.getParams().getBenchmark());
                 report.setMode(item.getParams().getMode().shortLabel());
-                // System.out.println("id: "+item.getParams().id());
-                // System.out.println("Mode"+item.getParams().getMode().longLabel());
             }
 
             Collection<String> paramsKeys = item.getParams().getParamsKeys();
