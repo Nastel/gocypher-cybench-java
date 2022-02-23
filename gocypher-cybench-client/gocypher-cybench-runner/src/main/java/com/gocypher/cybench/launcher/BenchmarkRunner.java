@@ -340,10 +340,10 @@ public class BenchmarkRunner {
                 LOG.info("NOTE: It may take a few minutes for your report to appear online");
             } else {
                 if (response.containsKey("error")) {
-                    LOG.info((String) response.get("error"));
+                    LOG.error((String) response.get("error"));
                 }
                 if (response.containsKey("ERROR")) {
-                    LOG.info((String) response.get("ERROR"));
+                    LOG.error((String) response.get("ERROR"));
                 }
                 LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
