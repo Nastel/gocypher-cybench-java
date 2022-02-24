@@ -335,7 +335,7 @@ public class BenchmarkRunner {
             LOG.info("Removing all temporary auto-generated files....");
             IOUtils.removeTestDataFiles();
             LOG.info("Removed all temporary auto-generated files!!!");
-            if (!isErrorResponse(response)) {
+            if (!response.isEmpty() && !isErrorResponse(response)) {
                 LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
                 LOG.info("You can find all device benchmarks on {}", deviceReports);
                 LOG.info("Your report is available at {}", resultURL);
