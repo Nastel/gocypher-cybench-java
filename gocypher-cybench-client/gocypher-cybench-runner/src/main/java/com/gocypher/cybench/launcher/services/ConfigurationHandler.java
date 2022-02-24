@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,31 +37,26 @@ public class ConfigurationHandler {
     public static Properties loadConfiguration(String filePath) {
         Properties prop = new Properties();
         String confFilePath = filePath;
+
         try {
-            if (filePath.isEmpty()) {
-                confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
-            } else {
-                confFilePath = filePath;
-            }
+            confFilePath = getCfgPath(filePath);
             try (InputStream cfIn = new FileInputStream(confFilePath)) {
                 prop.load(cfIn);
             }
             LOG.info("** Configuration loaded: {}", confFilePath);
-            return prop;
         } catch (Exception e) {
-            LOG.error("Configuration file={} not found, will try to use default configuration", confFilePath, e);
-            try {
-                confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
-                try (InputStream cfIn = new FileInputStream(confFilePath)) {
-                    prop.load(cfIn);
-                }
-                return prop;
-            } catch (Exception err) {
-                LOG.error(
-                        "Default configuration file is missing, try re-downloading the project or use our documentation to create your own configuration file={}",
-                        confFilePath, err);
-            }
+            LOG.error("Failed to load configuration from file file={}", confFilePath, e);
         }
-        return new Properties();
+
+        return prop;
+    }
+
+    protected static String getCfgPath(String confFilePath) {
+        File cfgFile = new File(confFilePath);
+        if (StringUtils.isEmpty(confFilePath) || !cfgFile.exists()) {
+            confFilePath = new File("").getAbsolutePath() + CONFIG_FILE;
+        }
+
+        return confFilePath;
     }
 }
