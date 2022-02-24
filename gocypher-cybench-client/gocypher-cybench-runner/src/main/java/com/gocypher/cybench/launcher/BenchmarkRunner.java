@@ -293,7 +293,6 @@ public class BenchmarkRunner {
             LOG.info("Generating JSON report...");
             String reportJSON;
             String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder, report);
-            String responseWithUrl = null;
             String deviceReports = null;
             String resultURL = null;
             Map<?, ?> response = new HashMap<>();
@@ -302,9 +301,12 @@ public class BenchmarkRunner {
                 String emailAddress = getProperty(Constants.USER_EMAIL_ADDRESS);
 
                 String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
-                responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted, tokenAndEmail);
-                response = JSONUtils.parseJsonIntoMap(responseWithUrl);
-                if (!response.containsKey("error") && !response.containsKey("ERROR") && StringUtils.isNotEmpty(responseWithUrl)) {
+                String responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted,
+                        tokenAndEmail);
+                if (StringUtils.isNotEmpty(responseWithUrl)) {
+                    response = JSONUtils.parseJsonIntoMap(responseWithUrl);
+                }
+                if (!isErrorResponse(response)) {
                     deviceReports = String.valueOf(response.get(Constants.REPORT_USER_URL));
                     resultURL = String.valueOf(response.get(Constants.REPORT_URL));
                     report.setDeviceReportsURL(deviceReports);
@@ -333,17 +335,15 @@ public class BenchmarkRunner {
             LOG.info("Removing all temporary auto-generated files....");
             IOUtils.removeTestDataFiles();
             LOG.info("Removed all temporary auto-generated files!!!");
-            if (!response.containsKey("error") && !response.containsKey("ERROR") && StringUtils.isNotEmpty(responseWithUrl)) {
+            if (!isErrorResponse(response)) {
                 LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
                 LOG.info("You can find all device benchmarks on {}", deviceReports);
                 LOG.info("Your report is available at {}", resultURL);
                 LOG.info("NOTE: It may take a few minutes for your report to appear online");
             } else {
-                if (response.containsKey("error")) {
-                    LOG.error((String) response.get("error"));
-                }
-                if (response.containsKey("ERROR")) {
-                    LOG.error((String) response.get("ERROR"));
+                String errMsg = getErrorResponseMessage(response);
+                if (errMsg != null) {
+                    LOG.error(errMsg);
                 }
                 LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
@@ -356,6 +356,18 @@ public class BenchmarkRunner {
         LOG.info("                           Finished CyBench benchmarking ({})                            ",
                 ComputationUtils.formatInterval(System.currentTimeMillis() - start));
         LOG.info("-----------------------------------------------------------------------------------------");
+    }
+
+    public static boolean isErrorResponse(Map<?, ?> response) {
+        return response.containsKey("error") || response.containsKey("ERROR");
+    }
+
+    public static String getErrorResponseMessage(Map<?, ?> response) {
+        String errMsg = (String) response.get("error");
+        if (errMsg == null) {
+            errMsg = (String) response.get("ERROR");
+        }
+        return errMsg;
     }
 
     private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod,
