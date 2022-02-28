@@ -44,7 +44,7 @@ public class Requests {
     private static final String benchmarkBaseUrl = System.getProperty("cybench.benchmark.base.url",
             "https://app.cybench.io/cybench/benchmark/");
 
-    private static final String prodHost = "http://app.cybench.io/";
+    private static final String prodHost = "https://app.cybench.io/";
     private static final String localHost = "http://localhost:8080/";
     private static final String projectSummaryUrl = prodHost + "gocypher-benchmarks-services/services/v1/projects/";
     private static final String benchmarksByReportIDUrl = prodHost

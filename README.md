@@ -2,7 +2,7 @@
 
 -----------------------
 **NOTE:** CyBench services moved to dedicated host `https://app.cybench.io` from previous `https://www.gocypher.com/`. 
-This change is reflected in CyBench client version `1.3.3`. For previous versions, set Java System Property 
+This change is reflected in CyBench client version `1.3.0`. For previous versions, set Java System Property 
 `sendReportToURL` when running CyBench Launcher:
 ```cmd
 -DsendReportToURL=https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/report
