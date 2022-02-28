@@ -306,7 +306,7 @@ public class BenchmarkRunner {
                 if (StringUtils.isNotEmpty(responseWithUrl)) {
                     response = JSONUtils.parseJsonIntoMap(responseWithUrl);
                 }
-                if (!isErrorResponse(response)) {
+                if (!response.isEmpty() && !isErrorResponse(response)) {
                     deviceReports = String.valueOf(response.get(Constants.REPORT_USER_URL));
                     resultURL = String.valueOf(response.get(Constants.REPORT_URL));
                     report.setDeviceReportsURL(deviceReports);
