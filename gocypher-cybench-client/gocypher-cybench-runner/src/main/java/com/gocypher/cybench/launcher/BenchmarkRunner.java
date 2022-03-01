@@ -351,11 +351,11 @@ public class BenchmarkRunner {
             LOG.error("Failed to save test results", e);
             LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
         } finally {
+            LOG.info("-----------------------------------------------------------------------------------------");
+            LOG.info("                           Finished CyBench benchmarking ({})                            ",
+                    ComputationUtils.formatInterval(System.currentTimeMillis() - start));
+            LOG.info("-----------------------------------------------------------------------------------------");
         }
-        LOG.info("-----------------------------------------------------------------------------------------");
-        LOG.info("                           Finished CyBench benchmarking ({})                            ",
-                ComputationUtils.formatInterval(System.currentTimeMillis() - start));
-        LOG.info("-----------------------------------------------------------------------------------------");
     }
 
     public static boolean isErrorResponse(Map<?, ?> response) {
