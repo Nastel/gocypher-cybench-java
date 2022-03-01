@@ -359,10 +359,13 @@ public class BenchmarkRunner {
     }
 
     public static boolean isErrorResponse(Map<?, ?> response) {
-        return response.containsKey("error") || response.containsKey("ERROR");
+        return response != null && (response.containsKey("error") || response.containsKey("ERROR"));
     }
 
     public static String getErrorResponseMessage(Map<?, ?> response) {
+        if (response == null) {
+            return null;
+        }
         String errMsg = (String) response.get("error");
         if (errMsg == null) {
             errMsg = (String) response.get("ERROR");
