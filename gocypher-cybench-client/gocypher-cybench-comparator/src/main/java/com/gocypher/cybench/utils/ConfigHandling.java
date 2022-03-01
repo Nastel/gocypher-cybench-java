@@ -239,7 +239,7 @@ public class ConfigHandling {
                             throw (new Exception());
                         }
                     } else {
-                        String deviationsStr = compareVals.get(DEVIATIONS_ALLOWED).toString();
+                        String deviationsStr = String.valueOf(compareVals.get(DEVIATIONS_ALLOWED));
                         try {
                             Double deviations = Double.parseDouble(deviationsStr);
                             compareVals.put(DEVIATIONS_ALLOWED, deviationsStr);
@@ -269,7 +269,7 @@ public class ConfigHandling {
                     log.warn("'{}': Range not defined, will use: {}", simplifiedIdentifier, defaultRange);
                     compareVals.put(RANGE, defaultRange);
                 } else {
-                    String range = compareVals.get(RANGE).toString();
+                    String range = String.valueOf(compareVals.get(RANGE));
                     range = range.toUpperCase();
                     if (!range.equals("ALL")) {
                         try {
@@ -355,7 +355,7 @@ public class ConfigHandling {
                                 throw (new Exception());
                             }
                         } else {
-                            String percentageStr = compareVals.get(PERCENT_CHANGE_ALLOWED).toString();
+                            String percentageStr = String.valueOf(compareVals.get(PERCENT_CHANGE_ALLOWED));
                             try {
                                 Double percentage = Double.parseDouble(percentageStr);
                                 compareVals.put(PERCENT_CHANGE_ALLOWED, percentage);

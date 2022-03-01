@@ -60,12 +60,12 @@ public class ComparisonConfig {
 
     @SuppressWarnings("unchecked")
     public ComparisonConfig(Map<String, Object> configs) {
-        String scope = configs.get("scope").toString();
-        String method = configs.get("method").toString();
+        String scope = String.valueOf(configs.get("scope"));
+        String method = String.valueOf(configs.get("method"));
         setScope(Scope.valueOf(scope));
         setMethod(Method.valueOf(method));
         if (configs.containsKey("threshold") && configs.get("threshold") != null) {
-            String threshold = configs.get("threshold").toString();
+            String threshold = String.valueOf(configs.get("threshold"));
             setThreshold(Threshold.valueOf(threshold));
         }
 

@@ -173,8 +173,8 @@ public class BenchmarkTagProcessor extends AbstractProcessor {
 
         Element put = knownAnnotationTags.put(annotation.tag(), element);
         if (put != null) {
-            String msg = "@BenchmarkTag " + annotation.tag() + " is not unique. Used in: "
-                    + element.getSimpleName().toString() + " and " + put.getSimpleName().toString();
+            String msg = "@BenchmarkTag " + annotation.tag() + " is not unique. Used in: " + element.getSimpleName()
+                    + " and " + put.getSimpleName();
             messager.printMessage(Diagnostic.Kind.ERROR, msg);
             throw new RuntimeException(msg);
         }

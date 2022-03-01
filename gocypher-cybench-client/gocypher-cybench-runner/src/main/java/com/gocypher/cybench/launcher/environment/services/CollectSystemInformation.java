@@ -383,7 +383,7 @@ public class CollectSystemInformation {
             }
         } else {
             hardwareProp.setHwOsName(osSystemProps.getManufacturer() + " " + osSystemProps.getFamily());
-            hardwareProp.setHwOsBuildNumber(osSystemProps.getVersionInfo().toString());
+            hardwareProp.setHwOsBuildNumber(String.valueOf(osSystemProps.getVersionInfo()));
         }
         hardwareProp.setHwOsLocalDateTime(properties.getProperty("user.timezone"));
     }

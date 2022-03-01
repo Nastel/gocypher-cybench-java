@@ -434,11 +434,11 @@ public class CompareBenchmarks {
         Double percentChangeAllowed = null;
         if (groupConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED) != null) {
             percentChangeAllowed = Double
-                    .parseDouble(groupConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED).toString());
+                    .parseDouble(String.valueOf(groupConfigs.get(ConfigHandling.PERCENT_CHANGE_ALLOWED)));
         }
         Double deviationsAllowed = null;
         if (groupConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED) != null) {
-            deviationsAllowed = Double.parseDouble(groupConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED).toString());
+            deviationsAllowed = Double.parseDouble(String.valueOf(groupConfigs.get(ConfigHandling.DEVIATIONS_ALLOWED)));
         }
 
         return createConfigMap(compareMethod, compareScope, compareRange, compareThreshold, percentChangeAllowed,
