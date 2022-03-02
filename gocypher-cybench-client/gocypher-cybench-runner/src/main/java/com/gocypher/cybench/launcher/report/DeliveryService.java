@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -57,13 +58,14 @@ public class DeliveryService {
     public String sendReportForStoring(String reportJSON, String token) {
         try {
             LOG.info("--> Sending benchmark report to URL {}", serviceUrl);
+            // Setting content type plain text, since report json is encoded in Base64
+            StringEntity se = new StringEntity(reportJSON, ContentType.TEXT_PLAIN);
+
             HttpPost request = new HttpPost(serviceUrl);
-            // request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-            request.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
+            request.setEntity(se);
+
             request.setHeader(HttpHeaders.ACCEPT, "application/json");
             request.setHeader("x-api-key", token);
-            StringEntity se = new StringEntity(reportJSON);
-            request.setEntity(se);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 String result = EntityUtils.toString(response.getEntity());
