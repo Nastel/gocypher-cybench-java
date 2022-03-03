@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,26 +32,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public final class JSONUtils {
     private static final Logger LOG = LoggerFactory.getLogger(JSONUtils.class);
 
+    private static final Map<String, Object> EMPTY_MAP = new HashMap<>(0);
+    private static final List<Object> EMPTY_LIST = new ArrayList<>(0);
+
     private static ObjectMapper mapper = new ObjectMapper();
 
     private JSONUtils() {
     }
 
     public static Map<?, ?> parseJsonIntoMap(String jsonString) {
+        if (StringUtils.isEmpty(jsonString)) {
+            return EMPTY_MAP;
+        }
+
         try {
             return mapper.readValue(jsonString, HashMap.class);
         } catch (Exception e) {
             LOG.error("Error on parsing json into map", e);
-            return new HashMap<>();
+            return EMPTY_MAP;
         }
     }
 
     public static List<?> parseJsonIntoList(String jsonString) {
+        if (StringUtils.isEmpty(jsonString)) {
+            return EMPTY_LIST;
+        }
+
         try {
             return mapper.readValue(jsonString, ArrayList.class);
         } catch (Exception e) {
             LOG.error("Error on parsing json into map", e);
-            return new ArrayList<>();
+            return EMPTY_LIST;
         }
     }
 
