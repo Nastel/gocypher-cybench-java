@@ -21,7 +21,7 @@
                xmlns="http://logging.apache.org/log4j/2.0/config"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://logging.apache.org/log4j/2.0/config"
-               shutdownHook="disable">
+               shutdownHook="enable">
     <!-- ### individual value may be set over individual JVM system property having same name ### -->
     <Properties>
         <Property name="log4j.logs.file.name">logs/cybench.log</Property>
