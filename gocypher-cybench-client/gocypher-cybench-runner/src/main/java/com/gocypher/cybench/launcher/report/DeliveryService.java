@@ -67,14 +67,14 @@ public class DeliveryService {
             request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
             request.setHeader("x-api-key", token);
 
-            LOG.info("---> Benchmark report: {} ({})", request.getEntity().getContentType(),
+            LOG.debug("---> Benchmark report: {} ({})", request.getEntity().getContentType(),
                     request.getEntity().getContentLength());
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 String result = EntityUtils.toString(response.getEntity());
                 EntityUtils.consume(response.getEntity());
 
-                LOG.info("<--- Transmission response: {} ({})", response.getEntity().getContentType(),
+                LOG.debug("<--- Transmission response: {} ({})", response.getEntity().getContentType(),
                         response.getEntity().getContentLength());
 
                 return result;

@@ -59,5 +59,6 @@
             <AppenderRef ref="console"/>
             <AppenderRef ref="file"/>
         </asyncRoot>
+        <asyncLogger name="com.gocypher.cybench.launcher" level="DEBUG"/>
     </Loggers>
 </Configuration>
