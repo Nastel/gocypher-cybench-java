@@ -64,19 +64,25 @@ public class DeliveryService {
             HttpPost request = new HttpPost(serviceUrl);
             request.setEntity(se);
 
-            request.setHeader(HttpHeaders.ACCEPT, "application/json");
+            request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
             request.setHeader("x-api-key", token);
+
+            LOG.info("---> Benchmark report: {} ({})", request.getEntity().getContentType(),
+                    request.getEntity().getContentLength());
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 String result = EntityUtils.toString(response.getEntity());
                 EntityUtils.consume(response.getEntity());
 
-                // LOG.info("Storing result: {}",result);
+                LOG.info("<--- Transmission response: {} ({})", response.getEntity().getContentType(),
+                        response.getEntity().getContentLength());
 
                 return result;
             }
         } catch (Exception e) {
             LOG.error("Failed to submit report to URL {}", serviceUrl, e);
+        } finally {
+            LOG.info("<-- Ended transmission of benchmark report to URL {}", serviceUrl);
         }
         return "";
     }
