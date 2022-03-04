@@ -109,10 +109,10 @@ public class BenchmarkRunner {
         PROJECT_METADATA_MAP.put("version", getMetadataFromBuildFile("version"));
         // make sure gradle metadata can be parsed BEFORE benchmarks are run
         if (StringUtils.isEmpty(PROJECT_METADATA_MAP.get("artifactId"))) {
-            // failBuildFromMissingMetadata("Project");
+            failBuildFromMissingMetadata("Project");
         }
         if (StringUtils.isEmpty(PROJECT_METADATA_MAP.get("version"))) {
-            // failBuildFromMissingMetadata("Version");
+            failBuildFromMissingMetadata("Version");
         }
         LOG.info("Executing benchmarks...");
 
@@ -785,13 +785,13 @@ public class BenchmarkRunner {
             }
         } catch (ParserConfigurationException e) {
             LOG.error("Error creating DocumentBuilder", e);
-            // failBuildFromMissingMavenMetadata();
+            failBuildFromMissingMavenMetadata();
         } catch (SAXException e) {
             LOG.error("SAX error", e);
-            // failBuildFromMissingMavenMetadata();
+            failBuildFromMissingMavenMetadata();
         } catch (IOException e) {
             LOG.error("Failed to read project file: {}", pom, e);
-            // failBuildFromMissingMavenMetadata();
+            failBuildFromMissingMavenMetadata();
         }
         return property;
     }
@@ -864,7 +864,7 @@ public class BenchmarkRunner {
                     }
                 }
             } catch (IOException e) {
-                // failBuildFromMissingMetadata("Project");
+                failBuildFromMissingMetadata("Project");
                 LOG.error("Failed to read project file: {}", buildFile, e);
             }
             return property;
@@ -884,7 +884,7 @@ public class BenchmarkRunner {
                     }
                 }
             } catch (IOException e) {
-                // failBuildFromMissingMetadata("Version");
+                failBuildFromMissingMetadata("Version");
                 LOG.error("Failed to read project file: {}", buildFile, e);
             }
             return property;
@@ -906,24 +906,20 @@ public class BenchmarkRunner {
                     + " to generate 'project.properties' file.");
             LOG.warn("*** This Ant task can be found in the README for CyBench Gradle Plugin"
                     + " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
-            LOG.info(
-                    "*** For Gradle (groovy) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
+            LOG.info("*** For Gradle (groovy) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
                             + "'build.gradle' or 'version.gradle'.");
-            LOG.info(
-                    "*** For Gradle (kotlin) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
+            LOG.info("*** For Gradle (kotlin) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
                             + "'build.gradle.kts' or 'version.gradle.kts'.");
             LOG.info("*** For Maven projects, please make sure '<version>' tag is set correctly.\n");
-            LOG.info(
-                    "* If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..),");
+            LOG.info("* If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..),");
             LOG.info("* please set the @BenchmarkMetaData projectVersion tag at the class level");
             LOG.info("* e.g.: '@BenchmarkMetaData(key = \"projectVersion\", value = \"1.6.0\")'");
-            LOG.info(
-                    "* Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
+            LOG.info("* Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
             LOG.info("* If setting project version via 'metadata.properties', please add the following: ");
             LOG.info("* 'class.version=<yourProjectVersionNumber>'\n");
             LOG.warn("* For more information and instructions on this process, please visit the CyBench wiki at "
                     + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
-            System.exit(1);
+            // System.exit(1);
         } else if (metadata.contains("Project")) {
             LOG.error("* Project name metadata was unable to be processed.");
             LOG.warn("* Project name can be set or parsed dynamically a few different ways: \n");
@@ -931,25 +927,20 @@ public class BenchmarkRunner {
                     + " to generate 'project.properties' file.");
             LOG.warn("*** This Ant task can be found in the README for CyBench Gradle Plugin"
                     + " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
-            LOG.info(
-                    "*** For Gradle (groovy) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle'.");
-            LOG.info(
-                    "*** For Gradle (kotlin) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle.kts'.");
-            LOG.info(
-                    "**** Important note regarding Gradle project's name: This value is read-only in 'build.gradle(.kts)'. This value *MUST*"
+            LOG.info("*** For Gradle (groovy) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle'.");
+            LOG.info("*** For Gradle (kotlin) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle.kts'.");
+            LOG.info("**** Important note regarding Gradle project's name: This value is read-only in 'build.gradle(.kts)'. This value *MUST*"
                             + " be set in 'settings.gradle(.kts)' if the project name isn't able to be dynamically parsed.");
             LOG.info("*** For Maven projects, please make sure '<artifactId>' tag is set correctly.\n");
-            LOG.info(
-                    "*** If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..), "
+            LOG.info("*** If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..), "
                             + "please set the @BenchmarkMetaData project tag at the class level");
             LOG.info("**** e.g.: '@BenchmarkMetaData(key = \"project\", value = \"myTestProject\")'");
-            LOG.info(
-                    "*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
+            LOG.info("*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
             LOG.info("*** If setting project version via 'metadata.properties', please add the following: ");
             LOG.info("*** 'class.project=<yourProjectName>'\n");
             LOG.warn("* For more information and instructions on this process, please visit the CyBench wiki at "
                     + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
-            System.exit(1);
+            // System.exit(1);
         }
     }
 
@@ -959,9 +950,8 @@ public class BenchmarkRunner {
         LOG.error("* Error while parsing Maven project's 'pom.xml' file.");
         LOG.error("* 'artifactId' or 'version' tag was unable to be parsed. ");
         LOG.error("* Refer to the exception thrown for reasons why the .xml file was unable to be parsed.");
-        LOG.error(
-                "* For more information on CyBench metadata (setting it, how it is used, etc.), please visit the CyBench wiki at "
+        LOG.warn("* For more information on CyBench metadata (setting it, how it is used, etc.), please visit the CyBench wiki at "
                         + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
-        System.exit(1);
+        // System.exit(1);
     }
 }
