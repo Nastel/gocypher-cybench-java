@@ -24,7 +24,6 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.jar.Manifest;
 
 import org.openjdk.jmh.results.RunResult;
@@ -79,21 +78,30 @@ public class ReportingService {
             if (item.getParams() != null) {
                 report.setName(item.getParams().getBenchmark());
                 report.setMode(item.getParams().getMode().shortLabel());
-            }
 
-            Collection<String> paramsKeys = item.getParams().getParamsKeys();
-            for (String key : paramsKeys) {
-                String value = item.getParams().getParam(key);
-                LOG.info("Collected params. Key: {}, Value: {}", key, value);
-                report.addMetadata("param" + BenchmarkReport.camelCase(key), value);
-            }
+                Collection<String> paramsKeys = item.getParams().getParamsKeys();
+                for (String key : paramsKeys) {
+                    String value = item.getParams().getParam(key);
+                    LOG.info("Collected params. Key: {}, Value: {}", key, value);
+                    report.addMetadata("param" + BenchmarkReport.camelCase(key), value);
+                }
 
-            report.setBenchForkCount(Objects.requireNonNull(item.getParams()).getForks());
-            report.setBenchThreadCount(item.getParams().getThreads());
-            report.setBenchWarmUpIteration(item.getParams().getWarmup().getCount());
-            report.setBenchWarmUpSeconds((int) item.getParams().getWarmup().getTime().getTime());
-            report.setBenchMeasurementIteration(item.getParams().getMeasurement().getCount());
-            report.setBenchMeasurementSeconds((int) item.getParams().getMeasurement().getTime().getTime());
+                report.setBenchForkCount(item.getParams().getForks());
+                report.setBenchThreadCount(item.getParams().getThreads());
+                report.setBenchWarmUpIteration(item.getParams().getWarmup().getCount());
+                report.setBenchWarmUpSeconds((int) item.getParams().getWarmup().getTime().getTime());
+                report.setBenchMeasurementIteration(item.getParams().getMeasurement().getCount());
+                report.setBenchMeasurementSeconds((int) item.getParams().getMeasurement().getTime().getTime());
+
+                report.setPerformanceProcessCpuLoad(getScoreFromJMHSecondaryResult(item, "performanceProcessCpuLoad",
+                        item.getParams().getMeasurement().getCount()));
+                report.setPerformanceSystemCpuLoad(getScoreFromJMHSecondaryResult(item, "performanceSystemCpuLoad",
+                        item.getParams().getMeasurement().getCount()));
+                report.setPerformanceProcessHeapMemoryUsed(getScoreFromJMHSecondaryResult(item,
+                        "performanceProcessHeapMemoryUsed", item.getParams().getMeasurement().getCount()));
+                report.setPerformanceProcessNonHeapMemoryUsed(getScoreFromJMHSecondaryResult(item,
+                        "performanceProcessNonHeapMemoryUsed", item.getParams().getMeasurement().getCount()));
+            }
 
             report.setGcCalls(getScoreFromJMHSecondaryResult(item, "·gc.count"));
             report.setGcTime(getScoreFromJMHSecondaryResult(item, "·gc.time"));
@@ -131,15 +139,6 @@ public class ReportingService {
             report.setThreadsSafePointsPauseTTSP(getScoreFromJMHSecondaryResult(item, "·safepoints.ttsp"));
             report.setThreadsSafePointsPauseTTSPAvg(getScoreFromJMHSecondaryResult(item, "·safepoints.ttsp.avg"));
             report.setThreadsSafePointsPauseTTSPCount(getScoreFromJMHSecondaryResult(item, "·safepoints.ttsp.count"));
-
-            report.setPerformanceProcessCpuLoad(getScoreFromJMHSecondaryResult(item, "performanceProcessCpuLoad",
-                    item.getParams().getMeasurement().getCount()));
-            report.setPerformanceSystemCpuLoad(getScoreFromJMHSecondaryResult(item, "performanceSystemCpuLoad",
-                    item.getParams().getMeasurement().getCount()));
-            report.setPerformanceProcessHeapMemoryUsed(getScoreFromJMHSecondaryResult(item,
-                    "performanceProcessHeapMemoryUsed", item.getParams().getMeasurement().getCount()));
-            report.setPerformanceProcessNonHeapMemoryUsed(getScoreFromJMHSecondaryResult(item,
-                    "performanceProcessNonHeapMemoryUsed", item.getParams().getMeasurement().getCount()));
 
             String manifestData = null;
             if (Manifests.exists(Constants.BENCHMARK_METADATA)) {
