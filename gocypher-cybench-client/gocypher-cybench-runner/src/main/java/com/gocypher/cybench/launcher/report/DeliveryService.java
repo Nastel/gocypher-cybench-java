@@ -79,7 +79,7 @@ public class DeliveryService {
 
                 return result;
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOG.error("Failed to submit report to URL {}", serviceUrl, e);
         } finally {
             LOG.info("<-- Ended transmission of benchmark report to URL {}", serviceUrl);
