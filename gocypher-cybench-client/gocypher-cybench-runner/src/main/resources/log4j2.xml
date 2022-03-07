@@ -39,8 +39,8 @@
                      filePattern="${log4j.logs.file.name}.%d{yyyyMMdd_HHmmss_SSS}.gz"
                      ignoreExceptions="false" append="true">
             <Policies>
-                <OnStartupTriggeringPolicy/>
-                <!-- <SizeBasedTriggeringPolicy size="2 MB"/> -->
+                <!--                <OnStartupTriggeringPolicy/>-->
+                <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
             <DefaultRolloverStrategy max="15" fileIndex="min">
                 <Delete basePath="${baseDir}" maxDepth="1">
