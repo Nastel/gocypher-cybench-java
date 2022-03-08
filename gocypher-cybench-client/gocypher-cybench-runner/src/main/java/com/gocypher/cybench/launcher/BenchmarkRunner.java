@@ -109,11 +109,17 @@ public class BenchmarkRunner {
             PROJECT_METADATA_MAP.put("artifactId", getMetadataFromBuildFile("artifactId"));
             PROJECT_METADATA_MAP.put("version", getMetadataFromBuildFile("version"));
             // make sure gradle metadata can be parsed BEFORE benchmarks are run
-            if (StringUtils.isEmpty(PROJECT_METADATA_MAP.get("artifactId"))) {
+            String metaProp = PROJECT_METADATA_MAP.get("artifactId");
+            if (StringUtils.isEmpty(metaProp)) {
                 failBuildFromMissingMetadata("Project");
+            } else {
+                LOG.info("MetaData - Project name:    {}", metaProp);
             }
-            if (StringUtils.isEmpty(PROJECT_METADATA_MAP.get("version"))) {
+            metaProp = PROJECT_METADATA_MAP.get("version");
+            if (StringUtils.isEmpty(metaProp)) {
                 failBuildFromMissingMetadata("Version");
+            } else {
+                LOG.info("MetaData - Project version: {}", metaProp);
             }
             LOG.info("Executing benchmarks...");
 
@@ -175,7 +181,7 @@ public class BenchmarkRunner {
 
                 LOG.info("Custom classes found and registered for execution: {}", foundBenchmarks);
             } else {
-                LOG.info("Execute all benchmarks found on the classpath and configure default ones....");
+                LOG.info("Execute all benchmarks found on the classpath and configure default ones...");
                 List<String> benchmarkClasses = JMHUtils.getAllBenchmarkClasses();
 
                 for (String benchmarkClass : benchmarkClasses) {
@@ -337,7 +343,7 @@ public class BenchmarkRunner {
                 LOG.info("Saving encrypted test results to '{}'", cybReportFile);
                 IOUtils.storeResultsToFile(cybReportFile, reportEncrypted);
 
-                LOG.info("Removing all temporary auto-generated files....");
+                LOG.info("Removing all temporary auto-generated files...");
                 IOUtils.removeTestDataFiles();
                 LOG.info("Removed all temporary auto-generated files!!!");
                 if (!response.isEmpty() && !isErrorResponse(response)) {
@@ -489,7 +495,7 @@ public class BenchmarkRunner {
             if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                 report.setProject(benchmarkReport.getProject());
             } else {
-                LOG.info("* Project name metadata not defined, grabbing it from build files..");
+                LOG.info("* Project name metadata not defined, grabbing it from build files...");
                 report.setProject(projectArtifactId);
                 benchmarkReport.setProject(projectArtifactId);
             }
@@ -753,17 +759,21 @@ public class BenchmarkRunner {
         File gradle = new File(userDir + "/build.gradle");
         File gradleKTS = new File(userDir + "/build.gradle.kts");
         File pom = new File(userDir + "/pom.xml");
+        File projectProps = new File(userDir + "/config/project.properties");
 
         boolean pomAvailable = pom.exists();
         boolean gradleAvailable = gradle.exists() || gradleKTS.exists();
+        boolean propsAvailable = projectProps.exists();
 
         if (gradleAvailable && pomAvailable) {
-            LOG.info("Multiple build instructions detected, resolving to pom.xml..");
+            LOG.info("Multiple build instructions detected, resolving to pom.xml...");
             property = getMetadataFromMaven(prop);
         } else if (gradleAvailable) {
             property = getMetadataFromGradle(prop);
         } else if (pomAvailable) {
             property = getMetadataFromMaven(prop);
+        } else if (propsAvailable) {
+            property = getMetadataFromProjectProperties(prop, projectProps.getPath());
         }
         return property;
     }
@@ -817,18 +827,40 @@ public class BenchmarkRunner {
         // LOG.info("Prop is currently: {}", prop);
         switch (switcher) {
         case "groovy":
-            // LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
+            // LOG.info("* Regular (groovy) build file detected, looking for possible metadata...");
             property = getGradleProperty(prop, dir, "/config/project.properties", "/settings.gradle",
                     "/version.gradle");
             break;
         case "kotlin":
-            // LOG.info("* Kotlin style build file detected, looking for possible metadata..");
+            // LOG.info("* Kotlin style build file detected, looking for possible metadata...");
             property = getGradleProperty(prop, dir, "/config/project.properties", "/settings.gradle.kts",
                     "/version.gradle.kts");
             break;
         }
 
         return property;
+    }
+
+    private static String getMetadataFromProjectProperties(String prop, String propsFile) {
+        if (prop == "artifactId") {
+            prop = "PROJECT_ARTIFACT";
+        } else {
+            prop = "PROJECT_VERSION";
+        }
+        Properties props = loadProperties(propsFile);
+
+        return props.getProperty(prop);
+    }
+
+    private static Properties loadProperties(String fileName) {
+        Properties props = new Properties();
+        File buildFile = new File(fileName);
+        try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
+            props.load(reader);
+        } catch (IOException e) {
+            LOG.error("Failed to read project properties file: {}", buildFile, e);
+        }
+        return props;
     }
 
     private static String getGradleProperty(String prop, String dir, String... cfgFiles)
@@ -838,13 +870,7 @@ public class BenchmarkRunner {
         } else {
             prop = "PROJECT_VERSION";
         }
-        Properties props = new Properties();
-        File buildFile = new File(dir + cfgFiles[0]);
-        try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
-            props.load(reader);
-        } catch (IOException e) {
-            LOG.error("Failed to read project properties file: {}", buildFile, e);
-        }
+        Properties props = loadProperties(dir + cfgFiles[0]);
         String gradleProp = props.getProperty(prop);
         if (prop == "PROJECT_ARTIFACT" && !isPropUnspecified("PROJECT_ROOT")) { // for subprojects
             String parent = props.getProperty("PROJECT_ROOT");
@@ -857,7 +883,7 @@ public class BenchmarkRunner {
         }
         if (prop == "PROJECT_ARTIFACT" && isPropUnspecified(gradleProp)) {
             String property = "";
-            buildFile = new File(dir + cfgFiles[1]);
+            File buildFile = new File(dir + cfgFiles[1]);
             try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
                 String line;
                 prop = "rootProject.name";
@@ -877,7 +903,7 @@ public class BenchmarkRunner {
 
         if (prop == "PROJECT_VERSION" && isPropUnspecified(gradleProp)) {
             String property = "";
-            buildFile = new File(dir + cfgFiles[2]);
+            File buildFile = new File(dir + cfgFiles[2]);
             try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
                 String line;
                 prop = "version =";
