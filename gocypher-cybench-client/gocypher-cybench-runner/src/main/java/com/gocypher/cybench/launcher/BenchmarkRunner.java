@@ -105,255 +105,265 @@ public class BenchmarkRunner {
         Map<String, Map<String, String>> defaultBenchmarksMetadata = ComputationUtils
                 .parseBenchmarkMetadata(getProperty(Constants.BENCHMARK_METADATA));
 
-        PROJECT_METADATA_MAP.put("artifactId", getMetadataFromBuildFile("artifactId"));
-        PROJECT_METADATA_MAP.put("version", getMetadataFromBuildFile("version"));
-        // make sure gradle metadata can be parsed BEFORE benchmarks are run
-        if (StringUtils.isEmpty(PROJECT_METADATA_MAP.get("artifactId"))) {
-            failBuildFromMissingMetadata("Project");
-        }
-        if (StringUtils.isEmpty(PROJECT_METADATA_MAP.get("version"))) {
-            failBuildFromMissingMetadata("Version");
-        }
-        LOG.info("Executing benchmarks...");
-
-        LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
-        OptionsBuilder optBuild = new OptionsBuilder();
-        // Number of separate full executions of a benchmark (warm up+measurement), this
-        // is returned still as one primary score item
-        int forks = setExecutionIntProperty(getProperty(Constants.NUMBER_OF_FORKS));
-        // Number of measurements per benchmark operation, this is returned still as one
-        // primary score item
-        int measurementIterations = setExecutionIntProperty(getProperty(Constants.MEASUREMENT_ITERATIONS));
-
-        int measurementSeconds = setExecutionIntProperty(getProperty(Constants.MEASUREMENT_SECONDS));
-        // number of iterations executed for warm up
-        int warmUpIterations = setExecutionIntProperty(getProperty(Constants.WARM_UP_ITERATIONS));
-        // number of seconds dedicated for each warm up iteration
-        int warmUpSeconds = setExecutionIntProperty(getProperty(Constants.WARM_UP_SECONDS));
-        // number of threads for benchmark test execution
-        int threads = setExecutionIntProperty(getProperty(Constants.RUN_THREAD_COUNT));
-        // benchmarks run mode
-        Set<Mode> modes = setExecutionModes(getProperty(Constants.BENCHMARK_MODES));
-        String jmhArguments = setExecutionStringProperty(getProperty(Constants.JMH_ARGUMENTS));
-
-        String tempBenchmark;
-        SecurityBuilder securityBuilder = new SecurityBuilder();
-        Map<String, Object> benchmarkSetting = new HashMap<>();
-        Map<String, String> generatedFingerprints = new HashMap<>();
-        Map<String, String> manualFingerprints = new HashMap<>();
-        Map<String, String> classFingerprints = new HashMap<>();
-        boolean foundBenchmarks = false;
-
-        if (checkIfConfigurationPropertyIsSet(getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
-            LOG.info("Execute benchmarks found in configuration {}", getProperty(Constants.BENCHMARK_RUN_CLASSES));
-            List<String> benchmarkNames = Arrays.stream(getProperty(Constants.BENCHMARK_RUN_CLASSES).split(","))
-                    .map(String::trim).collect(Collectors.toList());
-
-            // *********************************************************
-
-            for (String benchmarkClass : benchmarkNames) {
-                try {
-                    Class<?> classObj = Class.forName(benchmarkClass);
-                    SecurityUtils.generateMethodFingerprints(classObj, manualFingerprints, classFingerprints);
-                    SecurityUtils.computeClassHashForMethods(classObj, generatedFingerprints);
-                    tempBenchmark = classObj.getName();
-
-                    if (!tempBenchmark.isEmpty()) {
-                        optBuild.include(classObj.getName());
-                        foundBenchmarks = true;
-                        if (classObj.getName().startsWith("com.gocypher.cybench.")) {
-                            securityBuilder.generateSecurityHashForClasses(classObj);
-                        }
-                    }
-                } catch (ClassNotFoundException exc) {
-                    LOG.error("Class not found in the classpath for execution", exc);
-                }
-            }
-
-            // *********************************************************
-
-            LOG.info("Custom classes found and registered for execution: {}", foundBenchmarks);
-        } else {
-            LOG.info("Execute all benchmarks found on the classpath and configure default ones....");
-            List<String> benchmarkClasses = JMHUtils.getAllBenchmarkClasses();
-
-            for (String benchmarkClass : benchmarkClasses) {
-                try {
-                    Class<?> classObj = Class.forName(benchmarkClass);
-                    SecurityUtils.generateMethodFingerprints(classObj, manualFingerprints, classFingerprints);
-                    SecurityUtils.computeClassHashForMethods(classObj, generatedFingerprints);
-                    foundBenchmarks = true;
-                    tempBenchmark = classObj.getName();
-                    securityBuilder.generateSecurityHashForClasses(classObj);
-                } catch (ClassNotFoundException exc) {
-                    LOG.error("Class not found in the classpath for execution", exc);
-                }
-            }
-
-            // Reflections reflections = new Reflections("com.gocypher.cybench.", new
-            // SubTypesScanner(false));
-            // Set<Class<? extends Object>> allDefaultClasses =
-            // reflections.getSubTypesOf(Object.class);
-            // foundBenchmarks = true;
-            // for (Class<? extends Object> classObj : allDefaultClasses) {
-            // if (!classObj.getName().isEmpty() &&
-            // classObj.getSimpleName().contains("Benchmarks")
-            // && !classObj.getSimpleName().contains("_")) {
-            // We do not include any class, because then JMH will discover all benchmarks
-            // automatically including user defined
-            // optBuild.include(classObj.getName());
-            // tempBenchmark = classObj.getName();
-            // LOG.info("tempBenchmark... {}", tempBenchmark);
-            // securityBuilder.generateSecurityHashForClasses(classObj);
-            // }
-            // }
-        }
-
-        ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true) //
-                // .addProfiler(HotspotThreadProfiler.class) // obsolete
-                // .addProfiler(HotspotRuntimeProfiler.class) // obsolete
-                .addProfiler(GCProfiler.class) //
-                .addProfiler(SafepointsProfiler.class) //
-                .detectJvmArgs();
-
-        optionBuilder = setMeasurementProperties(optionBuilder, forks, measurementIterations, measurementSeconds,
-                warmUpIterations, warmUpSeconds, threads, modes);
-
-        if (StringUtils.isNotEmpty(jmhArguments)) {
-            CommandLineOptions cliOptions = new CommandLineOptions(jmhArguments.split("\\s"));
-            optionBuilder.parent(cliOptions);
-        }
-
-        Options opt = optionBuilder.build();
-
-        Runner runner = new Runner(opt);
-        Collection<RunResult> results = Collections.emptyList();
-        if (foundBenchmarks) {
-            results = runner.run();
-        }
-
-        LOG.info("Benchmark finished, executed tests count: {}", results.size());
-
-        BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results,
-                defaultBenchmarksMetadata);
-        // BenchmarkOverviewReport report =
-        // ReportingService.getInstance().createBenchmarkReport(results);
-        report.getEnvironmentSettings().put("environment", hwProperties);
-        report.getEnvironmentSettings().put("jvmEnvironment", jvmProperties);
-        report.getEnvironmentSettings().put("unclassifiedProperties",
-                CollectSystemInformation.getUnclassifiedProperties());
-        report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
-
-        if (foundBenchmarks) {
-            if (System.getProperty(Constants.REPORT_SOURCE) != null) {
-                benchSource = System.getProperty(Constants.REPORT_SOURCE);
-            }
-            benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
-        }
-        if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
-            benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
-        }
-
-        LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
-
-        for (Map.Entry<String, List<BenchmarkReport>> benchmarksEntry : report.getBenchmarks().entrySet()) {
-            List<BenchmarkReport> benchmarks = benchmarksEntry.getValue();
-            benchmarks.forEach(benchmarkReport -> {
-                String name = benchmarkReport.getName();
-                benchmarkReport.setClassFingerprint(classFingerprints.get(name));
-                benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
-                benchmarkReport.setManualFingerprint(manualFingerprints.get(name));
-                try {
-                    JMHUtils.ClassAndMethod classAndMethod = new JMHUtils.ClassAndMethod(name).invoke();
-                    String clazz = classAndMethod.getClazz();
-                    String method = classAndMethod.getMethod();
-                    LOG.info("Adding metadata for benchmark: " + clazz + " test: " + method);
-                    Class<?> aClass = Class.forName(clazz);
-                    Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
-                    appendMetadataFromClass(aClass, benchmarkReport);
-                    appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
-                    appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
-                    syncReportsMetadata(report, benchmarkReport);
-                    benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Failed to load class: {}", name);
-                }
-                report.setBenchmarkSettings(benchmarkSetting);
-            });
-        }
-        if (report.getBenchmarks() != null && !report.getBenchmarks().isEmpty()) {
-            List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
-            report.getBenchmarks().remove("CUSTOM");
-            if (customBenchmarksCategoryCheck != null) {
-                for (BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
-                    report.addToBenchmarks(benchReport);
-                }
-            }
-            report.computeScores();
-            getReportUploadStatus(report);
-        }
         try {
-            LOG.info("Generating JSON report...");
-            String reportJSON;
-            String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder, report);
-            String deviceReports = null;
-            String resultURL = null;
-            Map<?, ?> response = new HashMap<>();
-            if (shouldSendReport(report)) {
-                String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
-                String queryToken = getProperty(Constants.USER_QUERY_TOKEN);
-                String emailAddress = getProperty(Constants.USER_EMAIL_ADDRESS);
+            PROJECT_METADATA_MAP.put("artifactId", getMetadataFromBuildFile("artifactId"));
+            PROJECT_METADATA_MAP.put("version", getMetadataFromBuildFile("version"));
+            // make sure gradle metadata can be parsed BEFORE benchmarks are run
+            String metaProp = PROJECT_METADATA_MAP.get("artifactId");
+            if (StringUtils.isEmpty(metaProp)) {
+                failBuildFromMissingMetadata("Project");
+            } else {
+                LOG.info("MetaData - Project name:    {}", metaProp);
+            }
+            metaProp = PROJECT_METADATA_MAP.get("version");
+            if (StringUtils.isEmpty(metaProp)) {
+                failBuildFromMissingMetadata("Version");
+            } else {
+                LOG.info("MetaData - Project version: {}", metaProp);
+            }
+            LOG.info("Executing benchmarks...");
 
-                String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
-                String responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted,
-                        tokenAndEmail, queryToken);
-                if (StringUtils.isNotEmpty(responseWithUrl)) {
-                    response = JSONUtils.parseJsonIntoMap(responseWithUrl);
+            LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
+            OptionsBuilder optBuild = new OptionsBuilder();
+            // Number of separate full executions of a benchmark (warm up+measurement), this
+            // is returned still as one primary score item
+            int forks = setExecutionIntProperty(getProperty(Constants.NUMBER_OF_FORKS));
+            // Number of measurements per benchmark operation, this is returned still as one
+            // primary score item
+            int measurementIterations = setExecutionIntProperty(getProperty(Constants.MEASUREMENT_ITERATIONS));
+
+            int measurementSeconds = setExecutionIntProperty(getProperty(Constants.MEASUREMENT_SECONDS));
+            // number of iterations executed for warm up
+            int warmUpIterations = setExecutionIntProperty(getProperty(Constants.WARM_UP_ITERATIONS));
+            // number of seconds dedicated for each warm up iteration
+            int warmUpSeconds = setExecutionIntProperty(getProperty(Constants.WARM_UP_SECONDS));
+            // number of threads for benchmark test execution
+            int threads = setExecutionIntProperty(getProperty(Constants.RUN_THREAD_COUNT));
+            // benchmarks run mode
+            Set<Mode> modes = setExecutionModes(getProperty(Constants.BENCHMARK_MODES));
+            String jmhArguments = setExecutionStringProperty(getProperty(Constants.JMH_ARGUMENTS));
+
+            String tempBenchmark;
+            SecurityBuilder securityBuilder = new SecurityBuilder();
+            Map<String, Object> benchmarkSetting = new HashMap<>();
+            Map<String, String> generatedFingerprints = new HashMap<>();
+            Map<String, String> manualFingerprints = new HashMap<>();
+            Map<String, String> classFingerprints = new HashMap<>();
+            boolean foundBenchmarks = false;
+
+            if (checkIfConfigurationPropertyIsSet(getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
+                LOG.info("Execute benchmarks found in configuration {}", getProperty(Constants.BENCHMARK_RUN_CLASSES));
+                List<String> benchmarkNames = Arrays.stream(getProperty(Constants.BENCHMARK_RUN_CLASSES).split(","))
+                        .map(String::trim).collect(Collectors.toList());
+
+                // *********************************************************
+
+                for (String benchmarkClass : benchmarkNames) {
+                    try {
+                        Class<?> classObj = Class.forName(benchmarkClass);
+                        SecurityUtils.generateMethodFingerprints(classObj, manualFingerprints, classFingerprints);
+                        SecurityUtils.computeClassHashForMethods(classObj, generatedFingerprints);
+                        tempBenchmark = classObj.getName();
+
+                        if (!tempBenchmark.isEmpty()) {
+                            optBuild.include(classObj.getName());
+                            foundBenchmarks = true;
+                            if (classObj.getName().startsWith("com.gocypher.cybench.")) {
+                                securityBuilder.generateSecurityHashForClasses(classObj);
+                            }
+                        }
+                    } catch (ClassNotFoundException exc) {
+                        LOG.error("Class not found in the classpath for execution", exc);
+                    }
                 }
+
+                // *********************************************************
+
+                LOG.info("Custom classes found and registered for execution: {}", foundBenchmarks);
+            } else {
+                LOG.info("Execute all benchmarks found on the classpath and configure default ones...");
+                List<String> benchmarkClasses = JMHUtils.getAllBenchmarkClasses();
+
+                for (String benchmarkClass : benchmarkClasses) {
+                    try {
+                        Class<?> classObj = Class.forName(benchmarkClass);
+                        SecurityUtils.generateMethodFingerprints(classObj, manualFingerprints, classFingerprints);
+                        SecurityUtils.computeClassHashForMethods(classObj, generatedFingerprints);
+                        foundBenchmarks = true;
+                        tempBenchmark = classObj.getName();
+                        securityBuilder.generateSecurityHashForClasses(classObj);
+                    } catch (ClassNotFoundException exc) {
+                        LOG.error("Class not found in the classpath for execution", exc);
+                    }
+                }
+
+                // Reflections reflections = new Reflections("com.gocypher.cybench.", new
+                // SubTypesScanner(false));
+                // Set<Class<? extends Object>> allDefaultClasses =
+                // reflections.getSubTypesOf(Object.class);
+                // foundBenchmarks = true;
+                // for (Class<? extends Object> classObj : allDefaultClasses) {
+                // if (!classObj.getName().isEmpty() &&
+                // classObj.getSimpleName().contains("Benchmarks")
+                // && !classObj.getSimpleName().contains("_")) {
+                // We do not include any class, because then JMH will discover all benchmarks
+                // automatically including user defined
+                // optBuild.include(classObj.getName());
+                // tempBenchmark = classObj.getName();
+                // LOG.info("tempBenchmark... {}", tempBenchmark);
+                // securityBuilder.generateSecurityHashForClasses(classObj);
+                // }
+                // }
+            }
+
+            ChainedOptionsBuilder optionBuilder = optBuild.shouldDoGC(true) //
+                    // .addProfiler(HotspotThreadProfiler.class) // obsolete
+                    // .addProfiler(HotspotRuntimeProfiler.class) // obsolete
+                    .addProfiler(GCProfiler.class) //
+                    .addProfiler(SafepointsProfiler.class) //
+                    .detectJvmArgs();
+
+            optionBuilder = setMeasurementProperties(optionBuilder, forks, measurementIterations, measurementSeconds,
+                    warmUpIterations, warmUpSeconds, threads, modes);
+
+            if (StringUtils.isNotEmpty(jmhArguments)) {
+                CommandLineOptions cliOptions = new CommandLineOptions(jmhArguments.split("\\s"));
+                optionBuilder.parent(cliOptions);
+            }
+
+            Options opt = optionBuilder.build();
+
+            Runner runner = new Runner(opt);
+            Collection<RunResult> results = Collections.emptyList();
+            if (foundBenchmarks) {
+                results = runner.run();
+            }
+
+            LOG.info("Benchmark finished, executed tests count: {}", results.size());
+
+            BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(results,
+                    defaultBenchmarksMetadata);
+            // BenchmarkOverviewReport report =
+            // ReportingService.getInstance().createBenchmarkReport(results);
+            report.getEnvironmentSettings().put("environment", hwProperties);
+            report.getEnvironmentSettings().put("jvmEnvironment", jvmProperties);
+            report.getEnvironmentSettings().put("unclassifiedProperties",
+                    CollectSystemInformation.getUnclassifiedProperties());
+            report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
+
+            if (foundBenchmarks) {
+                if (System.getProperty(Constants.REPORT_SOURCE) != null) {
+                    benchSource = System.getProperty(Constants.REPORT_SOURCE);
+                }
+                benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
+            }
+            if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
+                benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
+            }
+
+            LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
+
+            for (Map.Entry<String, List<BenchmarkReport>> benchmarksEntry : report.getBenchmarks().entrySet()) {
+                List<BenchmarkReport> benchmarks = benchmarksEntry.getValue();
+                benchmarks.forEach(benchmarkReport -> {
+                    String name = benchmarkReport.getName();
+                    benchmarkReport.setClassFingerprint(classFingerprints.get(name));
+                    benchmarkReport.setGeneratedFingerprint(generatedFingerprints.get(name));
+                    benchmarkReport.setManualFingerprint(manualFingerprints.get(name));
+                    try {
+                        JMHUtils.ClassAndMethod classAndMethod = new JMHUtils.ClassAndMethod(name).invoke();
+                        String clazz = classAndMethod.getClazz();
+                        String method = classAndMethod.getMethod();
+                        LOG.info("Adding metadata for benchmark: " + clazz + " test: " + method);
+                        Class<?> aClass = Class.forName(clazz);
+                        Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
+                        appendMetadataFromClass(aClass, benchmarkReport);
+                        appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
+                        appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
+                        syncReportsMetadata(report, benchmarkReport);
+                        benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
+                    } catch (ClassNotFoundException e) {
+                        LOG.error("Failed to load class: {}", name);
+                    }
+                    report.setBenchmarkSettings(benchmarkSetting);
+                });
+            }
+            if (report.getBenchmarks() != null && !report.getBenchmarks().isEmpty()) {
+                List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
+                report.getBenchmarks().remove("CUSTOM");
+                if (customBenchmarksCategoryCheck != null) {
+                    for (BenchmarkReport benchReport : customBenchmarksCategoryCheck) {
+                        report.addToBenchmarks(benchReport);
+                    }
+                }
+                report.computeScores();
+                getReportUploadStatus(report);
+            }
+            try {
+                LOG.info("Generating JSON report...");
+                String reportJSON;
+                String reportEncrypted = ReportingService.getInstance().prepareReportForDelivery(securityBuilder,
+                        report);
+                String deviceReports = null;
+                String resultURL = null;
+                Map<?, ?> response = new HashMap<>();
+                if (shouldSendReport(report)) {
+                    String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
+                    String queryToken = getProperty(Constants.USER_QUERY_TOKEN);
+                    String emailAddress = getProperty(Constants.USER_EMAIL_ADDRESS);
+
+                    String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
+                    String responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted,
+                            tokenAndEmail, queryToken);
+                    if (StringUtils.isNotEmpty(responseWithUrl)) {
+                        response = JSONUtils.parseJsonIntoMap(responseWithUrl);
+                    }
+                    if (!response.isEmpty() && !isErrorResponse(response)) {
+                        deviceReports = String.valueOf(response.get(Constants.REPORT_USER_URL));
+                        resultURL = String.valueOf(response.get(Constants.REPORT_URL));
+                        report.setDeviceReportsURL(deviceReports);
+                        report.setReportURL(resultURL);
+                    }
+                } else {
+                    // LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
+                }
+                // LOG.info("-----------------------------------------------------------------------------------------");
+                // LOG.info("REPORT '{}'", report);
+                // LOG.info("-----------------------------------------------------------------------------------------");
+                reportJSON = JSONUtils.marshalToPrettyJson(report);
+                String cybReportJsonFile = getCybReportFileName(report, CYB_REPORT_JSON_FILE);
+                String cybReportFile = getCybReportFileName(report, CYB_REPORT_CYB_FILE);
+                if (cybReportJsonFile.equals(CYB_REPORT_JSON_FILE) && cybReportFile.equals(CYB_REPORT_CYB_FILE)) {
+                    cybReportJsonFile = IOUtils.getReportsPath("",
+                            ComputationUtils.createFileNameForReport("report", start, report.getTotalScore(), false));
+                    cybReportFile = IOUtils.getReportsPath("",
+                            ComputationUtils.createFileNameForReport("report", start, report.getTotalScore(), true));
+                }
+                LOG.info("Saving test results to '{}'", cybReportJsonFile);
+                IOUtils.storeResultsToFile(cybReportJsonFile, reportJSON);
+                LOG.info("Saving encrypted test results to '{}'", cybReportFile);
+                IOUtils.storeResultsToFile(cybReportFile, reportEncrypted);
+
+                LOG.info("Removing all temporary auto-generated files...");
+                IOUtils.removeTestDataFiles();
+                LOG.info("Removed all temporary auto-generated files!!!");
                 if (!response.isEmpty() && !isErrorResponse(response)) {
-                    deviceReports = String.valueOf(response.get(Constants.REPORT_USER_URL));
-                    resultURL = String.valueOf(response.get(Constants.REPORT_URL));
-                    report.setDeviceReportsURL(deviceReports);
-                    report.setReportURL(resultURL);
+                    LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
+                    LOG.info("You can find all device benchmarks on {}", deviceReports);
+                    LOG.info("Your report is available at {}", resultURL);
+                    LOG.info("NOTE: It may take a few minutes for your report to appear online");
+                } else {
+                    String errMsg = getErrorResponseMessage(response);
+                    if (errMsg != null) {
+                        LOG.error("CyBench backend service sent error response: {}", errMsg);
+                    }
+                    LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
                 }
-            } else {
-                // LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
-            }
-            // LOG.info("-----------------------------------------------------------------------------------------");
-            // LOG.info("REPORT '{}'", report);
-            // LOG.info("-----------------------------------------------------------------------------------------");
-            reportJSON = JSONUtils.marshalToPrettyJson(report);
-            String cybReportJsonFile = getCybReportFileName(report, CYB_REPORT_JSON_FILE);
-            String cybReportFile = getCybReportFileName(report, CYB_REPORT_CYB_FILE);
-            if (cybReportJsonFile.equals(CYB_REPORT_JSON_FILE) && cybReportFile.equals(CYB_REPORT_CYB_FILE)) {
-                cybReportJsonFile = IOUtils.getReportsPath("",
-                        ComputationUtils.createFileNameForReport("report", start, report.getTotalScore(), false));
-                cybReportFile = IOUtils.getReportsPath("",
-                        ComputationUtils.createFileNameForReport("report", start, report.getTotalScore(), true));
-            }
-            LOG.info("Saving test results to '{}'", cybReportJsonFile);
-            IOUtils.storeResultsToFile(cybReportJsonFile, reportJSON);
-            LOG.info("Saving encrypted test results to '{}'", cybReportFile);
-            IOUtils.storeResultsToFile(cybReportFile, reportEncrypted);
-
-            LOG.info("Removing all temporary auto-generated files....");
-            IOUtils.removeTestDataFiles();
-            LOG.info("Removed all temporary auto-generated files!!!");
-            if (!response.isEmpty() && !isErrorResponse(response)) {
-                LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
-                LOG.info("You can find all device benchmarks on {}", deviceReports);
-                LOG.info("Your report is available at {}", resultURL);
-                LOG.info("NOTE: It may take a few minutes for your report to appear online");
-            } else {
-                String errMsg = getErrorResponseMessage(response);
-                if (errMsg != null) {
-                    LOG.error("CyBench backend service sent error response: {}", errMsg);
-                }
+            } catch (Throwable e) {
+                LOG.error("Failed to save test results", e);
                 LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
             }
-        } catch (Throwable e) {
-            LOG.error("Failed to save test results", e);
-            LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
+        } catch (MissingResourceException exc) {
         }
 
         LOG.info("-----------------------------------------------------------------------------------------");
@@ -486,7 +496,7 @@ public class BenchmarkRunner {
             if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                 report.setProject(benchmarkReport.getProject());
             } else {
-                LOG.info("* Project name metadata not defined, grabbing it from build files..");
+                LOG.info("* Project name metadata not defined, grabbing it from build files...");
                 report.setProject(projectArtifactId);
                 benchmarkReport.setProject(projectArtifactId);
             }
@@ -744,28 +754,32 @@ public class BenchmarkRunner {
      *            metadata property name
      * @return metadata property value
      */
-    public static String getMetadataFromBuildFile(String prop) {
+    public static String getMetadataFromBuildFile(String prop) throws MissingResourceException {
         String property = "";
         String userDir = System.getProperty("user.dir");
         File gradle = new File(userDir + "/build.gradle");
         File gradleKTS = new File(userDir + "/build.gradle.kts");
         File pom = new File(userDir + "/pom.xml");
+        File projectProps = new File(userDir + "/config/project.properties");
 
         boolean pomAvailable = pom.exists();
         boolean gradleAvailable = gradle.exists() || gradleKTS.exists();
+        boolean propsAvailable = projectProps.exists();
 
         if (gradleAvailable && pomAvailable) {
-            LOG.info("Multiple build instructions detected, resolving to pom.xml..");
+            LOG.info("Multiple build instructions detected, resolving to pom.xml...");
             property = getMetadataFromMaven(prop);
         } else if (gradleAvailable) {
             property = getMetadataFromGradle(prop);
         } else if (pomAvailable) {
             property = getMetadataFromMaven(prop);
+        } else if (propsAvailable) {
+            property = getMetadataFromProjectProperties(prop, projectProps.getPath());
         }
         return property;
     }
 
-    private static String getMetadataFromMaven(String prop) {
+    private static String getMetadataFromMaven(String prop) throws MissingResourceException {
         String property = "";
         String userDir = System.getProperty("user.dir");
         File pom = new File(userDir + "/pom.xml");
@@ -797,7 +811,7 @@ public class BenchmarkRunner {
         return property;
     }
 
-    private static String getMetadataFromGradle(String prop) {
+    private static String getMetadataFromGradle(String prop) throws MissingResourceException {
         // LOG.info("* Gradle project detected, grabbing missing metadata from gradle build files");
         // LOG.info("* Checking for Groovy or Kotlin style build instructions");
         String property = "";
@@ -814,12 +828,12 @@ public class BenchmarkRunner {
         // LOG.info("Prop is currently: {}", prop);
         switch (switcher) {
         case "groovy":
-            // LOG.info("* Regular (groovy) build file detected, looking for possible metadata..");
+            // LOG.info("* Regular (groovy) build file detected, looking for possible metadata...");
             property = getGradleProperty(prop, dir, "/config/project.properties", "/settings.gradle",
                     "/version.gradle");
             break;
         case "kotlin":
-            // LOG.info("* Kotlin style build file detected, looking for possible metadata..");
+            // LOG.info("* Kotlin style build file detected, looking for possible metadata...");
             property = getGradleProperty(prop, dir, "/config/project.properties", "/settings.gradle.kts",
                     "/version.gradle.kts");
             break;
@@ -828,19 +842,36 @@ public class BenchmarkRunner {
         return property;
     }
 
-    private static String getGradleProperty(String prop, String dir, String... cfgFiles) {
+    private static String getMetadataFromProjectProperties(String prop, String propsFile) {
         if (prop == "artifactId") {
             prop = "PROJECT_ARTIFACT";
         } else {
             prop = "PROJECT_VERSION";
         }
+        Properties props = loadProperties(propsFile);
+
+        return props.getProperty(prop);
+    }
+
+    private static Properties loadProperties(String fileName) {
         Properties props = new Properties();
-        File buildFile = new File(dir + cfgFiles[0]);
+        File buildFile = new File(fileName);
         try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
             props.load(reader);
         } catch (IOException e) {
             LOG.error("Failed to read project properties file: {}", buildFile, e);
         }
+        return props;
+    }
+
+    private static String getGradleProperty(String prop, String dir, String... cfgFiles)
+            throws MissingResourceException {
+        if (prop == "artifactId") {
+            prop = "PROJECT_ARTIFACT";
+        } else {
+            prop = "PROJECT_VERSION";
+        }
+        Properties props = loadProperties(dir + cfgFiles[0]);
         String gradleProp = props.getProperty(prop);
         if (prop == "PROJECT_ARTIFACT" && !isPropUnspecified("PROJECT_ROOT")) { // for subprojects
             String parent = props.getProperty("PROJECT_ROOT");
@@ -853,7 +884,7 @@ public class BenchmarkRunner {
         }
         if (prop == "PROJECT_ARTIFACT" && isPropUnspecified(gradleProp)) {
             String property = "";
-            buildFile = new File(dir + cfgFiles[1]);
+            File buildFile = new File(dir + cfgFiles[1]);
             try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
                 String line;
                 prop = "rootProject.name";
@@ -873,7 +904,7 @@ public class BenchmarkRunner {
 
         if (prop == "PROJECT_VERSION" && isPropUnspecified(gradleProp)) {
             String property = "";
-            buildFile = new File(dir + cfgFiles[2]);
+            File buildFile = new File(dir + cfgFiles[2]);
             try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
                 String line;
                 prop = "version =";
@@ -897,7 +928,7 @@ public class BenchmarkRunner {
         return StringUtils.isBlank(prop) || "unspecified".equals(prop);
     }
 
-    public static void failBuildFromMissingMetadata(String metadata) {
+    public static void failBuildFromMissingMetadata(String metadata) throws MissingResourceException {
         LOG.error("* ===[Build failed from lack of metadata: (" + metadata + ")]===");
         LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
         if (metadata.contains("Version")) {
@@ -920,7 +951,8 @@ public class BenchmarkRunner {
             LOG.info("* 'class.version=<yourProjectVersionNumber>'\n");
             LOG.warn("* For more information and instructions on this process, please visit the CyBench wiki at "
                     + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
-            // System.exit(1);
+
+            throw new MissingResourceException("Missing project metadata configuration", null, null);
         } else if (metadata.contains("Project")) {
             LOG.error("* Project name metadata was unable to be processed.");
             LOG.warn("* Project name can be set or parsed dynamically a few different ways: \n");
@@ -941,11 +973,12 @@ public class BenchmarkRunner {
             LOG.info("*** 'class.project=<yourProjectName>'\n");
             LOG.warn("* For more information and instructions on this process, please visit the CyBench wiki at "
                     + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
-            // System.exit(1);
+
+            throw new MissingResourceException("Missing project metadata configuration", null, null);
         }
     }
 
-    public static void failBuildFromMissingMavenMetadata() {
+    public static void failBuildFromMissingMavenMetadata() throws MissingResourceException {
         LOG.error("* ===[Build failed from lack of metadata]===");
         LOG.error("* CyBench runner is unable to continue due to missing crucial metadata.");
         LOG.error("* Error while parsing Maven project's 'pom.xml' file.");
@@ -953,6 +986,7 @@ public class BenchmarkRunner {
         LOG.error("* Refer to the exception thrown for reasons why the .xml file was unable to be parsed.");
         LOG.warn("* For more information on CyBench metadata (setting it, how it is used, etc.), please visit the CyBench wiki at "
                         + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
-        // System.exit(1);
+
+        throw new MissingResourceException("Missing project metadata configuration", null, null);
     }
 }
