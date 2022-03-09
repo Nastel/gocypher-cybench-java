@@ -60,6 +60,7 @@ public class Constants {
             "https://app.cybench.io/cybench/upload");
     public static final String DEFAULT_REPORT_FILE_NAME_SUFFIX = "report";
     public static final String USER_REPORT_TOKEN = "benchAccessToken";
+    public static final String USER_QUERY_TOKEN = "benchQueryToken";
     public static final String USER_EMAIL_ADDRESS = "emailAddress";
 
     public static final String FOUND_TOKEN_REPOSITORIES = "reposFound";

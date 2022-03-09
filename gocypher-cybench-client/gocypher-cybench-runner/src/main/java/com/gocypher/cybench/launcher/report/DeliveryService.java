@@ -21,6 +21,7 @@ package com.gocypher.cybench.launcher.report;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -41,8 +42,7 @@ public class DeliveryService {
 
     private static String serviceUrl = System.getProperty(Constants.SEND_REPORT_URL,
             "https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/report");
-    // private static String serviceUrl =
-    // "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report";
+    // private static String serviceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report";
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private DeliveryService() {
@@ -55,7 +55,7 @@ public class DeliveryService {
         return instance;
     }
 
-    public String sendReportForStoring(String reportJSON, String token) {
+    public String sendReportForStoring(String reportJSON, String benchToken, String queryToken) {
         try {
             LOG.info("--> Sending benchmark report to URL {}", serviceUrl);
             // Setting content type plain text, since report json is encoded in Base64
@@ -65,7 +65,10 @@ public class DeliveryService {
             request.setEntity(se);
 
             request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
-            request.setHeader("x-api-key", token);
+            request.setHeader("x-api-key", benchToken);
+            if (!StringUtils.isEmpty(queryToken)) {
+                request.setHeader("x-api-query-key", queryToken);
+            }
 
             LOG.debug("---> Benchmark report: {} ({})", request.getEntity().getContentType(),
                     request.getEntity().getContentLength());

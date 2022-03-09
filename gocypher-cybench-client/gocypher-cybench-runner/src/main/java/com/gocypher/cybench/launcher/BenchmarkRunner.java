@@ -301,11 +301,12 @@ public class BenchmarkRunner {
             Map<?, ?> response = new HashMap<>();
             if (shouldSendReport(report)) {
                 String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
+                String queryToken = getProperty(Constants.USER_QUERY_TOKEN);
                 String emailAddress = getProperty(Constants.USER_EMAIL_ADDRESS);
 
                 String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
                 String responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted,
-                        tokenAndEmail);
+                        tokenAndEmail, queryToken);
                 if (StringUtils.isNotEmpty(responseWithUrl)) {
                     response = JSONUtils.parseJsonIntoMap(responseWithUrl);
                 }
