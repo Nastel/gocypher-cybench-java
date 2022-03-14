@@ -66,7 +66,7 @@ public class DeliveryService {
 
             request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
             request.setHeader("x-api-key", benchToken);
-            if (!StringUtils.isEmpty(queryToken)) {
+            if (StringUtils.isNotEmpty(queryToken)) {
                 request.setHeader("x-api-query-key", queryToken);
             }
 

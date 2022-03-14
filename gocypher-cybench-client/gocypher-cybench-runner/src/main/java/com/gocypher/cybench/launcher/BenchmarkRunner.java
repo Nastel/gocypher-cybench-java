@@ -733,25 +733,21 @@ public class BenchmarkRunner {
         LOG.info("Total Garbage Collection Time (ms): {}", garbageCollectionTime);
     }
 
-    public static void checkProjectMetadataExists() throws Exception {
-        try {
-            PROJECT_METADATA_MAP.put("artifactId", getMetadataFromBuildFile("artifactId"));
-            PROJECT_METADATA_MAP.put("version", getMetadataFromBuildFile("version"));
-            // make sure gradle metadata can be parsed BEFORE benchmarks are run
-            String metaProp = PROJECT_METADATA_MAP.get("artifactId");
-            if (StringUtils.isEmpty(metaProp)) {
-                failBuildFromMissingMetadata("Project");
-            } else {
-                LOG.info("MetaData - Project name:    {}", metaProp);
-            }
-            metaProp = PROJECT_METADATA_MAP.get("version");
-            if (StringUtils.isEmpty(metaProp)) {
-                failBuildFromMissingMetadata("Version");
-            } else {
-                LOG.info("MetaData - Project version: {}", metaProp);
-            }
-        } catch (Exception e) {
-            throw e;
+    public static void checkProjectMetadataExists() throws MissingResourceException {
+        PROJECT_METADATA_MAP.put("artifactId", getMetadataFromBuildFile("artifactId"));
+        PROJECT_METADATA_MAP.put("version", getMetadataFromBuildFile("version"));
+        // make sure gradle metadata can be parsed BEFORE benchmarks are run
+        String metaProp = PROJECT_METADATA_MAP.get("artifactId");
+        if (StringUtils.isEmpty(metaProp)) {
+            failBuildFromMissingMetadata("Project");
+        } else {
+            LOG.info("MetaData - Project name:    {}", metaProp);
+        }
+        metaProp = PROJECT_METADATA_MAP.get("version");
+        if (StringUtils.isEmpty(metaProp)) {
+            failBuildFromMissingMetadata("Version");
+        } else {
+            LOG.info("MetaData - Project version: {}", metaProp);
         }
     }
 

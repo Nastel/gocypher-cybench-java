@@ -68,7 +68,7 @@ public class WebpageGenerator {
             htmlStr = htmlStr.replace("$" + "projectName", Requests.project);
             htmlStr = htmlStr.replace("$" + "currentVersion", Requests.currentVersion);
             htmlStr = htmlStr.replace("$" + "latestVersion", Requests.latestVersion);
-            if (!StringUtils.isBlank(Requests.previousVersion)) {
+            if (StringUtils.isNotBlank(Requests.previousVersion)) {
                 htmlStr = htmlStr.replace("$" + "previousVersion", Requests.previousVersion);
             } else {
                 htmlStr = htmlStr.replace("$" + "previousVersion", "N/A");
@@ -129,12 +129,14 @@ public class WebpageGenerator {
             }
             }
 
-            FileUtils.write(htmlFile, "<table id=\""+ table + "\" class=\"display compact " + table + "\">"
-                    + "<caption class=\"" + captionClass + "\">" + caption + "</caption><thead><tr>", utf8, true);
+            FileUtils.write(
+                    htmlFile, "<table id=\"" + table + "\" class=\"display compact " + table + "\">"
+                            + "<caption class=\"" + captionClass + "\">" + caption + "</caption><thead><tr>",
+                    utf8, true);
             if (!skippedBenchmarks) {
                 FileUtils.write(htmlFile, "<th>Test Type</th>", utf8, true);
             }
-            FileUtils.write(htmlFile, "<th>Name</th>" 
+            FileUtils.write(htmlFile, "<th>Name</th>"
                     + "<th>Mode</th>"
                     + "<th>Score</th>", utf8, true);
             if (!skippedBenchmarks) {
@@ -153,16 +155,20 @@ public class WebpageGenerator {
                 if (!skippedBenchmarks) {
                     FileUtils.writeStringToFile(htmlFile, "<td>" + getTestType(comparisonConfig) + "</td>", utf8, true);
                 }
-                FileUtils.writeStringToFile(htmlFile, "<td style='text-align: left;'>" + benchmark.getDisplayName() + "</td>"
+                FileUtils.writeStringToFile(htmlFile,
+                        "<td style='text-align: left;'>" + benchmark.getDisplayName() + "</td>"
                         + "<td>" + benchmark.getMode() + "</td>"
-                        + "<td>" + benchmark.getRoundedScore() + "</td>", utf8, true);
+                        + "<td>" + benchmark.getRoundedScore() + "</td>",
+                        utf8, true);
                 if (!skippedBenchmarks) {
-                    FileUtils.writeStringToFile(htmlFile, "<td>" + comparisonConfig.getCompareVersion() + "</td>"
+                    FileUtils.writeStringToFile(htmlFile,
+                            "<td>" + comparisonConfig.getCompareVersion() + "</td>"
                             + "<td>" + benchmark.getRoundedCompareMean() + "</td>"
                             + "<td>" + benchmark.getRoundedCompareSD() + "</td>"
                             + "<td>" + benchmark.getRoundedDelta() + "</td>"
                             + "<td>" + benchmark.getRoundedPercentChange() + "%</td>"
-                            + "<td>" + benchmark.getRoundedDeviationsFromMean() + "</td>", utf8, true);
+                            + "<td>" + benchmark.getRoundedDeviationsFromMean() + "</td>",
+                            utf8, true);
                 }
                 FileUtils.writeStringToFile(htmlFile, "</tr>", utf8, true);
             }
