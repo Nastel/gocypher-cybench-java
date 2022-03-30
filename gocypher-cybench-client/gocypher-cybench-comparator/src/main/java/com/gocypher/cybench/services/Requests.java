@@ -165,6 +165,11 @@ public class Requests {
     }
 
     private JSONObject executeRequest(String serviceUrl, String accessToken) throws Exception {
+        return executeRequest(serviceUrl, accessToken, httpClient);
+    }
+
+    public static JSONObject executeRequest(String serviceUrl, String accessToken, CloseableHttpClient httpClient)
+            throws Exception {
         URIBuilder uri = new URIBuilder(serviceUrl);
 
         HttpGet request = new HttpGet(uri.build());
