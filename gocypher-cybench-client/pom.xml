@@ -92,7 +92,7 @@
         <gpg.skip>true</gpg.skip>
 
         <jmh.version>1.34</jmh.version>
-        <jackson.version>2.13.1</jackson.version>
+        <jackson.version>2.13.2.1</jackson.version>
         <org.slf4j.version>1.7.36</org.slf4j.version>
         <log4j.version>2.17.1</log4j.version>
         <disruptor.version>3.4.4</disruptor.version>
