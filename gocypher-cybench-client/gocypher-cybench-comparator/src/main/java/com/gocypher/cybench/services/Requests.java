@@ -98,7 +98,7 @@ public class Requests {
             log.error("* Failed to read report", e);
         }
 
-        if (report != null) {
+        if (report != null && !report.isEmpty()) {
             String reportID = null;
             String reportURL = (String) report.get("reportURL");
             if (reportURL != null) {
@@ -112,28 +112,37 @@ public class Requests {
             currentVersion = (String) report.get("projectVersion");
             JSONObject categories = (JSONObject) report.get("benchmarks");
 
-            // loop through categories
-            for (Object category : categories.values()) {
-                JSONArray categoryBenchmarks = (JSONArray) category;
+            if (categories != null && !categories.isEmpty()) {
+                // loop through categories
+                for (Object category : categories.values()) {
+                    JSONArray categoryBenchmarks = (JSONArray) category;
+                    if (categoryBenchmarks == null || categoryBenchmarks.isEmpty()) {
+                        continue;
+                    }
 
-                // loop through benchmarks in category
-                for (Object benchItem : categoryBenchmarks) {
-                    JSONObject benchmark = (JSONObject) benchItem;
-                    String name = (String) benchmark.get("name");
-                    Double score = (Double) benchmark.get("score");
-                    String mode = (String) benchmark.get("mode");
-                    String fingerprint = (String) benchmark.get("generatedFingerprint");
+                    // loop through benchmarks in category
+                    for (Object benchItem : categoryBenchmarks) {
+                        JSONObject benchmark = (JSONObject) benchItem;
+                        if (benchmark == null || benchmark.isEmpty()) {
+                            continue;
+                        }
 
-                    ComparedBenchmark comparedBenchmark = new ComparedBenchmark();
-                    comparedBenchmark.setDisplayName(name);
-                    comparedBenchmark.setMode(mode);
-                    comparedBenchmark.setScore(score);
-                    comparedBenchmark.setFingerprint(fingerprint);
+                        String name = (String) benchmark.get("name");
+                        Double score = (Double) benchmark.get("score");
+                        String mode = (String) benchmark.get("mode");
+                        String fingerprint = (String) benchmark.get("generatedFingerprint");
 
-                    Map<String, ComparedBenchmark> comparedBenchmarkMap = result.containsKey(fingerprint)
-                            ? result.get(fingerprint) : new HashMap<>();
-                    comparedBenchmarkMap.put(mode, comparedBenchmark);
-                    result.put(fingerprint, comparedBenchmarkMap);
+                        ComparedBenchmark comparedBenchmark = new ComparedBenchmark();
+                        comparedBenchmark.setDisplayName(name);
+                        comparedBenchmark.setMode(mode);
+                        comparedBenchmark.setScore(score);
+                        comparedBenchmark.setFingerprint(fingerprint);
+
+                        Map<String, ComparedBenchmark> comparedBenchmarkMap = result.containsKey(fingerprint)
+                                ? result.get(fingerprint) : new HashMap<>();
+                        comparedBenchmarkMap.put(mode, comparedBenchmark);
+                        result.put(fingerprint, comparedBenchmarkMap);
+                    }
                 }
             }
         }
@@ -148,8 +157,8 @@ public class Requests {
             if (serviceUrl != null && projectName != null) {
                 log.info("* Fetching project data for {}", projectName);
                 JSONObject projectSummary = executeRequest(serviceUrl, accessToken);
-                if (projectSummary.isEmpty()) {
-                    throw new Exception("No project data found!");
+                if (projectSummary == null || projectSummary.isEmpty()) {
+                    throw new Exception("No project data found: " + projectName);
                 }
 
                 latestVersion = (String) projectSummary.get("latestVersion");
@@ -190,11 +199,14 @@ public class Requests {
             try {
                 log.info("* Fetching benchmark data for report {}", reportID);
                 JSONObject results = executeRequest(serviceUrl, accessToken);
+                if (results == null || results.isEmpty()) {
+                    throw new Exception("No report data found: " + reportID);
+                }
                 Map<String, Map<String, List<Map<String, Object>>>> benchmarkObj = (Map<String, Map<String, List<Map<String, Object>>>>) results
                         .get("benchmarks");
                 Map<String, Map<String, List<ComparedBenchmark>>> benchmarks = new HashMap<>();
-                if (benchmarkObj.isEmpty()) {
-                    throw new Exception("No report data found!");
+                if (benchmarkObj == null || benchmarkObj.isEmpty()) {
+                    throw new Exception("No benchmarks data found for report: " + reportID);
                 }
 
                 for (Map.Entry<String, Map<String, List<Map<String, Object>>>> benchmarkObjEntry : benchmarkObj
