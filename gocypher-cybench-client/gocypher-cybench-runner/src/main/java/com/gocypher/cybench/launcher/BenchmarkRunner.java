@@ -63,6 +63,8 @@ import com.gocypher.cybench.launcher.services.ConfigurationHandler;
 import com.gocypher.cybench.launcher.utils.ComputationUtils;
 import com.gocypher.cybench.launcher.utils.Constants;
 import com.gocypher.cybench.launcher.utils.SecurityBuilder;
+import com.gocypher.cybench.model.ComparisonConfig;
+import com.gocypher.cybench.model.ComparisonConfig.Scope;
 
 public class BenchmarkRunner {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRunner.class);
@@ -74,6 +76,7 @@ public class BenchmarkRunner {
     public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER
             + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
     static Properties cfg = new Properties();
+    static ComparisonConfig automatedComparisonCfg;
     private static String benchSource = "CyBench Launcher";
     private static final String REPORT_NOT_SENT = "You may submit your report '{}' manually at {}";
 
@@ -107,6 +110,9 @@ public class BenchmarkRunner {
 
         try {
             checkProjectMetadataExists();
+            if (automatedComparisonCfg != null && automatedComparisonCfg.getScope().equals(Scope.WITHIN)) {
+                automatedComparisonCfg.setCompareVersion(PROJECT_METADATA_MAP.get("version"));
+            }
             LOG.info("Executing benchmarks...");
 
             LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
@@ -643,6 +649,7 @@ public class BenchmarkRunner {
 
     private static void identifyPropertiesFromArguments(String[] args) {
         String configurationFilePath = "";
+        String automationConfigurationFilePath = "";
         for (String property : args) {
             if (property.contains("cfg") || property.contains("config") || property.contains("configuration")) {
                 String[] tempConfigPath = property.split("=");
@@ -654,8 +661,25 @@ public class BenchmarkRunner {
             } else {
                 LOG.info("Using default configuration file {}", configurationFilePath);
             }
+
+            if (property.contains("automationCfg")) {
+                String[] tempConfigPath = property.split("=");
+                if (tempConfigPath.length > 1) {
+                    automationConfigurationFilePath = tempConfigPath[1];
+                } else {
+                    LOG.info("Incorrect format, automation configuration path syntax: automationCfg='full-file-path'");
+                }
+            } else {
+                LOG.info("Will search for automation configuration in default file {}", automationConfigurationFilePath);
+            }
         }
-        cfg = ConfigurationHandler.loadConfiguration(configurationFilePath);
+        cfg = ConfigurationHandler.loadConfiguration(configurationFilePath, Constants.LAUNCHER_CONFIGURATION);
+
+        Properties automatedComparisonCfgProps = ConfigurationHandler.loadConfiguration(automationConfigurationFilePath, Constants.AUTOMATED_COMPARISON_CONFIGURATION);
+        if (automatedComparisonCfgProps != null && !automatedComparisonCfgProps.isEmpty()) {
+            automatedComparisonCfg = ConfigurationHandler.checkConfigValidity(automatedComparisonCfgProps);
+            LOG.info(automatedComparisonCfg.toString());
+        }
     }
 
     static void printSystemInformation() {

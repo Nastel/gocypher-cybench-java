@@ -53,8 +53,8 @@ public class ComparisonConfig {
     private Double percentChangeAllowed;
     private String configName;
     private String configID;
-    private int anomaliesAllowed;
-    private int compareLatestReports;
+    private Integer anomaliesAllowed;
+    private Integer compareLatestReports;
 
     public ComparisonConfig() {
         compareBuilds = new ArrayList<>();
@@ -215,19 +215,27 @@ public class ComparisonConfig {
         return configID;
     }
     
-    public void setAnomaliesAllowed(int anomaliesAllowed) {
+    public void setAnomaliesAllowed(Integer anomaliesAllowed) {
         this.anomaliesAllowed = anomaliesAllowed;
     }
 
-    public int getAnomaliesAllowed() {
+    public Integer getAnomaliesAllowed() {
         return anomaliesAllowed;
     }
 
-    public void setCompareLatestReports(int compareLatestReports) {
+    public void setCompareLatestReports(Integer compareLatestReports) {
         this.compareLatestReports = compareLatestReports;
     }
 
-    public int getCompareLatestReports() {
+    public Integer getCompareLatestReports() {
         return compareLatestReports;
+    }
+
+    public String toString() {
+        return "Comparison Config - type: " + testType.toString() + ", scope: " + scope.toString() + ", method: " + method.toString()
+            + ", threshold: " + threshold.toString() + ", range: " + range.toString() + ", projectName: " + projectName.toString()
+            + ", projectVersion: " + projectVersion.toString() + ", projectBuild: " + projectBuild.toString() + ", compareVersion: " + compareVersion.toString()
+            + ", compareBuilds: " + compareBuilds.toString() + ", deviationsAllowed: " + deviationsAllowed.toString() + ", percentChangeAllowed: " + percentChangeAllowed.toString()
+            + ", configName: " + configName.toString() + ", configID: " + configID.toString();
     }
 }

@@ -67,6 +67,9 @@ public class Constants {
 
     public static final Map<String, String> BENCHMARKS_SCORES_COMPUTATIONS_MAPPING = new HashMap<>();
 
+    public static final String LAUNCHER_CONFIGURATION = "launcher_configuration";
+    public static final String AUTOMATED_COMPARISON_CONFIGURATION = "automation_configuration";
+
     // --------------------------- Properties that configure the runner execution for Eclipse
     // ------------------------------------------
     public static final String COLLECT_HARDWARE_PROPS = "collectHardware";
