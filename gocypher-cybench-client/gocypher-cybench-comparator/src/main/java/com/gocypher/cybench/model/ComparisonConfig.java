@@ -53,6 +53,8 @@ public class ComparisonConfig {
     private Double percentChangeAllowed;
     private String configName;
     private String configID;
+    private int anomaliesAllowed;
+    private int compareLatestReports;
 
     public ComparisonConfig() {
         compareBuilds = new ArrayList<>();
@@ -211,5 +213,21 @@ public class ComparisonConfig {
 
     public String getConfigID() {
         return configID;
+    }
+    
+    public void setAnomaliesAllowed(int anomaliesAllowed) {
+        this.anomaliesAllowed = anomaliesAllowed;
+    }
+
+    public int getAnomaliesAllowed() {
+        return anomaliesAllowed;
+    }
+
+    public void setCompareLatestReports(int compareLatestReports) {
+        this.compareLatestReports = compareLatestReports;
+    }
+
+    public int getCompareLatestReports() {
+        return compareLatestReports;
     }
 }
