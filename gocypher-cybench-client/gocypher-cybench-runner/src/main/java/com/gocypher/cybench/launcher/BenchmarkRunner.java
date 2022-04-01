@@ -678,7 +678,6 @@ public class BenchmarkRunner {
         Properties automatedComparisonCfgProps = ConfigurationHandler.loadConfiguration(automationConfigurationFilePath, Constants.AUTOMATED_COMPARISON_CONFIGURATION);
         if (automatedComparisonCfgProps != null && !automatedComparisonCfgProps.isEmpty()) {
             automatedComparisonCfg = ConfigurationHandler.checkConfigValidity(automatedComparisonCfgProps);
-            LOG.info(automatedComparisonCfg.toString());
         }
     }
 

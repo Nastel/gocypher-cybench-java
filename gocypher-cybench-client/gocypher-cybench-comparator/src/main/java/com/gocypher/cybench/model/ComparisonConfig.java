@@ -232,10 +232,10 @@ public class ComparisonConfig {
     }
 
     public String toString() {
-        return "Comparison Config - type: " + testType.toString() + ", scope: " + scope.toString() + ", method: " + method.toString()
-            + ", threshold: " + threshold.toString() + ", range: " + range.toString() + ", projectName: " + projectName.toString()
-            + ", projectVersion: " + projectVersion.toString() + ", projectBuild: " + projectBuild.toString() + ", compareVersion: " + compareVersion.toString()
-            + ", compareBuilds: " + compareBuilds.toString() + ", deviationsAllowed: " + deviationsAllowed.toString() + ", percentChangeAllowed: " + percentChangeAllowed.toString()
-            + ", configName: " + configName.toString() + ", configID: " + configID.toString();
+        return "Comparison Config - type: " + testType + ", scope: " + scope + ", method: " + method
+            + ", threshold: " + threshold + ", range: " + range + ", projectName: " + projectName
+            + ", projectVersion: " + projectVersion + ", projectBuild: " + projectBuild + ", compareVersion: " + compareVersion
+            + ", compareBuilds: " + compareBuilds + ", deviationsAllowed: " + deviationsAllowed + ", percentChangeAllowed: " + percentChangeAllowed
+            + ", configName: " + configName + ", configID: " + configID;
     }
 }
