@@ -111,7 +111,7 @@ public class BenchmarkRunner {
         try {
             checkProjectMetadataExists();
             if (automatedComparisonCfg != null && automatedComparisonCfg.getScope().equals(Scope.WITHIN)) {
-                automatedComparisonCfg.setCompareVersion(PROJECT_METADATA_MAP.get("version"));
+                automatedComparisonCfg.setCompareVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
             }
             LOG.info("Executing benchmarks...");
 
@@ -242,6 +242,13 @@ public class BenchmarkRunner {
             report.getEnvironmentSettings().put("unclassifiedProperties",
                     CollectSystemInformation.getUnclassifiedProperties());
             report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
+
+            if (automatedComparisonCfg != null) {
+                automatedComparisonCfg.setRange(automatedComparisonCfg.getCompareLatestReports().toString());
+                automatedComparisonCfg.setProjectName(PROJECT_METADATA_MAP.get(Constants.PROJECT_NAME));
+                automatedComparisonCfg.setProjectVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
+                report.setAutomatedComparisonConfig(automatedComparisonCfg);
+            }
 
             if (foundBenchmarks) {
                 if (System.getProperty(Constants.REPORT_SOURCE) != null) {
@@ -482,8 +489,8 @@ public class BenchmarkRunner {
      */
     public static void syncReportsMetadata(BenchmarkOverviewReport report, BenchmarkReport benchmarkReport) {
         try {
-            String projectVersion = PROJECT_METADATA_MAP.get("version");
-            String projectArtifactId = PROJECT_METADATA_MAP.get("artifactId");
+            String projectVersion = PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION);
+            String projectArtifactId = PROJECT_METADATA_MAP.get(Constants.PROJECT_NAME);
 
             if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                 report.setProject(benchmarkReport.getProject());
@@ -759,16 +766,16 @@ public class BenchmarkRunner {
     }
 
     public static void checkProjectMetadataExists() throws MissingResourceException {
-        PROJECT_METADATA_MAP.put("artifactId", getMetadataFromBuildFile("artifactId"));
-        PROJECT_METADATA_MAP.put("version", getMetadataFromBuildFile("version"));
+        PROJECT_METADATA_MAP.put(Constants.PROJECT_NAME, getMetadataFromBuildFile(Constants.PROJECT_NAME));
+        PROJECT_METADATA_MAP.put(Constants.PROJECT_VERSION, getMetadataFromBuildFile(Constants.PROJECT_VERSION));
         // make sure gradle metadata can be parsed BEFORE benchmarks are run
-        String metaProp = PROJECT_METADATA_MAP.get("artifactId");
+        String metaProp = PROJECT_METADATA_MAP.get(Constants.PROJECT_NAME);
         if (StringUtils.isEmpty(metaProp)) {
             failBuildFromMissingMetadata("Project");
         } else {
             LOG.info("MetaData - Project name:    {}", metaProp);
         }
-        metaProp = PROJECT_METADATA_MAP.get("version");
+        metaProp = PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION);
         if (StringUtils.isEmpty(metaProp)) {
             failBuildFromMissingMetadata("Version");
         } else {
@@ -872,7 +879,7 @@ public class BenchmarkRunner {
     }
 
     private static String getMetadataFromProjectProperties(String prop, String propsFile) {
-        if (prop == "artifactId") {
+        if (prop == Constants.PROJECT_NAME) {
             prop = "PROJECT_ARTIFACT";
         } else {
             prop = "PROJECT_VERSION";
@@ -895,7 +902,7 @@ public class BenchmarkRunner {
 
     private static String getGradleProperty(String prop, String dir, String... cfgFiles)
             throws MissingResourceException {
-        if (prop == "artifactId") {
+        if (prop == Constants.PROJECT_NAME) {
             prop = "PROJECT_ARTIFACT";
         } else {
             prop = "PROJECT_VERSION";

@@ -35,6 +35,9 @@ public class Constants {
     public static final String SEND_REPORT_URL = "sendReportToURL";
     public static final String INTELLIJ_PLUGIN = "intelliJPlugin";
 
+    public static final String PROJECT_NAME = "artifactId";
+    public static final String PROJECT_VERSION = "version";
+
     // --------------------------- Properties that configure the runner execution
     // ------------------------------------------
     public static final String NUMBER_OF_FORKS = "numberOfBenchmarkForks";

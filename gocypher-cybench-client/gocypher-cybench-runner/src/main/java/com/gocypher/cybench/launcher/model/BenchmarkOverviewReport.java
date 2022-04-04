@@ -28,6 +28,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gocypher.cybench.launcher.utils.ComputationUtils;
+import com.gocypher.cybench.model.ComparisonConfig;
 
 public class BenchmarkOverviewReport implements Serializable {
     private static final long serialVersionUID = 4919010767589263480L;
@@ -45,6 +46,7 @@ public class BenchmarkOverviewReport implements Serializable {
     private Map<String, Object> environmentSettings;
     private Map<String, Object> benchmarkSettings;
     private Map<String, List<BenchmarkReport>> benchmarks;
+    private ComparisonConfig automatedComparisonConfig;
 
     public BenchmarkOverviewReport() {
         benchmarks = new HashMap<>();
@@ -207,6 +209,14 @@ public class BenchmarkOverviewReport implements Serializable {
 
     public void setDeviceReportsURL(String deviceReports) {
         deviceReportsURL = deviceReports;
+    }
+
+    public ComparisonConfig getAutomatedComparisonConfig() {
+        return automatedComparisonConfig;
+    }
+
+    public void setAutomatedComparisonConfig(ComparisonConfig automatedComparisonConfig) {
+        this.automatedComparisonConfig = automatedComparisonConfig;
     }
 
     @Override
