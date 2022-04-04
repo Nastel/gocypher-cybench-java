@@ -110,9 +110,7 @@ public class BenchmarkRunner {
 
         try {
             checkProjectMetadataExists();
-            if (automatedComparisonCfg != null && automatedComparisonCfg.getScope().equals(Scope.WITHIN)) {
-                automatedComparisonCfg.setCompareVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
-            }
+            
             LOG.info("Executing benchmarks...");
 
             LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
@@ -244,6 +242,9 @@ public class BenchmarkRunner {
             report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
 
             if (automatedComparisonCfg != null) {
+                if (automatedComparisonCfg.getScope().equals(Scope.WITHIN)) {
+                    automatedComparisonCfg.setCompareVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
+                }
                 automatedComparisonCfg.setRange(automatedComparisonCfg.getCompareLatestReports().toString());
                 automatedComparisonCfg.setProjectName(PROJECT_METADATA_MAP.get(Constants.PROJECT_NAME));
                 automatedComparisonCfg.setProjectVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
