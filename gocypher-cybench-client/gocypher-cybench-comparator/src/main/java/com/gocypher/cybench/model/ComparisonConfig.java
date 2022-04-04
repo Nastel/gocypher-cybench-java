@@ -214,7 +214,7 @@ public class ComparisonConfig {
     public String getConfigID() {
         return configID;
     }
-    
+
     public void setAnomaliesAllowed(Integer anomaliesAllowed) {
         this.anomaliesAllowed = anomaliesAllowed;
     }
@@ -231,11 +231,21 @@ public class ComparisonConfig {
         return compareLatestReports;
     }
 
+    @Override
     public String toString() {
-        return "Comparison Config - type: " + testType + ", scope: " + scope + ", method: " + method
-            + ", threshold: " + threshold + ", range: " + range + ", projectName: " + projectName
-            + ", projectVersion: " + projectVersion + ", projectBuild: " + projectBuild + ", compareVersion: " + compareVersion
-            + ", compareBuilds: " + compareBuilds + ", deviationsAllowed: " + deviationsAllowed + ", percentChangeAllowed: " + percentChangeAllowed
-            + ", configName: " + configName + ", configID: " + configID;
+        return "Comparison Config - type: " + testType //
+                + ", scope: " + scope //
+                + ", method: " + method //
+                + ", threshold: " + threshold //
+                + ", range: " + range //
+                + ", projectName: " + projectName //
+                + ", projectVersion: " + projectVersion //
+                + ", projectBuild: " + projectBuild //
+                + ", compareVersion: " + compareVersion //
+                + ", compareBuilds: " + compareBuilds //
+                + ", deviationsAllowed: " + deviationsAllowed //
+                + ", percentChangeAllowed: " + percentChangeAllowed //
+                + ", configName: " + configName //
+                + ", configID: " + configID; //
     }
 }

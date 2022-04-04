@@ -670,12 +670,14 @@ public class BenchmarkRunner {
                     LOG.info("Incorrect format, automation configuration path syntax: automationCfg='full-file-path'");
                 }
             } else {
-                LOG.info("Will search for automation configuration in default file {}", automationConfigurationFilePath);
+                LOG.info("Will search for automation configuration in default file {}",
+                        automationConfigurationFilePath);
             }
         }
         cfg = ConfigurationHandler.loadConfiguration(configurationFilePath, Constants.LAUNCHER_CONFIGURATION);
 
-        Properties automatedComparisonCfgProps = ConfigurationHandler.loadConfiguration(automationConfigurationFilePath, Constants.AUTOMATED_COMPARISON_CONFIGURATION);
+        Properties automatedComparisonCfgProps = ConfigurationHandler.loadConfiguration(automationConfigurationFilePath,
+                Constants.AUTOMATED_COMPARISON_CONFIGURATION);
         if (automatedComparisonCfgProps != null && !automatedComparisonCfgProps.isEmpty()) {
             automatedComparisonCfg = ConfigurationHandler.checkConfigValidity(automatedComparisonCfgProps);
         }

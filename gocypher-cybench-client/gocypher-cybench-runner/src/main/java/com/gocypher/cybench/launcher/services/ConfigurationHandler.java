@@ -22,19 +22,18 @@ package com.gocypher.cybench.launcher.services;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Properties;
+
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.launcher.utils.Constants;
 import com.gocypher.cybench.model.ComparisonConfig;
 import com.gocypher.cybench.model.ComparisonConfig.Method;
 import com.gocypher.cybench.model.ComparisonConfig.Scope;
 import com.gocypher.cybench.model.ComparisonConfig.Threshold;
-
-import org.apache.commons.lang3.EnumUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConfigurationHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationHandler.class);
@@ -84,9 +83,7 @@ public class ConfigurationHandler {
             Scope SCOPE;
             String COMPARE_VERSION = (String) automatedComparisonCfgProps.get("compareVersion");
             String NUM_LATEST_REPORTS_STR = (String) automatedComparisonCfgProps.get("numLatestReports");
-            Integer NUM_LATEST_REPORTS;
             String ANOMALIES_ALLOWED_STR = (String) automatedComparisonCfgProps.get("anomaliesAllowed");
-            Integer ANOMALIES_ALLOWED;
             String METHOD_STR = (String) automatedComparisonCfgProps.get("method");
             METHOD_STR = METHOD_STR.toUpperCase();
             Method METHOD;
@@ -94,13 +91,10 @@ public class ConfigurationHandler {
             THRESHOLD_STR = THRESHOLD_STR.toUpperCase();
             Threshold THRESHOLD;
             String PERCENT_CHANGE_ALLOWED_STR = (String) automatedComparisonCfgProps.get("percentChangeAllowed");
-            Double PERCENT_CHANGE_ALLOWED;
             String DEVIATIONS_ALLOWED_STR = (String) automatedComparisonCfgProps.get("deviationsAllowed");
-            Double DEVIATIONS_ALLOWED;
-            
-            
-            if (StringUtils.isNotBlank(NUM_LATEST_REPORTS_STR)){
-                NUM_LATEST_REPORTS = Integer.parseInt(NUM_LATEST_REPORTS_STR);
+
+            if (StringUtils.isNotBlank(NUM_LATEST_REPORTS_STR)) {
+                int NUM_LATEST_REPORTS = Integer.parseInt(NUM_LATEST_REPORTS_STR);
                 if (NUM_LATEST_REPORTS < 1) {
                     throw new Exception("Not enough latest reports specified to compare to!");
                 }
@@ -109,7 +103,7 @@ public class ConfigurationHandler {
                 throw new Exception("Number of latest reports to compare to was not specified!");
             }
             if (StringUtils.isNotBlank(ANOMALIES_ALLOWED_STR)) {
-                ANOMALIES_ALLOWED = Integer.parseInt(ANOMALIES_ALLOWED_STR);
+                int ANOMALIES_ALLOWED = Integer.parseInt(ANOMALIES_ALLOWED_STR);
                 if (ANOMALIES_ALLOWED < 1) {
                     throw new Exception("Not enough anomalies allowed specified!");
                 }
@@ -133,7 +127,8 @@ public class ConfigurationHandler {
 
             if (SCOPE.equals(Scope.WITHIN) && StringUtils.isNotEmpty(COMPARE_VERSION)) {
                 COMPARE_VERSION = "";
-                LOG.warn("Automated comparison config scoped specified as WITHIN but compare version was also specified, will compare WITHIN the currently tested version.");
+                LOG.warn(
+                        "Automated comparison config scoped specified as WITHIN but compare version was also specified, will compare WITHIN the currently tested version.");
             } else if (SCOPE.equals(Scope.BETWEEN) && StringUtils.isBlank(COMPARE_VERSION)) {
                 throw new Exception("Scope specified as BETWEEN but no compare version specified!");
             } else if (SCOPE.equals(Scope.BETWEEN)) {
@@ -142,7 +137,7 @@ public class ConfigurationHandler {
 
             if (METHOD.equals(Method.SD)) {
                 if (StringUtils.isNotBlank(DEVIATIONS_ALLOWED_STR)) {
-                    DEVIATIONS_ALLOWED = Double.parseDouble(DEVIATIONS_ALLOWED_STR);
+                    double DEVIATIONS_ALLOWED = Double.parseDouble(DEVIATIONS_ALLOWED_STR);
                     if (DEVIATIONS_ALLOWED <= 0) {
                         throw new Exception("Method specified as SD but not enough deviations allowed were specified!");
                     }
@@ -152,7 +147,8 @@ public class ConfigurationHandler {
                 }
             } else if (METHOD.equals(Method.DELTA)) {
                 if (!EnumUtils.isValidEnum(Threshold.class, THRESHOLD_STR) || StringUtils.isBlank(THRESHOLD_STR)) {
-                    throw new Exception("Method specified as DELTA but no threshold specified or threshold is invalid!");
+                    throw new Exception(
+                            "Method specified as DELTA but no threshold specified or threshold is invalid!");
                 } else {
                     THRESHOLD = Threshold.valueOf(THRESHOLD_STR);
                     automatedComparisonConfig.setThreshold(THRESHOLD);
@@ -160,17 +156,19 @@ public class ConfigurationHandler {
 
                 if (THRESHOLD.equals(Threshold.PERCENT_CHANGE)) {
                     if (StringUtils.isNotBlank(PERCENT_CHANGE_ALLOWED_STR)) {
-                        PERCENT_CHANGE_ALLOWED = Double.parseDouble(PERCENT_CHANGE_ALLOWED_STR);
+                        double PERCENT_CHANGE_ALLOWED = Double.parseDouble(PERCENT_CHANGE_ALLOWED_STR);
                         if (PERCENT_CHANGE_ALLOWED <= 0) {
-                            throw new Exception("Threshold specified as PERCENT_CHANGE but percent change is not high enough!");
+                            throw new Exception(
+                                    "Threshold specified as PERCENT_CHANGE but percent change is not high enough!");
                         }
                         automatedComparisonConfig.setPercentChangeAllowed(PERCENT_CHANGE_ALLOWED);
                     } else {
-                        throw new Exception("Threshold specified as PERCENT_CHANGE but percent change allowed was not specified!");
+                        throw new Exception(
+                                "Threshold specified as PERCENT_CHANGE but percent change allowed was not specified!");
                     }
                 }
             }
-            
+
             return automatedComparisonConfig;
         } catch (Exception e) {
             LOG.error("Failed to parse automated comparison configurations", e);
