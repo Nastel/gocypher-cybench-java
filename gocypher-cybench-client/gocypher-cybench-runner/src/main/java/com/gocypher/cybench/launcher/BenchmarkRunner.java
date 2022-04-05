@@ -110,7 +110,7 @@ public class BenchmarkRunner {
 
         try {
             checkProjectMetadataExists();
-            
+
             LOG.info("Executing benchmarks...");
 
             LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
@@ -245,7 +245,7 @@ public class BenchmarkRunner {
                 if (automatedComparisonCfg.getScope().equals(Scope.WITHIN)) {
                     automatedComparisonCfg.setCompareVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
                 }
-                automatedComparisonCfg.setRange(automatedComparisonCfg.getCompareLatestReports().toString());
+                automatedComparisonCfg.setRange(String.valueOf(automatedComparisonCfg.getCompareLatestReports()));
                 automatedComparisonCfg.setProjectName(PROJECT_METADATA_MAP.get(Constants.PROJECT_NAME));
                 automatedComparisonCfg.setProjectVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
                 report.setAutomatedComparisonConfig(automatedComparisonCfg);
@@ -691,7 +691,7 @@ public class BenchmarkRunner {
         }
     }
 
-    static void printSystemInformation() {
+    public static void printSystemInformation() {
         long kilobytes = 1024;
         long megabytes = kilobytes * 1024;
         long gigabytes = megabytes * 1024;
