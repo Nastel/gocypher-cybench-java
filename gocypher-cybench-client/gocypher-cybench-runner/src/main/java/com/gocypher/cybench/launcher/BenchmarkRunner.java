@@ -352,6 +352,13 @@ public class BenchmarkRunner {
                     LOG.info("You can find all device benchmarks on {}", deviceReports);
                     LOG.info("Your report is available at {}", resultURL);
                     LOG.info("NOTE: It may take a few minutes for your report to appear online");
+
+                    if (automatedComparisonCfg != null && response.containsKey("automatedComparison")) {
+                        Map<String, Object> automatedComparison = (Map<String, Object>) response.get("automatedComparison");
+                        if (tooManyAnomalies(automatedComparison)) {
+                            System.exit(1);
+                        }
+                    }
                 } else {
                     String errMsg = getErrorResponseMessage(response);
                     if (errMsg != null) {
@@ -1025,5 +1032,14 @@ public class BenchmarkRunner {
                         + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
 
         throw new MissingResourceException("Missing project metadata configuration", null, null);
+    }
+
+    public static boolean tooManyAnomalies(Map<String, Object> automatedComparison) {
+        Integer totalFailedBenchmarks = (Integer) automatedComparison.get("totalFailedBenchmarks");
+        if (totalFailedBenchmarks > automatedComparisonCfg.getAnomaliesAllowed()) {
+            LOG.error("There were more anomaly benchmarks than your specified anomalies allowed!");
+            return true;
+        }
+        return false;
     }
 }
