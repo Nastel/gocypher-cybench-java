@@ -82,6 +82,7 @@ public class BenchmarkRunner {
 
     private static final Map<String, String> PROJECT_METADATA_MAP = new HashMap<>(5);
 
+    @SuppressWarnings("unchecked")
     public static void main(String... args) throws Exception {
         long start = System.currentTimeMillis();
         LOG.info("-----------------------------------------------------------------------------------------");
@@ -354,7 +355,8 @@ public class BenchmarkRunner {
                     LOG.info("NOTE: It may take a few minutes for your report to appear online");
 
                     if (automatedComparisonCfg != null && response.containsKey("automatedComparison")) {
-                        Map<String, Object> automatedComparison = (Map<String, Object>) response.get("automatedComparison");
+                        Map<String, Object> automatedComparison = (Map<String, Object>) response
+                                .get("automatedComparison");
                         if (tooManyAnomalies(automatedComparison)) {
                             System.exit(1);
                         }
