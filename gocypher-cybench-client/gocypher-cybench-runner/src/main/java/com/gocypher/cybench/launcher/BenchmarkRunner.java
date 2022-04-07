@@ -354,10 +354,9 @@ public class BenchmarkRunner {
                     LOG.info("Your report is available at {}", resultURL);
                     LOG.info("NOTE: It may take a few minutes for your report to appear online");
 
-                    if (automatedComparisonCfg != null && response.containsKey("automatedComparison")) {
-                        Map<String, Object> automatedComparison = (Map<String, Object>) response
-                                .get("automatedComparison");
-                        if (tooManyAnomalies(automatedComparison)) {
+                    if (response.containsKey("automatedComparisons")) {
+                        List<Map<String, Object>> automatedComparisons = (List<Map<String, Object>>) response.get("automatedComparisons");
+                        if (tooManyAnomalies(automatedComparisons)) {
                             System.exit(1);
                         }
                     }
@@ -1036,11 +1035,17 @@ public class BenchmarkRunner {
         throw new MissingResourceException("Missing project metadata configuration", null, null);
     }
 
-    public static boolean tooManyAnomalies(Map<String, Object> automatedComparison) {
+    public static boolean tooManyAnomalies(List<Map<String, Object>> automatedComparisons) {
+        for (Map<String, Object> automatedComparison : automatedComparisons) {
         Integer totalFailedBenchmarks = (Integer) automatedComparison.get("totalFailedBenchmarks");
-        if (totalFailedBenchmarks > automatedComparisonCfg.getAnomaliesAllowed()) {
-            LOG.error("There were more anomaly benchmarks than your specified anomalies allowed!");
+            Map<String, Object> config = (Map<String, Object>) automatedComparison.get("config");
+            if (config.containsKey("anomaliesAllowed")) {
+                Integer anomaliesAllowed = (Integer) config.get("anomaliesAllowed");
+                if (totalFailedBenchmarks != null && totalFailedBenchmarks > anomaliesAllowed) {
+                    LOG.error("There were more anomaly benchmarks than your specified anomalies allowed in one of your automated comparison configurations!");
             return true;
+        }
+            }
         }
         return false;
     }
