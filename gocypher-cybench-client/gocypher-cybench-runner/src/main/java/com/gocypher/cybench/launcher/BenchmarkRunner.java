@@ -775,7 +775,7 @@ public class BenchmarkRunner {
         LOG.info("Total Garbage Collection Time (ms): {}", garbageCollectionTime);
     }
 
-    public static void checkProjectMetadataExists() throws MissingResourceException {
+    public static Map<String, String> checkProjectMetadataExists() throws MissingResourceException {
         PROJECT_METADATA_MAP.put(Constants.PROJECT_NAME, getMetadataFromBuildFile(Constants.PROJECT_NAME));
         PROJECT_METADATA_MAP.put(Constants.PROJECT_VERSION, getMetadataFromBuildFile(Constants.PROJECT_VERSION));
         // make sure gradle metadata can be parsed BEFORE benchmarks are run
@@ -791,6 +791,7 @@ public class BenchmarkRunner {
         } else {
             LOG.info("MetaData - Project version: {}", metaProp);
         }
+        return PROJECT_METADATA_MAP;
     }
 
     /**
