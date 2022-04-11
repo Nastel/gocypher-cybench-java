@@ -36,7 +36,7 @@
 
     <properties>
         <auto.service.version>1.0.1</auto.service.version>
-        <symbol.solver.version>3.24.0</symbol.solver.version>
+        <symbol.solver.version>3.24.2</symbol.solver.version>
     </properties>
 
     <profiles>
