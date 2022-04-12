@@ -78,17 +78,17 @@ public class Constants {
     public static final String COLLECT_HARDWARE_PROPS = "collectHardware";
     public static final String USE_CYBENCH_CONFIGURATION = "useCyBenchConfig";
     public static final String SELECTED_CLASS_PATHS = "selectedClassesToRun";
-    
+
     // --------------------------- Properties that configure automatic comparison during runner for Eclipse
-    // ------------------------------------------    
+    // ------------------------------------------
     public static final String AUTO_ANOMALIES_ALLOWED = "anomaliesAllowed";
-    public static final String AUTO_COMPAREVERSION = "compareVersion";
+    public static final String AUTO_COMPARE_VERSION = "compareVersion";
     public static final String AUTO_SCOPE = "scope";
     public static final String AUTO_LATEST_REPORTS = "latestReports";
     public static final String AUTO_METHOD = "method";
     public static final String AUTO_PERCENT_CHANGE = "percentChange";
     public static final String AUTO_THRESHOLD = "threshold";
-    public static final String AUTO_DEVIATIONS_ALLOWED = "deviations";	
+    public static final String AUTO_DEVIATIONS_ALLOWED = "deviations";
     // ---------------------------------------------------------------------------------------------------------------------------------
     public static String[] excludedFromReportArgument = { USER_REPORT_TOKEN, BENCHMARK_RUN_CLASSES,
             BENCHMARK_REPORT_NAME, COLLECT_HW, SEND_REPORT, REPORT_UPLOAD_STATUS, COLLECT_HARDWARE_PROPS,
