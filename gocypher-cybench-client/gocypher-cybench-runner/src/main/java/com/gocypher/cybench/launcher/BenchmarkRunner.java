@@ -88,11 +88,13 @@ public class BenchmarkRunner {
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Starting CyBench benchmarks                             ");
         LOG.info("-----------------------------------------------------------------------------------------");
-        if (!checkIfConfigurationPropertyIsSet(getProperty(Constants.INTELLIJ_PLUGIN))
-                || !Boolean.parseBoolean(getProperty(Constants.INTELLIJ_PLUGIN))) {
+
+        if (checkIfConfigurationPropertyIsSet(getProperty(Constants.INTELLIJ_PLUGIN))
+                && Boolean.parseBoolean(getProperty(Constants.INTELLIJ_PLUGIN))) {
+            createAutomatedComparisonConfigFromSysProps();
+        } else {
             identifyPropertiesFromArguments(args);
         }
-
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -698,6 +700,20 @@ public class BenchmarkRunner {
         if (automatedComparisonCfgProps != null && !automatedComparisonCfgProps.isEmpty()) {
             automatedComparisonCfg = ConfigurationHandler.checkConfigValidity(automatedComparisonCfgProps);
         }
+    }
+
+    private static void createAutomatedComparisonConfigFromSysProps() {
+        Properties props = new Properties();
+        props.put(Constants.AUTO_ANOMALIES_ALLOWED, System.getProperty(Constants.AUTO_ANOMALIES_ALLOWED));
+        props.put(Constants.AUTO_COMPARE_VERSION, System.getProperty(Constants.AUTO_COMPARE_VERSION));
+        props.put(Constants.AUTO_SCOPE, System.getProperty(Constants.AUTO_SCOPE));
+        props.put(Constants.AUTO_LATEST_REPORTS, System.getProperty(Constants.AUTO_LATEST_REPORTS));
+        props.put(Constants.AUTO_METHOD, System.getProperty(Constants.AUTO_METHOD));
+        props.put(Constants.AUTO_PERCENT_CHANGE, System.getProperty(Constants.AUTO_PERCENT_CHANGE));
+        props.put(Constants.AUTO_THRESHOLD, System.getProperty(Constants.AUTO_THRESHOLD));
+        props.put(Constants.AUTO_DEVIATIONS_ALLOWED, System.getProperty(Constants.AUTO_DEVIATIONS_ALLOWED));
+
+        automatedComparisonCfg = ConfigurationHandler.checkConfigValidity(props);
     }
 
     public static void printSystemInformation() {

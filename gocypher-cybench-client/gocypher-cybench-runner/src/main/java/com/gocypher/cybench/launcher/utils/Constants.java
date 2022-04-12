@@ -79,7 +79,7 @@ public class Constants {
     public static final String USE_CYBENCH_CONFIGURATION = "useCyBenchConfig";
     public static final String SELECTED_CLASS_PATHS = "selectedClassesToRun";
 
-    // --------------------------- Properties that configure automatic comparison during runner for Eclipse
+    // --------------------------- Properties that configure automatic comparison during runner for Eclipse/IntelliJ
     // ------------------------------------------
     public static final String AUTO_ANOMALIES_ALLOWED = "anomaliesAllowed";
     public static final String AUTO_COMPARE_VERSION = "compareVersion";

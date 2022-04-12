@@ -79,16 +79,26 @@ public class ConfigurationHandler {
             ComparisonConfig automatedComparisonConfig = new ComparisonConfig();
 
             String SCOPE_STR = (String) automatedComparisonCfgProps.get("scope");
-            SCOPE_STR = SCOPE_STR.toUpperCase();
+            if (StringUtils.isBlank(SCOPE_STR)) {
+                throw new Exception("Scope is not specified!");
+            } else {
+                SCOPE_STR = SCOPE_STR.toUpperCase();
+            }
             Scope SCOPE;
             String COMPARE_VERSION = (String) automatedComparisonCfgProps.get("compareVersion");
             String NUM_LATEST_REPORTS_STR = (String) automatedComparisonCfgProps.get("numLatestReports");
             String ANOMALIES_ALLOWED_STR = (String) automatedComparisonCfgProps.get("anomaliesAllowed");
             String METHOD_STR = (String) automatedComparisonCfgProps.get("method");
-            METHOD_STR = METHOD_STR.toUpperCase();
+            if (StringUtils.isBlank(METHOD_STR)) {
+                throw new Exception("Method is not specified!");
+            } else {
+                METHOD_STR = METHOD_STR.toUpperCase();
+            }
             Method METHOD;
             String THRESHOLD_STR = (String) automatedComparisonCfgProps.get("threshold");
-            THRESHOLD_STR = THRESHOLD_STR.toUpperCase();
+            if (StringUtils.isNotBlank(THRESHOLD_STR)) {
+                THRESHOLD_STR = THRESHOLD_STR.toUpperCase();
+            }
             Threshold THRESHOLD;
             String PERCENT_CHANGE_ALLOWED_STR = (String) automatedComparisonCfgProps.get("percentChangeAllowed");
             String DEVIATIONS_ALLOWED_STR = (String) automatedComparisonCfgProps.get("deviationsAllowed");
@@ -112,14 +122,14 @@ public class ConfigurationHandler {
                 throw new Exception("Anomalies allowed was not specified!");
             }
 
-            if (!EnumUtils.isValidEnum(Scope.class, SCOPE_STR) || StringUtils.isBlank(SCOPE_STR)) {
-                throw new Exception("No scope specified or scope is invalid!");
+            if (!EnumUtils.isValidEnum(Scope.class, SCOPE_STR)) {
+                throw new Exception("Scope is invalid!");
             } else {
                 SCOPE = Scope.valueOf(SCOPE_STR);
                 automatedComparisonConfig.setScope(SCOPE);
             }
-            if (!EnumUtils.isValidEnum(Method.class, METHOD_STR) || StringUtils.isBlank(METHOD_STR)) {
-                throw new Exception("No method specified or method is invalid!");
+            if (!EnumUtils.isValidEnum(Method.class, METHOD_STR)) {
+                throw new Exception("Method is invalid!");
             } else {
                 METHOD = Method.valueOf(METHOD_STR);
                 automatedComparisonConfig.setMethod(METHOD);
@@ -171,7 +181,7 @@ public class ConfigurationHandler {
 
             return automatedComparisonConfig;
         } catch (Exception e) {
-            LOG.error("Failed to parse automated comparison configurations", e);
+            LOG.error("Failed to parse automated comparison configuration", e);
             return null;
         }
     }
