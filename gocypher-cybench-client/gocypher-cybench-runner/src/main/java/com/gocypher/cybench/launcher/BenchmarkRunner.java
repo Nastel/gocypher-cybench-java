@@ -1063,7 +1063,11 @@ public class BenchmarkRunner {
                 Integer anomaliesAllowed = (Integer) config.get("anomaliesAllowed");
                 if (totalFailedBenchmarks != null && totalFailedBenchmarks > anomaliesAllowed) {
                     LOG.error(
-                            "There were more anomaly benchmarks than your specified anomalies allowed in one of your automated comparison configurations!");
+                            "*** There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
+                    LOG.warn("*** Your report has still been generated, but your pipeline (if applicable) has failed.");
+                    LOG.info("-----------------------------------------------------------------------------------------");
+                    LOG.info("                                 Finished CyBench benchmarks                             ");
+                    LOG.info("-----------------------------------------------------------------------------------------");                    
                     return true;
                 }
             }
