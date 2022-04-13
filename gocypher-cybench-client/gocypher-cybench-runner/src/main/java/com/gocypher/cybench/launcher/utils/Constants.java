@@ -81,6 +81,7 @@ public class Constants {
 
     // --------------------------- Properties that configure automatic comparison during runner for Eclipse/IntelliJ
     // ------------------------------------------
+    public static final String AUTO_SHOULD_RUN_COMPARISON = "shouldRunAutoComparison";
     public static final String AUTO_ANOMALIES_ALLOWED = "anomaliesAllowed";
     public static final String AUTO_COMPARE_VERSION = "compareVersion";
     public static final String AUTO_SCOPE = "scope";
