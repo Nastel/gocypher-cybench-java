@@ -114,7 +114,7 @@ public class ConfigurationHandler {
             }
             if (StringUtils.isNotBlank(ANOMALIES_ALLOWED_STR)) {
                 int ANOMALIES_ALLOWED = Integer.parseInt(ANOMALIES_ALLOWED_STR);
-                if (ANOMALIES_ALLOWED < 1) {
+                if (ANOMALIES_ALLOWED < 0) {
                     throw new Exception("Not enough anomalies allowed specified!");
                 }
                 automatedComparisonConfig.setAnomaliesAllowed(ANOMALIES_ALLOWED);
