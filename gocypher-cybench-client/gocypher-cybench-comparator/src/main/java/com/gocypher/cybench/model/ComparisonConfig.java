@@ -55,6 +55,7 @@ public class ComparisonConfig {
     private String configID;
     private Integer anomaliesAllowed;
     private Integer compareLatestReports;
+    private boolean shouldRunComparison = true;
 
     public ComparisonConfig() {
         compareBuilds = new ArrayList<>();
@@ -231,6 +232,14 @@ public class ComparisonConfig {
         return compareLatestReports;
     }
 
+    public void setShouldRunComparison(boolean shouldRunComparison) {
+        this.shouldRunComparison = shouldRunComparison;
+    }
+
+    public boolean getShouldRunComparison() {
+        return shouldRunComparison;
+    }
+
     @Override
     public String toString() {
         return "Comparison Config - type: " + testType //
@@ -246,6 +255,7 @@ public class ComparisonConfig {
                 + ", deviationsAllowed: " + deviationsAllowed //
                 + ", percentChangeAllowed: " + percentChangeAllowed //
                 + ", configName: " + configName //
-                + ", configID: " + configID; //
+                + ", configID: " + configID //
+                + ", shouldRunComparison: " + shouldRunComparison; //
     }
 }

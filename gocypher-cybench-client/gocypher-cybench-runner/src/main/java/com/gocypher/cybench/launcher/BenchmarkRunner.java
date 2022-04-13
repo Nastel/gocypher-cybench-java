@@ -244,7 +244,7 @@ public class BenchmarkRunner {
                     CollectSystemInformation.getUnclassifiedProperties());
             report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
 
-            if (automatedComparisonCfg != null) {
+            if (automatedComparisonCfg != null && automatedComparisonCfg.getShouldRunComparison()) {
                 if (automatedComparisonCfg.getScope().equals(Scope.WITHIN)) {
                     automatedComparisonCfg.setCompareVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
                 }
@@ -712,6 +712,7 @@ public class BenchmarkRunner {
         props.put(Constants.AUTO_PERCENT_CHANGE, System.getProperty(Constants.AUTO_PERCENT_CHANGE));
         props.put(Constants.AUTO_THRESHOLD, System.getProperty(Constants.AUTO_THRESHOLD));
         props.put(Constants.AUTO_DEVIATIONS_ALLOWED, System.getProperty(Constants.AUTO_DEVIATIONS_ALLOWED));
+        props.put(Constants.AUTO_SHOULD_RUN_COMPARISON, System.getProperty(Constants.AUTO_SHOULD_RUN_COMPARISON));
 
         automatedComparisonCfg = ConfigurationHandler.checkConfigValidity(props);
     }

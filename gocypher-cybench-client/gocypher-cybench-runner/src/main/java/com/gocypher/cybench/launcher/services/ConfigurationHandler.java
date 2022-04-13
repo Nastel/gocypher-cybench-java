@@ -78,30 +78,35 @@ public class ConfigurationHandler {
         try {
             ComparisonConfig automatedComparisonConfig = new ComparisonConfig();
 
-            String SCOPE_STR = (String) automatedComparisonCfgProps.get("scope");
+            if (automatedComparisonCfgProps.containsKey(Constants.AUTO_SHOULD_RUN_COMPARISON)) {
+                boolean shouldRunComparison = Boolean.parseBoolean((String) automatedComparisonCfgProps.get(Constants.AUTO_SHOULD_RUN_COMPARISON));
+                automatedComparisonConfig.setShouldRunComparison(shouldRunComparison);
+            }
+
+            String SCOPE_STR = (String) automatedComparisonCfgProps.get(Constants.AUTO_SCOPE);
             if (StringUtils.isBlank(SCOPE_STR)) {
                 throw new Exception("Scope is not specified!");
             } else {
                 SCOPE_STR = SCOPE_STR.toUpperCase();
             }
             Scope SCOPE;
-            String COMPARE_VERSION = (String) automatedComparisonCfgProps.get("compareVersion");
-            String NUM_LATEST_REPORTS_STR = (String) automatedComparisonCfgProps.get("numLatestReports");
-            String ANOMALIES_ALLOWED_STR = (String) automatedComparisonCfgProps.get("anomaliesAllowed");
-            String METHOD_STR = (String) automatedComparisonCfgProps.get("method");
+            String COMPARE_VERSION = (String) automatedComparisonCfgProps.get(Constants.AUTO_COMPARE_VERSION);
+            String NUM_LATEST_REPORTS_STR = (String) automatedComparisonCfgProps.get(Constants.AUTO_LATEST_REPORTS);
+            String ANOMALIES_ALLOWED_STR = (String) automatedComparisonCfgProps.get(Constants.AUTO_ANOMALIES_ALLOWED);
+            String METHOD_STR = (String) automatedComparisonCfgProps.get(Constants.AUTO_METHOD);
             if (StringUtils.isBlank(METHOD_STR)) {
                 throw new Exception("Method is not specified!");
             } else {
                 METHOD_STR = METHOD_STR.toUpperCase();
             }
             Method METHOD;
-            String THRESHOLD_STR = (String) automatedComparisonCfgProps.get("threshold");
+            String THRESHOLD_STR = (String) automatedComparisonCfgProps.get(Constants.AUTO_THRESHOLD);
             if (StringUtils.isNotBlank(THRESHOLD_STR)) {
                 THRESHOLD_STR = THRESHOLD_STR.toUpperCase();
             }
             Threshold THRESHOLD;
-            String PERCENT_CHANGE_ALLOWED_STR = (String) automatedComparisonCfgProps.get("percentChangeAllowed");
-            String DEVIATIONS_ALLOWED_STR = (String) automatedComparisonCfgProps.get("deviationsAllowed");
+            String PERCENT_CHANGE_ALLOWED_STR = (String) automatedComparisonCfgProps.get(Constants.AUTO_PERCENT_CHANGE);
+            String DEVIATIONS_ALLOWED_STR = (String) automatedComparisonCfgProps.get(Constants.AUTO_DEVIATIONS_ALLOWED);
 
             if (StringUtils.isNotBlank(NUM_LATEST_REPORTS_STR)) {
                 int NUM_LATEST_REPORTS = Integer.parseInt(NUM_LATEST_REPORTS_STR);
