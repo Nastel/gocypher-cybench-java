@@ -371,6 +371,8 @@ public class BenchmarkRunner {
                     LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
                 }
             } catch (TooManyAnomaliesException e) {
+                LOG.error("Too many anomalies found during benchmarks run", e);
+
                 exitCode = 1;
             } catch (Throwable e) {
                 LOG.error("Failed to save test results", e);
@@ -1072,7 +1074,7 @@ public class BenchmarkRunner {
                     LOG.error("*** There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
                     LOG.warn("*** Your report has still been generated, but your pipeline (if applicable) has failed.");
 
-                    throw new TooManyAnomaliesException();
+                    throw new TooManyAnomaliesException(totalFailedBenchmarks + ">" + anomaliesAllowed);
                 }
             }
         }
