@@ -371,7 +371,7 @@ public class BenchmarkRunner {
                     LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
                 }
             } catch (TooManyAnomaliesException e) {
-                LOG.error("Too many anomalies found during benchmarks run", e);
+                LOG.error("Too many anomalies found during benchmarks run: " + e.getMessage());
 
                 exitCode = 1;
             } catch (Throwable e) {
@@ -1010,15 +1010,19 @@ public class BenchmarkRunner {
                     + " to generate 'project.properties' file.");
             LOG.warn("*** This Ant task can be found in the README for CyBench Gradle Plugin"
                     + " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
-            LOG.info("*** For Gradle (groovy) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
+            LOG.info(
+                    "*** For Gradle (groovy) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
                             + "'build.gradle' or 'version.gradle'.");
-            LOG.info("*** For Gradle (kotlin) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
+            LOG.info(
+                    "*** For Gradle (kotlin) projects, please set 'version = \"<yourProjectVersionNumber>\"' in either "
                             + "'build.gradle.kts' or 'version.gradle.kts'.");
             LOG.info("*** For Maven projects, please make sure '<version>' tag is set correctly.\n");
-            LOG.info("* If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..),");
+            LOG.info(
+                    "* If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..),");
             LOG.info("* please set the @BenchmarkMetaData projectVersion tag at the class level");
             LOG.info("* e.g.: '@BenchmarkMetaData(key = \"projectVersion\", value = \"1.6.0\")'");
-            LOG.info("* Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
+            LOG.info(
+                    "* Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
             LOG.info("* If setting project version via 'metadata.properties', please add the following: ");
             LOG.info("* 'class.version=<yourProjectVersionNumber>'\n");
             LOG.warn("* For more information and instructions on this process, please visit the CyBench wiki at "
@@ -1032,15 +1036,20 @@ public class BenchmarkRunner {
                     + " to generate 'project.properties' file.");
             LOG.warn("*** This Ant task can be found in the README for CyBench Gradle Plugin"
                     + " (https://github.com/K2NIO/gocypher-cybench-gradle/blob/master/README.md) \n");
-            LOG.info("*** For Gradle (groovy) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle'.");
-            LOG.info("*** For Gradle (kotlin) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle.kts'.");
-            LOG.info("**** Important note regarding Gradle project's name: This value is read-only in 'build.gradle(.kts)'. This value *MUST*"
+            LOG.info(
+                    "*** For Gradle (groovy) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle'.");
+            LOG.info(
+                    "*** For Gradle (kotlin) projects, please set 'rootProject.name = \"<yourProjectName>\"' in 'settings.gradle.kts'.");
+            LOG.info(
+                    "**** Important note regarding Gradle project's name: This value is read-only in 'build.gradle(.kts)'. This value *MUST*"
                             + " be set in 'settings.gradle(.kts)' if the project name isn't able to be dynamically parsed.");
             LOG.info("*** For Maven projects, please make sure '<artifactId>' tag is set correctly.\n");
-            LOG.info("*** If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..), "
+            LOG.info(
+                    "*** If running benchmarks from a class you compiled/generated yourself via IDE plugin (Eclipse, Intellij, etc..), "
                             + "please set the @BenchmarkMetaData project tag at the class level");
             LOG.info("**** e.g.: '@BenchmarkMetaData(key = \"project\", value = \"myTestProject\")'");
-            LOG.info("*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
+            LOG.info(
+                    "*** Project version can also be detected from 'metadata.properties' in your project's 'config' folder.");
             LOG.info("*** If setting project version via 'metadata.properties', please add the following: ");
             LOG.info("*** 'class.project=<yourProjectName>'\n");
             LOG.warn("* For more information and instructions on this process, please visit the CyBench wiki at "
@@ -1056,7 +1065,8 @@ public class BenchmarkRunner {
         LOG.error("* Error while parsing Maven project's 'pom.xml' file.");
         LOG.error("* 'artifactId' or 'version' tag was unable to be parsed. ");
         LOG.error("* Refer to the exception thrown for reasons why the .xml file was unable to be parsed.");
-        LOG.warn("* For more information on CyBench metadata (setting it, how it is used, etc.), please visit the CyBench wiki at "
+        LOG.warn(
+                "* For more information on CyBench metadata (setting it, how it is used, etc.), please visit the CyBench wiki at "
                         + "https://github.com/K2NIO/gocypher-cybench-java/wiki/Getting-started-with-CyBench-annotations");
 
         throw new MissingResourceException("Missing project metadata configuration", null, null);
@@ -1071,7 +1081,8 @@ public class BenchmarkRunner {
             if (config.containsKey("anomaliesAllowed")) {
                 Integer anomaliesAllowed = (Integer) config.get("anomaliesAllowed");
                 if (totalFailedBenchmarks != null && totalFailedBenchmarks > anomaliesAllowed) {
-                    LOG.error("*** There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
+                    LOG.error(
+                            "*** There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
                     LOG.warn("*** Your report has still been generated, but your pipeline (if applicable) has failed.");
 
                     throw new TooManyAnomaliesException(totalFailedBenchmarks + ">" + anomaliesAllowed);
