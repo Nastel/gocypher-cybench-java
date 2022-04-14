@@ -79,7 +79,8 @@ public class ConfigurationHandler {
             ComparisonConfig automatedComparisonConfig = new ComparisonConfig();
 
             if (automatedComparisonCfgProps.containsKey(Constants.AUTO_SHOULD_RUN_COMPARISON)) {
-                boolean shouldRunComparison = Boolean.parseBoolean((String) automatedComparisonCfgProps.get(Constants.AUTO_SHOULD_RUN_COMPARISON));
+                boolean shouldRunComparison = Boolean
+                        .parseBoolean((String) automatedComparisonCfgProps.get(Constants.AUTO_SHOULD_RUN_COMPARISON));
                 automatedComparisonConfig.setShouldRunComparison(shouldRunComparison);
             }
 
@@ -161,7 +162,8 @@ public class ConfigurationHandler {
                     throw new Exception("Method specified as SD but deviations allowed was not specified!");
                 }
                 if (automatedComparisonConfig.getCompareLatestReports() < 2) {
-                    throw new Exception("Method SD requires at least 2 reports to compare against! Not enough latest reports specified to compare to!");
+                    throw new Exception(
+                            "Method SD requires at least 2 reports to compare against! Not enough latest reports specified to compare to!");
                 }
             } else if (METHOD.equals(Method.DELTA)) {
                 if (!EnumUtils.isValidEnum(Threshold.class, THRESHOLD_STR) || StringUtils.isBlank(THRESHOLD_STR)) {

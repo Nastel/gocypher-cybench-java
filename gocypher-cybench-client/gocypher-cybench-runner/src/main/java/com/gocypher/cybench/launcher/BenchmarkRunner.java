@@ -57,6 +57,7 @@ import com.gocypher.cybench.launcher.environment.model.JVMProperties;
 import com.gocypher.cybench.launcher.environment.services.CollectSystemInformation;
 import com.gocypher.cybench.launcher.model.BenchmarkOverviewReport;
 import com.gocypher.cybench.launcher.model.BenchmarkReport;
+import com.gocypher.cybench.launcher.model.TooManyAnomaliesException;
 import com.gocypher.cybench.launcher.report.DeliveryService;
 import com.gocypher.cybench.launcher.report.ReportingService;
 import com.gocypher.cybench.launcher.services.ConfigurationHandler;
@@ -84,6 +85,7 @@ public class BenchmarkRunner {
 
     @SuppressWarnings("unchecked")
     public static void main(String... args) throws Exception {
+        int exitCode = 0;
         long start = System.currentTimeMillis();
         LOG.info("-----------------------------------------------------------------------------------------");
         LOG.info("                                 Starting CyBench benchmarks                             ");
@@ -359,9 +361,7 @@ public class BenchmarkRunner {
                     if (response.containsKey("automatedComparisons")) {
                         List<Map<String, Object>> automatedComparisons = (List<Map<String, Object>>) response
                                 .get("automatedComparisons");
-                        if (tooManyAnomalies(automatedComparisons)) {
-                            System.exit(1);
-                        }
+                        verifyAnomalies(automatedComparisons);
                     }
                 } else {
                     String errMsg = getErrorResponseMessage(response);
@@ -370,9 +370,13 @@ public class BenchmarkRunner {
                     }
                     LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
                 }
+            } catch (TooManyAnomaliesException e) {
+                exitCode = 1;
             } catch (Throwable e) {
                 LOG.error("Failed to save test results", e);
                 LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
+
+                exitCode = 2;
             }
         } catch (MissingResourceException exc) {
         } finally {
@@ -380,6 +384,8 @@ public class BenchmarkRunner {
             LOG.info("                           Finished CyBench benchmarking ({})                            ",
                     ComputationUtils.formatInterval(System.currentTimeMillis() - start));
             LOG.info("-----------------------------------------------------------------------------------------");
+
+            System.exit(exitCode);
         }
     }
 
@@ -1055,23 +1061,20 @@ public class BenchmarkRunner {
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean tooManyAnomalies(List<Map<String, Object>> automatedComparisons) {
+    public static void verifyAnomalies(List<Map<String, Object>> automatedComparisons)
+            throws TooManyAnomaliesException {
         for (Map<String, Object> automatedComparison : automatedComparisons) {
             Integer totalFailedBenchmarks = (Integer) automatedComparison.get("totalFailedBenchmarks");
             Map<String, Object> config = (Map<String, Object>) automatedComparison.get("config");
             if (config.containsKey("anomaliesAllowed")) {
                 Integer anomaliesAllowed = (Integer) config.get("anomaliesAllowed");
                 if (totalFailedBenchmarks != null && totalFailedBenchmarks > anomaliesAllowed) {
-                    LOG.error(
-                            "*** There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
+                    LOG.error("*** There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
                     LOG.warn("*** Your report has still been generated, but your pipeline (if applicable) has failed.");
-                    LOG.info("-----------------------------------------------------------------------------------------");
-                    LOG.info("                                 Finished CyBench benchmarks                             ");
-                    LOG.info("-----------------------------------------------------------------------------------------");                    
-                    return true;
+
+                    throw new TooManyAnomaliesException();
                 }
             }
         }
-        return false;
     }
 }
