@@ -41,14 +41,16 @@ import com.gocypher.cybench.model.ComparedBenchmark;
 
 public class Requests {
     private static final Logger log = LoggerFactory.getLogger(Requests.class);
-    private static final String benchmarkBaseUrl = System.getProperty("cybench.benchmark.base.url",
-            "https://app.cybench.io/cybench/benchmark/");
 
-    private static final String prodHost = "https://app.cybench.io/";
-    private static final String localHost = "http://localhost:8080/";
-    private static final String projectSummaryUrl = prodHost + "gocypher-benchmarks-services/services/v1/projects/";
-    private static final String benchmarksByReportIDUrl = prodHost
-            + "gocypher-benchmarks-services/services/v1/benchmarks/report/compare/";
+    private static final String prodHost = "https://app.cybench.io";
+    private static final String localHost = "http://localhost:8080";
+    private static final String appHost = prodHost;
+
+    private static final String benchmarkBaseUrl = System.getProperty("cybench.benchmark.base.url",
+            appHost + "/cybench/benchmark/");
+    private static final String projectSummaryUrl = appHost + "/gocypher-benchmarks-services/services/v1/projects/";
+    private static final String benchmarksByReportIDUrl = appHost
+            + "/gocypher-benchmarks-services/services/v1/benchmarks/report/compare/";
 
     public static String project = null;
     public static String currentVersion = null;
