@@ -34,8 +34,8 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gocypher.cybench.launcher.utils.Constants;
 import com.gocypher.cybench.core.utils.JSONUtils;
+import com.gocypher.cybench.launcher.utils.Constants;
 
 public class DeliveryService {
     private static final Logger LOG = LoggerFactory.getLogger(DeliveryService.class);
@@ -44,7 +44,7 @@ public class DeliveryService {
 
     private static final String serviceUrl = System.getProperty(Constants.SEND_REPORT_URL,
             Constants.APP_HOST + "/gocypher-benchmarks-reports/services/v1/reports/report");
-    
+
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private DeliveryService() {
@@ -57,6 +57,8 @@ public class DeliveryService {
         return instance;
     }
 
+
+	@SuppressWarnings("unchecked")
 	public String sendReportForStoring(String reportJSON, String benchToken, String queryToken) {
 		try {
 			LOG.info("--> Sending benchmark report to URL {}", serviceUrl);
@@ -113,5 +115,4 @@ public class DeliveryService {
         } catch (IOException exc) {
         }
     }
-
 }

@@ -24,6 +24,10 @@ import java.util.Map;
 
 public class Constants {
 
+    private static final String PROD_HOST = "https://app.cybench.io";
+    private static final String LOCAL_HOST = "http://localhost:8080";
+    public static final String APP_HOST = PROD_HOST;
+
     public static final String SEND_REPORT = "sendReport";
     public static final String REPORT_URL = "reportUrl";
     public static final String REPORT_USER_URL = "reportUserUrl";
@@ -64,7 +68,7 @@ public class Constants {
     public static final String APPEND_SCORE_TO_FNAME = "appendScore";
     public static final String COLLECT_HW = "collectHw";
     public static final String CYB_UPLOAD_URL = System.getProperty("cybench.manual.upload.url",
-            "https://app.cybench.io/cybench/upload");
+            APP_HOST + "/cybench/upload");
     public static final String DEFAULT_REPORT_FILE_NAME_SUFFIX = "report";
     public static final String USER_REPORT_TOKEN = "benchAccessToken";
     public static final String USER_QUERY_TOKEN = "benchQueryToken";
