@@ -419,8 +419,7 @@ public class BenchmarkRunner {
         if (response == null) {
             return false;
         }
-        String allowedUpload = (String) response.get(Constants.ALLOW_UPLOAD);
-        return Boolean.parseBoolean(allowedUpload);
+        return (boolean) response.get(Constants.ALLOW_UPLOAD);
     }
 
     private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod,
