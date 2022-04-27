@@ -374,16 +374,10 @@ public class BenchmarkRunner {
                     if (errMsg != null) {
                         LOG.error("CyBench backend service sent error response: {}", errMsg);
                     }
-                    // if (!response.isEmpty() && !(boolean) response.get(Constants.ALLOW_UPLOAD)) {
-                    //     LOG.error("---------------------------------------------------------------------------------------------------");
-                    //     LOG.error("*** WARNING: Your report was not uploaded to CyBench's UI!");
-                    //     LOG.error("*** Reason: Number of Total Reports allowed in workspace exceeded!");
-                    //     LOG.error("*** Please delete old reports, or upgrade your subscription plan to continue uploading reports.");
-                    //     LOG.error("*** Total Reports allowed from user: {}", response.get(Constants.REPORTS_ALLOWED_FROM_SUB));
-                    //     LOG.error("*** Total Reports already in repository: {}", response.get(Constants.NUM_REPORTS_IN_REPO));
-                    //     LOG.error("---------------------------------------------------------------------------------------------------");
-                    // }
-                    LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
+                    if (!response.isEmpty() && (boolean) response.get(Constants.ALLOW_UPLOAD)) {
+                        // user was allowed to upload report, and there was still an error
+                        LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
+                    }
                 }
             } catch (TooManyAnomaliesException e) {
                 LOG.error("Too many anomalies found during benchmarks run: " + e.getMessage());
