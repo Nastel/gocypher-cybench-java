@@ -22,6 +22,7 @@ package com.gocypher.cybench.launcher.report;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -57,57 +58,52 @@ public class DeliveryService {
         return instance;
     }
 
+    @SuppressWarnings("unchecked")
+    public String sendReportForStoring(String reportJSON, String benchToken, String queryToken) {
+        try {
+            LOG.info("--> Sending benchmark report to URL {}", serviceUrl);
+            // Setting content type plain text, since report json is encoded in Base64
+            StringEntity se = new StringEntity(reportJSON, ContentType.TEXT_PLAIN);
 
-	@SuppressWarnings("unchecked")
-	public String sendReportForStoring(String reportJSON, String benchToken, String queryToken) {
-		try {
-			LOG.info("--> Sending benchmark report to URL {}", serviceUrl);
-			// Setting content type plain text, since report json is encoded in Base64
-			StringEntity se = new StringEntity(reportJSON, ContentType.TEXT_PLAIN);
+            HttpPost request = new HttpPost(serviceUrl);
+            request.setEntity(se);
 
-			HttpPost request = new HttpPost(serviceUrl);
-			request.setEntity(se);
+            request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+            request.setHeader("x-api-key", benchToken);
+            if (StringUtils.isNotEmpty(queryToken)) {
+                request.setHeader("x-api-query-key", queryToken);
+            }
 
-			request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
-			request.setHeader("x-api-key", benchToken);
-			if (StringUtils.isNotEmpty(queryToken)) {
-				request.setHeader("x-api-query-key", queryToken);
-			}
+            LOG.debug("---> Benchmark report: {} ({})", request.getEntity().getContentType(),
+                    request.getEntity().getContentLength());
 
-			LOG.debug("---> Benchmark report: {} ({})", request.getEntity().getContentType(),
-					request.getEntity().getContentLength());
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String result = EntityUtils.toString(response.getEntity());
+                EntityUtils.consume(response.getEntity());
+                LOG.debug("<--- Transmission response: {} ({})", response.getEntity().getContentType(),
+                        response.getEntity().getContentLength());
 
-			try (CloseableHttpResponse response = httpClient.execute(request)) {
-				String result = EntityUtils.toString(response.getEntity());
-				EntityUtils.consume(response.getEntity());
-				LOG.debug("<--- Transmission response: {} ({})", response.getEntity().getContentType(),
-						response.getEntity().getContentLength());
+                Map<String, Object> userResultMap = (Map<String, Object>) JSONUtils.parseJsonIntoMap(result);
+                Boolean allowUpload = (Boolean) userResultMap.get(Constants.ALLOW_UPLOAD);
+                if (!BooleanUtils.toBooleanDefaultIfNull(allowUpload, false)) {
+                    LOG.error("---------------------------------------------------------------------------------------------------");
+                    LOG.error("*** WARNING: Your report was not uploaded to CyBench's UI!");
+                    LOG.error("*** Reason: Number of Total Reports allowed in workspace exceeded!");
+                    LOG.error("*** Please delete old reports, or upgrade your subscription plan to continue uploading reports.");
+                    LOG.error("*** Total Reports allowed from user: {}", userResultMap.get(Constants.REPORTS_ALLOWED_FROM_SUB));
+                    LOG.error("*** Total Reports already in repository: {}", userResultMap.get(Constants.NUM_REPORTS_IN_REPO));
+                    LOG.error("---------------------------------------------------------------------------------------------------");
+                }
 
-				
-					Map<String, Object> userResultMap = (Map<String, Object>) JSONUtils.parseJsonIntoMap(result);
-					if (!(boolean) userResultMap.get(Constants.ALLOW_UPLOAD)) {
-					LOG.error(
-							"---------------------------------------------------------------------------------------------------");
-					LOG.error("*** WARNING: Your report was not uploaded to CyBench's UI!");
-					LOG.error("*** Reason: Number of Total Reports allowed in workspace exceeded!");
-					LOG.error(
-							"*** Please delete old reports, or upgrade your subscription plan to continue uploading reports.");
-					LOG.error("*** Total Reports allowed from user: {}", userResultMap.get(Constants.REPORTS_ALLOWED_FROM_SUB));
-					LOG.error("*** Total Reports already in repository: {}", userResultMap.get(Constants.NUM_REPORTS_IN_REPO));
-					LOG.error(
-							"---------------------------------------------------------------------------------------------------");
-					}
-
-				return result;
-
-			}
-		} catch (Throwable e) {
-			LOG.error("Failed to submit report to URL {}", serviceUrl, e);
-		} finally {
-			LOG.info("<-- Ended transmission of benchmark report to URL {}", serviceUrl);
-		}
-		return "";
-	}
+                return result;
+            }
+        } catch (Throwable e) {
+            LOG.error("Failed to submit report to URL {}", serviceUrl, e);
+        } finally {
+            LOG.info("<-- Ended transmission of benchmark report to URL {}", serviceUrl);
+        }
+        return "";
+    }
 
     public void close() {
         try {
