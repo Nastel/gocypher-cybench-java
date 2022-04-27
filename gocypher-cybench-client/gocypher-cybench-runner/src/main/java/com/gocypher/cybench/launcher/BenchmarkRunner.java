@@ -415,11 +415,11 @@ public class BenchmarkRunner {
         return errMsg;
     }
 
-    public static boolean getAllowedToUploadBasedOnSubscription(Map<?, ?> response) {
+    public static Boolean getAllowedToUploadBasedOnSubscription(Map<?, ?> response) {
         if (response == null) {
             return false;
         }
-        return (boolean) response.get(Constants.ALLOW_UPLOAD);
+        return (Boolean) response.get(Constants.ALLOW_UPLOAD);
     }
 
     private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod,
