@@ -374,7 +374,7 @@ public class BenchmarkRunner {
                     if (errMsg != null) {
                         LOG.error("CyBench backend service sent error response: {}", errMsg);
                     }
-                    if (!response.isEmpty() && (boolean) response.get(Constants.ALLOW_UPLOAD)) {
+                    if (getAllowedToUploadBasedOnSubscription(response)) {
                         // user was allowed to upload report, and there was still an error
                         LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
                     }
@@ -413,6 +413,14 @@ public class BenchmarkRunner {
             errMsg = (String) response.get("ERROR");
         }
         return errMsg;
+    }
+
+    public static boolean getAllowedToUploadBasedOnSubscription(Map<?, ?> response) {
+        if (response == null) {
+            return false;
+        }
+        String allowedUpload = (String) response.get(Constants.ALLOW_UPLOAD);
+        return Boolean.parseBoolean(allowedUpload);
     }
 
     private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod,
