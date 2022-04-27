@@ -82,24 +82,7 @@ public class DeliveryService {
 				EntityUtils.consume(response.getEntity());
 				LOG.debug("<--- Transmission response: {} ({})", response.getEntity().getContentType(),
 						response.getEntity().getContentLength());
-
-				
-					Map<String, Object> userResultMap = (Map<String, Object>) JSONUtils.parseJsonIntoMap(result);
-					if (!(boolean) userResultMap.get(Constants.ALLOW_UPLOAD)) {
-					LOG.error(
-							"---------------------------------------------------------------------------------------------------");
-					LOG.error("*** WARNING: Your report was not uploaded to CyBench's UI!");
-					LOG.error("*** Reason: Number of Total Reports allowed in workspace exceeded!");
-					LOG.error(
-							"*** Please delete old reports, or upgrade your subscription plan to continue uploading reports.");
-					LOG.error("*** Total Reports allowed from user: {}", userResultMap.get(Constants.REPORTS_ALLOWED_FROM_SUB));
-					LOG.error("*** Total Reports already in repository: {}", userResultMap.get(Constants.NUM_REPORTS_IN_REPO));
-					LOG.error(
-							"---------------------------------------------------------------------------------------------------");
-					}
-
 				return result;
-
 			}
 		} catch (Throwable e) {
 			LOG.error("Failed to submit report to URL {}", serviceUrl, e);
