@@ -34,6 +34,10 @@ public class Constants {
     public static final String REPORT_VERSION = "benchVersion";
     public static final String SEND_REPORT_URL = "sendReportToURL";
     public static final String INTELLIJ_PLUGIN = "intelliJPlugin";
+    
+    public static final String ALLOW_UPLOAD = "allowUpload";
+    public static final String NUM_REPORTS_IN_REPO = "numReportsInRepo";
+    public static final String REPORTS_ALLOWED_FROM_SUB = "numReportsPerMonth";    
 
     public static final String PROJECT_NAME = "artifactId";
     public static final String PROJECT_VERSION = "version";

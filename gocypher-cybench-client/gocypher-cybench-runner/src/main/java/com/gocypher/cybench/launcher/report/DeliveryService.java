@@ -42,9 +42,9 @@ public class DeliveryService {
 
     private static DeliveryService instance;
 
-    private static String serviceUrl = System.getProperty(Constants.SEND_REPORT_URL,
-            "https://app.cybench.io/gocypher-benchmarks-reports/services/v1/reports/report");
-    // private static String serviceUrl = "http://localhost:8080/gocypher-benchmarks-reports/services/v1/reports/report";
+    private static final String serviceUrl = System.getProperty(Constants.SEND_REPORT_URL,
+            Constants.APP_HOST + "/gocypher-benchmarks-reports/services/v1/reports/report");
+    
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private DeliveryService() {
@@ -81,19 +81,20 @@ public class DeliveryService {
 				LOG.debug("<--- Transmission response: {} ({})", response.getEntity().getContentType(),
 						response.getEntity().getContentLength());
 
-				if (response.getStatusLine().getStatusCode() == 400) {
+				
 					Map<String, Object> userResultMap = (Map<String, Object>) JSONUtils.parseJsonIntoMap(result);
+					if (!(boolean) userResultMap.get(Constants.ALLOW_UPLOAD)) {
 					LOG.error(
 							"---------------------------------------------------------------------------------------------------");
 					LOG.error("*** WARNING: Your report was not uploaded to CyBench's UI!");
 					LOG.error("*** Reason: Number of Total Reports allowed in workspace exceeded!");
 					LOG.error(
 							"*** Please delete old reports, or upgrade your subscription plan to continue uploading reports.");
-					LOG.error("*** Total Reports allowed from user: {}", userResultMap.get("reportsAllowed"));
-					LOG.error("*** Total Reports already in repository: {}", userResultMap.get("reportsInRepo"));
+					LOG.error("*** Total Reports allowed from user: {}", userResultMap.get(Constants.REPORTS_ALLOWED_FROM_SUB));
+					LOG.error("*** Total Reports already in repository: {}", userResultMap.get(Constants.NUM_REPORTS_IN_REPO));
 					LOG.error(
 							"---------------------------------------------------------------------------------------------------");
-				}
+					}
 
 				return result;
 
