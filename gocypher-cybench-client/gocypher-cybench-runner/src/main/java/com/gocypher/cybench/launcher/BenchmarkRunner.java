@@ -352,6 +352,12 @@ public class BenchmarkRunner {
                 LOG.info("Removing all temporary auto-generated files...");
                 IOUtils.removeTestDataFiles();
                 LOG.info("Removed all temporary auto-generated files!!!");
+
+                if (!response.isEmpty()) {
+                    LOG.error("*** Total Reports allowed in repository: {}", response.get(Constants.REPORTS_ALLOWED_FROM_SUB));
+                    LOG.error("*** Total Reports already in repository: {}", response.get(Constants.NUM_REPORTS_IN_REPO));
+                }
+
                 if (!response.isEmpty() && !isErrorResponse(response)) {
                     LOG.info("Benchmark report submitted successfully to {}", Constants.REPORT_URL);
                     LOG.info("You can find all device benchmarks on {}", deviceReports);
@@ -368,7 +374,10 @@ public class BenchmarkRunner {
                     if (errMsg != null) {
                         LOG.error("CyBench backend service sent error response: {}", errMsg);
                     }
-                    LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
+                    if (getAllowedToUploadBasedOnSubscription(response)) {
+                        // user was allowed to upload report, and there was still an error
+                        LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
+                    }
                 }
             } catch (TooManyAnomaliesException e) {
                 LOG.error("Too many anomalies found during benchmarks run: " + e.getMessage());
@@ -404,6 +413,13 @@ public class BenchmarkRunner {
             errMsg = (String) response.get("ERROR");
         }
         return errMsg;
+    }
+
+    public static Boolean getAllowedToUploadBasedOnSubscription(Map<?, ?> response) {
+        if (response == null) {
+            return false;
+        }
+        return (Boolean) response.get(Constants.ALLOW_UPLOAD);
     }
 
     private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod,
