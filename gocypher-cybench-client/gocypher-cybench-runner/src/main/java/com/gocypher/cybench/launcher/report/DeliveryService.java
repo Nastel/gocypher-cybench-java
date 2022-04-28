@@ -20,9 +20,7 @@
 package com.gocypher.cybench.launcher.report;
 
 import java.io.IOException;
-import java.util.Map;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -35,7 +33,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gocypher.cybench.core.utils.JSONUtils;
 import com.gocypher.cybench.launcher.utils.Constants;
 
 public class DeliveryService {
@@ -82,18 +79,6 @@ public class DeliveryService {
                 EntityUtils.consume(response.getEntity());
                 LOG.debug("<--- Transmission response: {} ({})", response.getEntity().getContentType(),
                         response.getEntity().getContentLength());
-
-                Map<String, Object> userResultMap = (Map<String, Object>) JSONUtils.parseJsonIntoMap(result);
-                Boolean allowUpload = (Boolean) userResultMap.get(Constants.ALLOW_UPLOAD);
-                if (!BooleanUtils.toBooleanDefaultIfNull(allowUpload, false)) {
-                    LOG.error("---------------------------------------------------------------------------------------------------");
-                    LOG.error("*** WARNING: Your report was not uploaded to CyBench's UI!");
-                    LOG.error("*** Reason: Number of Total Reports allowed in workspace exceeded!");
-                    LOG.error("*** Please delete old reports, or upgrade your subscription plan to continue uploading reports.");
-                    LOG.error("*** Total Reports allowed from user: {}", userResultMap.get(Constants.REPORTS_ALLOWED_FROM_SUB));
-                    LOG.error("*** Total Reports already in repository: {}", userResultMap.get(Constants.NUM_REPORTS_IN_REPO));
-                    LOG.error("---------------------------------------------------------------------------------------------------");
-                }
 
                 return result;
             }
