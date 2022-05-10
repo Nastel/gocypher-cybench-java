@@ -302,7 +302,7 @@ public class BenchmarkRunner {
                     }
                 }
                 report.computeScores();
-                getReportUploadStatus(report);
+                setReportUploadStatus(report);
             }
             try {
                 LOG.info("Generating JSON report...");
@@ -353,7 +353,7 @@ public class BenchmarkRunner {
                 IOUtils.removeTestDataFiles();
                 LOG.info("Removed all temporary auto-generated files!!!");
 
-                if (!response.isEmpty()) {
+                if (!response.isEmpty() && report.getUploadStatus().equals(Constants.REPORT_PRIVATE)) {
                     LOG.error("*** Total Reports allowed in repository: {}", response.get(Constants.REPORTS_ALLOWED_FROM_SUB));
                     LOG.error("*** Total Reports already in repository: {}", response.get(Constants.NUM_REPORTS_IN_REPO));
                 }
@@ -639,7 +639,7 @@ public class BenchmarkRunner {
         return properties.getProperty("version");
     }
 
-    public static void getReportUploadStatus(BenchmarkOverviewReport report) {
+    public static void setReportUploadStatus(BenchmarkOverviewReport report) {
         String reportUploadStatus = getProperty(Constants.REPORT_UPLOAD_STATUS);
         if (Constants.REPORT_PUBLIC.equals(reportUploadStatus)) {
             report.setUploadStatus(reportUploadStatus);
