@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.GCProfiler;
@@ -419,7 +420,8 @@ public class BenchmarkRunner {
         if (response == null) {
             return false;
         }
-        return (Boolean) response.get(Constants.ALLOW_UPLOAD);
+        Boolean allowUpload = (Boolean) response.get(Constants.ALLOW_UPLOAD);
+        return BooleanUtils.toBooleanDefaultIfNull(allowUpload, false);
     }
 
     private static void appendMetadataFromJavaDoc(Class<?> aClass, Optional<Method> benchmarkMethod,

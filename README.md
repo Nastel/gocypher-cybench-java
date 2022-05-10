@@ -34,13 +34,13 @@ your results.
     <dependency>
         <groupId>org.openjdk.jmh</groupId>
         <artifactId>jmh-generator-annprocess</artifactId>
-        <version>1.34</version>
+        <version>1.35</version>
         <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.openjdk.jmh</groupId>
         <artifactId>jmh-core</artifactId>
-        <version>1.34</version>
+        <version>1.35</version>
     </dependency>
     <dependency>
         <groupId>com.gocypher.cybench.client</groupId>
