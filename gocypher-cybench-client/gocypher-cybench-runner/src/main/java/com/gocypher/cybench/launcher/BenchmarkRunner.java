@@ -356,7 +356,7 @@ public class BenchmarkRunner {
 
                 if (!response.isEmpty() && report.getUploadStatus().equals(Constants.REPORT_PRIVATE)) {
                     LOG.error("*** Total Reports allowed in repository: {}", response.get(Constants.REPORTS_ALLOWED_FROM_SUB));
-                    LOG.error("*** Total Reports already in repository: {}", response.get(Constants.NUM_REPORTS_IN_REPO));
+                    LOG.error("*** Total Reports in repository: {}", response.get(Constants.NUM_REPORTS_IN_REPO));
                 }
 
                 if (!response.isEmpty() && !isErrorResponse(response)) {
