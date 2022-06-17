@@ -55,7 +55,6 @@ public class DeliveryService {
         return instance;
     }
 
-    @SuppressWarnings("unchecked")
     public String sendReportForStoring(String reportJSON, String benchToken, String queryToken) {
         try {
             LOG.info("--> Sending benchmark report to URL {}", serviceUrl);

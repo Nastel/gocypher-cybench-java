@@ -92,12 +92,12 @@ public final class ComputationUtils {
             countOfClusters = (int) Math.ceil((double) n / magicNumberOfClusterSize);
         }
         for (int k = 0; k < countOfClusters; k++) {
-            Double productOfClusterScores = 1.0;
+            double productOfClusterScores = 1.0;
             for (int i = k * magicNumberOfClusterSize; i < k * magicNumberOfClusterSize
                     + magicNumberOfClusterSize; i++) {
                 if (i < n) {
                     if (categoryReports.get(i) != null && categoryReports.get(i).getScore() != null) {
-                        Double localScore = categoryReports.get(i).getScore() / magicNumberScoreDecimalDenominator;
+                        double localScore = categoryReports.get(i).getScore() / magicNumberScoreDecimalDenominator;
                         productOfClusterScores *= localScore;
                     }
                 }

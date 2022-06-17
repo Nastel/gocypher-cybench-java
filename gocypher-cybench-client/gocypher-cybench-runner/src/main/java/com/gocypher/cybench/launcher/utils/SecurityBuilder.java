@@ -25,7 +25,7 @@ import java.util.Map;
 import com.gocypher.cybench.core.utils.SecurityUtils;
 
 public class SecurityBuilder {
-    private Map<String, String> mapOfHashedParts;
+    private final Map<String, String> mapOfHashedParts;
 
     public SecurityBuilder() {
         mapOfHashedParts = new HashMap<>();

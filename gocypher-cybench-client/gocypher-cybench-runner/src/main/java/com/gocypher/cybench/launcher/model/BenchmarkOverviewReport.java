@@ -42,10 +42,10 @@ public class BenchmarkOverviewReport implements Serializable {
     private String deviceReportsURL;
     private BigDecimal totalScore;
     private String uploadStatus;
-    private Map<String, Map<String, Object>> categoriesOverview;
-    private Map<String, Object> environmentSettings;
+    private final Map<String, List<BenchmarkReport>> benchmarks;
+    private final Map<String, Map<String, Object>> categoriesOverview;
+    private final Map<String, Object> environmentSettings;
     private Map<String, Object> benchmarkSettings;
-    private Map<String, List<BenchmarkReport>> benchmarks;
     private ComparisonConfig automatedComparisonConfig;
 
     public BenchmarkOverviewReport() {
@@ -159,24 +159,12 @@ public class BenchmarkOverviewReport implements Serializable {
         return benchmarks;
     }
 
-    public void setBenchmarks(Map<String, List<BenchmarkReport>> benchmarks) {
-        this.benchmarks = benchmarks;
-    }
-
     public Map<String, Map<String, Object>> getCategoriesOverview() {
         return categoriesOverview;
     }
 
-    public void setCategoriesOverview(Map<String, Map<String, Object>> categoriesOverview) {
-        this.categoriesOverview = categoriesOverview;
-    }
-
     public Map<String, Object> getEnvironmentSettings() {
         return environmentSettings;
-    }
-
-    public void setEnvironmentSettings(Map<String, Object> environmentSettings) {
-        this.environmentSettings = environmentSettings;
     }
 
     public Map<String, Object> getBenchmarkSettings() {
