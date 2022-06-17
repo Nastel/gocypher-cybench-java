@@ -40,7 +40,6 @@ import org.jutils.jhardware.model.OSInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gocypher.cybench.launcher.BenchmarkRunner;
 import com.gocypher.cybench.launcher.environment.model.HardwareProperties;
 import com.gocypher.cybench.launcher.environment.model.JVMProperties;
 import com.gocypher.cybench.launcher.utils.Constants;
@@ -174,14 +173,27 @@ public class CollectSystemInformation {
 
     /**
      * Fill the needed hardware properties using the 3-rd party libraries and system properties.
+     * 
+     * @param cHwProperty
+     *            property flag indicating if hardware properties collection shall be skipped
+     * @return system hardware properties instance
+     * 
+     * @see #getEnvironmentProperties()
+     */
+    public static HardwareProperties getEnvironmentProperties(String cHwProperty) {
+        if (cHwProperty != null && !Boolean.parseBoolean(cHwProperty)) {
+            return new HardwareProperties.EmptyHardwareProperties();
+        }
+
+        return getEnvironmentProperties();
+    }
+
+    /**
+     * Fill the needed hardware properties using the 3-rd party libraries and system properties.
      *
      * @return system hardware properties instance
      */
     public static HardwareProperties getEnvironmentProperties() {
-        String cHwProperty = BenchmarkRunner.getProperty(Constants.COLLECT_HW);
-        if (cHwProperty != null && !Boolean.parseBoolean(cHwProperty)) {
-            return new HardwareProperties.EmptyHardwareProperties();
-        }
         SystemInfo sysProps = new SystemInfo();
         HardwareAbstractionLayer hwProps = sysProps.getHardware();
         try {

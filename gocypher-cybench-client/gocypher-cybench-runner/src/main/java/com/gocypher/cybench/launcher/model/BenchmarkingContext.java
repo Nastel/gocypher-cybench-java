@@ -19,10 +19,7 @@
 
 package com.gocypher.cybench.launcher.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.options.Options;
@@ -31,6 +28,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import com.gocypher.cybench.launcher.environment.model.HardwareProperties;
 import com.gocypher.cybench.launcher.environment.model.JVMProperties;
 import com.gocypher.cybench.launcher.utils.SecurityBuilder;
+import com.gocypher.cybench.model.ComparisonConfig;
 
 /**
  * @author slb
@@ -54,6 +52,12 @@ public class BenchmarkingContext {
     private final Map<String, String> generatedFingerprints = new HashMap<>();
     private final Map<String, String> manualFingerprints = new HashMap<>();
     private final Map<String, String> classFingerprints = new HashMap<>();
+
+    private Properties configuration = new Properties();
+    private ComparisonConfig automatedComparisonCfg;
+    private String benchSource = "CyBench Launcher";
+
+    private final Map<String, String> projectMetadataMap = new HashMap<>(5);
 
     public long getStartTime() {
         return startTime;
@@ -133,5 +137,41 @@ public class BenchmarkingContext {
 
     public Map<String, String> getClassFingerprints() {
         return classFingerprints;
+    }
+
+    public Properties getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+    }
+
+    public ComparisonConfig getAutomatedComparisonCfg() {
+        return automatedComparisonCfg;
+    }
+
+    public void setAutomatedComparisonCfg(ComparisonConfig automatedComparisonCfg) {
+        this.automatedComparisonCfg = automatedComparisonCfg;
+    }
+
+    public String getBenchSource() {
+        return benchSource;
+    }
+
+    public void setBenchSource(String benchSource) {
+        this.benchSource = benchSource;
+    }
+
+    public Map<String, String> getProjectMetadata() {
+        return projectMetadataMap;
+    }
+
+    public String getProjectMetadata(String pName) {
+        return projectMetadataMap.get(pName);
+    }
+
+    public String getProperty(String key) {
+        return System.getProperty(key, configuration.getProperty(key));
     }
 }

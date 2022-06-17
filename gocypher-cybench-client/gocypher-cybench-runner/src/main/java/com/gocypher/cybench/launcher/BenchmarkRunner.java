@@ -81,12 +81,6 @@ public class BenchmarkRunner {
             + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
     private static final String REPORT_NOT_SENT = "You may submit your report '{}' manually at {}";
 
-    private static Properties cfg = new Properties();
-    private static ComparisonConfig automatedComparisonCfg;
-    private static String benchSource = "CyBench Launcher";
-
-    private static final Map<String, String> PROJECT_METADATA_MAP = new HashMap<>(5);
-
     public static void main(String... args) throws Exception {
         int exitCode = 0;
         long start = System.currentTimeMillis();
@@ -107,11 +101,11 @@ public class BenchmarkRunner {
         initStaticContext(benchContext);
 
         try {
-            checkProjectMetadataExists();
+            checkProjectMetadataExists(benchContext.getProjectMetadata());
 
             LOG.info("Executing benchmarks...");
 
-            LOG.info("_______________________ BENCHMARK TESTS FOUND _________________________________");
+            LOG.info("_________________________________ BENCHMARK TESTS FOUND _________________________________");
             benchContext.setOptBuilder(new OptionsBuilder());
 
             analyzeBenchmarkClasses(benchContext);
@@ -134,15 +128,15 @@ public class BenchmarkRunner {
     }
 
     public static BenchmarkingContext initContext(long startTime, String... args) {
-        if (checkIfConfigurationPropertyIsSet(getProperty(Constants.INTELLIJ_PLUGIN))
-                && Boolean.parseBoolean(getProperty(Constants.INTELLIJ_PLUGIN))) {
-            createAutomatedComparisonConfigFromSysProps();
-        } else {
-            identifyPropertiesFromArguments(args);
-        }
-
         BenchmarkingContext benchContext = new BenchmarkingContext();
         benchContext.setStartTime(startTime);
+
+        if (checkIfConfigurationPropertyIsSet(benchContext.getProperty(Constants.INTELLIJ_PLUGIN))
+                && Boolean.parseBoolean(benchContext.getProperty(Constants.INTELLIJ_PLUGIN))) {
+            createAutomatedComparisonConfigFromSysProps(benchContext);
+        } else {
+            identifyPropertiesFromArguments(benchContext, args);
+        }
 
         return benchContext;
     }
@@ -163,22 +157,25 @@ public class BenchmarkRunner {
 
     public static void initStaticContext(BenchmarkingContext benchContext) {
         LOG.info("Collecting hardware, software information...");
-        benchContext.setHWProperties(CollectSystemInformation.getEnvironmentProperties());
+        String cHwProperty = benchContext.getProperty(Constants.COLLECT_HW);
+        benchContext.setHWProperties(CollectSystemInformation.getEnvironmentProperties(cHwProperty));
         LOG.info("Collecting JVM properties...");
         benchContext.setJVMProperties(CollectSystemInformation.getJavaVirtualMachineProperties());
 
         benchContext.setDefaultBenchmarksMetadata(
-                ComputationUtils.parseBenchmarkMetadata(getProperty(Constants.BENCHMARK_METADATA)));
+                ComputationUtils.parseBenchmarkMetadata(benchContext.getProperty(Constants.BENCHMARK_METADATA)));
     }
 
     public static void analyzeBenchmarkClasses(BenchmarkingContext benchContext) {
         String tempBenchmark;
         benchContext.setSecurityBuilder(new SecurityBuilder());
 
-        if (checkIfConfigurationPropertyIsSet(getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
-            LOG.info("Execute benchmarks found in configuration {}", getProperty(Constants.BENCHMARK_RUN_CLASSES));
-            List<String> benchmarkNames = Arrays.stream(getProperty(Constants.BENCHMARK_RUN_CLASSES).split(","))
-                    .map(String::trim).collect(Collectors.toList());
+        if (checkIfConfigurationPropertyIsSet(benchContext.getProperty(Constants.BENCHMARK_RUN_CLASSES))) {
+            LOG.info("Execute benchmarks found in configuration {}",
+                    benchContext.getProperty(Constants.BENCHMARK_RUN_CLASSES));
+            List<String> benchmarkNames = Arrays
+                    .stream(benchContext.getProperty(Constants.BENCHMARK_RUN_CLASSES).split(",")).map(String::trim)
+                    .collect(Collectors.toList());
 
             // *********************************************************
 
@@ -246,21 +243,21 @@ public class BenchmarkRunner {
     public static void buildOptions(BenchmarkingContext benchContext) throws Exception {
         // Number of separate full executions of a benchmark (warm up+measurement), this
         // is returned still as one primary score item
-        int forks = setExecutionIntProperty(getProperty(Constants.NUMBER_OF_FORKS));
+        int forks = setExecutionIntProperty(benchContext.getProperty(Constants.NUMBER_OF_FORKS));
         // Number of measurements per benchmark operation, this is returned still as one
         // primary score item
-        int measurementIterations = setExecutionIntProperty(getProperty(Constants.MEASUREMENT_ITERATIONS));
+        int measurementIterations = setExecutionIntProperty(benchContext.getProperty(Constants.MEASUREMENT_ITERATIONS));
 
-        int measurementSeconds = setExecutionIntProperty(getProperty(Constants.MEASUREMENT_SECONDS));
+        int measurementSeconds = setExecutionIntProperty(benchContext.getProperty(Constants.MEASUREMENT_SECONDS));
         // number of iterations executed for warm up
-        int warmUpIterations = setExecutionIntProperty(getProperty(Constants.WARM_UP_ITERATIONS));
+        int warmUpIterations = setExecutionIntProperty(benchContext.getProperty(Constants.WARM_UP_ITERATIONS));
         // number of seconds dedicated for each warm up iteration
-        int warmUpSeconds = setExecutionIntProperty(getProperty(Constants.WARM_UP_SECONDS));
+        int warmUpSeconds = setExecutionIntProperty(benchContext.getProperty(Constants.WARM_UP_SECONDS));
         // number of threads for benchmark test execution
-        int threads = setExecutionIntProperty(getProperty(Constants.RUN_THREAD_COUNT));
+        int threads = setExecutionIntProperty(benchContext.getProperty(Constants.RUN_THREAD_COUNT));
         // benchmarks run mode
-        Set<Mode> modes = setExecutionModes(getProperty(Constants.BENCHMARK_MODES));
-        String jmhArguments = setExecutionStringProperty(getProperty(Constants.JMH_ARGUMENTS));
+        Set<Mode> modes = setExecutionModes(benchContext.getProperty(Constants.BENCHMARK_MODES));
+        String jmhArguments = setExecutionStringProperty(benchContext.getProperty(Constants.JMH_ARGUMENTS));
 
         ChainedOptionsBuilder optionBuilder = benchContext.getOptBuilder().shouldDoGC(true) //
                 .addProfiler(GCProfiler.class) //
@@ -286,27 +283,28 @@ public class BenchmarkRunner {
         report.getEnvironmentSettings().put("jvmEnvironment", benchContext.getJVMProperties());
         report.getEnvironmentSettings().put("unclassifiedProperties",
                 CollectSystemInformation.getUnclassifiedProperties());
-        report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties());
+        report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties(benchContext));
 
+        ComparisonConfig automatedComparisonCfg = benchContext.getAutomatedComparisonCfg();
         if (automatedComparisonCfg != null && automatedComparisonCfg.getShouldRunComparison()) {
             if (automatedComparisonCfg.getScope().equals(ComparisonConfig.Scope.WITHIN)) {
-                automatedComparisonCfg.setCompareVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
+                automatedComparisonCfg.setCompareVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
             }
             automatedComparisonCfg.setRange(String.valueOf(automatedComparisonCfg.getCompareLatestReports()));
-            automatedComparisonCfg.setProjectName(PROJECT_METADATA_MAP.get(Constants.PROJECT_NAME));
-            automatedComparisonCfg.setProjectVersion(PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION));
+            automatedComparisonCfg.setProjectName(benchContext.getProjectMetadata(Constants.PROJECT_NAME));
+            automatedComparisonCfg.setProjectVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
             report.setAutomatedComparisonConfig(automatedComparisonCfg);
         }
 
         Map<String, Object> benchmarkSetting = new HashMap<>();
         if (benchContext.isFoundBenchmarks()) {
             if (System.getProperty(Constants.REPORT_SOURCE) != null) {
-                benchSource = System.getProperty(Constants.REPORT_SOURCE);
+                benchContext.setBenchSource(System.getProperty(Constants.REPORT_SOURCE));
             }
-            benchmarkSetting.put(Constants.REPORT_SOURCE, benchSource);
+            benchmarkSetting.put(Constants.REPORT_SOURCE, benchContext.getBenchSource());
         }
-        if (getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
-            benchmarkSetting.put("benchReportName", getProperty(Constants.BENCHMARK_REPORT_NAME));
+        if (benchContext.getProperty(Constants.BENCHMARK_REPORT_NAME) != null) {
+            benchmarkSetting.put("benchReportName", benchContext.getProperty(Constants.BENCHMARK_REPORT_NAME));
         }
 
         LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
@@ -328,7 +326,7 @@ public class BenchmarkRunner {
                     appendMetadataFromClass(aClass, benchmarkReport);
                     appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
                     appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
-                    syncReportsMetadata(report, benchmarkReport);
+                    syncReportsMetadata(benchContext, report, benchmarkReport);
                     benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
                 } catch (ClassNotFoundException e) {
                     LOG.error("Failed to load class: {}", name);
@@ -345,7 +343,7 @@ public class BenchmarkRunner {
                 }
             }
             report.computeScores();
-            setReportUploadStatus(report);
+            setReportUploadStatus(benchContext, report);
         }
         try {
             LOG.info("Generating JSON report...");
@@ -355,10 +353,10 @@ public class BenchmarkRunner {
             String deviceReports = null;
             String resultURL = null;
             Map<?, ?> response = new HashMap<>();
-            if (shouldSendReport(report)) {
-                String reportUploadToken = getProperty(Constants.USER_REPORT_TOKEN);
-                String queryToken = getProperty(Constants.USER_QUERY_TOKEN);
-                String emailAddress = getProperty(Constants.USER_EMAIL_ADDRESS);
+            if (shouldSendReport(benchContext, report)) {
+                String reportUploadToken = benchContext.getProperty(Constants.USER_REPORT_TOKEN);
+                String queryToken = benchContext.getProperty(Constants.USER_QUERY_TOKEN);
+                String emailAddress = benchContext.getProperty(Constants.USER_EMAIL_ADDRESS);
 
                 String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
                 String responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted,
@@ -379,8 +377,8 @@ public class BenchmarkRunner {
             // LOG.info("REPORT '{}'", report);
             // LOG.info("-----------------------------------------------------------------------------------------");
             reportJSON = JSONUtils.marshalToPrettyJson(report);
-            String cybReportJsonFile = getCybReportFileName(report, CYB_REPORT_JSON_FILE);
-            String cybReportFile = getCybReportFileName(report, CYB_REPORT_CYB_FILE);
+            String cybReportJsonFile = getCybReportFileName(benchContext, report, CYB_REPORT_JSON_FILE);
+            String cybReportFile = getCybReportFileName(benchContext, report, CYB_REPORT_CYB_FILE);
             if (cybReportJsonFile.equals(CYB_REPORT_JSON_FILE) && cybReportFile.equals(CYB_REPORT_CYB_FILE)) {
                 cybReportJsonFile = IOUtils.getReportsPath("", ComputationUtils.createFileNameForReport("report",
                         benchContext.getStartTime(), report.getTotalScore(), false));
@@ -561,10 +559,11 @@ public class BenchmarkRunner {
      * @param benchmarkReport
      *            report data object
      */
-    public static void syncReportsMetadata(BenchmarkOverviewReport report, BenchmarkReport benchmarkReport) {
+    public static void syncReportsMetadata(BenchmarkingContext benchContext, BenchmarkOverviewReport report,
+            BenchmarkReport benchmarkReport) {
         try {
-            String projectVersion = PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION);
-            String projectArtifactId = PROJECT_METADATA_MAP.get(Constants.PROJECT_NAME);
+            String projectVersion = benchContext.getProjectMetadata(Constants.PROJECT_VERSION);
+            String projectArtifactId = benchContext.getProjectMetadata(Constants.PROJECT_NAME);
 
             if (StringUtils.isNotEmpty(benchmarkReport.getProject())) {
                 report.setProject(benchmarkReport.getProject());
@@ -643,16 +642,17 @@ public class BenchmarkRunner {
         }
     }
 
-    private static boolean shouldSendReport(BenchmarkOverviewReport report) {
+    private static boolean shouldSendReport(BenchmarkingContext benchContext, BenchmarkOverviewReport report) {
         if (report.getEnvironmentSettings().get("environment") instanceof HardwareProperties.EmptyHardwareProperties) {
             return false;
         }
-        return report.isEligibleForStoringExternally() && (getProperty(Constants.SEND_REPORT) == null
-                || Boolean.parseBoolean(getProperty(Constants.SEND_REPORT)));
+        return report.isEligibleForStoringExternally() && (benchContext.getProperty(Constants.SEND_REPORT) == null
+                || Boolean.parseBoolean(benchContext.getProperty(Constants.SEND_REPORT)));
     }
 
-    private static String getCybReportFileName(BenchmarkOverviewReport report, String nameTemplate) {
-        if (Boolean.parseBoolean(getProperty(Constants.APPEND_SCORE_TO_FNAME))) {
+    private static String getCybReportFileName(BenchmarkingContext benchContext, BenchmarkOverviewReport report,
+            String nameTemplate) {
+        if (Boolean.parseBoolean(benchContext.getProperty(Constants.APPEND_SCORE_TO_FNAME))) {
             String start = nameTemplate.substring(0, nameTemplate.lastIndexOf('.'));
             String end = nameTemplate.substring(nameTemplate.lastIndexOf('.'));
             return start + "-" + com.gocypher.cybench.core.utils.JSONUtils
@@ -660,10 +660,6 @@ public class BenchmarkRunner {
         } else {
             return nameTemplate;
         }
-    }
-
-    public static String getProperty(String key) {
-        return System.getProperty(key, cfg.getProperty(key));
     }
 
     private static String getRunnerVersion() {
@@ -677,8 +673,8 @@ public class BenchmarkRunner {
         return properties.getProperty("version");
     }
 
-    public static void setReportUploadStatus(BenchmarkOverviewReport report) {
-        String reportUploadStatus = getProperty(Constants.REPORT_UPLOAD_STATUS);
+    public static void setReportUploadStatus(BenchmarkingContext benchContext, BenchmarkOverviewReport report) {
+        String reportUploadStatus = benchContext.getProperty(Constants.REPORT_UPLOAD_STATUS);
         if (Constants.REPORT_PUBLIC.equals(reportUploadStatus)) {
             report.setUploadStatus(reportUploadStatus);
         } else if (Constants.REPORT_PRIVATE.equals(reportUploadStatus)) {
@@ -688,12 +684,12 @@ public class BenchmarkRunner {
         }
     }
 
-    private static Map<String, Object> getUserDefinedProperties() {
+    private static Map<String, Object> getUserDefinedProperties(BenchmarkingContext benchContext) {
         Map<String, Object> userProperties = new HashMap<>();
-        Set<String> keys = cfg.stringPropertyNames();
+        Set<String> keys = benchContext.getConfiguration().stringPropertyNames();
         for (String key : keys) {
             if (key.startsWith(Constants.USER_PROPERTY_PREFIX)) {
-                userProperties.put(key, getProperty(key));
+                userProperties.put(key, benchContext.getProperty(key));
             }
         }
         return userProperties;
@@ -728,7 +724,7 @@ public class BenchmarkRunner {
         return StringUtils.isNotEmpty(property);
     }
 
-    private static void identifyPropertiesFromArguments(String[] args) {
+    private static void identifyPropertiesFromArguments(BenchmarkingContext benchContext, String[] args) {
         String configurationFilePath = "";
         String automationConfigurationFilePath = "";
         for (String property : args) {
@@ -755,16 +751,18 @@ public class BenchmarkRunner {
                         automationConfigurationFilePath);
             }
         }
-        cfg = ConfigurationHandler.loadConfiguration(configurationFilePath, Constants.LAUNCHER_CONFIGURATION);
+        benchContext.setConfiguration(
+                ConfigurationHandler.loadConfiguration(configurationFilePath, Constants.LAUNCHER_CONFIGURATION));
 
         Properties automatedComparisonCfgProps = ConfigurationHandler.loadConfiguration(automationConfigurationFilePath,
                 Constants.AUTOMATED_COMPARISON_CONFIGURATION);
         if (automatedComparisonCfgProps != null && !automatedComparisonCfgProps.isEmpty()) {
-            automatedComparisonCfg = ConfigurationHandler.checkConfigValidity(automatedComparisonCfgProps);
+            benchContext
+                    .setAutomatedComparisonCfg(ConfigurationHandler.checkConfigValidity(automatedComparisonCfgProps));
         }
     }
 
-    private static void createAutomatedComparisonConfigFromSysProps() {
+    private static void createAutomatedComparisonConfigFromSysProps(BenchmarkingContext benchContext) {
         Properties props = new Properties();
         props.put(Constants.AUTO_ANOMALIES_ALLOWED, System.getProperty(Constants.AUTO_ANOMALIES_ALLOWED));
         props.put(Constants.AUTO_COMPARE_VERSION, System.getProperty(Constants.AUTO_COMPARE_VERSION));
@@ -776,7 +774,7 @@ public class BenchmarkRunner {
         props.put(Constants.AUTO_DEVIATIONS_ALLOWED, System.getProperty(Constants.AUTO_DEVIATIONS_ALLOWED));
         props.put(Constants.AUTO_SHOULD_RUN_COMPARISON, System.getProperty(Constants.AUTO_SHOULD_RUN_COMPARISON));
 
-        automatedComparisonCfg = ConfigurationHandler.checkConfigValidity(props);
+        benchContext.setAutomatedComparisonCfg(ConfigurationHandler.checkConfigValidity(props));
     }
 
     public static void printSystemInformation() {
@@ -854,23 +852,22 @@ public class BenchmarkRunner {
         LOG.info("Total Garbage Collection Time (ms): {}", garbageCollectionTime);
     }
 
-    public static Map<String, String> checkProjectMetadataExists() throws MissingResourceException {
-        PROJECT_METADATA_MAP.put(Constants.PROJECT_NAME, getMetadataFromBuildFile(Constants.PROJECT_NAME));
-        PROJECT_METADATA_MAP.put(Constants.PROJECT_VERSION, getMetadataFromBuildFile(Constants.PROJECT_VERSION));
+    public static void checkProjectMetadataExists(Map<String, String> projectMetadata) throws MissingResourceException {
+        projectMetadata.put(Constants.PROJECT_NAME, getMetadataFromBuildFile(Constants.PROJECT_NAME));
+        projectMetadata.put(Constants.PROJECT_VERSION, getMetadataFromBuildFile(Constants.PROJECT_VERSION));
         // make sure gradle metadata can be parsed BEFORE benchmarks are run
-        String metaProp = PROJECT_METADATA_MAP.get(Constants.PROJECT_NAME);
+        String metaProp = projectMetadata.get(Constants.PROJECT_NAME);
         if (StringUtils.isEmpty(metaProp)) {
             failBuildFromMissingMetadata("Project");
         } else {
             LOG.info("MetaData - Project name:    {}", metaProp);
         }
-        metaProp = PROJECT_METADATA_MAP.get(Constants.PROJECT_VERSION);
+        metaProp = projectMetadata.get(Constants.PROJECT_VERSION);
         if (StringUtils.isEmpty(metaProp)) {
             failBuildFromMissingMetadata("Version");
         } else {
             LOG.info("MetaData - Project version: {}", metaProp);
         }
-        return PROJECT_METADATA_MAP;
     }
 
     /**
