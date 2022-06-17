@@ -94,12 +94,6 @@ public class BenchmarkRunner {
         LOG.info("                                 Starting CyBench benchmarks                             ");
         LOG.info("-----------------------------------------------------------------------------------------");
 
-        if (checkIfConfigurationPropertyIsSet(getProperty(Constants.INTELLIJ_PLUGIN))
-                && Boolean.parseBoolean(getProperty(Constants.INTELLIJ_PLUGIN))) {
-            createAutomatedComparisonConfigFromSysProps();
-        } else {
-            identifyPropertiesFromArguments(args);
-        }
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -108,8 +102,7 @@ public class BenchmarkRunner {
             }
         }));
 
-        BenchmarkingContext benchContext = new BenchmarkingContext();
-        benchContext.setStartTime(start);
+        BenchmarkingContext benchContext = initContext(start, args);
 
         initStaticContext(benchContext);
 
@@ -138,6 +131,20 @@ public class BenchmarkRunner {
 
             System.exit(exitCode);
         }
+    }
+
+    public static BenchmarkingContext initContext(long startTime, String... args) {
+        if (checkIfConfigurationPropertyIsSet(getProperty(Constants.INTELLIJ_PLUGIN))
+                && Boolean.parseBoolean(getProperty(Constants.INTELLIJ_PLUGIN))) {
+            createAutomatedComparisonConfigFromSysProps();
+        } else {
+            identifyPropertiesFromArguments(args);
+        }
+
+        BenchmarkingContext benchContext = new BenchmarkingContext();
+        benchContext.setStartTime(startTime);
+
+        return benchContext;
     }
 
     public static Collection<RunResult> runBenchmarks(BenchmarkingContext benchContext) throws Exception {
