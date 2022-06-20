@@ -38,17 +38,22 @@ import com.gocypher.cybench.launcher.utils.Constants;
 public class DeliveryService {
     private static final Logger LOG = LoggerFactory.getLogger(DeliveryService.class);
 
-    private static DeliveryService instance;
-
     private static final String serviceUrl = System.getProperty(Constants.SEND_REPORT_URL,
             Constants.APP_HOST + "/gocypher-benchmarks-reports/services/v1/reports/report");
 
-    private final CloseableHttpClient httpClient = HttpClients.createDefault();
+    private static DeliveryService instance;
 
+    private final CloseableHttpClient httpClient;
     private boolean closed = false;
 
     private DeliveryService() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> DeliveryService.getInstance().close()));
+        httpClient = HttpClients.createDefault();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (instance != null) {
+                instance.close();
+            }
+        }));
     }
 
     public static DeliveryService getInstance() {

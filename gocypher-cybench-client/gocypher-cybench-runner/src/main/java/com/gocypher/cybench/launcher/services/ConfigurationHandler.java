@@ -63,7 +63,7 @@ public class ConfigurationHandler {
                 }
                 LOG.info("** Configuration loaded: {}", confFile.getPath());
             } else {
-                LOG.warn("** Configuration file is missing: {}", confFile.getAbsolutePath());
+                LOG.warn("** Configuration file is missing: {}", confFile.getPath());
             }
         } catch (Exception e) {
             LOG.error("Failed to load configuration from file: path={}",
