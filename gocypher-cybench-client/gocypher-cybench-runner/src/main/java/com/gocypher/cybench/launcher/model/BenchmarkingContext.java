@@ -38,7 +38,7 @@ public class BenchmarkingContext {
 
     private long startTime;
     private boolean foundBenchmarks = false;
-    private OptionsBuilder optBuilder;
+    private OptionsBuilder optBuilder = new OptionsBuilder();
     private SecurityBuilder securityBuilder;
     private Options options;
 

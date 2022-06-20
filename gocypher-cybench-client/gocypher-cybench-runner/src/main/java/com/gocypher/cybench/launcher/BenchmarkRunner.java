@@ -40,7 +40,6 @@ import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
 import org.openjdk.jmh.runner.options.CommandLineOptions;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +105,6 @@ public class BenchmarkRunner {
             LOG.info("Executing benchmarks...");
 
             LOG.info("_________________________________ BENCHMARK TESTS FOUND _________________________________");
-            benchContext.setOptBuilder(new OptionsBuilder());
 
             analyzeBenchmarkClasses(benchContext);
             buildOptions(benchContext);
