@@ -46,32 +46,40 @@ public class ConfigurationHandler {
 
     public static Properties loadConfiguration(String filePath, String configurationFileToLookFor) {
         Properties prop = new Properties();
-        String confFilePath = filePath;
+        File confFile = null;
 
         try {
             if (configurationFileToLookFor.equals(Constants.LAUNCHER_CONFIGURATION)) {
-                confFilePath = getCfgPath(filePath, LAUNCHER_CONFIG_FILE);
+                confFile = getCfgPath(filePath, LAUNCHER_CONFIG_FILE);
             } else if (configurationFileToLookFor.equals(Constants.AUTOMATED_COMPARISON_CONFIGURATION)) {
-                confFilePath = getCfgPath(filePath, AUTOMATIC_COMPARISON_CONFIG_FILE);
+                confFile = getCfgPath(filePath, AUTOMATIC_COMPARISON_CONFIG_FILE);
+            } else {
+                confFile = new File(filePath);
             }
-            try (InputStream cfIn = new FileInputStream(confFilePath)) {
-                prop.load(cfIn);
+
+            if (confFile.exists()) {
+                try (InputStream cfIn = new FileInputStream(confFile)) {
+                    prop.load(cfIn);
+                }
+                LOG.info("** Configuration loaded: {}", confFile.getPath());
+            } else {
+                LOG.warn("** Configuration file is missing: {}", confFile.getAbsolutePath());
             }
-            LOG.info("** Configuration loaded: {}", confFilePath);
         } catch (Exception e) {
-            LOG.error("Failed to load configuration from file file={}", confFilePath, e);
+            LOG.error("Failed to load configuration from file: path={}",
+                    confFile == null ? filePath : confFile.getPath(), e);
         }
 
         return prop;
     }
 
-    protected static String getCfgPath(String confFilePath, String config_file) {
+    protected static File getCfgPath(String confFilePath, String config_file) {
         File cfgFile = new File(confFilePath);
         if (StringUtils.isEmpty(confFilePath) || !cfgFile.exists()) {
-            confFilePath = new File("").getAbsolutePath() + config_file;
+            cfgFile = new File("", config_file);
         }
 
-        return confFilePath;
+        return cfgFile;
     }
 
     public static ComparisonConfig checkConfigValidity(Properties automatedComparisonCfgProps) {
