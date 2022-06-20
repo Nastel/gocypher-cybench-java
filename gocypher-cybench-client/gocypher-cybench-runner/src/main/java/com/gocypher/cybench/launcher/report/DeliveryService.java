@@ -45,7 +45,10 @@ public class DeliveryService {
 
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
+    private boolean closed = false;
+
     private DeliveryService() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> DeliveryService.getInstance().close()));
     }
 
     public static DeliveryService getInstance() {
@@ -90,8 +93,15 @@ public class DeliveryService {
     }
 
     public void close() {
+        if (closed) {
+            return;
+        }
+
         try {
+            LOG.info("Closing delivery service!..");
+
             httpClient.close();
+            closed = true;
         } catch (IOException exc) {
         }
     }

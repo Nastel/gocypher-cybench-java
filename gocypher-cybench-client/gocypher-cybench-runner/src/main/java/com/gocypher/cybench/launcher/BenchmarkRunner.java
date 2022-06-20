@@ -87,14 +87,6 @@ public class BenchmarkRunner {
         LOG.info("                                 Starting CyBench benchmarks                             ");
         LOG.info("-----------------------------------------------------------------------------------------");
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LOG.info("Closing delivery service!..");
-                DeliveryService.getInstance().close();
-            }
-        }));
-
         BenchmarkingContext benchContext = initContext(start, args);
 
         initStaticContext(benchContext);
@@ -537,15 +529,29 @@ public class BenchmarkRunner {
             if (annotation != null) {
                 Arrays.stream(annotation.value()).forEach(annot -> {
                     checkSetOldMetadataProps(annot.key(), annot.value(), benchmarkReport);
-                    benchmarkReport.addMetadata(annot.key(), annot.value());
+                    addBenchmarkReportMetadata(benchmarkReport, annot);
                     LOG.info("added metadata(1) " + annot.key() + "=" + annot.value());
                 });
             }
             BenchmarkMetaData singleAnnotation = annotated.get().getDeclaredAnnotation(BenchmarkMetaData.class);
             if (singleAnnotation != null) {
                 checkSetOldMetadataProps(singleAnnotation.key(), singleAnnotation.value(), benchmarkReport);
-                benchmarkReport.addMetadata(singleAnnotation.key(), singleAnnotation.value());
+                addBenchmarkReportMetadata(benchmarkReport, singleAnnotation);
+                LOG.info("added metadata(1) " + singleAnnotation.key() + "=" + singleAnnotation.value());
             }
+        }
+    }
+
+    private static void addBenchmarkReportMetadata(BenchmarkReport benchmarkReport, BenchmarkMetaData annot) {
+        String key = annot.key();
+        String value = annot.value();
+
+        if (StringUtils.equals(key, "wrappedApiMethodName")) {
+            benchmarkReport.setName(value);
+        } else if (StringUtils.equals(key, "wrappedApiMethodHash")) {
+            benchmarkReport.setManualFingerprint(value);
+        } else {
+            benchmarkReport.addMetadata(key, value);
         }
     }
 
