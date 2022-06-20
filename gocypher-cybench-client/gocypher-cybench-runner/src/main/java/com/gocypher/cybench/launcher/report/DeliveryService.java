@@ -19,6 +19,7 @@
 
 package com.gocypher.cybench.launcher.report;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gocypher.cybench.launcher.utils.Constants;
 
-public class DeliveryService {
+public class DeliveryService implements Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(DeliveryService.class);
 
     private static final String serviceUrl = System.getProperty(Constants.SEND_REPORT_URL,
@@ -48,12 +49,6 @@ public class DeliveryService {
 
     private DeliveryService() {
         httpClient = HttpClients.createDefault();
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (instance != null) {
-                instance.close();
-            }
-        }));
     }
 
     public static DeliveryService getInstance() {
@@ -61,6 +56,10 @@ public class DeliveryService {
             instance = new DeliveryService();
         }
         return instance;
+    }
+
+    public static boolean isInitialized() {
+        return instance != null;
     }
 
     public String sendReportForStoring(String reportJSON, String benchToken, String queryToken) {
@@ -97,6 +96,7 @@ public class DeliveryService {
         return "";
     }
 
+    @Override
     public void close() {
         if (closed) {
             return;

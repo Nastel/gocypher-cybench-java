@@ -80,6 +80,14 @@ public class BenchmarkRunner {
             + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
     private static final String REPORT_NOT_SENT = "You may submit your report '{}' manually at {}";
 
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (DeliveryService.isInitialized()) {
+                DeliveryService.getInstance().close();
+            }
+        }));
+    }
+
     public static void main(String... args) throws Exception {
         int exitCode = 0;
         long start = System.currentTimeMillis();
@@ -349,16 +357,19 @@ public class BenchmarkRunner {
                 String emailAddress = benchContext.getProperty(Constants.USER_EMAIL_ADDRESS);
 
                 String tokenAndEmail = ComputationUtils.getRequestHeader(reportUploadToken, emailAddress);
-                String responseWithUrl = DeliveryService.getInstance().sendReportForStoring(reportEncrypted,
-                        tokenAndEmail, queryToken);
-                if (StringUtils.isNotEmpty(responseWithUrl)) {
-                    response = JSONUtils.parseJsonIntoMap(responseWithUrl);
-                }
-                if (!response.isEmpty() && !isErrorResponse(response)) {
-                    deviceReports = String.valueOf(response.get(Constants.REPORT_USER_URL));
-                    resultURL = String.valueOf(response.get(Constants.REPORT_URL));
-                    report.setDeviceReportsURL(deviceReports);
-                    report.setReportURL(resultURL);
+                try (DeliveryService ds = DeliveryService.getInstance()) {
+                    String responseWithUrl = ds.sendReportForStoring(reportEncrypted, tokenAndEmail, queryToken);
+                    if (StringUtils.isNotEmpty(responseWithUrl)) {
+                        response = JSONUtils.parseJsonIntoMap(responseWithUrl);
+                    }
+                    if (!response.isEmpty() && !isErrorResponse(response)) {
+                        deviceReports = String.valueOf(response.get(Constants.REPORT_USER_URL));
+                        resultURL = String.valueOf(response.get(Constants.REPORT_URL));
+                        report.setDeviceReportsURL(deviceReports);
+                        report.setReportURL(resultURL);
+                    }
+                } catch (Exception exc) {
+                    LOG.error("Failed to send report over delivery service", exc);
                 }
             } else {
                 // LOG.info(REPORT_NOT_SENT, CYB_REPORT_CYB_FILE, Constants.CYB_UPLOAD_URL);
