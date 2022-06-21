@@ -33,6 +33,7 @@ import javax.crypto.*;
 import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
+import org.apache.commons.lang3.StringUtils;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,21 +103,19 @@ public final class SecurityUtils {
         return null;
     }
 
-    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints, Map<String, String> manualFingerprints)
+    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints)
             throws ClassNotFoundException {
         JavaClass javaClass = Repository.lookupClass(clazz);
         List<String> benchmarkMethods = Arrays.stream(clazz.getMethods())
                 .filter(method -> method.getAnnotation(Benchmark.class) != null).map(method -> method.getName())
                 .collect(Collectors.toList());
         for (Method method : javaClass.getMethods()) {
+            String fKey = clazz.getName() + "." + method.getName();
             try {
                 if (benchmarkMethods.contains(method.getName())) {
                     String hash = hashByteArray(concatArrays(method.getName().getBytes(),
                             method.getSignature().getBytes(), method.getCode().getCode()));
-                    generatedFingerprints.put(clazz.getName() + "." + method.getName(), hash);
-                    if (!manualFingerprints.containsKey(clazz.getName() + "." + method.getName())) {
-                        manualFingerprints.put(clazz.getName() + "." + method.getName(), hash);
-                    }
+                    generatedFingerprints.put(fKey, hash);
                 }
             } catch (Exception e) {
                 LOG.error("Failed to compute hash for method {} in class {}", method.getName(), clazz, e);
@@ -293,16 +292,27 @@ public final class SecurityUtils {
         LOG.info("benchmarkClass name {}", benchmarkClass.getSimpleName());
         String classHash = computeClassHash(benchmarkClass);
         java.lang.reflect.Method[] methods = benchmarkClass.getMethods();
+        JavaClass javaClass = Repository.lookupClass(benchmarkClass);
         for (java.lang.reflect.Method method : methods) {
+            String fKey = benchmarkClass.getName() + "." + method.getName();
             if (method.getAnnotation(Benchmark.class) != null) {
                 BenchmarkTag annotation = method.getAnnotation(BenchmarkTag.class);
-                if (annotation != null) {
+                if (annotation != null && StringUtils.isNotEmpty(annotation.tag())) {
                     String tag = annotation.tag();
                     LOG.info("Found method {} with tag {}", method.getName(), tag);
-                    manualFingerprints.put(benchmarkClass.getName() + "." + method.getName(), tag);
+                    manualFingerprints.put(fKey, tag);
+                } else {
+                    Method javaMethod = javaClass.getMethod(method);
+                    if (javaMethod != null) {
+                        String methodSignature = javaClass.getClassName() + "." + javaMethod.getName()
+                                + javaMethod.getGenericSignature();
+                        String hash = computeStringHash(methodSignature);
+                        LOG.info("Computed method {} hash {}", methodSignature, hash);
+                        manualFingerprints.put(fKey, hash);
+                    }
                 }
             }
-            classFingerprints.put(benchmarkClass.getName() + "." + method.getName(), classHash);
+            classFingerprints.put(fKey, classHash);
         }
     }
 }

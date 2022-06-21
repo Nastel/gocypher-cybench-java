@@ -17,7 +17,7 @@
  *
  */
 
-//
+// 
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by Fernflower decompiler)
 // 
@@ -75,6 +75,14 @@ public class TestBenchmarkClass {
     @OutputTimeUnit(TimeUnit.SECONDS)
     @BenchmarkTag(tag = "6bf07a5b-86c0-4f2b-bc6b-23c6934810d3")
     public void mainBenchmark(Blackhole bh) {
+        // TODO fill up benchmark method with logic
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.SingleShotTime)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @BenchmarkTag(tag = "00000000-0000-0000-0000-000000000000")
+    public void untaggedBenchmark(Blackhole bh, BenchmarkParams prms) {
         // TODO fill up benchmark method with logic
     }
 }

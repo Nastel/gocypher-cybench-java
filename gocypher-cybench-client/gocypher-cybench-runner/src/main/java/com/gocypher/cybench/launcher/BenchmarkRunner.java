@@ -185,8 +185,7 @@ public class BenchmarkRunner {
                     Class<?> classObj = Class.forName(benchmarkClass);
                     SecurityUtils.generateMethodFingerprints(classObj, benchContext.getManualFingerprints(),
                             benchContext.getClassFingerprints());
-                    SecurityUtils.computeClassHashForMethods(classObj, benchContext.getGeneratedFingerprints(),
-                            benchContext.getManualFingerprints());
+                    SecurityUtils.computeClassHashForMethods(classObj, benchContext.getGeneratedFingerprints());
                     tempBenchmark = classObj.getName();
 
                     if (!tempBenchmark.isEmpty()) {
@@ -213,8 +212,7 @@ public class BenchmarkRunner {
                     Class<?> classObj = Class.forName(benchmarkClass);
                     SecurityUtils.generateMethodFingerprints(classObj, benchContext.getManualFingerprints(),
                             benchContext.getClassFingerprints());
-                    SecurityUtils.computeClassHashForMethods(classObj, benchContext.getGeneratedFingerprints(),
-                            benchContext.getManualFingerprints());
+                    SecurityUtils.computeClassHashForMethods(classObj, benchContext.getGeneratedFingerprints());
                     benchContext.setFoundBenchmarks(true);
                     tempBenchmark = classObj.getName();
                     benchContext.getSecurityBuilder().generateSecurityHashForClasses(classObj);
