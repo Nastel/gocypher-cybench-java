@@ -34,7 +34,8 @@ public class SecurityUtilsTest {
     public void testComputeClassHashForMethods() throws ClassNotFoundException {
         if (SystemUtils.IS_JAVA_1_8) {
             Map<String, String> methodHashes = new HashMap<>();
-            SecurityUtils.computeClassHashForMethods(TestBenchmarkClass.class, methodHashes);
+            Map<String, String> manualHashes = new HashMap<>();
+            SecurityUtils.computeClassHashForMethods(TestBenchmarkClass.class, methodHashes, manualHashes);
             System.out.println(methodHashes.toString().replaceAll("\\{", "").replaceAll(", ", "\n"));
 
             assertEquals(4, methodHashes.size());

@@ -102,7 +102,7 @@ public final class SecurityUtils {
         return null;
     }
 
-    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints)
+    public static void computeClassHashForMethods(Class<?> clazz, Map<String, String> generatedFingerprints, Map<String, String> manualFingerprints)
             throws ClassNotFoundException {
         JavaClass javaClass = Repository.lookupClass(clazz);
         List<String> benchmarkMethods = Arrays.stream(clazz.getMethods())
@@ -114,6 +114,9 @@ public final class SecurityUtils {
                     String hash = hashByteArray(concatArrays(method.getName().getBytes(),
                             method.getSignature().getBytes(), method.getCode().getCode()));
                     generatedFingerprints.put(clazz.getName() + "." + method.getName(), hash);
+                    if (!manualFingerprints.containsKey(clazz.getName() + "." + method.getName())) {
+                        manualFingerprints.put(clazz.getName() + "." + method.getName(), hash);
+                    }
                 }
             } catch (Exception e) {
                 LOG.error("Failed to compute hash for method {} in class {}", method.getName(), clazz, e);
