@@ -159,6 +159,22 @@ public class BenchmarkOverviewReport implements Serializable {
         return benchmarks;
     }
 
+    @JsonIgnore
+    public boolean hasBenchmarks() {
+        return benchmarks != null && !benchmarks.isEmpty();
+    }
+
+    @JsonIgnore
+    public List<BenchmarkReport> getBenchmarksList() {
+        List<BenchmarkReport> benchList = new ArrayList<>();
+
+        for (Map.Entry<String, List<BenchmarkReport>> be : benchmarks.entrySet()) {
+            benchList.addAll(be.getValue());
+        }
+
+        return benchList;
+    }
+
     public Map<String, Map<String, Object>> getCategoriesOverview() {
         return categoriesOverview;
     }

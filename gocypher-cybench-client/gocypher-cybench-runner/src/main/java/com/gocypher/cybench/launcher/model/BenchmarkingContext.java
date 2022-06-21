@@ -59,6 +59,8 @@ public class BenchmarkingContext {
 
     private final Map<String, String> projectMetadataMap = new HashMap<>(5);
 
+    private BenchmarkOverviewReport report;
+
     public long getStartTime() {
         return startTime;
     }
@@ -173,5 +175,13 @@ public class BenchmarkingContext {
 
     public String getProperty(String key) {
         return System.getProperty(key, configuration.getProperty(key));
+    }
+
+    public BenchmarkOverviewReport getReport() {
+        return report;
+    }
+
+    public void setReport(BenchmarkOverviewReport report) {
+        this.report = report;
     }
 }

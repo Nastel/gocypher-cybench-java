@@ -19,11 +19,7 @@
 
 package com.gocypher.cybench.launcher.report;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.Manifest;
 
 import org.openjdk.jmh.results.RunResult;
@@ -59,6 +55,16 @@ public class ReportingService {
     public BenchmarkOverviewReport createBenchmarkReport(Collection<RunResult> jmhResults,
             Map<String, Map<String, String>> defaultBenchmarksMetadata) {
         BenchmarkOverviewReport overviewReport = new BenchmarkOverviewReport();
+
+        updateBenchmarkReport(overviewReport, jmhResults, defaultBenchmarksMetadata);
+
+        return overviewReport;
+    }
+
+    public List<BenchmarkReport> updateBenchmarkReport(BenchmarkOverviewReport overviewReport,
+            Collection<RunResult> jmhResults, Map<String, Map<String, String>> defaultBenchmarksMetadata) {
+        List<BenchmarkReport> benchReports = new ArrayList<>(jmhResults.size());
+
         for (RunResult item : jmhResults) {
             BenchmarkReport report = new BenchmarkReport();
             if (item.getPrimaryResult() != null) {
@@ -168,13 +174,10 @@ public class ReportingService {
             }
             report.recalculateScoresToMatchNewUnits();
             overviewReport.addToBenchmarks(report);
+            benchReports.add(report);
         }
 
-        overviewReport.setTimestamp(System.currentTimeMillis());
-        overviewReport.setTimestampUTC(ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli());
-        // overviewReport.computeScores();
-
-        return overviewReport;
+        return benchReports;
     }
 
     public Double checkValueExistence(Double value) {

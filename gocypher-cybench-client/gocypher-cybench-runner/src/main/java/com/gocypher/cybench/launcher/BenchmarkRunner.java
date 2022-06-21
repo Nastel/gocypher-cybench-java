@@ -24,6 +24,8 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,7 +115,8 @@ public class BenchmarkRunner {
 
             LOG.info("Benchmark finished, executed tests count: {}", results.size());
 
-            exitCode = processResults(benchContext);
+            BenchmarkOverviewReport report = processResults(benchContext, results);
+            exitCode = sendReport(benchContext, report);
         } catch (MissingResourceException exc) {
         } finally {
             LOG.info("-----------------------------------------------------------------------------------------");
@@ -273,25 +276,37 @@ public class BenchmarkRunner {
         benchContext.setOptions(optionBuilder.build());
     }
 
-    @SuppressWarnings("unchecked")
-    public static int processResults(BenchmarkingContext benchContext) {
-        BenchmarkOverviewReport report = ReportingService.getInstance().createBenchmarkReport(benchContext.getResults(),
-                benchContext.getDefaultBenchmarksMetadata());
-        report.getEnvironmentSettings().put("environment", benchContext.getHWProperties());
-        report.getEnvironmentSettings().put("jvmEnvironment", benchContext.getJVMProperties());
-        report.getEnvironmentSettings().put("unclassifiedProperties",
-                CollectSystemInformation.getUnclassifiedProperties());
-        report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties(benchContext));
+    public static BenchmarkOverviewReport processResults(BenchmarkingContext benchContext,
+            Collection<RunResult> results) {
+        BenchmarkOverviewReport report;
+        List<BenchmarkReport> benchReports;
+        if (benchContext.getReport() == null) {
+            report = ReportingService.getInstance().createBenchmarkReport(results,
+                    benchContext.getDefaultBenchmarksMetadata());
+            benchContext.setReport(report);
+            benchReports = report.getBenchmarksList();
 
-        ComparisonConfig automatedComparisonCfg = benchContext.getAutomatedComparisonCfg();
-        if (automatedComparisonCfg != null && automatedComparisonCfg.getShouldRunComparison()) {
-            if (automatedComparisonCfg.getScope().equals(ComparisonConfig.Scope.WITHIN)) {
-                automatedComparisonCfg.setCompareVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
+            report.getEnvironmentSettings().put("environment", benchContext.getHWProperties());
+            report.getEnvironmentSettings().put("jvmEnvironment", benchContext.getJVMProperties());
+            report.getEnvironmentSettings().put("unclassifiedProperties",
+                    CollectSystemInformation.getUnclassifiedProperties());
+            report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties(benchContext));
+
+            ComparisonConfig automatedComparisonCfg = benchContext.getAutomatedComparisonCfg();
+            if (automatedComparisonCfg != null && automatedComparisonCfg.getShouldRunComparison()) {
+                if (automatedComparisonCfg.getScope().equals(ComparisonConfig.Scope.WITHIN)) {
+                    automatedComparisonCfg
+                            .setCompareVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
+                }
+                automatedComparisonCfg.setRange(String.valueOf(automatedComparisonCfg.getCompareLatestReports()));
+                automatedComparisonCfg.setProjectName(benchContext.getProjectMetadata(Constants.PROJECT_NAME));
+                automatedComparisonCfg.setProjectVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
+                report.setAutomatedComparisonConfig(automatedComparisonCfg);
             }
-            automatedComparisonCfg.setRange(String.valueOf(automatedComparisonCfg.getCompareLatestReports()));
-            automatedComparisonCfg.setProjectName(benchContext.getProjectMetadata(Constants.PROJECT_NAME));
-            automatedComparisonCfg.setProjectVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
-            report.setAutomatedComparisonConfig(automatedComparisonCfg);
+        } else {
+            report = benchContext.getReport();
+            benchReports = ReportingService.getInstance().updateBenchmarkReport(report, results,
+                    benchContext.getDefaultBenchmarksMetadata());
         }
 
         Map<String, Object> benchmarkSetting = new HashMap<>();
@@ -307,32 +322,34 @@ public class BenchmarkRunner {
 
         LOG.info("---> benchmarkSetting: {}", benchmarkSetting);
 
-        for (Map.Entry<String, List<BenchmarkReport>> benchmarksEntry : report.getBenchmarks().entrySet()) {
-            List<BenchmarkReport> benchmarks = benchmarksEntry.getValue();
-            benchmarks.forEach(benchmarkReport -> {
-                String name = benchmarkReport.getName();
-                benchmarkReport.setClassFingerprint(benchContext.getClassFingerprints().get(name));
-                benchmarkReport.setGeneratedFingerprint(benchContext.getGeneratedFingerprints().get(name));
-                benchmarkReport.setManualFingerprint(benchContext.getManualFingerprints().get(name));
-                try {
-                    JMHUtils.ClassAndMethod classAndMethod = new JMHUtils.ClassAndMethod(name).invoke();
-                    String clazz = classAndMethod.getClazz();
-                    String method = classAndMethod.getMethod();
-                    LOG.info("Adding metadata for benchmark: " + clazz + " test: " + method);
-                    Class<?> aClass = Class.forName(clazz);
-                    Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
-                    appendMetadataFromClass(aClass, benchmarkReport);
-                    appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
-                    appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
-                    syncReportsMetadata(benchContext, report, benchmarkReport);
-                    benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Failed to load class: {}", name);
-                }
-                report.setBenchmarkSettings(benchmarkSetting);
-            });
+        for (BenchmarkReport benchmarkReport : benchReports) {
+            String name = benchmarkReport.getName();
+            benchmarkReport.setClassFingerprint(benchContext.getClassFingerprints().get(name));
+            benchmarkReport.setGeneratedFingerprint(benchContext.getGeneratedFingerprints().get(name));
+            benchmarkReport.setManualFingerprint(benchContext.getManualFingerprints().get(name));
+            try {
+                JMHUtils.ClassAndMethod classAndMethod = new JMHUtils.ClassAndMethod(name).invoke();
+                String clazz = classAndMethod.getClazz();
+                String method = classAndMethod.getMethod();
+                LOG.info("Adding metadata for benchmark: " + clazz + " test: " + method);
+                Class<?> aClass = Class.forName(clazz);
+                Optional<Method> benchmarkMethod = JMHUtils.getBenchmarkMethod(method, aClass);
+                appendMetadataFromClass(aClass, benchmarkReport);
+                appendMetadataFromAnnotated(benchmarkMethod, benchmarkReport);
+                appendMetadataFromJavaDoc(aClass, benchmarkMethod, benchmarkReport);
+                syncReportsMetadata(benchContext, report, benchmarkReport);
+                benchmarkSetting.put(Constants.REPORT_VERSION, getRunnerVersion());
+            } catch (ClassNotFoundException e) {
+                LOG.error("Failed to load class: {}", name);
+            }
+            report.setBenchmarkSettings(benchmarkSetting);
         }
-        if (report.getBenchmarks() != null && !report.getBenchmarks().isEmpty()) {
+
+        return report;
+    }
+
+    private static void completeReport(BenchmarkingContext benchContext, BenchmarkOverviewReport report) {
+        if (report.hasBenchmarks()) {
             List<BenchmarkReport> customBenchmarksCategoryCheck = report.getBenchmarks().get("CUSTOM");
             report.getBenchmarks().remove("CUSTOM");
             if (customBenchmarksCategoryCheck != null) {
@@ -343,9 +360,18 @@ public class BenchmarkRunner {
             report.computeScores();
             setReportUploadStatus(benchContext, report);
         }
+
+        report.setTimestamp(System.currentTimeMillis());
+        report.setTimestampUTC(ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli());
+        // report.computeScores();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static int sendReport(BenchmarkingContext benchContext, BenchmarkOverviewReport report) {
         try {
+            completeReport(benchContext, report);
+
             LOG.info("Generating JSON report...");
-            String reportJSON;
             String reportEncrypted = ReportingService.getInstance()
                     .prepareReportForDelivery(benchContext.getSecurityBuilder(), report);
             String deviceReports = null;
@@ -377,7 +403,7 @@ public class BenchmarkRunner {
             // LOG.info("-----------------------------------------------------------------------------------------");
             // LOG.info("REPORT '{}'", report);
             // LOG.info("-----------------------------------------------------------------------------------------");
-            reportJSON = JSONUtils.marshalToPrettyJson(report);
+            String reportJSON = JSONUtils.marshalToPrettyJson(report);
             String cybReportJsonFile = getCybReportFileName(benchContext, report, CYB_REPORT_JSON_FILE);
             String cybReportFile = getCybReportFileName(benchContext, report, CYB_REPORT_CYB_FILE);
             if (cybReportJsonFile.equals(CYB_REPORT_JSON_FILE) && cybReportFile.equals(CYB_REPORT_CYB_FILE)) {
