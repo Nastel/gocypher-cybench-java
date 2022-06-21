@@ -132,7 +132,7 @@ public class Requests {
                         String name = (String) benchmark.get("name");
                         Double score = (Double) benchmark.get("score");
                         String mode = (String) benchmark.get("mode");
-                        String fingerprint = (String) benchmark.get("generatedFingerprint");
+                        String fingerprint = (String) benchmark.get("manualFingerprint");
 
                         ComparedBenchmark comparedBenchmark = new ComparedBenchmark();
                         comparedBenchmark.setDisplayName(name);
