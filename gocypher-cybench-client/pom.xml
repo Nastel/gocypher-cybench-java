@@ -88,7 +88,6 @@
 
         <maven.source.skip>true</maven.source.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <assembly.skipAssembly>true</assembly.skipAssembly>
         <gpg.skip>true</gpg.skip>
 
         <jmh.version>1.35</jmh.version>
@@ -112,7 +111,7 @@
         <profile>
             <id>pack-bin</id>
             <properties>
-                <assembly.skipAssembly>false</assembly.skipAssembly>
+
             </properties>
         </profile>
         <profile>
@@ -120,7 +119,6 @@
             <properties>
                 <maven.source.skip>false</maven.source.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
-                <assembly.skipAssembly>false</assembly.skipAssembly>
             </properties>
         </profile>
         <profile>
