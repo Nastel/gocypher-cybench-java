@@ -58,7 +58,7 @@ public class SecurityUtilsTest {
                         methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark3"));
                 assertEquals("7d89634e196adfc23391ad3a11fa4e",
                         methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.mainBenchmark4"));
-                assertEquals("9c9bb51e96e98ef193d5a871f3488ef",
+                assertEquals("a052b3357a807f16946594aeed8ac1aa",
                         methodHashes.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.untaggedBenchmark"));
             }
 
