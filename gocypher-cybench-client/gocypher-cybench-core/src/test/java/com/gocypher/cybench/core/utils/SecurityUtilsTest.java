@@ -97,7 +97,11 @@ public class SecurityUtilsTest {
                 manualFingerprints.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.untaggedBenchmark"));
 
         for (String cf : classFingerprints.values()) {
-            assertEquals("b1b58f40a08bd1d689bc22d52ac1086", cf);
+            if (org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS) {
+                assertEquals("b1b58f40a08bd1d689bc22d52ac1086", cf);
+            } else {
+                assertEquals("c5e5aead5ed78942bd5f6548fab02cf7", cf);
+            }
         }
     }
 
