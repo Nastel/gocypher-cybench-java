@@ -98,6 +98,8 @@ public class SecurityUtilsTest {
                 manualFingerprints.get("com.gocypher.cybench.core.utils.TestBenchmarkClass.untaggedBenchmark"));
 
         for (String cf : classFingerprints.values()) {
+            // NOTE: comparing against multiple values since class fingerprint value depends on multiple criterions: OS,
+            // Java version, etc.
             assertTrue(
                     StringUtils.equalsAny(cf, "b1b58f40a08bd1d689bc22d52ac1086", "c5e5aead5ed78942bd5f6548fab02cf7"));
         }
