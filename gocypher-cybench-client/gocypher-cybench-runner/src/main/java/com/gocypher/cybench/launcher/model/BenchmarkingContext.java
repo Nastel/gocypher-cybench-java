@@ -58,6 +58,7 @@ public class BenchmarkingContext {
     private String benchSource = "CyBench Launcher";
 
     private final Map<String, String> projectMetadataMap = new HashMap<>(5);
+    private final Map<String, Object> contextMetadataMap = new HashMap<>(5);
 
     private BenchmarkOverviewReport report;
 
@@ -149,6 +150,10 @@ public class BenchmarkingContext {
         this.configuration = configuration;
     }
 
+    public String getProperty(String key) {
+        return System.getProperty(key, configuration.getProperty(key));
+    }
+
     public ComparisonConfig getAutomatedComparisonCfg() {
         return automatedComparisonCfg;
     }
@@ -173,8 +178,12 @@ public class BenchmarkingContext {
         return projectMetadataMap.get(pName);
     }
 
-    public String getProperty(String key) {
-        return System.getProperty(key, configuration.getProperty(key));
+    public Map<String, Object> getContextMetadata() {
+        return contextMetadataMap;
+    }
+
+    public Object getContextMetadata(String pName) {
+        return contextMetadataMap.get(pName);
     }
 
     public BenchmarkOverviewReport getReport() {
