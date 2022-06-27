@@ -627,18 +627,18 @@ public class BenchmarkRunner {
             }
 
             if (StringUtils.isEmpty(report.getBenchmarkSessionId())) {
+                String sessionId = null;
                 Map<String, String> bMetadata = benchmarkReport.getMetadata();
                 if (bMetadata != null) {
-                    String sessionId = bMetadata.get("benchSession");
-                    if (StringUtils.isNotEmpty(sessionId)) {
-                        report.setBenchmarkSessionId(sessionId);
-                    } else {
-						report.setBenchmarkSessionId(UUID.randomUUID().toString());
-					}
-				} else {
-					report.setBenchmarkSessionId(UUID.randomUUID().toString());
-				}
-			}
+                    sessionId = bMetadata.get("benchSession");
+                }
+
+                if (StringUtils.isEmpty(sessionId)) {
+                    sessionId = UUID.randomUUID().toString();
+                }
+
+                report.setBenchmarkSessionId(sessionId);
+            }
 
             if (benchmarkReport.getCategory().equals("CUSTOM")) {
                 int classIndex = benchmarkReport.getName().lastIndexOf(".");
