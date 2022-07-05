@@ -26,6 +26,7 @@ public class Constants {
 
     private static final String PROD_HOST = "https://app.cybench.io";
     private static final String LOCAL_HOST = "http://localhost:8080";
+    private static final String TEST_HOST = "http://35.81.196.88:8080";
     public static final String APP_HOST = PROD_HOST;
 
     public static final String SEND_REPORT = "sendReport";
