@@ -76,7 +76,8 @@ public class ConfigurationHandler {
     protected static File getCfgPath(String confFilePath, String config_file) {
         File cfgFile = new File(confFilePath);
         if (StringUtils.isEmpty(confFilePath) || !cfgFile.exists()) {
-            cfgFile = new File("", config_file);
+           cfgFile = new File(new File("").getAbsolutePath() + config_file); // TODO: better approach may be possible, but this works.
+
         }
 
         return cfgFile;
