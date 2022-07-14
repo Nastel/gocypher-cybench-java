@@ -73,11 +73,11 @@ public class ConfigurationHandler {
         return prop;
     }
 
-    protected static File getCfgPath(String confFilePath, String config_file) {
+    protected static File getCfgPath(String confFilePath, String configFile) {
         File cfgFile = new File(confFilePath);
         if (StringUtils.isEmpty(confFilePath) || !cfgFile.exists()) {
-           cfgFile = new File(new File("").getAbsolutePath() + config_file); // TODO: better approach may be possible, but this works.
-
+            // TODO: better approach may be possible, but this works.
+            cfgFile = new File(new File("").getAbsolutePath() + configFile);
         }
 
         return cfgFile;
