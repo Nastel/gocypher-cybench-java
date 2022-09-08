@@ -92,13 +92,13 @@
         <gpg.skip>true</gpg.skip>
 
         <jmh.version>1.35</jmh.version>
-        <jackson.version>2.13.3</jackson.version>
-        <org.slf4j.version>1.7.36</org.slf4j.version>
+        <jackson.version>2.13.4</jackson.version>
+        <org.slf4j.version>2.0.0</org.slf4j.version>
         <log4j.version>2.18.0</log4j.version>
         <disruptor.version>3.4.4</disruptor.version>
         <httpclient.version>4.5.13</httpclient.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
-        <junit.version>5.8.2</junit.version>
+        <junit.version>5.9.0</junit.version>
     </properties>
 
     <modules>
