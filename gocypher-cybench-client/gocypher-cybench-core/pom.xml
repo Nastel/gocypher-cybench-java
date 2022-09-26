@@ -42,13 +42,11 @@
             <groupId>com.gocypher.cybench.client</groupId>
             <artifactId>gocypher-cybench-annotations</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -99,7 +97,6 @@
             <groupId>org.apache.bcel</groupId>
             <artifactId>bcel</artifactId>
             <version>${bcel.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
