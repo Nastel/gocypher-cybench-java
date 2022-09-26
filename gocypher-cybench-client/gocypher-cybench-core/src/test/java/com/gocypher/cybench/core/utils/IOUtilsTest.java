@@ -36,11 +36,11 @@ public class IOUtilsTest {
         assertEquals("8", IOUtils.getJavaVersionByClassVersion(clsVersion));
 
         clsVersion = IOUtils.getJavaClassFileVersion(org.apache.commons.codec.CharEncoding.class);
-        assertEquals("50.0", clsVersion);
-        assertEquals("6", IOUtils.getJavaVersionByClassVersion(clsVersion));
+        assertEquals("51.0", clsVersion);
+        assertEquals("7", IOUtils.getJavaVersionByClassVersion(clsVersion));
 
-        clsVersion = IOUtils.getJavaClassFileVersion("org.apache.commons.logging.LogFactory");
-        assertEquals("46.0", clsVersion);
-        assertEquals("1.2", IOUtils.getJavaVersionByClassVersion(clsVersion));
+        clsVersion = IOUtils.getJavaClassFileVersion("org.apache.commons.math3.util.ArithmeticUtils");
+        assertEquals("49.0", clsVersion);
+        assertEquals("5", IOUtils.getJavaVersionByClassVersion(clsVersion));
     }
 }
