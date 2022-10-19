@@ -1168,22 +1168,39 @@ public class BenchmarkRunner {
         throw new MissingResourceException("Missing project metadata configuration", null, null);
     }
 
-    @SuppressWarnings("unchecked")
-    public static void verifyAnomalies(List<Map<String, Object>> automatedComparisons)
-            throws TooManyAnomaliesException {
-        for (Map<String, Object> automatedComparison : automatedComparisons) {
-            Integer totalFailedBenchmarks = (Integer) automatedComparison.get("totalFailedBenchmarks");
-            Map<String, Object> config = (Map<String, Object>) automatedComparison.get("config");
-            if (config.containsKey("anomaliesAllowed")) {
-                Integer anomaliesAllowed = (Integer) config.get("anomaliesAllowed");
-                if (totalFailedBenchmarks != null && totalFailedBenchmarks > anomaliesAllowed) {
-                    LOG.error(
-                            "*** There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
-                    LOG.warn("*** Your report has still been generated, but your pipeline (if applicable) has failed.");
-
-                    throw new TooManyAnomaliesException(totalFailedBenchmarks + ">" + anomaliesAllowed);
-                }
-            }
-        }
-    }
+	@SuppressWarnings("unchecked")
+	public static void verifyAnomalies(List<Map<String, Object>> automatedComparisons)
+			throws TooManyAnomaliesException {
+		LOG.info(
+				"-----------------------------------------------------------------------------------------");
+		LOG.info(
+				"                                 Verifying anomalies...                                  ");
+		LOG.info(
+				"-----------------------------------------------------------------------------------------");
+		for (Map<String, Object> automatedComparison : automatedComparisons) {
+			Integer totalFailedBenchmarks = (Integer) automatedComparison.get("totalFailedBenchmarks");
+			Map<String, Object> config = (Map<String, Object>) automatedComparison.get("config");
+			if (config.containsKey("anomaliesAllowed")) {
+				LOG.info("Automated regression test completed.");
+				Integer anomaliesAllowed = (Integer) config.get("anomaliesAllowed");
+                String comparisonSource = ((String) config.get("configName")).contains("Automated Comparison UI") ? "Automated Comparison UI" : "Comparison Config file";
+                LOG.info("Comparison source: {}", comparisonSource);
+				if (totalFailedBenchmarks != null && totalFailedBenchmarks > anomaliesAllowed) {
+					LOG.info(
+							"There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
+					LOG.info(
+							"Your report has still been generated, but your pipeline (if applicable) has failed.\n");
+					throw new TooManyAnomaliesException( "Total anomalies: " + totalFailedBenchmarks + " | Anomalies allowed: " + anomaliesAllowed + " (" + comparisonSource + ")");
+				} else {
+					if (totalFailedBenchmarks > 0) {
+						LOG.info("Anomaly benchmarks detected, but total amount of anomalies is less than configured threshold.");
+						LOG.info("Total anomalies: " + totalFailedBenchmarks + " | Anomalies allowed: " + anomaliesAllowed + " (" + comparisonSource + ")");
+					} else {
+						LOG.info("No anomaly benchmarks detected!" + " (" + comparisonSource + ")");
+					}
+					
+				}
+			}
+		}
+	}
 }
