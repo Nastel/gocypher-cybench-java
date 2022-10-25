@@ -81,6 +81,8 @@ public class BenchmarkRunner {
     public static final String CYB_REPORT_CYB_FILE = CYB_REPORT_FOLDER
             + System.getProperty(Constants.CYB_REPORT_CYB_FILE, "report.cyb");
     private static final String REPORT_NOT_SENT = "You may submit your report '{}' manually at {}";
+    static boolean shouldFail;
+
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -1171,6 +1173,7 @@ public class BenchmarkRunner {
 	@SuppressWarnings("unchecked")
 	public static void verifyAnomalies(List<Map<String, Object>> automatedComparisons)
 			throws TooManyAnomaliesException {
+        List<String> comparisonAnomalySources = new ArrayList<String>();
 		LOG.info(
 				"-----------------------------------------------------------------------------------------");
 		LOG.info(
@@ -1178,29 +1181,36 @@ public class BenchmarkRunner {
 		LOG.info(
 				"-----------------------------------------------------------------------------------------");
 		for (Map<String, Object> automatedComparison : automatedComparisons) {
+
 			Integer totalFailedBenchmarks = (Integer) automatedComparison.get("totalFailedBenchmarks");
 			Map<String, Object> config = (Map<String, Object>) automatedComparison.get("config");
 			if (config.containsKey("anomaliesAllowed")) {
 				LOG.info("Automated regression test completed.");
-				Integer anomaliesAllowed = (Integer) config.get("anomaliesAllowed");
+                Integer anomaliesAllowed = (Integer) config.get("anomaliesAllowed");
                 String comparisonSource = ((String) config.get("configName")).contains("Automated Comparison UI") ? "Automated Comparison UI" : "Comparison Config file";
                 LOG.info("Comparison source: {}", comparisonSource);
 				if (totalFailedBenchmarks != null && totalFailedBenchmarks > anomaliesAllowed) {
 					LOG.info(
 							"There were more anomaly benchmarks than configured anomalies allowed in one of your automated comparison configurations!");
+                    if (!shouldFail) {
 					LOG.info(
-							"Your report has still been generated, but your pipeline (if applicable) has failed.\n");
-					throw new TooManyAnomaliesException( "Total anomalies: " + totalFailedBenchmarks + " | Anomalies allowed: " + anomaliesAllowed + " (" + comparisonSource + ")");
+							"Your report has still been generated, but your pipeline (if applicable) has failed.");
+                    }
+                    shouldFail = true;
+                    comparisonAnomalySources.add(comparisonSource);
 				} else {
-					if (totalFailedBenchmarks > 0) {
+					if (totalFailedBenchmarks != null && totalFailedBenchmarks > 0) {
 						LOG.info("Anomaly benchmarks detected, but total amount of anomalies is less than configured threshold.");
-						LOG.info("Total anomalies: " + totalFailedBenchmarks + " | Anomalies allowed: " + anomaliesAllowed + " (" + comparisonSource + ")");
 					} else {
-						LOG.info("No anomaly benchmarks detected!" + " (" + comparisonSource + ")");
+						LOG.info("No anomaly benchmarks detected!");
 					}
-					
 				}
+                LOG.info("Total anomalies: " + totalFailedBenchmarks + " | Anomalies allowed: " + anomaliesAllowed + " (" + comparisonSource + ")\n");
 			}
 		}
+        if (shouldFail) {
+            throw new TooManyAnomaliesException(comparisonAnomalySources.toString());
+        }
+       
 	}
 }
