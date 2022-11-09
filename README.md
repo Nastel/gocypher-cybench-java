@@ -89,6 +89,7 @@ your results.
 | **benchmarkMetadata** | A property which adds extra properties to the benchmarks report such as category or version or context. Configuration pattern is `<fully qualified benchmark class name>=<key1>:<value1>;<key2>:<value2>`. Example which adds category for class CollectionsBenchmarks: `com.gocypher.benchmarks.client.CollectionsBenchmarks=category:Collections;`   | - |
 | **userProperties** | User defined properties which will be added to benchmarks report section `environmentSettings->userDefinedProperties` as key/value strings. Configuration pattern:`<key1>:<value1>;<key2>:<value2>`. Example which adds a project name:`user.propname1=My Test Project;` | - |
 
+CyBench's configuration file `cybench-launcher.properties` can be created manually, or by using the CyBench Configuration Generator script, [found here](https://github.com/Nastel/gocypher-cybench-java/blob/master/gocypher-cybench-client/gocypher-cybench-runner/src/main/resources/CyBench_Config_Generator.bat)
 ### Adding Custom Benchmarks for Execution
 
 Update CyBench Launcher configuration located in `<cybench-home>/config/cybench-launcher.properties`:
