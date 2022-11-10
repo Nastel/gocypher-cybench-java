@@ -126,8 +126,8 @@ set projectDir=%curPath%
 			set numberOfBenchmarkForks=1
 			set measurementIterations=10
 			set measurementSeconds=10
-			set warmupIterations=5
-			set warmupSeconds=10
+			set warmUpIterations=5
+			set warmUpSeconds=10
 			set runThreadCount=1
 			set benchmarkModes=Throughput,SingleShotTime
 			
@@ -268,14 +268,14 @@ set projectDir=%curPath%
 			echo but don't factor into the final score.
 			echo Example: 5
 			echo:
-			set /p warmupIterations="warmupIterations: "
+			set /p warmUpIterations="warmUpIterations: "
 			echo:
 			echo Set warmup seconds
 			echo Similar to measurement seconds, this value dictates how long each warmup iteration will run for,
 			echo used for warming up the JVM.
 			echo Example: 10
 			echo:
-			set /p warmupSeconds="warmupSeconds: "
+			set /p warmUpSeconds="warmUpSeconds: "
 			echo:
 			echo Set amount of threads
 			echo This value dictates the amount of threads allocated to the benchmark process.
@@ -707,9 +707,9 @@ set projectDir=%curPath%
 		echo ### Number of seconds dedicated for each measurement iterations
 		echo measurementSeconds=%measurementSeconds%
 		echo ### Number of warmup iterations. Warmup iterations don't affect final score, but help to warm up the JVM
-		echo warmupIterations=%warmupIterations%
+		echo warmUpIterations=%warmUpIterations%
 		echo ### Number of seconds dedicated for each warmup iteration
-		echo warmupSeconds=%warmupSeconds%
+		echo warmUpSeconds=%warmUpSeconds%
 		echo ### Number of threads allocated for benchmark execution
 		echo runThreadCount=%runThreadCount%
 		echo ### Benchmark modes to run
