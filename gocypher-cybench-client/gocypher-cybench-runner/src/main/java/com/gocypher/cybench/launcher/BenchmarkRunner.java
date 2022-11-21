@@ -294,23 +294,6 @@ public class BenchmarkRunner {
                     CollectSystemInformation.getUnclassifiedProperties());
             report.getEnvironmentSettings().put("userDefinedProperties", getUserDefinedProperties(benchContext));
 
-            ComparisonConfig automatedComparisonCfg = benchContext.getAutomatedComparisonCfg();
-            if (automatedComparisonCfg != null && automatedComparisonCfg.getShouldRunComparison()) {
-                if (automatedComparisonCfg.getScope().equals(ComparisonConfig.Scope.WITHIN)) {
-                    automatedComparisonCfg
-                            .setCompareVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
-                }
-                automatedComparisonCfg.setRange(String.valueOf(automatedComparisonCfg.getCompareLatestReports()));
-                automatedComparisonCfg.setProjectName(benchContext.getProjectMetadata(Constants.PROJECT_NAME));
-                automatedComparisonCfg.setProjectVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
-                report.setAutomatedComparisonConfig(automatedComparisonCfg);
-            }
-        } else {
-            report = benchContext.getReport();
-            benchReports = ReportingService.getInstance().updateBenchmarkReport(report, results,
-                    benchContext.getDefaultBenchmarksMetadata());
-        }
-
         Map<String, Object> benchmarkSetting = new HashMap<>();
         if (benchContext.isFoundBenchmarks()) {
             if (System.getProperty(Constants.REPORT_SOURCE) != null) {
@@ -347,6 +330,22 @@ public class BenchmarkRunner {
             report.setBenchmarkSettings(benchmarkSetting);
         }
 
+        ComparisonConfig automatedComparisonCfg = benchContext.getAutomatedComparisonCfg();
+        if (automatedComparisonCfg != null && automatedComparisonCfg.getShouldRunComparison()) {
+            if (automatedComparisonCfg.getScope().equals(ComparisonConfig.Scope.WITHIN)) {
+                automatedComparisonCfg
+                        .setCompareVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
+            }
+            automatedComparisonCfg.setRange(String.valueOf(automatedComparisonCfg.getCompareLatestReports()));
+            automatedComparisonCfg.setProjectName(report.getProject());
+            automatedComparisonCfg.setProjectVersion(benchContext.getProjectMetadata(Constants.PROJECT_VERSION));
+            report.setAutomatedComparisonConfig(automatedComparisonCfg);
+        }
+    } else {
+        report = benchContext.getReport();
+        benchReports = ReportingService.getInstance().updateBenchmarkReport(report, results,
+                benchContext.getDefaultBenchmarksMetadata());
+    }
         return report;
     }
 
@@ -683,6 +682,7 @@ public class BenchmarkRunner {
         }
         if ("project".equals(key)) {
             benchmarkReport.setProject(value);
+
         }
         if ("projectVersion".equals(key)) {
             benchmarkReport.setProjectVersion(value);
